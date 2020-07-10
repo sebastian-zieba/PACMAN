@@ -1,0 +1,14 @@
+Progress Log
+------------------
+
+10.07.20
+---------
+building a template reduction pipeline
+
+
+
+TODO
+----
+change format of config file to yaml, or something better
+edit zero_extract.py function so that it does not output the start time of each 
+    visit (saved in tstart.txt)
