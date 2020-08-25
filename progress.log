@@ -3,12 +3,25 @@ Progress Log
 
 10.07.20
 ---------
-building a template reduction pipeline
+* building a template reduction pipeline
 
+25.08.20
+---------
+* Changed format of obs_par into yaml and adapted zero_extract.py to the new file format
+* line 2267 of mpfit.py used numpy.rank. This function is depreciated and was replaced with numpy.ndim
+* zero_extract.py: Includes a calculation of visit and orbit number.
+* zero_extract.py: Outputs a new file called filelist.txt which contains:
+- all _ima.fits file names
+- Their respective filter / grism
+- #visit
+- #orbit
 
 
 TODO
 ----
-change format of config file to yaml, or something better
 edit zero_extract.py function so that it does not output the start time of each 
     visit (saved in tstart.txt)
+change filelist.txt format to an astropy table?
+renaming steps
+write readme with detailed instructions
+get rid of mpfit!!!!!!11!!!1!!!!

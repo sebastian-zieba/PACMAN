@@ -1,14 +1,14 @@
 #parameter			value
 nvisit				4
 norb				6
-GRISM				G141
-FILTER				F126N
+GRISM				G102
+FILTER				F139M
 exp_time 			138.381
-path			 	/Users/lkreidberg/Desktop/Data/HD106315_HST15333
+path			 	/home/zieba/Desktop/Data/WASP33_Hubble15109
 nexp				302
 toffset                         245500.
 ###
-direct_image_diagnostics        False
+direct_image_diagnostics        True
 direct_image_output		True
 di_rmin				270
 di_rmax				285

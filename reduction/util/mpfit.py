@@ -2264,7 +2264,7 @@ class mpfit:
 
 		if self.debug:
 			print('Entering calc_covar...')
-		if numpy.rank(rr) != 2:
+		if numpy.ndim(rr) != 2: #numpy.rank is deprecated in NumPy 1.9. The ndim attribute or function should be used instead. see: https://www.kite.com/python/docs/numpy.rank
 			print('ERROR: r must be a two-dimensional matrix')
 			return -1
 		s = rr.shape
