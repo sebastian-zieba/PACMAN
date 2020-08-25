@@ -9,6 +9,7 @@ Progress Log
 ---------
 * Changed format of obs_par into yaml and adapted zero_extract.py to the new file format
 * line 2267 of mpfit.py used numpy.rank. This function is depreciated and was replaced with numpy.ndim
+* zero_extract.py: Got rid of pyfits
 * zero_extract.py: Includes a calculation of visit and orbit number.
 * zero_extract.py: Outputs a new file called filelist.txt which contains:
 - all _ima.fits file names
