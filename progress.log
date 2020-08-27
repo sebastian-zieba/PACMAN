@@ -17,12 +17,16 @@ Progress Log
 - #visit
 - #orbit
 
+27.08.20
+---------
+* Changed format of filelist.txt to astropy table
+* Outsourced filelist.txt generation to "0.py"
+* Updated calculation of norbits and nvisits; looks nice now
+* last column of filelist.txt is the time from the first exposure now
 
 TODO
 ----
-edit zero_extract.py function so that it does not output the start time of each 
-    visit (saved in tstart.txt)
-change filelist.txt format to an astropy table?
 renaming steps
 write readme with detailed instructions
 get rid of mpfit!!!!!!11!!!1!!!!
+
