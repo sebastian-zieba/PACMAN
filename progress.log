@@ -29,4 +29,4 @@ TODO
 renaming steps
 write readme with detailed instructions
 get rid of mpfit!!!!!!11!!!1!!!!
-
+combine util/geometry.py and util/geometry102.py
