@@ -24,6 +24,12 @@ Progress Log
 * Updated calculation of norbits and nvisits; looks nice now
 * last column of filelist.txt is the time from the first exposure now
 
+15.09.20
+---------
+* renamed files
+- zero_extract.py -> 1.py
+- extract.py -> 2.py
+
 TODO
 ----
 renaming steps
