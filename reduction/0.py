@@ -13,11 +13,11 @@ import yaml
 from astropy.table import QTable
 from astropy.io import ascii
 
-yaml_path = "config/obs_par.yaml"
-with open(yaml_path, 'r') as file:
-    params = yaml.safe_load(file)
+obs_par_path = "config/obs_par.yaml"
+with open(obs_par_path, 'r') as file:
+    obs_par = yaml.safe_load(file)
 
-ancil = ancil.AncillaryData(params)
+ancil = ancil.AncillaryData(obs_par)
 
 files = glob.glob(os.path.join(ancil.path, "*_ima.fits"))  # gets list of filenames in directory
 
@@ -27,8 +27,6 @@ prevrun = False  # os.path.exists('config/filelist.txt')
 print(prevrun)
 
 if not prevrun:  # if no previous run was done
-    filelist = open('config/filelist.txt', 'w')
-
     expstart = np.zeros(len(files))
     filtergrism = np.zeros(len(files), dtype=object)
 

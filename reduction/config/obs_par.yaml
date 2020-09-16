@@ -1,19 +1,19 @@
 #parameter value
-nvisit: 4
-norb: 6
+nvisit: 1
+norb: 5
 GRISM: G102
 FILTER: F139M
 exp_time: 138.381
-path: /home/zieba/Desktop/Data/WASP33_Hubble12495
+path: /home/zieba/Desktop/Data/WASP33_Hubble15109
 nexp: 302
 toffset: 245500.
 ###
 direct_image_diagnostics: True
 direct_image_output: True
-di_rmin: 130 #270
-di_rmax: 155 #285
-di_cmin: 125 #245
-di_cmax: 150 #260
+di_rmin: 270 #130 #
+di_rmax: 285 #155 #
+di_cmin: 245 #125 #
+di_cmax: 260 #150 #
 ###			
 sig_cut: 15
 nsmooth: 9
@@ -28,13 +28,17 @@ rmin: 0
 rmax: 512
 cmin: 0
 cmax: 512
-offset: 0
+skyrmin: 10
+skyrmax: 70
+skycmin: 400
+skycmax: 500
+offset: 0 #int
 rdnoise: 22.0
 window: 150
 ###				
-BEAMA_i: 15
-BEAMA_f: 196
-flat: config/WFC3.IR.G141.flat.2.fits
+BEAMA_i: 41
+BEAMA_f: 248
+flat: config/WFC3.IR.G102.flat.2.fits
 ###		
 lc_type: transit
 skip_orbs_phase_curve: 0_

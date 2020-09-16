@@ -29,10 +29,35 @@ Progress Log
 * renamed files
 - zero_extract.py -> 1.py
 - extract.py -> 2.py
+* changes in 2.py:
+- removed D_nointerpol
+- removed cRate
+- moved ancil class into ancil.py
+- deleted calculation of visit and orbit (already exists in 0.py and therefore in filelist.txt)
+- moved skyrmin etc for background calc into obs_par.yaml
+* got 2.py to run
+
 
 TODO
 ----
 renaming steps
+
 write readme with detailed instructions
-get rid of mpfit!!!!!!11!!!1!!!!
+
+check if .ima files are already flat corrected
+
+get rid of mpfit!
+
 combine util/geometry.py and util/geometry102.py
+obs_par.yaml includes some grism specific parameters like BEAMA_i -> generalize for both grisms
+
+include scan direction in filelist.txt
+
+2.py:
+replace newM with M
+outsource background calculation (think of better way?)
+timekeeping depreciated
+
+convert fit_par.txt into yaml.... but how? directories of directories?
+
+change period and t0 in obs_par.yaml
