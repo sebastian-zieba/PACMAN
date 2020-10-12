@@ -1,12 +1,12 @@
 # This code computes the mean position of the direct image for each visit
 import sys
 sys.path.insert(0, './util')
+import gaussfitter, ancil
 
-from pylab import *
-import gaussfitter, ancil, os, glob
-from astropy.io import fits
+import matplotlib.pyplot as plt
+import os
 import yaml
-from astropy.io import ascii
+from astropy.io import ascii, fits
 
 obs_par_path = "config/obs_par.yaml"
 with open(obs_par_path, 'r') as file:
@@ -20,16 +20,16 @@ if ancil.direct_image_output ==True:
 filetable = ascii.read('config/filelist.txt')
 
 mask_di = filetable['filter/grism'] == ancil.filter
-
 files_di = [ancil.path + '/' + i for i in filetable['filenames'][mask_di].data]
-print(files_di)
+#print(files_di)
 
-for i in enumerate(files_di):
-	ima = fits.open(i[1])
-	print(ima[0].header['OBSTYPE'])
+#iterate over the direct images
+for i, file in enumerate(files_di):
+	ima = fits.open(file)
+	#print(ima[0].header['OBSTYPE'])
 
 	if (ima[0].header['filter'] == ancil.filter):
-		print("filename", [i[1]])
+		#print("filename", [file])
 		LTV1 = ima[1].header['LTV1']					#X offset to get into physical pixels
 		LTV2 = ima[1].header['LTV2']					#Y offset to get to physical pixels
 		nrow = len(ima[1].data[:,0])
@@ -50,13 +50,13 @@ for i in enumerate(files_di):
 			if ancil.direct_image_output == True:
 				if not os.path.isdir('config/images/'):
 					os.makedirs('config/images/')
-				plt.savefig('config/images/{0}.png'.format(i[0]))
+				plt.savefig('config/images/{0}.png'.format(i))
 			plt.show()
 		
 		if ancil.direct_image_output==True:
 			print(t, results[3]+ancil.rmin-LTV1, results[2]+ancil.cmin-LTV2, file=f)
 
-		print(t, results[3]+ancil.rmin-LTV1, results[2]+ancil.cmin-LTV2, [i[1]]) 		#fit results
+		#print(t, results[3]+ancil.rmin-LTV1, results[2]+ancil.cmin-LTV2, [file]) 		#fit results
 	ima.close()
 
 if ancil.direct_image_output==True:

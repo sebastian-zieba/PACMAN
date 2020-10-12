@@ -4,14 +4,13 @@
 
 import sys
 sys.path.insert(0, './util')
+import ancil
 
-#from pylab import *
 import numpy as np
-import ancil, os, glob
-from astropy.io import fits
+import os, glob
 import yaml
 from astropy.table import QTable
-from astropy.io import ascii
+from astropy.io import ascii, fits
 
 obs_par_path = "config/obs_par.yaml"
 with open(obs_par_path, 'r') as file:

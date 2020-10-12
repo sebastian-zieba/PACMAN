@@ -1,13 +1,13 @@
-from astropy.io import ascii
-import pyfits
+from astropy.io import ascii, fits
 import math
 import numpy as np
-import os
 
 class AncillaryData:
 	def __init__(self, obs_par, fit_par=None):
 		#used in 0.py and 1.py
+
 		self.path = obs_par['path']
+
 		self.direct_image_output = obs_par['direct_image_output']#flag specifying whether coordinates are output to a file
 		self.diagnostics = obs_par['direct_image_diagnostics']#makes diagnostic plot if true
 
@@ -55,7 +55,7 @@ class AncillaryData:
 			self.orbnum = filetable['norbit'][mask].data
 			self.visnum = filetable['nvisit'][mask].data
 
-			f = pyfits.open(self.files[0])
+			f = fits.open(self.files[0])
 
 			self.LTV1 = int(f[1].header['LTV1'])
 			self.LTV2 = int(f[1].header['LTV2'])
