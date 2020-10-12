@@ -37,6 +37,12 @@ Progress Log
 - moved skyrmin etc for background calc into obs_par.yaml
 * got 2.py to run
 
+12.10.2020
+----------
+* minor changes in 0.py
+- added some comments
+- usage of np.zeros() instead of .append() in for loops
+- the list "filtergrism" renamed into "filter"
 
 TODO
 ----
