@@ -37,27 +37,44 @@ Progress Log
 - moved skyrmin etc for background calc into obs_par.yaml
 * got 2.py to run
 
-12.10.2020
+12.10.20
 ----------
-* minor changes in 0.py
+* minor changes to 0.py
 - added some comments
 - usage of np.zeros() instead of .append() in for loops
 - the list "filtergrism" renamed into "filter"
+* minor changes to 1.py
+- added some comments
+
+13.10.20
+----------
+* 0.py
+- scan direction is being checked and stored in filelist.txt
+* 2.py
+- ancil.grism determines if geometry.py or geometry102.py will be used
+
+
+21.04.21
+----------
+* 2.py
+- saves optionally every single trace plot etc.
+* downloaded new horizons file from 2012 to May 2021
+* moved horizons files and flats into new directory "ancil"
+
+
 
 TODO
 ----
-renaming steps
+- renaming steps
+- write readme with detailed instructions
+- check if .ima files are already flat corrected
+- get rid of mpfit!
+- combine util/geometry.py and util/geometry102.py
 
-write readme with detailed instructions
-
-check if .ima files are already flat corrected
-
-get rid of mpfit!
-
-combine util/geometry.py and util/geometry102.py
 obs_par.yaml includes some grism specific parameters like BEAMA_i -> generalize for both grisms
-
-include scan direction in filelist.txt
+bin_spectroscopic_lc.py:
+npix = 181 #width of spectrum in pixels (BEAMA_f - BEAMA_i)
+BEAMA_f and BEAMA_i dependent on 141 or 102!
 
 2.py:
 replace newM with M
@@ -67,3 +84,22 @@ timekeeping depreciated
 convert fit_par.txt into yaml.... but how? directories of directories?
 
 change period and t0 in obs_par.yaml
+
+
+suntimecorr:
+big .vec file makes bjd correction time-intensive
+
+
+Questions:
+
+obs_par:
+rdnoise: 22.0
+window: 150
+--> used in lines 231 & 235 of 2.py
+
+wavelengthsolutionoffset = 105.
+line 282 in 2.py
+
+spec vs var ?
+
+scan direction

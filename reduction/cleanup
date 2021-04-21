@@ -1,0 +1,8 @@
+rm -rv config/trace
+rm -rv config/pics
+rm -rv config/images
+
+rm config/filelist.txt
+rm config/xrefyref.txt
+
+rm -rv extracted_lc/*/
