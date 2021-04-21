@@ -25,6 +25,7 @@ files_di = [ancil.path + '/' + i for i in filetable['filenames'][mask_di].data]
 
 #iterate over the direct images
 for i, file in enumerate(files_di):
+	print("Progress: {0}/{1}".format(i, len(files_di)-1))
 	ima = fits.open(file)
 	#print(ima[0].header['OBSTYPE'])
 
@@ -35,6 +36,7 @@ for i, file in enumerate(files_di):
 		nrow = len(ima[1].data[:,0])
 		ncol = len(ima[1].data[0,:])
 		t = ima[0].header['expstart']
+		#print(ima[1].data.shape)
 
 		dat = ima[1].data[ancil.rmin:ancil.rmax, ancil.cmin:ancil.cmax]				#cuts out stamp around the target star
 		err = ima[2].data[ancil.rmin:ancil.rmax, ancil.cmin:ancil.cmax]
@@ -42,7 +44,7 @@ for i, file in enumerate(files_di):
 		results = gaussfitter.gaussfit(dat, err)
 			
 		if ancil.diagnostics==True:
-			plt.title("Direct image")
+			plt.title("Direct image #{0}, nvisit {1}, norbit {2}".format(i, filetable['nvisit'][mask_di][i], filetable['norbit'][mask_di][i]))
 			plt.imshow(dat*ima[0].header['exptime'], origin ='lower',vmin=0, vmax=5000)
 			plt.plot(results[2], results[3],marker='x', color='orange', markeredgewidth=3., ms=10, label='centroid', linestyle="none")
 			plt.legend(numpoints=1)
@@ -51,7 +53,8 @@ for i, file in enumerate(files_di):
 				if not os.path.isdir('config/images/'):
 					os.makedirs('config/images/')
 				plt.savefig('config/images/{0}.png'.format(i))
-			plt.show()
+			#plt.show()
+			plt.close()
 		
 		if ancil.direct_image_output==True:
 			print(t, results[3]+ancil.rmin-LTV1, results[2]+ancil.cmin-LTV2, file=f)
@@ -61,3 +64,5 @@ for i, file in enumerate(files_di):
 
 if ancil.direct_image_output==True:
 	f.close()
+
+print('Finished 1.py')

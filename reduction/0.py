@@ -28,6 +28,7 @@ print(prevrun)
 if not prevrun:  # if no previous run was done
     expstart = np.zeros(len(files))
     filter = np.zeros(len(files), dtype=object)
+    scans = np.zeros(len(files), dtype=int) #stores scan directions
 
     # Will create a table with the properties of all _ima.fits files at the first run
     for i, file in enumerate(files):
@@ -35,12 +36,17 @@ if not prevrun:  # if no previous run was done
         #the header "filter" tells us if the observation used a Filter (-> Direct Image) or a Grism (-> Spectrum)
         filter[i] = str(ima[0].header['filter'])
         expstart[i] = ima[0].header['expstart']
+        #scan direction
+        scans[i] = 0  # sets scan direction
+        if ima[0].header['postarg2'] < 0: scans[i] = 1
+        elif ima[0].header['postarg2'] == 0: scans[i]= -1
         ima.close()
 
     tsort = np.argsort(expstart)
     files = np.array([i.split('/')[-1] for i in files])[tsort]  # files are now chronologically sorted
     times = expstart[tsort]
     filter = filter[tsort]
+    scans = scans[tsort]
 
     # Identify orbits and visits
     norbits = np.zeros(len(times), dtype=int)
@@ -71,7 +77,10 @@ if not prevrun:  # if no previous run was done
         tos[i] = (time - times[orbit_begin_i]) * 24 * 60  # time since first exposure in orbit
         tvs[i] = (time - times[visit_begin_i]) * 24 * 60  # time since first exposure in orbit
 
-    t = QTable([files, filter, nvisits, norbits, tos, tvs],
-               names=('filenames', 'filter/grism', 'nvisit', 'norbit', 't_orbit', 't_visit'))
+    t = QTable([files, filter, nvisits, norbits, times, tos, tvs, scans],
+               names=('filenames', 'filter/grism', 'nvisit', 'norbit', 'times', 't_orbit', 't_visit',
+                      'scan'))# scan: (0: forward - lower flux, 1: reverse - higher flux, -1: postarg2=0)
 
     ascii.write(t, 'config/filelist.txt', format='ecsv')
+
+    print('Finished 0.py')
