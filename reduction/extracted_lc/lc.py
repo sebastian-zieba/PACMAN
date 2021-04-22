@@ -87,7 +87,7 @@ plt.scatter(t, f-exponential_slope(t, *popt)+1, label='residuals', s=20, c='k', 
 tmodel = np.linspace(t[0],t[-1], 1000)
 params = batman.TransitParams()
 params.t0 = 1366.1701+2457000-2400000.5                        #time of inferior conjunction
-params.per = 2.25314                      #orbital period
+params.per = 2.25312                      #orbital period
 params.rp = 0.0234                     #planet radius (in units of stellar radii)
 params.a = 16.2                       #semi-major axis (in units of stellar radii)
 params.inc = 88.7                     #orbital inclination (in degrees)
@@ -107,7 +107,7 @@ plt.ylim(0.9975, 1.0015)
 
 plt.legend()
 plt.savefig('L98-59b_transit_visit0.jpeg', dpi=250)
-plt.show()
+#plt.show()
 
 
 
