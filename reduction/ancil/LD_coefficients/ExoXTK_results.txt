@@ -1,0 +1,23 @@
+   name    Teff  logg  FeH    profile  ... color   c1    e1    c2    e2 
+--------- ------ ---- ------ --------- ... ----- ----- ----- ----- -----
+quadratic 6327.0 4.25 -0.311 quadratic ...  blue 0.171 0.013 0.229 0.017
+quadratic 6327.0 4.25 -0.311 quadratic ...  blue 0.168 0.013  0.23 0.017
+quadratic 6327.0 4.25 -0.311 quadratic ...  blue 0.162 0.013  0.23 0.018
+quadratic 6327.0 4.25 -0.311 quadratic ...  blue 0.159 0.014 0.231 0.018
+quadratic 6327.0 4.25 -0.311 quadratic ...  blue 0.155 0.014 0.232 0.019
+quadratic 6327.0 4.25 -0.311 quadratic ...  blue 0.151 0.014 0.233 0.019
+quadratic 6327.0 4.25 -0.311 quadratic ...  blue 0.136 0.014 0.239 0.019
+quadratic 6327.0 4.25 -0.311 quadratic ...  blue 0.128 0.015 0.245  0.02
+quadratic 6327.0 4.25 -0.311 quadratic ...  blue 0.137 0.015 0.235  0.02
+quadratic 6327.0 4.25 -0.311 quadratic ...  blue 0.132 0.015 0.236  0.02
+quadratic 6327.0 4.25 -0.311 quadratic ...  blue 0.127 0.015 0.236 0.021
+quadratic 6327.0 4.25 -0.311 quadratic ...  blue 0.123 0.016 0.236 0.021
+quadratic 6327.0 4.25 -0.311 quadratic ...  blue 0.119 0.016 0.234 0.021
+quadratic 6327.0 4.25 -0.311 quadratic ...  blue 0.113 0.016 0.235 0.022
+quadratic 6327.0 4.25 -0.311 quadratic ...  blue 0.106 0.016 0.235 0.021
+quadratic 6327.0 4.25 -0.311 quadratic ...  blue 0.101 0.016 0.234 0.021
+quadratic 6327.0 4.25 -0.311 quadratic ...  blue 0.097 0.016  0.23 0.021
+quadratic 6327.0 4.25 -0.311 quadratic ...  blue 0.091 0.016 0.227 0.021
+quadratic 6327.0 4.25 -0.311 quadratic ...  blue 0.085 0.016 0.225 0.021
+quadratic 6327.0 4.25 -0.311 quadratic ...  blue  0.08 0.016 0.223 0.021
+quadratic 6327.0 4.25 -0.311 quadratic ...  blue 0.073 0.016 0.221 0.021
