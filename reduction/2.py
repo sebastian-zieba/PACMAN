@@ -142,12 +142,16 @@ if ancil.output == True:
 
 
 nspectra = 0                                                #iterator variable to track number of spectra reduced
-for i, f in enumerate(ancil.files[0:104]):                         #ancil.files only contains the spectra not the di
-    print("Progress: {0}/{1}".format(i, len(ancil.files)))
+for i, f in enumerate(ancil.files[0:105]):                         #ancil.files only contains the spectra not the di
+    print("\nProgress: {0}/{1}".format(i, len(ancil.files)))
     print("Filename: {0}".format(f))
     d = fits.open(f)                                        #opens the file
     t = ancil.times[i]
     scan = ancil.scans[i]
+    t_orbiti = ancil.t_orbit[i]
+    t_visiti = ancil.t_visit[i]
+
+    #print(d[1].data)
     plt.imshow(d[1].data, origin = 'lower',  vmin=0, vmax=300)
     plt.colorbar()
     plt.tight_layout()
@@ -283,11 +287,11 @@ for i, f in enumerate(ancil.files[0:104]):                         #ancil.files 
         var_box += var_box_0
         
     ######################################################################################################################################    
-    print(d[0].header['expstart'])
+    #print(d[0].header['expstart'])
     time = (d[0].header['expstart'] + d[0].header['expend'])/(2.0) + 2400000.5                    #converts time to BJD_TDB; see Eastman et al. 2010 equation 4
     time = time + (32.184)/(24.0*60.0*60.0)                                    
-    #print("visnum, suntimecorr", visnum, (suntimecorr.suntimecorr(ancil.ra, ancil.dec, array([time]), ancil.coordtable[0], verbose=False))/(60.0))
-    time = [time] #+ (suntimecorr.suntimecorr(ancil.ra, ancil.dec, array([time]), ancil.coordtable[0], verbose=False))/(60.0*60.0*24.0)
+    print("visnum, suntimecorr (minutes)", visnum, (suntimecorr.suntimecorr(ancil.ra, ancil.dec, array([time]), ancil.coordtable[visnum], verbose=False))/(60.0))
+    time = [time] + (suntimecorr.suntimecorr(ancil.ra, ancil.dec, array([time]), ancil.coordtable[visnum], verbose=False))/(60.0*60.0*24.0)
 
     phase = (time-ancil.t0)/ancil.period - math.floor((time-ancil.t0)/ancil.period)
     if phase > 0.5: phase = phase - 1.0                                    #calculates orbital phase
@@ -328,7 +332,7 @@ for i, f in enumerate(ancil.files[0:104]):                         #ancil.files 
     n = len(spec_opt)    
    # print(phase[0], sum(spec_opt), sum(var_opt),  sum(spec_box), sum(var_box), time[0], visnum, orbnum, scan)
     if ancil.output == True:
-        print(phase[0], sum(spec_opt), sum(var_opt),  sum(spec_box), sum(var_box), time[0], visnum, orbnum, scan, file=whitefile)
+        print(phase[0], sum(spec_opt), sum(var_opt),  sum(spec_box), sum(var_box), time[0], visnum, orbnum, scan, t_visiti, t_orbiti, file=whitefile)
         for ii in arange(n):
             #print(time[0], phase[0], spec_opt[ii], var_opt[ii], template_waves[ii], visnum, orbnum, scan, file=specfile)
             print(time[0], phase[0], spec_opt[ii], var_opt[ii], template_waves[ii] - wavelengthsolutionoffset, visnum, orbnum, scan, file=specfile)

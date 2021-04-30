@@ -4,6 +4,7 @@ from pylab import *
 from astropy.io import ascii
 from scipy import signal
 import matplotlib.pyplot as plt
+import os
 
 def make_dict(table): return {x['parameter']: x['value'] for x in table}
 
@@ -24,10 +25,13 @@ print(wave_bins)
 #wave_bins = np.array([1.129595435219961752e+00, 1.180470435219961756e+00, 1.231345435219961759e+00, 1.282220435219961763e+00, 1.333095435219961766e+00, 1.383970435219961770e+00, 1.434845435219961773e+00, 1.485720435219961777e+00, 1.536595435219961781e+00, 1.587470435219961784e+00, 1.638345435219961788e+00])*1.e4
 
 #reads in spectra
-d = np.genfromtxt("extracted_lc/03_31_16_06/lc_spec.txt")
+
+lst = os.listdir('extracted_lc')
+print(lst.sort())
+d = np.genfromtxt(lst.sort()[-1] + "/lc_spec.txt")
 
 obs_par = make_dict(ascii.read("config/obs_par.txt", Reader=ascii.CommentedHeader))
-nexp = int(obs_par['nexp'])			#number of exposures
+nexp = 104#int(obs_par['nexp'])			#number of exposures
 npix = 181                                      #width of spectrum in pixels (BEAMA_f - BEAMA_i) 
 d = d.reshape(nexp, npix, -1)			#reshapes array by exposure
 
@@ -43,11 +47,16 @@ lo_res_wave_inds = []
 for i in range(len(wave_bins)- 1): wave_inds.append((w_hires >= wave_bins[i])&(w_hires <= wave_bins[i+1]))
 for i in range(len(wave_bins)- 1): lo_res_wave_inds.append((w >= wave_bins[i])&(w <= wave_bins[i+1]))
 
+
+dirname = "extracted_sp/" + datetime.strftime(datetime.now(), '%Y-%m-%d_%H:%M')
+if not os.path.exists(dirname): os.makedirs(dirname)
+
 for i in range(len(wave_bins) - 1):
     wave = (wave_bins[i] + wave_bins[i+1])/2./1.e4
-    outname = "speclc" + "{0:.3f}".format(wave)+".txt"
+    outname = dirname + "/speclc" + "{0:.3f}".format(wave)+".txt"
     #outname = "wasp33b_" + "{0:.4f}".format(wave)+".txt"
     outfile = open(outname, 'w')
+    
 
     print("#time", '\t\t', "photoelectrons", '\t', "error", '\t\t', "visit", '\t', "orbit", '\t', "scan", '\t', "wave_center", '\t', "wave_start",  '\t', "wave_end", file=outfile)
     for j in range(nexp):

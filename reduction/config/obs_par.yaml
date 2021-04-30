@@ -1,12 +1,12 @@
 #parameter value
 nvisit: 1
-norb: 5
+norb: 4
 GRISM: G141 #G102
 FILTER: F130N #F139M
 #exp_time: 69.617 #138.381
 path: /home/zieba/Desktop/Data/L-98-59_Hubble15856 #/home/zieba/Desktop/Data/GJ1214_Hubble13021 # #/home/zieba/Desktop/Data/WASP33_Hubble15109
 #nexp: 302
-#toffset: 245500.
+toffset: 2458366.
 ###
 direct_image_diagnostics: True # show direct image
 direct_image_output: True # save direct image and xrefyref
@@ -15,9 +15,9 @@ di_rmax: 290 #160 #285 #155 #
 di_cmin: 245 #15 #245 #125 #
 di_cmax: 265 #35 #260 #150 #
 ###
-trace_image_output: True  # save trace
+trace_image_output: False  # save trace
 trace_image_show: False  # show trace
-all_image_output: True # save all pics
+all_image_output: False # save all pics
 all_image_show: False  # show all pics
 sig_cut: 15
 nsmooth: 9
@@ -49,5 +49,5 @@ skip_orbs_phase_curve: 0_
 skip_orbs_eclipse: 0_
 skip_orbs_transit: 0_7_
 ###
-ld_file: LD_coefficients/HIP41378_ld_coeffs.dat
+ld_file: /ancil/LD_coefficients/HIP41378_ld_coeffs.dat
 fix_ld: False

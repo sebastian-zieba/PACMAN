@@ -38,6 +38,8 @@ class AncillaryData:
 			self.scans = filetable['scan'][mask].data
 			self.orbnum = filetable['norbit'][mask].data
 			self.visnum = filetable['nvisit'][mask].data
+			self.t_orbit = filetable['t_orbit'][mask].data
+			self.t_visit = filetable['t_visit'][mask].data
 
 
 			refpix = np.genfromtxt("config/xrefyref.txt")  # reads in reference pixels for each visit and sorts them by time
@@ -110,8 +112,8 @@ class AncillaryData:
 
 			#self.tstart = tstart
 
-			self.coordtable = ["bjd_conversion/horizons_results.txt"]  # table of spacecraft coordinates
-			#for i in range(self.nvisit): self.coordtable.append("bjd_conversion/horizons_results_v" + str(i) + ".txt")
+			self.coordtable = []  # table of spacecraft coordinates
+			for i in range(max(self.visnum)+1): self.coordtable.append("ancil/bjd_conversion/horizons_results_v" + str(i) + ".txt")
 
 
 			def make_dict(table):
@@ -119,3 +121,4 @@ class AncillaryData:
 			fit_par = make_dict(ascii.read(fit_par, Reader=ascii.CommentedHeader))
 			self.t0 = fit_par['t0']
 			self.period = fit_par['per']
+			self.fix_ld = obs_par['fix_ld']

@@ -9,6 +9,7 @@ import numpy as np
 import re 
 from scipy.constants import c
 from splinterp import splinterp
+import matplotlib.pyplot as plt
 
 def getcoords(file):
   """ 
@@ -254,36 +255,11 @@ def suntimecorr(ra, dec, obst,  coordtable, verbose=False):
 
   # Save shape of obst
   tshape  = np.shape(obst)
-#  print(tshape)
-#  print(obst)
-
 
   # Reshape to 1D and sort
-  obstime = obst.flatten()
-#  print(obstime)
-
-  ########################################## MY PART ###############################
-  import astropy.time
-  obs_start = astropy.time.Time(val=obstime[0], format='jd', scale='utc')
-  obs_end = astropy.time.Time(val=obstime[-1], format='jd', scale='utc')
-  #print('Observation start:', obs_start.iso)
-  #print('Observation end:', obs_end.iso)
-
-  horizons_start = astropy.time.Time(val=time[0], format='jd', scale='utc')
-  horizons_end = astropy.time.Time(val=time[-1], format='jd', scale='utc')
-  #print('Horizon start:', horizons_start.iso)
-  #print('Horizon end:', horizons_end.iso)
-
-
-  if (min(time) < min(obstime) < max(time)) and (min(time) < max(obstime) < max(time)):
-    print('Horizon file does include the observation dates.')
-  else:
-    print('WARNING: HORIZON FILE DOES NOT INCLUDE THE OBSERVATION DATES!!!')
-    #exit()
-  ########################################## MY PART ###############################
+  obstime = obst.flatten()	
   ti = np.argsort(obstime)   # indexes of sorted array by time
   tsize = np.size(obstime)
-
 
   # Allocate output arrays
   obsx = np.zeros(tsize)
@@ -294,40 +270,6 @@ def suntimecorr(ra, dec, obst,  coordtable, verbose=False):
   obsx[ti] = splinterp(obstime[ti], time, x)
   obsy[ti] = splinterp(obstime[ti], time, y)
   obsz[ti] = splinterp(obstime[ti], time, z)
-
-#  print(obstime[ti], time, x)
-
-
-
-
-  import matplotlib.pyplot as plt
-  from mpl_toolkits.mplot3d import Axes3D
-  fig = plt.figure()
-  ax = fig.add_subplot(111, projection='3d')
-  import matplotlib.cm as cm
-  cax = ax.scatter(x,y,z,c=time, s=10, cmap=cm.inferno)
-  ax.scatter(x[0], y[0], z[0], s=200, marker='x', c='r', label='horizons start')
-  ax.scatter(x[-1], y[-1], z[-1], s=200, marker='x', c='b', label='horizons end')
-  ax.scatter(obsx, obsy, obsz, s=200, marker='x', c='k', label='observation')
-  #[ax.text(x[i],y[i], z[i],'{0}'.format(astropy.time.Time(val=time, format='jd', scale='utc').iso[i])) for i in range(len(x))[::10]]
-  #ax.text(x[0],y[0], z[0],'{0}'.format(astropy.time.Time(val=time[0], format='jd', scale='utc').iso))
-  #ax.text(x[-1],y[-1], z[-1],'{0}'.format(astropy.time.Time(val=time[-1], format='jd', scale='utc').iso))
-  ax.set_xlabel('x')
-  ax.set_ylabel('y')
-  ax.set_zlabel('z')
-  cbar = fig.colorbar(cax,  orientation='vertical', label='Time (JD)')
-  plt.legend()
-  plt.savefig('config/bjdcorr_diagnostic/bjdcorr_JD{0:.5f}.png'.format(obstime[0]))
-  plt.close()
-  #plt.scatter(x,y,c=time)
-#  print(astropy.time.Time(val=time[::720], format='jd', scale='utc').iso)
-  #[plt.text(x[i],y[i],'{0}'.format(astropy.time.Time(val=time, format='jd', scale='utc').iso[i])) for i in range(len(x))[::10]]
-  #plt.scatter(obsx, obsy, marker='.', s=1)
-  #plt.show()
-
-#  print(len(x))
-
-
 
   if verbose:
     print( 'X, Y, Z = ', obsx, obsy, obsz)
@@ -344,8 +286,6 @@ def suntimecorr(ra, dec, obst,  coordtable, verbose=False):
 
   # Reshape back to the original shape
   rdotnhat = rdotnhat.reshape(tshape)
-
-#  print(rdotnhat / ( c / 1000.0 ))
 
   # Time correction is: dt = length/velocity
   # Divide by the speed of light and return

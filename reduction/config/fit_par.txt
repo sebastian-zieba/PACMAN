@@ -1,35 +1,27 @@
-#parameter	fixed		tied		value		lo_lim	lo_val	hi_lim	hi_val
-per		True		True		15.5712 	False	0.	False	0.
-t0		True            True		2458133.32727338 True	2458133.3	True	2458133.4
-t_secondary	True		True		0.000000	False	0.	False	0.
-w		True		True		90.		False	0.	False	0.
-a		True		True		21.9		False	10.	False	30.
-inc 		True		True		88.56		True	80.	True	90.
-rp		False		True		0.0188		True	0.01	True	0.03
-fp		True		True	        0.00		True	0.	False	0.
-u1		True            True		0.3		True	0.	True	1.0
-u2		True		True		0.		False	0.	False	0.
-ecc		True		True		0.		False	0.	False	0.
-c		False		False		1.5e9		False	0.	False	0.
-v		False		False		-1.0e6		False	0.	False	0.
-v2		False           True            1.e4		False	0.	False	0.
-r1		False           True            110.0		True	50.	True	200.
-r2		False           True            5.6		True	1.	True	6.
-r3		False		True		0.0		True	-1.	True	1.
-scale		False		True		1.0		False	0.	False	0.
-amp1		True		True		1.0		False	0.9	False	1.1
-theta1		True 		True		0.		True	-0.1	True	0.1
-amp2		True		True		0.		False	0.	False	0.
-theta2		True		True		0.		True	0.	True	3.1415926
-E_s		True		True		1320.		True	0.	True	1.e5
-E_f		True		True		2700.		True	0.	True	1.e5	
-eta_s		True		True		0.01311		True	0.	False	0.	
-eta_f		True		True		0.006863	True	0.	False	0.	
-tau_s		True		True		0.2836		True	0.	False	0.	
-tau_f		True		True		0.0026		True	0.	False	0.	
-E_s0		True		True		100.		True	0.	True	1.e4
-E_f0		True		True		27.		True	0.	True	1.e4	
-f		True		True		10000.		True	0.	False	0.
+#parameter	fixed	tied	value		lo_lim	lo_val	hi_lim	hi_val          prior   p1      p2
+per		True    True	2.25314   	True    2.2531	True    2.2532         X       0.      0.
+t0		False   True    .1701      True    0.16    True   0.19            N       0.1701   0.0007
+t_secondary     True    True    0.0             False   0.      False   0.              X       0.      0.
+w		True	True	90.		False	0.	False	0.              X       0.      0.
+a		False   True    16.2    	True	12	True	20             X       25.7    1.2
+inc 		True   True    88.7		True	80.	True	90.             X       88.48   0.2
+rp		False   True    0.0234		True	0.0	True	0.1             X       0.02    0.04
+fp		True    True    0.0		True	0.	True    0.002           X       0       1.0
+u1		True    True	0.143		True	0.	True	1.0             X       0.15    0.35
+u2		True	True	0.214		False	0.	False	0.              X       0.      0.
+ecc		True	True	0.		False	0.	False	0.              X       0.      0.
+limb_dark	True	True	2		False	0.	False	0.              X       0.      0.
+c		False	False   8.97     	True	0.	True	20.              X       9.155   9.16
+v		False   False   -1e-6		True	-1e-5	True	-1e-7              X       -0.002   0.0
+v2		True    True    0.00		False	0.	False	0.              X       0.      0.
+r1		False   True    0.		True	0	True	1.            X       75.      200.
+r2		False   True    6.6		True	6.0	True	7.5             X       6.3      7.
+r3		True   True    0		True	-0.45	True	0.              X       -0.45     0.
+scale		False   True    0.0007		True	0.0001	True	0.001              X       0.002   0.003
+trap_pop_s	True    True    800.		True	0.	True	3.e3            X       0.      0.
+trap_pop_f	True    True    87.		True	0.	True	3.e3            X       0.      0.
+dTrap_s         True    True    127.0		True	0.	True    3.e2	        X       0.      0.
+dTrap_f         True    True    97.     	True	0.	True    3.e2            X       0.      0.
 
 
 
