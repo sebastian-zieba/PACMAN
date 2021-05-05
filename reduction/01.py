@@ -12,7 +12,7 @@ filelist_path = './config/filelist.txt'
 data = ascii.read(filelist_path)
 
 nvisit = data['nvisit']
-times = data['times']
+t_mjd = data['t_mjd']
 
 
 settings = [
@@ -44,22 +44,19 @@ settings = '&'.join(settings)
 settings = 'https://ssd.jpl.nasa.gov/horizons_batch.cgi?batch=1&' + settings
 #print(settings)
 
+dirname = './ancil/bjd_conversion/'
+if not os.path.exists(dirname): os.makedirs(dirname)
+
 for i in range(max(nvisit)+1): 
     print('Retrieving Horizons file for visit {0}/{1}'.format(i, max(nvisit)))
-    times_visit = times[np.where(nvisit == i)]
-    t_start = min(times_visit) + 2400000.5 - 1/24 #Start of Horizons file one hour before first exposure in visit
-    t_end = max(times_visit) + 2400000.5 + 1/24 #End of Horizons file one hour after last exposure in visit
+    t_mjd_visit = t_mjd[np.where(nvisit == i)]
+    t_start = min(t_mjd_visit) + 2400000.5 - 1/24 #Start of Horizons file one hour before first exposure in visit
+    t_end = max(t_mjd_visit) + 2400000.5 + 1/24 #End of Horizons file one hour after last exposure in visit
 
-    
     set_start = "START_TIME=JD{0}".format(t_start)
     set_end = "STOP_TIME=JD{0}".format(t_end)
 
     settings_new = settings + '&' + set_start + '&' + set_end
-
-    #print(settings_new )
-
-    #print(t_start)
-    #print(t_end)
 
     #t_start = Time(t_start, format='jd', scale='utc')
     #t_end = Time(t_end, format='jd', scale='utc')
@@ -67,7 +64,7 @@ for i in range(max(nvisit)+1):
     
     #os.system('perl ./util/horizons.pl JD{0} JD{1} > ./ancil/bjd_conversion/horizons_results_v{2}.txt'.format(t_start, t_end, i))
     
-    urllib.request.urlretrieve(settings_new, './ancil/bjd_conversion/horizons_results_v{0}.txt'.format(i))
+    urllib.request.urlretrieve(settings_new, dirname + '/horizons_results_v{0}.txt'.format(i))
 
 
 
