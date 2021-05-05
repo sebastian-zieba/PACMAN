@@ -6,7 +6,7 @@ FILTER: F130N #F139M
 #exp_time: 69.617 #138.381
 path: /home/zieba/Desktop/Data/L-98-59_Hubble15856 #/home/zieba/Desktop/Data/GJ1214_Hubble13021 # #/home/zieba/Desktop/Data/WASP33_Hubble15109
 #nexp: 302
-toffset: 2458366.
+toffset: 2458366
 ###
 direct_image_diagnostics: True # show direct image
 direct_image_output: True # save direct image and xrefyref
