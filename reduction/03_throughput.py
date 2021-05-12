@@ -2,6 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pysynphot as S 
 
+#https://pysynphot.readthedocs.io/en/latest/bandpass.html#observation-mode
+#https://pysynphot.readthedocs.io/en/latest/appendixb.html#wfc3
+#https://pysynphot.readthedocs.io/en/latest/appendixb.html#mjd
+
 bp_g102 = S.ObsBandpass('wfc3,ir,g102') #FIXME add mjd check to download time specific bandpass
 bp_g141 = S.ObsBandpass('wfc3,ir,g141') 
 
