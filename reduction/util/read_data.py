@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from astropy.io import ascii
 
 class Data:
     """
@@ -26,27 +27,26 @@ class Data:
                 return prior
 
 	#read in data and sort by time
-        d = np.genfromtxt(data_file)
-        d = d[np.argsort(d[:,5])]   #FIXME (put indices in a file, or add header)
+        # = np.genfromtxt(data_file)
+        d = ascii.read(data_file)
+        d = d[:104]
+        #d = d[np.argsort(d[:,5])]   #FIXME (put indices in a file, or add header)
 
 
         #removes first exposure from each orbit
-        ind = np.diff(d[:,5]) < 30./60./24.	# first exposure after 30 mins break
+        ind = np.diff(d['t_bjd']) < 30./60./24.	# first exposure after 30 mins break
         d = d[1:][ind]
 
-        orb_num = d[:,7]
-        vis_num = d[:,6]
-        t_vis = d[:,9]
-        t_orb = d[:,10]
-
+        orb_num = d['norbit']
+        vis_num = d['nvisit']
+        t_vis = d['t_visit']
+        t_orb = d['t_orbit']
 
         n = len(d)
 
 
-
-
-        t_orb_starts = np.zeros(n)
-        ind = np.diff(d[:,5]) < 30./60./24.
+#        t_orb_starts = np.zeros(n)
+        ind = np.diff(d['t_bjd']) < 30./60./24.
         t_orb_startsi = np.concatenate(([t_orb[0]], t_orb[1:][~ind]))
 
         import itertools
@@ -87,13 +87,14 @@ class Data:
         """ind = (orb_num==0)|(orb_num == 6)|(orb_num == 12)|(orb_num == 18)
         t_delay[ind] = 1."""
 
-        err = np.sqrt(d[:,2])
-        flux = d[:,1]
-        time  = d[:,5]
-        scan_direction = d[:,8]
+        err = np.sqrt(d['var_opt'])
+        flux = d['spec_opt']
+        time  = d['t_bjd']
+        scan_direction = d['scan']
 
-        wavelength = d[0,3]
-        #wavelength = 1.4
+        #wavelength = d[0,3]
+
+        wavelength = 1.4
         #print "setting wavelength by hand to fix_ld for white lc"
 
 
@@ -143,6 +144,7 @@ class Data:
 
         #plt.plot(self.t_vis, self.flux, '.k')
         #plt.show()
+
 
         self.prior = format_prior_for_mcmc(self, obs_par, fit_par)
 

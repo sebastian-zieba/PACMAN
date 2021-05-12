@@ -297,8 +297,9 @@ def suntimecorr(ra, dec, obst,  coordtable, verbose=False):
 
 #  print(obstime[ti], time, x)
 
-
-
+  import os
+  dirname = 'diagnostic_plots/bjdcorr_diagnostic/'
+  if not os.path.exists(dirname): os.makedirs(dirname)
 
   import matplotlib.pyplot as plt
   from mpl_toolkits.mplot3d import Axes3D
@@ -308,7 +309,7 @@ def suntimecorr(ra, dec, obst,  coordtable, verbose=False):
   cax = ax.scatter(x,y,z,c=time, s=10, cmap=cm.inferno)
   ax.scatter(x[0], y[0], z[0], s=200, marker='x', c='r', label='horizons start')
   ax.scatter(x[-1], y[-1], z[-1], s=200, marker='x', c='b', label='horizons end')
-  ax.scatter(obsx, obsy, obsz, s=200, marker='x', c='k', label='observation')
+  ax.scatter(obsx, obsy, obsz, s=50, marker='x', c='k', label='observations')
   #[ax.text(x[i],y[i], z[i],'{0}'.format(astropy.time.Time(val=time, format='jd', scale='utc').iso[i])) for i in range(len(x))[::10]]
   #ax.text(x[0],y[0], z[0],'{0}'.format(astropy.time.Time(val=time[0], format='jd', scale='utc').iso))
   #ax.text(x[-1],y[-1], z[-1],'{0}'.format(astropy.time.Time(val=time[-1], format='jd', scale='utc').iso))
@@ -317,7 +318,9 @@ def suntimecorr(ra, dec, obst,  coordtable, verbose=False):
   ax.set_zlabel('z')
   cbar = fig.colorbar(cax,  orientation='vertical', label='Time (JD)')
   plt.legend()
-  plt.savefig('config/bjdcorr_diagnostic/bjdcorr_JD{0:.5f}.png'.format(obstime[0]))
+
+  #plt.savefig(dirname + 'bjdcorr_JD{0:.5f}.png'.format(obstime[0]))
+  plt.savefig(dirname + 'bjdcorr_{0}.png'.format(coordtable.split('/')[-1].split('.')[0]))
   plt.close()
   #plt.scatter(x,y,c=time)
 #  print(astropy.time.Time(val=time[::720], format='jd', scale='utc').iso)

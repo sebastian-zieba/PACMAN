@@ -86,7 +86,7 @@ def main():
         obs_par = yaml.safe_load(file)
     fit_par =   ascii.read("config/fit_par.txt", Reader=ascii.CommentedHeader)
 
-    files = ['/home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/reduction/extracted_lc/2021-04-28_07:52/lc_white.txt']#glob.glob(os.path.join(path, "*"))
+    files = ['/home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/reduction/extracted_lc/2021-05-03_04:22/lc_white.txt']#glob.glob(os.path.join(path, "*"))
     if fit_white: files = glob.glob(white_file)
 
     flags['out-name'] = "fit_" + pythontime.strftime("%Y_%m_%d_%H:%M") + ".txt"

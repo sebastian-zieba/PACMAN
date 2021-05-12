@@ -34,7 +34,9 @@ class AncillaryData:
 			filetable = ascii.read('config/filelist.txt')
 			mask = filetable['filter/grism'] == self.grism
 			self.files = [self.path + '/' + i for i in filetable['filenames'][mask].data]
-			self.times = filetable['times'][mask].data
+			self.t_mjd = filetable['t_mjd'][mask].data
+			if 't_bjd' in filetable.keys():
+				self.t_bjd = filetable['t_bjd'][mask].data
 			self.scans = filetable['scan'][mask].data
 			self.orbnum = filetable['norbit'][mask].data
 			self.visnum = filetable['nvisit'][mask].data

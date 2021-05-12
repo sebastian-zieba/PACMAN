@@ -56,7 +56,7 @@ def format_params_for_Model(theta, params, obs_par, fit_par):
 def mcmc_fit(data, model, params, file_name, obs_par, fit_par):
     theta = format_params_for_mcmc(params, obs_par, fit_par)	
 
-    ndim, nwalkers = len(theta), 70					#FIXME set nwalkers is a config file
+    ndim, nwalkers = len(theta), 80					#FIXME set nwalkers is a config file
     sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args = (params, data, model, obs_par, fit_par))
 
     pos = [theta + 1e-5*np.random.randn(ndim) for i in range(nwalkers)]

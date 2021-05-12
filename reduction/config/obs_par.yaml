@@ -15,9 +15,9 @@ di_rmax: 290 #160 #285 #155 #
 di_cmin: 245 #15 #245 #125 #
 di_cmax: 265 #35 #260 #150 #
 ###
-trace_image_output: False  # save trace
+trace_image_output: True  # save trace
 trace_image_show: False  # show trace
-all_image_output: False # save all pics
+all_image_output: True # save all pics
 all_image_show: False  # show all pics
 sig_cut: 15
 nsmooth: 9
@@ -51,3 +51,17 @@ skip_orbs_transit: 0_7_
 ###
 ld_file: /ancil/LD_coefficients/HIP41378_ld_coeffs.dat
 fix_ld: False
+###
+### Wavelength bins
+#wave_bins = np.linspace(1.125, 1.65, 22)*1e4
+#wave_bins = np.linspace(1.125, 1.65, 12)*1e4
+#wave_bins = np.linspace(1.139, 1.631, 12)*1e4
+#wave_bins = np.array([11400, 11800, 12200,12600,13000, 13400, 13800, 14200, 14600, 15000, 15400, 15800, 16200])
+wvl_min: 1.125
+wvl_max: 1.65
+wvl_bins: 12
+###
+Teff: 3412
+logg: 4.94 
+MH: -0.5
+sm: phoenix #kurutz #
