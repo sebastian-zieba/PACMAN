@@ -143,7 +143,7 @@ if ancil.output == True:
 
 
 nspectra = 0                                                #iterator variable to track number of spectra reduced
-for i, f in enumerate(ancil.files[0:2]):      #[0:104]                   #ancil.files only contains the spectra not the di
+for i, f in enumerate(ancil.files[0:3]):      #[0:104]                   #ancil.files only contains the spectra not the di
     print("\nProgress: {0}/{1}".format(i, len(ancil.files)))
     print("Filename: {0}".format(f))
     d = fits.open(f)                                        #opens the file
@@ -166,7 +166,7 @@ for i, f in enumerate(ancil.files[0:2]):      #[0:104]                   #ancil.
     tmp = sum((d[1].data)[i] for i in range(len(d[1].data)))
     plt.plot(range(522), tmp)
     plt.show()
-    np.savetxt('L89-59-firstexp.txt', list(zip(range(522), tmp)))
+    np.savetxt('L89-59-exp{0}.txt'.format(i), list(zip(range(522), tmp)))
 
     #ancil.visnum, ancil.orbnum = ancil.visnum[i], ancil.orbnum[i]
 
