@@ -9,6 +9,20 @@ obs_par_path = "config/obs_par.yaml"
 with open(obs_par_path, 'r') as file:
     obs_par = yaml.safe_load(file)
 
+
+import sys
+sys.path.insert(0, './util')
+import ancil
+import yaml
+from astropy.io import ascii
+
+
+ancil = ancil.AncillaryData(obs_par)
+
+filelist_path = './config/filelist.txt'
+data = ascii.read(filelist_path)
+
+
 Teff, logg, MH = obs_par['Teff'], obs_par['logg'], obs_par['MH']
 
 #def Planck(b_wvl, teff):
@@ -22,9 +36,9 @@ if obs_par['sm'] == 'phoenix':
 elif obs_par['sm'] == 'kurutz':
     sm = 'ck04models'
 
-if obs_par['GRISM'] == 'G141':
+if ancil.grism == 'G141':
     grism = 'g141'
-elif obs_par['GRISM'] == 'G102':
+elif ancil.grism == 'G102':
     grism = 'g102'
 
 
@@ -33,28 +47,31 @@ wvl = stellar_spectrum.wave/1e4 #microns
 flux = stellar_spectrum.flux*1e7/(np.pi)
 flux = flux/max(flux)
 
-
-throughput = np.loadtxt('./ancil/throughputs_and_spectra/{0}_throughput.txt'.format(grism)).T
-
-wvl_g = throughput[0]/1e4 #microns
-flux_g = throughput[1]
-
 x = wvl
 y = flux
 f = interp1d(x, y, kind='cubic')
 
 
-plt.plot(x, y, label='spectrum')
-plt.plot(wvl_g, flux_g, label='grism')
-plt.plot(wvl_g, f(wvl_g)*flux_g, label='grism * spectrum')
 
-plt.xlim(0.7, 2)
+nvisit = data['nvisit']
 
-#plt.xscale('log')
-plt.legend()
 
-plt.savefig('./ancil/throughputs_and_spectra/thoughput_times_spectrum.png')
-plt.show()
+for vi in np.unique(nvisit):
+    throughput = np.loadtxt('./ancil/throughputs_and_spectra/bandpass_v{0}.txt'.format(vi)).T
 
-np.savetxt('./ancil/throughputs_and_spectra/thoughput_times_spectrum.txt', list(zip(wvl_g, f(wvl_g)*flux_g)))
+    wvl_g = throughput[0]/1e4 #microns
+    flux_g = throughput[1]
+
+    plt.plot(x, y, label='stellar spectrum')
+    plt.plot(wvl_g, flux_g, label='bandpass')
+    plt.plot(wvl_g, f(wvl_g)*flux_g, label='stellar spectrum * bandpass')
+
+    plt.xlim(0.7, 2)
+
+    #plt.xscale('log')
+    plt.legend()
+
+    plt.savefig('./ancil/throughputs_and_spectra/bandpass_times_spectrum_v{0}.png'.format(vi))
+    plt.close()
+    np.savetxt('./ancil/throughputs_and_spectra/bandpass_times_spectrum_v{0}.txt'.format(vi), list(zip(wvl_g, f(wvl_g)*flux_g)))
 

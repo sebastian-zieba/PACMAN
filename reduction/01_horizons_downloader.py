@@ -33,6 +33,7 @@ settings = [
 	"OBJ_DATA= YES",
 	"VEC_TABLE= 3"]
 
+#Replacing symbols for URL encoding
 for i, setting in enumerate(settings):
     settings[i] = settings[i].replace(" =", "=").replace("= ", "=")
     settings[i] = settings[i].replace(" ", "%20")
@@ -44,6 +45,7 @@ settings = '&'.join(settings)
 settings = 'https://ssd.jpl.nasa.gov/horizons_batch.cgi?batch=1&' + settings
 #print(settings)
 
+#save it in ./ancil/bjd_conversion/
 dirname = './ancil/bjd_conversion/'
 if not os.path.exists(dirname): os.makedirs(dirname)
 

@@ -27,8 +27,8 @@ from astropy.io import fits
 obs_par_path = "config/obs_par.yaml"
 with open(obs_par_path, 'r') as file:
     obs_par = yaml.safe_load(file)
-fit_par = "config/fit_par.txt"
-ancil = ancil.AncillaryData(obs_par, fit_par=fit_par)
+
+ancil = ancil.AncillaryData(obs_par)
 
 if ancil.grism == 'G102':
     import geometry102 as geo
@@ -57,6 +57,20 @@ def residuals(params, template_waves, template, spectrum, error):
     fit = scale*np.interp(template_waves, template_waves-shift, spectrum)
     x = (template-fit)/error
     return (template-fit)/error
+
+from scipy.interpolate import interp1d
+
+def residuals2(params, x1, y1, x2, y2):
+    a, b = params
+    x1=np.array(x1)
+    x2=np.array(x2)
+    y1=np.array(y1)
+    y2=np.array(y2)
+
+    f = interp1d(x1, y1, kind='cubic')
+    fit = f(a+b*x2)
+
+    return fit - y2
 
 def interpolate_spectrum(spectrum, error, template, template_waves):
     p0 = [1., 1.0]                                        #initial guess for parameters shift and scale
@@ -141,10 +155,11 @@ if ancil.output == True:
     copyfile("./config/obs_par.yaml", dirname+"/obs_par.yaml")        #stores obs_par.txt
     copyfile("./config/fit_par.txt", dirname+"/fit_par.txt")        #stores obs_par.txt
 
-
+files_mask = [any(tup) for tup in zip(*[ancil.visnum == i for i in obs_par['which_visits']])]
 nspectra = 0                                                #iterator variable to track number of spectra reduced
-for i, f in enumerate(ancil.files[0:3]):      #[0:104]                   #ancil.files only contains the spectra not the di
-    print("\nProgress: {0}/{1}".format(i, len(ancil.files)))
+for i in np.arange(len(files_mask), dtype=int)[files_mask]:      #[0:104]                   #ancil.files only contains the spectra not the di
+    f = ancil.files[i]
+    print("\nProgress: {0}/{1}".format(i, sum(files_mask)))
     print("Filename: {0}".format(f))
     d = fits.open(f)                                        #opens the file
     scan = ancil.scans[i]
@@ -163,14 +178,15 @@ for i, f in enumerate(ancil.files[0:3]):      #[0:104]                   #ancil.
         plt.show()
     plt.close()
 
-    tmp = sum((d[1].data)[i] for i in range(len(d[1].data)))
-    plt.plot(range(522), tmp)
-    plt.show()
-    np.savetxt('L89-59-exp{0}.txt'.format(i), list(zip(range(522), tmp)))
+    #tmp = sum((d[1].data)[i] for i in range(len(d[1].data)))
+    #plt.plot(range(522), tmp)
+    #plt.show()
+    #np.savetxt('L89-59-exp{0}.txt'.format(i), list(zip(range(522), tmp)))
 
     #ancil.visnum, ancil.orbnum = ancil.visnum[i], ancil.orbnum[i]
 
     visnum, orbnum = ancil.visnum[i], ancil.orbnum[i]     #finds visit number and orbit number (starts at 0)
+    ancil.norb, ancil.nvisit = 4,1     #finds visit number and orbit number (starts at 0)
     print('visit, orbit:', (visnum, orbnum))
 
     if ancil.trace_image_output or ancil.trace_image_show:
@@ -184,8 +200,8 @@ for i, f in enumerate(ancil.files[0:3]):      #[0:104]                   #ancil.
 
     skycmin, skycmax, skyrmin, skyrmax = ancil.skycmin, ancil.skycmax, ancil.skyrmin, ancil.skyrmax
 
-    D = np.zeros_like(d[1].data[rmin:rmax,cmin:cmax])                        #array to store the background-subtracted data
-    outlier_array = np.zeros_like(d[1].data[rmin:rmax,cmin:cmax])                    #array used to determine which pixel is the biggest outlier    
+    #D = np.zeros_like(d[1].data[rmin:rmax,cmin:cmax])                        #array to store the background-subtracted data
+    #outlier_array = np.zeros_like(d[1].data[rmin:rmax,cmin:cmax])                    #array used to determine which pixel is the biggest outlier
     M = np.ones_like(d[1].data[rmin:rmax, cmin:cmax])                        #mask for bad pixels
 
 
@@ -203,7 +219,7 @@ for i, f in enumerate(ancil.files[0:3]):      #[0:104]                   #ancil.
     var_box = np.zeros(cmax - cmin)                                #box spectrum variance    
     var_opt = np.zeros(cmax - cmin)                                #optimal spectrum variance
 
-    print((cmin, cmax))
+    #print((cmin, cmax))
 
     plt.imshow(d[1].data, vmin=0, vmax=500, origin='lower')
     plt.plot([cmin, cmin, cmax, cmax, cmin], [rmin, rmax, rmax, rmin, rmin], lw=3, c='r', alpha=0.85)
@@ -219,6 +235,8 @@ for i, f in enumerate(ancil.files[0:3]):      #[0:104]                   #ancil.
         plt.show()
     plt.close()
 
+
+    ancil.diagnostics = False
 
     #########################################################################################################################################################
     # loops over up-the-ramp-samples (skipping first two very short exposures); gets all needed input for optextr routine                    #
@@ -252,9 +270,18 @@ for i, f in enumerate(ancil.files[0:3]):      #[0:104]                   #ancil.
 
         fullframe_diff = d[ii*5 + 1].data - d[ii*5 + 6].data                                       #fullframe difference between successive scans
         #fullframe_diff = d[1].data 
+        if ancil.background_box:
+            skymedian = np.median(fullframe_diff[skyrmin:skyrmax,skycmin:skycmax])                    #estimates the background counts
+            skyvar = median_abs_dev(fullframe_diff[skyrmin:skyrmax,skycmin:skycmax].flatten())            #variance for the background count estimate
+        else:
+            below_threshold = fullframe_diff<ancil.background_thld
+            skymedian = np.median(fullframe_diff[below_threshold])  # estimates the background counts
+            skyvar = median_abs_dev(fullframe_diff[below_threshold].flatten())  # variance for the background count estimate
 
-        skymedian = np.median(fullframe_diff[skyrmin:skyrmax,skycmin:skycmax])                    #estimates the background counts
-        skyvar = median_abs_dev(fullframe_diff[skyrmin:skyrmax,skycmin:skycmax].flatten())            #variance for the background count estimate
+        #plt.plot(range(len(fullframe_diff.flatten())), fullframe_diff.flatten())
+        #plt.ylim(-200,200)
+        #plt.show()
+
 
         diff = diff - skymedian                                    #subtracts the background
 
@@ -302,6 +329,49 @@ for i, f in enumerate(ancil.files[0:3]):      #[0:104]                   #ancil.
     #corrects for wavelength drift over time
     if obs_par['correct_wave_shift'] == True:
         if nspectra == 0:
+
+            model = np.loadtxt(
+                '/home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/reduction/ancil/throughputs_and_spectra/bandpass_times_spectrum_v0.txt').T
+
+            modelx = np.concatenate((np.linspace(-100, min(model[0]), 100, endpoint=False), model[0],
+                                     np.linspace(max(model[0]) + 0.01, 10000, 100, endpoint=False)))
+            modely = np.concatenate((np.zeros(100), model[1] / max(model[1]), np.zeros(100)))
+
+            p0 = [-0.62, 1.4]
+
+            datax = np.linspace(1.1, 1.7, len(spec_opt))
+            datay = spec_opt/max(spec_opt)
+
+            plt.plot(modelx, modely)
+            plt.plot(p0[0]+p0[1]*datax, datay)
+            plt.plot(datax, datay)
+            plt.xlim(0,2)
+            plt.show()
+
+            leastsq_res = leastsq(residuals2, p0, args=(modelx, modely, datax, datay))[0]
+
+            print(leastsq_res)
+
+            # a_list=np.linspace(-0.6,0, 30)
+            # b_list=np.linspace(1/250, 1/150, 30)
+            # res = []
+            # combos = np.array(np.meshgrid(a_list, b_list)).T.reshape(-1, 2)
+
+            # for combo in combos:
+            #    res.append(rms(residuals(combo, model0, model1, data[0][280:440], data[1][280:440]/max(data[1]))))
+
+            # print(combos[np.argmin(res)][0])
+            # print(combos[np.argmin(res)][1])
+
+            plt.plot(datax * leastsq_res[1] + leastsq_res[0], datay,
+                     label='spectrum fit, wvl = {0:.5g}+{1:.5g}*pixel'.format(leastsq_res[0], leastsq_res[1]))
+            plt.plot(modelx, modely, label='throughput * spectrum')
+            plt.xlim(0, 2)
+            plt.legend()
+            plt.savefig('comp1.png')
+
+            exit()
+
             template_waves = ancil.wave_grid[0, int(ancil.refpix[0,1]) + ancil.LTV1, cmin:cmax]             #LK interpolation 8/18 #use stellar model instead
             #template_waves -= 70.               #LK hack to get the wavelength solution right   
             print("LK adjusting wavelength solution BY HAND!!!!")
@@ -366,3 +436,23 @@ print("I made a change to how the wavelength interpolation is being done")
 print("it's commented as LK 8/18")
 print("Should check at some point to see if it's right")
 
+# - create new directory and write new txt files in there
+# - start loop over spectra
+# - save a picture of spectrum
+# - save a plot of the trace
+# rmin:rmax,cmin:cmax:
+# - determines left column for extraction (beginning of the trace)
+# - right column (end of trace, or edge of detector)
+# - top and bottom row for extraction (specified in obs_par.txt)
+# - mask for bad pixels
+# - save picture of spectrum with extraction box and background box
+# - new loop over scans and take differences
+# - diff/flatfield
+# - computes spatial index of peak counts in the difference image
+# - calculate median background in fullframe difference image
+# - diff = diff - skymedian
+# - optimal extraction
+# - sums up spectra and variance for all the differenced images
+# - end of loop over scans
+# - #corrects for wavelength drift over time using the template
+# - save data

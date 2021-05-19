@@ -18,9 +18,9 @@ from astropy.table import QTable, Column
 #import obs_par and fit_par
 obs_par_path = "config/obs_par.yaml"
 with open(obs_par_path, 'r') as file:
-    obs_par = yaml.safe_load(file)
-fit_par = "config/fit_par.txt"
-ancil = ancil.AncillaryData(obs_par, fit_par=fit_par)
+	obs_par = yaml.safe_load(file)
+
+ancil = ancil.AncillaryData(obs_par)
 
 filelist_path = './config/filelist.txt'
 data = ascii.read(filelist_path)
@@ -37,5 +37,9 @@ for i in range(max(nvisit)+1):
 	#phase = (time - ancil.t0) / ancil.period - math.floor((time - ancil.t0) / ancil.period)
 	#if phase > 0.5: phase = phase - 1.0
 
-data.add_column(Column(data = t_bjd, name='t_bjd'))
-ascii.write(data, filelist_path, format='ecsv', overwrite=True)
+if not any(np.array(data.keys())=='t_bjd'):
+	data.add_column(Column(data = t_bjd, name='t_bjd'))
+	ascii.write(data, filelist_path, format='ecsv', overwrite=True)
+else:
+	data.replace_column(name='t_bjd', col=Column(data = t_bjd, name='t_bjd'))
+	ascii.write(data, filelist_path, format='ecsv', overwrite=True)
