@@ -31,7 +31,7 @@ class Data:
 
 
         #removes first exposure from each orbit
-        ind = np.diff(d[:,5]) < 30./60./24.	
+        ind = np.diff(d[:,5]) < 30./60./24.	# first exposure after 30 mins break
         d = d[1:][ind]
 
         orb_num = np.zeros_like(d[:,7])	#removes first orbit from each visit 

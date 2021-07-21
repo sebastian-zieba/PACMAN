@@ -55,7 +55,7 @@ def main():
     nested          = False
     run_lsq         = True
     plot_raw_data   = False
-    path            = "spec_lc"
+    path            = "light_curves"
     fit_white       = False
     divide_white    = False
 

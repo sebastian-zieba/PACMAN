@@ -1,0 +1,10 @@
+There are 3 main scripts in the data reduction:
+
+1. zero_extract.py
+    computes the position of the direct image
+
+2. extract.py
+    optimally extracts the spectrum
+
+3. bin_spectroscopic_lc.py
+    bins the spectrum

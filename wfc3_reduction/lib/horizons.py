@@ -1,0 +1,6 @@
+link = 'https://ssd.jpl.nasa.gov/horizons_batch.cgi?batch=1&COMMAND=-48&CENTER=500@0&MAKE_EPHEM=YES&TABLE_TYPE=VECTORS&START_TIME=JD2458888.7091119937&STOP_TIME=JD2458889.0240886565&STEP_SIZE=5m&OUT_UNITS=KM-S&REF_PLANE=FRAME&REF_SYSTEM=J2000&VECT_CORR=NONE&VEC_LABELS=YES&VEC_DELTA_T=NO&CSV_FORMAT=NO&OBJ_DATA=YES&VEC_TABLE=3'
+
+import pandas as pd
+
+import urllib.request    
+urllib.request.urlretrieve(link, "test.txt")

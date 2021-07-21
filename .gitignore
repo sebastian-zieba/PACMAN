@@ -1,3 +1,5 @@
 __pycache__/
 reduction/tmp/
-fit
+fit/
+# Sphinx documentation
+docs/_build/

@@ -1,0 +1,16 @@
+numpy
+scipy
+matplotlib
+astropy
+emcee
+corner
+dynesty
+seaborn
+pandas
+yaml
+pyyaml
+bokeh
+selenium
+pyfits
+pysynphot
+tqdm
