@@ -8,7 +8,7 @@ def residuals(params, data, model, fjac=None):
     fit = model.fit(data, params)
     return [0, fit.resid/data.err]
 
-def lsq_fit(fit_par, data, flags, model, myfuncs):
+def lsq_fit(fit_par, data, meta, model, myfuncs):
     nvisit = data.nvisit 
     npar = len(fit_par)*nvisit
 
@@ -39,10 +39,10 @@ def lsq_fit(fit_par, data, flags, model, myfuncs):
     params_s = np.array(params_s)
 
     
-    if flags['plot-raw-data']: plot_raw(data)
+    if meta.run_plot_raw_data: plot_raw(data)
     fa = {'data':data, 'model':model}
 
-    if flags['divide-white']:
+    if meta.run_divide_white:
             sys_vector = np.genfromtxt("white_systematics.txt")
             data.all_sys = sys_vector
             #data.nfree_param -= 2
@@ -61,8 +61,8 @@ def lsq_fit(fit_par, data, flags, model, myfuncs):
     
     if m.errmsg: print("MPFIT error message", m.errmsg)
 
-    if flags['output']: 
-        f = open(flags['out-name'], "a")
+    if meta.run_output:
+        f = open(meta.run_out_name, "a")
         print("{0:0.3f}".format(data.wavelength), \
                   "{0:0.6f}".format(m.params[data.par_order['rp']*nvisit]), \
                   "{0:0.6f}".format(m.perror[data.par_order['rp']*nvisit]),\
@@ -75,12 +75,12 @@ def lsq_fit(fit_par, data, flags, model, myfuncs):
         f.close()
 
                                                                                                                                                                                                       
-    if flags['verbose']: 
+    if meta.run_verbose:
         #print "{0:0.3f}".format(data.wavelength), "{0:0.2f}".format(bestfit.chi2red)
         #print data.wavelength, "{0:0.3f}".format(m.params[data.par_order['A1']*nvisit])
         PrintParams(m, data)
 
-    if flags['show-plot']: plot_fit(data, model)
+    if meta.run_show_plot: plot_fit(data, model)
 
     #model = Model(data , myfuncs)
     return  data, model, m.params

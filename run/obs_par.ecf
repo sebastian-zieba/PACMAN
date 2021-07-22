@@ -1,5 +1,5 @@
 #parameter value
-which_visits   [0,2,3] #[0,2,3,4,6]  #[0,1,2,3,4,5,6]
+which_visits   [0,2,3,4,6]  #[0,1,2,3,4,5,6]
 path     /home/zieba/Desktop/Data/L-98-59_Hubble15856/ #/home/zieba/Desktop/Data/GJ1214_Hubble13021 # #/home/zieba/Desktop/Data/WASP33_Hubble15109
 toffset  2458366
 suffix             ima
@@ -56,7 +56,7 @@ fix_ld   False
 #wave_bins = np.array([11400, 11800, 12200,12600,13000, 13400, 13800, 14200, 14600, 15000, 15400, 15800, 16200])
 wvl_min  1.125
 wvl_max  1.65
-wvl_bins     [12,22]
+wvl_bins   [12, 20]
 
 ###
 Teff  3412
@@ -71,3 +71,15 @@ skyrmin  15
 skyrmax  70
 skycmin  20 #100 #400
 skycmax 100 #200 #500
+
+##
+run_verbose         True
+run_output          False
+run_show_plot       True
+run_mcmc        True
+run_nested          False
+run_lsq         True
+run_plot_raw_data   True
+run_fit_white       False
+run_divide_white    False
+run_files ['/home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/run/run_2021-07-21_10-32-57_L-98-59_Hubble15856/extracted_lc/2021-07-21_10:33/lc_white.txt']

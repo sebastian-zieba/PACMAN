@@ -26,6 +26,7 @@ def plot_raw(data):
     plt.xlabel("Time after visit start (hours)")
     plt.ylabel("Flux (e-)")
     plt.tight_layout()
+    plt.savefig("raw_lc.pdf")
     plt.show()
 
 
@@ -42,7 +43,7 @@ def plot_fit(data, model):
     phase_hr = np.linspace(model.phase.min()-0.05, model.phase.max()+0.05, 1000)
     t_hr = phase_hr*p.per[0]+p.t0[0] + data.toffset
 
-    colors = ['blue', 'red', 'orange', 'gray']
+    #colors = ['blue', 'red', 'orange', 'gray']
 
     #plot data
     plt.subplot(211)
@@ -52,7 +53,7 @@ def plot_fit(data, model):
     #plot systematics removed data
     for i in range(data.nvisit):
         ind = data.vis_num == i
-        plt.plot(model.phase[ind], model.data_nosys[ind], color = colors[i], marker = 'o', markersize = 3, linestyle = "none") 
+        plt.plot(model.phase[ind], model.data_nosys[ind], color = palette[i], marker = 'o', markersize = 3, linestyle = "none")
 
     #add labels/set axes
     #xlo, xhi = np.min(model.phase)*0.9, np.max(model.phase)*1.1
@@ -76,7 +77,7 @@ def plot_fit(data, model):
 
     for i in range(data.nvisit):
         ind = data.vis_num == i
-        plt.plot(model.phase[ind], 1.0e6*model.norm_resid[ind], color = colors[i], marker = 'o', markersize = 3, linestyle = "none")
+        plt.plot(model.phase[ind], 1.0e6*model.norm_resid[ind], color = palette[i], marker = 'o', markersize = 3, linestyle = "none")
 
     #add labels/set axes
     plt.xlim(xlo,xhi)
@@ -86,7 +87,7 @@ def plot_fit(data, model):
     plt.tight_layout()
     plt.savefig("white_lc.pdf")
     plt.show()
-    plt.waitforbuttonpress(0) # this will wait for indefinite time
+    #plt.waitforbuttonpress(0) # this will wait for indefinite time
     plt.close()
 
 

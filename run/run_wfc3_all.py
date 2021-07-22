@@ -9,7 +9,7 @@ import wfc3_reduction.reduction.s02_barycorr as s02
 import wfc3_reduction.reduction.s03_refspectra as s03
 import wfc3_reduction.reduction.s10_direct_images as s10
 import wfc3_reduction.reduction.s20_extract as s20
-import wfc3_reduction.reduction.s30_run as s30
+import wfc3_reduction.reduction.s22_bin_spectroscopic_lc as s22
 
 eventlabel = 'L-98-59_Hubble15856'
 
@@ -31,5 +31,6 @@ meta = s10.run10(meta.eventlabel, meta.workdir, meta=meta)
 reload(s20)
 meta = s20.run20(meta.eventlabel, meta.workdir, meta=meta)
 
-#reload(s30)
-#s30.main()
+reload(s22)
+meta = s22.run22(meta.eventlabel, meta.workdir, meta=meta)
+

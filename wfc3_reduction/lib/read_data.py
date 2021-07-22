@@ -46,8 +46,8 @@ class Data:
         vis_num[np.where(vis_num == 0)] = 0
         vis_num[np.where(vis_num == 2)] = 1
         vis_num[np.where(vis_num == 3)] = 2
-        #vis_num[np.where(vis_num == 4)] = 3
-        #vis_num[np.where(vis_num == 6)] = 4
+        vis_num[np.where(vis_num == 4)] = 3
+        vis_num[np.where(vis_num == 6)] = 4
 
 
         n = len(d)
@@ -61,7 +61,9 @@ class Data:
         Y = [(x, len(list(y))) for x, y in itertools.groupby(orb_num)]
         #print(Y)
 
-        t_orb_starts = (np.array([[t_orb_startsi[i]]*Y[i][1] for i in range(len(Y))])).flatten()
+        #t_orb_starts = (np.array([[t_orb_startsi[i]]*Y[i][1] for i in range(len(Y))])).flatten()
+        t_orb_starts = [([np.repeat(t_orb_startsi[i], Y[i][1]) for i in range(meta.norb)])[ii] for ii in range(20)]
+        t_orb_starts = [item for sublist in t_orb_starts for item in sublist]
 
         t_orb = t_orb - t_orb_starts
         t_vis = t_vis - min(t_vis)

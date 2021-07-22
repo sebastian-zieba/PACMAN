@@ -56,12 +56,12 @@ def format_params_for_Model(theta, params, meta, fit_par):
 def mcmc_fit(data, model, params, file_name, meta, fit_par):
     theta = format_params_for_mcmc(params, meta, fit_par)
 
-    ndim, nwalkers = len(theta), 20					#FIXME set nwalkers is a config file
+    ndim, nwalkers = len(theta), 60					#FIXME set nwalkers is a config file
     sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args = (params, data, model, meta, fit_par))
 
     pos = [theta + 1e-5*np.random.randn(ndim) for i in range(nwalkers)]
 
-    sampler.run_mcmc(pos,4000)
+    sampler.run_mcmc(pos,5000)
     #sampler.run_mcmc(pos,20000)
     pickle.dump([data, params, sampler.chain], open("mcmc_out."+"{0:0.2f}".format(data.wavelength)+".p", "wb"))
 
