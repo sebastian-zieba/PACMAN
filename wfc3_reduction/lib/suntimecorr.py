@@ -6,12 +6,14 @@
 
 
 import numpy as np
-import re 
+import re
 from scipy.constants import c
 from .splinterp import splinterp
+import astropy.time
+from . import plots
 
 def getcoords(file):
-  """ 
+    """
     Use regular expressions to extract X,Y,Z, and time values from the
     horizons file.
 
@@ -56,26 +58,25 @@ def getcoords(file):
                         pcubillos@fulbrightmail.org
 
   """
-  x, y, z, time = [], [], [], []
-  for i in np.arange(len(file)):  
-    # Use regular expressions to match strings enclosed between X,
-    # Y, Z and end of line
-    m = re.search(' X =(.*)Y =(.*) Z =(.*)\n', file[i])
-    if m != None:
-      x.append(np.double(m.group(1)))
-      y.append(np.double(m.group(2)))
-      z.append(np.double(m.group(3)))
-    # Match first word which is followed by ' = A'
-    t = re.search('(.+) = A', file[i])
-    if t != None:
-        time.append(np.double(t.group(1)))
-  # return numpy arrays
-  return np.array(x), np.array(y), np.array(z), np.array(time)
+    x, y, z, time = [], [], [], []
+    for i in np.arange(len(file)):
+        # Use regular expressions to match strings enclosed between X,
+        # Y, Z and end of line
+        m = re.search(' X =(.*)Y =(.*) Z =(.*)\n', file[i])
+        if m != None:
+            x.append(np.double(m.group(1)))
+            y.append(np.double(m.group(2)))
+            z.append(np.double(m.group(3)))
+        # Match first word which is followed by ' = A'
+        t = re.search('(.+) = A', file[i])
+        if t != None:
+            time.append(np.double(t.group(1)))
+    # return numpy arrays
+    return np.array(x), np.array(y), np.array(z), np.array(time)
 
 
-
-def suntimecorr(meta, obst,  coordtable, verbose=False):
-  """
+def suntimecorr(meta, obst, coordtable, verbose=False):
+    """
     This function calculates the light-travel time correction from
     observer to a standard location.  It uses the 2D coordinates (RA
     and DEC) of the object being observed and the 3D position of the
@@ -224,131 +225,98 @@ def suntimecorr(meta, obst,  coordtable, verbose=False):
 
   """
 
-  ra = meta.ra
-  dec = meta.dec
+    ra = meta.ra
+    dec = meta.dec
 
-  start_data = '$$SOE'
-  end_data   = '$$EOE'
+    start_data = '$$SOE'
+    end_data = '$$EOE'
 
-  # Read in whole table as an list of strings, one string per line
-  ctable = open(coordtable, 'r')
-  wholetable = ctable.readlines()
-  ctable.close()
+    # Read in whole table as an list of strings, one string per line
+    ctable = open(coordtable, 'r')
+    wholetable = ctable.readlines()
+    ctable.close()
 
-  # Find start and end line
-  i = 0
-  # while end has not been found:
-  while wholetable[i].find(end_data) == -1:
-    # if start is found get the index of next line:
-    if wholetable[i].find(start_data) != -1:
-      start = i + 1
-    i += 1
+    # Find start and end line
+    i = 0
+    # while end has not been found:
+    while wholetable[i].find(end_data) == -1:
+        # if start is found get the index of next line:
+        if wholetable[i].find(start_data) != -1:
+            start = i + 1
+        i += 1
 
-  # Chop table
-  data = wholetable[start:i-2]
+    # Chop table
+    data = wholetable[start:i - 2]
 
-  # Extract values:
-  x, y, z, time = getcoords(data)
+    # Extract values:
+    x, y, z, time = getcoords(data)
 
-  # Interpolate to observing times:
-  # We must preserve the shape and order of obst.  Spline takes
-  # monotonic input and produces linear output.  x, y, z, time are
-  # sorted as HORIZONS produces them.
+    # Interpolate to observing times:
+    # We must preserve the shape and order of obst.  Spline takes
+    # monotonic input and produces linear output.  x, y, z, time are
+    # sorted as HORIZONS produces them.
 
-  # Save shape of obst
-  tshape  = np.shape(obst)
-#  print(tshape)
-#  print(obst)
+    # Save shape of obst
+    tshape = np.shape(obst)
+    #  print(tshape)
+    #  print(obst)
 
+    # Reshape to 1D and sort
+    obstime = obst.flatten()
+    #  print(obstime)
 
-  # Reshape to 1D and sort
-  obstime = obst.flatten()
-#  print(obstime)
+    ########################################## MY PART ###############################
 
-  ########################################## MY PART ###############################
-  import astropy.time
-  obs_start = astropy.time.Time(val=obstime[0], format='jd', scale='utc')
-  obs_end = astropy.time.Time(val=obstime[-1], format='jd', scale='utc')
-  #print('Observation start:', obs_start.iso)
-  #print('Observation end:', obs_end.iso)
+    obs_start = astropy.time.Time(val=obstime[0], format='jd', scale='utc')
+    obs_end = astropy.time.Time(val=obstime[-1], format='jd', scale='utc')
+    # print('Observation start:', obs_start.iso)
+    # print('Observation end:', obs_end.iso)
 
-  horizons_start = astropy.time.Time(val=time[0], format='jd', scale='utc')
-  horizons_end = astropy.time.Time(val=time[-1], format='jd', scale='utc')
-  #print('Horizon start:', horizons_start.iso)
-  #print('Horizon end:', horizons_end.iso)
+    horizons_start = astropy.time.Time(val=time[0], format='jd', scale='utc')
+    horizons_end = astropy.time.Time(val=time[-1], format='jd', scale='utc')
+    # print('Horizon start:', horizons_start.iso)
+    # print('Horizon end:', horizons_end.iso)
 
+    if not (min(time) < min(obstime) < max(time)) and (min(time) < max(obstime) < max(time)):
+        print('WARNING: HORIZON FILE DOES NOT INCLUDE THE OBSERVATION DATES!!!')
+        # exit()
+    ########################################## MY PART ###############################
+    ti = np.argsort(obstime)  # indexes of sorted array by time
+    tsize = np.size(obstime)
 
-  if not (min(time) < min(obstime) < max(time)) and (min(time) < max(obstime) < max(time)):
-    print('WARNING: HORIZON FILE DOES NOT INCLUDE THE OBSERVATION DATES!!!')
-    #exit()
-  ########################################## MY PART ###############################
-  ti = np.argsort(obstime)   # indexes of sorted array by time
-  tsize = np.size(obstime)
+    # Allocate output arrays
+    obsx = np.zeros(tsize)
+    obsy = np.zeros(tsize)
+    obsz = np.zeros(tsize)
 
+    # Interpolate sorted arrays
+    obsx[ti] = splinterp(obstime[ti], time, x)
+    obsy[ti] = splinterp(obstime[ti], time, y)
+    obsz[ti] = splinterp(obstime[ti], time, z)
 
-  # Allocate output arrays
-  obsx = np.zeros(tsize)
-  obsy = np.zeros(tsize)
-  obsz = np.zeros(tsize)
+    #  print(obstime[ti], time, x)
 
-  # Interpolate sorted arrays
-  obsx[ti] = splinterp(obstime[ti], time, x)
-  obsy[ti] = splinterp(obstime[ti], time, y)
-  obsz[ti] = splinterp(obstime[ti], time, z)
+    if meta.save_barycorr_plot or meta.show_barycorr_plot:
+        plots.barycorr(x,y,z,time, obsx, obsy, obsz, coordtable, meta)
 
-#  print(obstime[ti], time, x)
+    if verbose:
+        print('X, Y, Z = ', obsx, obsy, obsz)
 
-  import os
+    # Change ra and dec into unit vector n_hat
+    object_unit_x = np.cos(dec) * np.cos(ra)
+    object_unit_y = np.cos(dec) * np.sin(ra)
+    object_unit_z = np.sin(dec)
 
-  import matplotlib.pyplot as plt
-  from mpl_toolkits.mplot3d import Axes3D
-  fig = plt.figure()
-  ax = fig.add_subplot(111, projection='3d')
-  import matplotlib.cm as cm
-  cax = ax.scatter(x,y,z,c=time, s=10, cmap=cm.inferno)
-  ax.scatter(x[0], y[0], z[0], s=200, marker='x', c='r', label='horizons start')
-  ax.scatter(x[-1], y[-1], z[-1], s=200, marker='x', c='b', label='horizons end')
-  ax.scatter(obsx, obsy, obsz, s=50, marker='x', c='k', label='observations')
-  #[ax.text(x[i],y[i], z[i],'{0}'.format(astropy.time.Time(val=time, format='jd', scale='utc').iso[i])) for i in range(len(x))[::10]]
-  #ax.text(x[0],y[0], z[0],'{0}'.format(astropy.time.Time(val=time[0], format='jd', scale='utc').iso))
-  #ax.text(x[-1],y[-1], z[-1],'{0}'.format(astropy.time.Time(val=time[-1], format='jd', scale='utc').iso))
-  ax.set_xlabel('x')
-  ax.set_ylabel('y')
-  ax.set_zlabel('z')
-  cbar = fig.colorbar(cax,  orientation='vertical', label='Time (JD)')
-  plt.legend()
+    # Dot product the vectors with n_hat
+    rdotnhat = (obsx * object_unit_x +
+                obsy * object_unit_y +
+                obsz * object_unit_z)
 
-  #plt.savefig(dirname + 'bjdcorr_JD{0:.5f}.png'.format(obstime[0]))
-  plt.savefig(meta.workdir + '/ancil/horizons/bjdcorr_{0}.png'.format(coordtable.split('/')[-1].split('.')[0]))
-  plt.close()
-  #plt.scatter(x,y,c=time)
-#  print(astropy.time.Time(val=time[::720], format='jd', scale='utc').iso)
-  #[plt.text(x[i],y[i],'{0}'.format(astropy.time.Time(val=time, format='jd', scale='utc').iso[i])) for i in range(len(x))[::10]]
-  #plt.scatter(obsx, obsy, marker='.', s=1)
-  #plt.show()
+    # Reshape back to the original shape
+    rdotnhat = rdotnhat.reshape(tshape)
 
-#  print(len(x))
+    #  print(rdotnhat / ( c / 1000.0 ))
 
-
-
-  if verbose:
-    print( 'X, Y, Z = ', obsx, obsy, obsz)
-
-  # Change ra and dec into unit vector n_hat
-  object_unit_x = np.cos(dec) * np.cos(ra)
-  object_unit_y = np.cos(dec) * np.sin(ra)
-  object_unit_z = np.sin(dec) 
-
-  # Dot product the vectors with n_hat
-  rdotnhat = ( obsx * object_unit_x +
-               obsy * object_unit_y +
-               obsz * object_unit_z  )
-
-  # Reshape back to the original shape
-  rdotnhat = rdotnhat.reshape(tshape)
-
-#  print(rdotnhat / ( c / 1000.0 ))
-
-  # Time correction is: dt = length/velocity
-  # Divide by the speed of light and return
-  return rdotnhat / ( c / 1000.0 )
+    # Time correction is: dt = length/velocity
+    # Divide by the speed of light and return
+    return rdotnhat / (c / 1000.0)

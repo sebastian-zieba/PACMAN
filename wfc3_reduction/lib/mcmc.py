@@ -29,9 +29,9 @@ def mcmc_output(samples, params, meta, fit_par, data):	#FIXME: make sure this wo
                     if fit_par['tied'][i].lower() == "true": labels.append(fit_par['parameter'][i])
                     else: 
                             for j in range(nvisit): labels.append(fit_par['parameter'][i]+str(j))
-    fig = corner.corner(samples, labels=labels, show_titles=True)
+    fig = corner.corner(samples, labels=labels, show_titles=True,quantiles=[0.16, 0.5, 0.84],title_fmt='.4')
     current_time = datetime.now().time()
-    figname = "pairs_"+current_time.isoformat()+".png"
+    figname = meta.workdir + "/pairs_"+current_time.isoformat()+".png"
     fig.savefig(figname)
 
 
@@ -56,14 +56,14 @@ def format_params_for_Model(theta, params, meta, fit_par):
 def mcmc_fit(data, model, params, file_name, meta, fit_par):
     theta = format_params_for_mcmc(params, meta, fit_par)
 
-    ndim, nwalkers = len(theta), 60					#FIXME set nwalkers is a config file
+    ndim, nwalkers = len(theta), 80					#FIXME set nwalkers is a config file
     sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args = (params, data, model, meta, fit_par))
 
     pos = [theta + 1e-5*np.random.randn(ndim) for i in range(nwalkers)]
 
-    sampler.run_mcmc(pos,5000)
+    sampler.run_mcmc(pos,5000,progress=True)
     #sampler.run_mcmc(pos,20000)
-    pickle.dump([data, params, sampler.chain], open("mcmc_out."+"{0:0.2f}".format(data.wavelength)+".p", "wb"))
+    pickle.dump([data, params, sampler.chain], open(meta.workdir + "/mcmc_out."+"{0:0.2f}".format(data.wavelength)+".p", "wb"))
 
     samples = sampler.chain[:, 1000:, :].reshape((-1, ndim))
     mcmc_output(samples, params, meta, fit_par, data)

@@ -37,17 +37,16 @@ class Data:
         ind = np.diff(d['t_bjd']) < 30./60./24.	# first exposure after 30 mins break
         d = d[1:][ind]
 
-        orb_num = d['norbit']
-        vis_num = d['nvisit']
+        orb_num = d['iorbit']
+        vis_num = d['ivisit']
         t_vis = d['t_visit']
         t_orb = d['t_orbit']
 
-
-        vis_num[np.where(vis_num == 0)] = 0
-        vis_num[np.where(vis_num == 2)] = 1
-        vis_num[np.where(vis_num == 3)] = 2
-        vis_num[np.where(vis_num == 4)] = 3
-        vis_num[np.where(vis_num == 6)] = 4
+        #vis_num[np.where(vis_num == 0)] = 0
+        #vis_num[np.where(vis_num == 2)] = 1
+        #vis_num[np.where(vis_num == 3)] = 2
+        #vis_num[np.where(vis_num == 4)] = 3
+        #vis_num[np.where(vis_num == 6)] = 4
 
 
         n = len(d)
@@ -59,10 +58,9 @@ class Data:
 
         import itertools
         Y = [(x, len(list(y))) for x, y in itertools.groupby(orb_num)]
-        #print(Y)
 
         #t_orb_starts = (np.array([[t_orb_startsi[i]]*Y[i][1] for i in range(len(Y))])).flatten()
-        t_orb_starts = [([np.repeat(t_orb_startsi[i], Y[i][1]) for i in range(meta.norb)])[ii] for ii in range(20)]
+        t_orb_starts = [([np.repeat(t_orb_startsi[i], Y[i][1]) for i in range(meta.norbit)])[ii] for ii in range(meta.norbit)]
         t_orb_starts = [item for sublist in t_orb_starts for item in sublist]
 
         t_orb = t_orb - t_orb_starts
@@ -71,7 +69,7 @@ class Data:
         t_delay = np.zeros(n)
 
         nvisit = int(meta.nvisit)
-        norbit = int(meta.norb)
+        norbit = int(meta.norbit)
 
 
         
@@ -82,7 +80,7 @@ class Data:
         #####################################
         #remove first orbit of each visit
         #norbit -= 4
-        ind = (orb_num == 0)
+        ind = (orb_num%4 == 0)
 
         orb_num = orb_num[~ind]
         vis_num = vis_num[~ind]
@@ -92,7 +90,7 @@ class Data:
         t_delay = t_delay[~ind]
         d = d[~ind]
 
-        ind = (orb_num==1)
+        ind = (orb_num%4 ==1)
         t_delay[ind] = 1.
         """ind = (orb_num==0)|(orb_num == 6)|(orb_num == 12)|(orb_num == 18)
         t_delay[ind] = 1."""
@@ -151,7 +149,7 @@ class Data:
         self.all_sys = None
         self.u1 = 0.
         self.u2 = 0.
-
+        print('nfree_param: ', nfree_param)
         #plt.plot(self.t_vis, self.flux, '.k')
         #plt.show()
 

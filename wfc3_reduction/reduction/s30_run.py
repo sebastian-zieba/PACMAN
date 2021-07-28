@@ -34,7 +34,7 @@ def run30(eventlabel, workdir, meta=None):
     nested          = meta.run_nested
     run_lsq         = meta.run_lsq
     plot_raw_data   = meta.run_plot_raw_data
-    path            = workdir +"/extracted_lc/2021-07-22_06:58/"
+    path            = workdir +"/extracted_lc/2021-07-28_02:40/"
     fit_white       = meta.run_fit_white
     divide_white    = meta.run_divide_white
 
@@ -43,7 +43,7 @@ def run30(eventlabel, workdir, meta=None):
     #reads in observation and fit parameters
     fit_par =   ascii.read(meta.workdir + "/fit_par.txt", Reader=ascii.CommentedHeader)
 
-    files = ['/home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/run/run_2021-07-22_06-58-22_L-98-59_Hubble15856/extracted_lc/2021-07-22_06:58/lc_white.txt']#meta.run_files #glob.glob(os.path.join(path, "*"))
+    files = ['/home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/run/run_2021-07-28_02-40-16_L-98-59_Hubble15856/extracted_lc/2021-07-28_02:40/lc_white.txt']#meta.run_files #glob.glob(os.path.join(path, "*"))
     if fit_white: files = glob.glob(white_file)
 
     meta.run_out_name = "fit_" + pythontime.strftime("%Y_%m_%d_%H:%M") + ".txt"

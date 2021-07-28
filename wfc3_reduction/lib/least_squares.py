@@ -39,7 +39,7 @@ def lsq_fit(fit_par, data, meta, model, myfuncs):
     params_s = np.array(params_s)
 
     
-    if meta.run_plot_raw_data: plot_raw(data)
+    if meta.run_plot_raw_data: plot_raw(data, meta)
     fa = {'data':data, 'model':model}
 
     if meta.run_divide_white:
@@ -80,7 +80,7 @@ def lsq_fit(fit_par, data, meta, model, myfuncs):
         #print data.wavelength, "{0:0.3f}".format(m.params[data.par_order['A1']*nvisit])
         PrintParams(m, data)
 
-    if meta.run_show_plot: plot_fit(data, model)
+    if meta.run_show_plot: plot_fit(data, model, meta)
 
     #model = Model(data , myfuncs)
     return  data, model, m.params

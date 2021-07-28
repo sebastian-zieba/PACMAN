@@ -4,21 +4,21 @@
 
 import os
 import numpy as np
+import urllib.request
 from astropy.io import ascii
-import urllib.request 
 from tqdm import tqdm
-
+from ..lib import manageevent as me
 
 
 def run01(eventlabel, workdir, meta=None):
 
+	# read in filelist
 	filelist_path = meta.workdir + '/filelist.txt'
-
 	if os.path.exists(filelist_path):
-		data = ascii.read(filelist_path)
+		filelist = ascii.read(filelist_path)
 
-	nvisit = data['nvisit']
-	t_mjd = data['t_mjd']
+	t_mjd = filelist['t_mjd']
+	ivisit = filelist['ivisit']
 
 	# Setting for the JPL Horizons interface
 	settings = [
@@ -55,8 +55,8 @@ def run01(eventlabel, workdir, meta=None):
 		os.makedirs(meta.workdir + '/ancil/horizons/')
 
 	# retrieve positions for every individual visit
-	for i in tqdm(range(max(nvisit)+1), desc='Retrieving Horizons file for every visit'):
-		t_mjd_visit = t_mjd[np.where(nvisit == i)]
+	for i in tqdm(range(max(ivisit)+1), desc='Retrieving Horizons file for every visit'):
+		t_mjd_visit = t_mjd[np.where(ivisit == i)]
 		t_start = min(t_mjd_visit) + 2400000.5 - 1/24 #Start of Horizons file one hour before first exposure in visit
 		t_end = max(t_mjd_visit) + 2400000.5 + 1/24 #End of Horizons file one hour after last exposure in visit
 
@@ -73,6 +73,10 @@ def run01(eventlabel, workdir, meta=None):
 
 		urllib.request.urlretrieve(settings_new, meta.workdir + '/ancil/horizons' + '/horizons_results_v{0}.txt'.format(i))
 
-	print('Finished 01.py')
+	# Save results
+	print('Saving Metadata')
+	me.saveevent(meta, meta.workdir + '/WFC3_' + meta.eventlabel + "_Meta_Save", save=[])
+
+	print('Finished s01 \n')
 
 	return meta

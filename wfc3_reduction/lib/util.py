@@ -1,6 +1,12 @@
 import numpy as np
 from astropy.io import ascii, fits
 import math
+import numpy as np
+from importlib import reload
+import multiprocessing as mp
+import os
+from tqdm import tqdm
+import numpy.ma as ma
 
 
 def computeRMS(data, maxnbins=None, binstep=1, isrmserr=False):
@@ -43,13 +49,6 @@ def weighted_mean(data, err):            #calculates the weighted mean for data 
 
 
 
-
-import numpy as np
-from importlib import reload
-import multiprocessing as mp
-import os
-from tqdm import tqdm
-
 def readfiles(meta):
     """
     Reads in the files saved in topdir + datadir and saves them into a list
@@ -67,14 +66,18 @@ def readfiles(meta):
     return meta
 
 
-def ancil(meta, s20=False):
+def ancil(meta, s10=False, s20=False):
 
-    filetable = ascii.read(meta.workdir + '/filelist.txt')
-    sp_mask = np.array([i[0] for i in filetable['filter/grism']]) == 'G'
-    di_mask = np.array([i[0] for i in filetable['filter/grism']]) == 'F'
-    meta.files_sp = [meta.path + '/' + i for i in filetable['filenames'][sp_mask].data]
+    filelist = ascii.read(meta.workdir + '/filelist.txt')
 
+    aa = filelist['iorbit'].data
+    bb = np.diff(aa)
+    meta.norbit, meta.nvisit = len(np.insert(aa[1:][np.where(bb != 0)], 0, aa[0])), len(set(filelist['ivisit'].data))
 
+    meta.mask_sp = np.array([i[0] for i in filelist['filter/grism']]) == 'G'
+    meta.mask_di = np.array([i[0] for i in filelist['filter/grism']]) == 'F'
+    meta.files_sp = [meta.path + '/' + i for i in filelist['filenames'][meta.mask_sp].data]
+    meta.files_di = [meta.path + '/' + i for i in filelist['filenames'][meta.mask_di].data]
 
     f = fits.open(meta.files_sp[0])
 
@@ -82,22 +85,33 @@ def ancil(meta, s20=False):
     meta.dec = f[0].header['dec_targ'] * math.pi / 180.0  # stores declination
 
     meta.coordtable = []  # table of spacecraft coordinates
-    for i in range(max(filetable['nvisit']) + 1): meta.coordtable.append(
+    for i in range(max(filelist['ivisit']) + 1): meta.coordtable.append(
         meta.workdir + '/ancil/horizons/' + "/horizons_results_v" + str(i) + ".txt")
 
     ###
     # 03
-    meta.filter = filetable['filter/grism'][di_mask][0]
-    meta.grism = filetable['filter/grism'][sp_mask][0]
+    meta.filter = filelist['filter/grism'][meta.mask_di][0]
+    meta.grism = filelist['filter/grism'][meta.mask_sp][0]
 
-    meta.scans = filetable['scan'][sp_mask].data
-    meta.orbnum = filetable['norbit'][sp_mask].data
-    meta.visnum = filetable['nvisit'][sp_mask].data
+    meta.scans_sp = filelist['scan'][meta.mask_sp].data
+    meta.iorbit_sp = filelist['iorbit'][meta.mask_sp].data
+    meta.ivisit_sp = filelist['ivisit'][meta.mask_sp].data
 
-    meta.t_mjd = filetable['t_mjd'][sp_mask].data
+    c = np.zeros(len(meta.iorbit_sp), dtype=int)
+    for i in range(len(c) - 1):
+        cc = np.diff(meta.iorbit_sp)
+        if cc[i] == 0:
+            c[i + 1] = c[i]
+        else:
+            c[i + 1] = c[i] + 1
+    meta.iorbit_sp_com  = c
 
-    meta.t_orbit = filetable['t_orbit'][sp_mask].data
-    meta.t_visit = filetable['t_visit'][sp_mask].data
+    meta.iorbit_di = filelist['iorbit'][meta.mask_di].data
+    meta.ivisit_di = filelist['ivisit'][meta.mask_di].data
+    meta.t_mjd_sp = filelist['t_mjd'][meta.mask_sp].data
+
+    meta.t_orbit_sp = filelist['t_orbit'][meta.mask_sp].data
+    meta.t_visit_sp = filelist['t_visit'][meta.mask_sp].data
 
     meta.platescale = 0.13  # IR detector has plate scale of 0.13 arcsec/pixel
 
@@ -108,12 +122,134 @@ def ancil(meta, s20=False):
 
     meta.subarray_size = f[1].header['SIZAXIS1']  # size of subarray
 
-    if s20 == True:
-        if 't_bjd' in filetable.keys():
-            meta.t_bjd = filetable['t_bjd'][sp_mask].data
+    if s10:
+        if 't_bjd' in filelist.keys():
+            meta.t_bjd_sp = filelist['t_bjd'][meta.mask_sp].data
+        if 't_bjd' in filelist.keys():
+            meta.t_bjd_di = filelist['t_bjd'][meta.mask_di].data
 
-        refpix = np.genfromtxt(meta.workdir + "/xrefyref.txt")  # reads in reference pixels for each visit and sorts them by time
-        idx = np.argsort(refpix[:, 0])  # sort by time
-        meta.refpix = refpix[idx]  # reference pixels from direct image
+    if s20:
+        meta.refpix = np.genfromtxt(meta.workdir + "/xrefyref.txt")  # reads in reference pixels for each visit and sorts them by time
+        #idx = np.argsort(refpix[:, 0])  # sort by time
+        #meta.refpix = refpix[idx]  # reference pixels from direct image
 
     return meta
+
+
+def get_wave_grid(meta):
+
+    if meta.grism == 'G102':
+        from ..lib import geometry102 as geo
+    elif meta.grism == 'G141':
+        from ..lib import geometry as geo
+    else:
+        print('Error: GRISM in obs_par.cf is neither G102 nor G141!')
+
+    wave_grid = np.empty((meta.norbit*meta.nvisit, meta.subarray_size, meta.subarray_size))
+
+    #calculates wavelength solution row by row for each orbit
+    for i in range(meta.norbit):
+        for j in range(meta.subarray_size):
+            disp_solution = geo.dispersion(meta.refpix[i,1], -meta.LTV2+j)
+            delx = 0.5 + np.arange(meta.subarray_size) - (meta.refpix[i,2] + meta.LTV1 + meta.POSTARG1/meta.platescale)
+            wave_grid[i, j, :] = disp_solution[0] + delx*disp_solution[1]
+
+    return wave_grid
+
+
+def get_flatfield(meta):                    #function that flatfields a data array D, which starts at [minr, cmin] of hdu[1].data
+    flat = fits.open(meta.flat)                #reads in flatfield cube
+    WMIN = flat[0].header['WMIN']                #constants for computing flatfield coefficients
+    WMAX = flat[0].header['WMAX']
+
+    a0 = flat[0].data[-meta.LTV1:-meta.LTV1+meta.subarray_size, -meta.LTV2:-meta.LTV2+meta.subarray_size]
+    a1 = flat[1].data[-meta.LTV1:-meta.LTV1+meta.subarray_size, -meta.LTV2:-meta.LTV2+meta.subarray_size]
+    a2 = flat[2].data[-meta.LTV1:-meta.LTV1+meta.subarray_size, -meta.LTV2:-meta.LTV2+meta.subarray_size]
+
+    flatfield = []
+    for i in range(meta.norbit*meta.nvisit):
+        wave = meta.wave_grid[i, :]
+        x = (wave - WMIN)/(WMAX-WMIN)
+        flatfield.append(a0+a1*x+a2*x**2)
+        flatfield[i][flatfield[i] < 0.5] = -1.        #sets flatfield pixels below 0.5 to -1 so they can be masked
+    return flatfield
+
+
+
+
+
+
+
+def median_abs_dev(vec):
+    med = ma.median(vec)
+    return ma.median(abs(vec - med))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def residuals(params, template_waves, template, spectrum, error):
+    shift, scale = params
+    fit = scale*np.interp(template_waves, template_waves-shift, spectrum)
+    x = (template-fit)/error
+    return (template-fit)/error
+
+from scipy.interpolate import interp1d
+
+def residuals2(params, x1, y1, x2, y2):
+    a, b, c = params
+    x1=np.array(x1)
+    x2=np.array(x2)
+    y1=np.array(y1)
+    y2=np.array(y2)
+
+    f = interp1d(x1, y1, kind='cubic')
+    fit = f(a+b*x2)*c
+
+    return fit - y2
+
+def interpolate_spectrum(spectrum, error, template, template_waves):
+    p0 = [1., 1.0]                                        #initial guess for parameters shift and scale
+    plsq, success  = leastsq(residuals, p0, args=(template_waves, template, spectrum, error))
+    shift, scale = plsq
+    interp_spectrum = np.interp(template_waves, template_waves-shift, spectrum)
+    interp_error = np.interp(template_waves, template_waves-shift, error)
+    return [interp_spectrum, interp_error, shift]
+
+# def read_dict(filename):
+#     #with open(filename,"r") as text:
+#     #    return dict(line.strip().split() for line in text)
+#     dict = {}
+#     with open(filename,"r") as text:
+#         for line in text:
+#             key, value = line.split()
+#             value = str_to_num(value)
+#             if value == 'True': value = True
+#             if value == 'False': value = False
+#             dict[key] = value
+#     return dict
+
+
+
+#def getphase(t):
+#    phase = (t - t0)/period
+#    return phase - int(phase)
+
+
+
+
+
+
+
+
+

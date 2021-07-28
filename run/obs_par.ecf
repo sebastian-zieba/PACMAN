@@ -1,38 +1,85 @@
-#parameter value
-which_visits   [0,2,3,4,6]  #[0,1,2,3,4,5,6]
+# 00
 path     /home/zieba/Desktop/Data/L-98-59_Hubble15856/ #/home/zieba/Desktop/Data/GJ1214_Hubble13021 # #/home/zieba/Desktop/Data/WASP33_Hubble15109
-toffset  2458366
 suffix             ima
+which_visits  [0,2,3,4,6] #[0,2] #[0] #[0,2,3,4,6]  #[0,1,2,3,4,5,6]
 
-###
-direct_image_diagnostics     True # show direct image
-direct_image_output  True # save direct image and xrefyref
+
+## 02 barycorr
+save_barycorr_plot                    True
+show_barycorr_plot                    False
+
+
+## 03
+Teff  3412
+logg     4.94
+MH   -0.5
+sm   phoenix #kurutz
+save_bandpass_plot                    True
+show_bandpass_plot                    False
+save_refspec_plot                    True
+show_refspec_plot                    False
+
+
+## 10
 di_rmin  270 #130 #270 #130 #
 di_rmax  290 #160 #285 #155 #
 di_cmin  245 #15 #245 #125 #
 di_cmax  265 #35 #260 #150 #
+save_image_plot     True
+show_image_plot     False
+
+
+## 20
+save_bkg_plot                    True
+show_bkg_plot                    False
+save_trace_plot                    True
+show_trace_plot                    False
+
+diagnostics        False
+background_thld  1000 #background threshold in counts
+
+
+sig_cut  15  #optimal extraction, for cosmic rays etc
+nsmooth  9         #optimal extraction, created smoothed spatial profile, medial smoothing filter
+
+
+rmin     0
+rmax     512 #255
+cmin     0
+cmax     512 #255
+offset   0 #int
+rdnoise  22.0
+window   150
+
+
+#background_box   False #background count is being estimated by using a user-selected box. Need to set skyrmin etc
+#skyrmin  15
+#skyrmax  70
+#skycmin  20 #100 #400
+#skycmax 100 #200 #500
+
+
+
+
+toffset  2458366
+
+
+
 
 ###
 trace_image_output   True  # save trace
 trace_image_show     True  # show trace
 all_image_output     True # save all pics
 all_image_show   True  # show all pics
-sig_cut  15
-nsmooth  9
-diagnostics  False
+
+
 output   True
 opt_extract  True
 correct_wave_shift   True
 plot_trace   True
 plot_spectrum    True
 one_di_per_visit     False
-rmin     0
-rmax     512 #255 #512
-cmin     0
-cmax     512 #255 #512
-offset   0 #int
-rdnoise  22.0
-window   150
+
 
 ###				
 BEAMA_i  15 #41
@@ -59,18 +106,10 @@ wvl_max  1.65
 wvl_bins   [12, 20]
 
 ###
-Teff  3412
-logg     4.94 
-MH   -0.5
-sm   phoenix #kurutz #
+
 
 ###
-background_box   False #background count is being estimated by using a user-selected box. Need to set skyrmin etc
-background_thld  1000 #background threshold in counts
-skyrmin  15
-skyrmax  70
-skycmin  20 #100 #400
-skycmax 100 #200 #500
+
 
 ##
 run_verbose         True

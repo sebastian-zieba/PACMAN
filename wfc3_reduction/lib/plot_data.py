@@ -5,6 +5,8 @@ import matplotlib
 import seaborn as sns
 from .formatter import FormatParams
 from .model import Model, calc_sys, calc_astro
+from datetime import datetime
+
 
 sns.set_context("talk")
 sns.set_style("white")
@@ -12,7 +14,10 @@ sns.set_style("ticks", {"xtick.direction":"in", "ytick.direction":"in"})
 matplotlib.rcParams.update({'lines.markeredgewidth':0.3})
 matplotlib.rcParams.update({'axes.formatter.useoffset':False})
 
-def plot_raw(data):
+time_now = datetime.strftime(datetime.now(), '%Y-%m-%d_%H:%M')
+
+
+def plot_raw(data, meta):
     palette = sns.color_palette("husl", data.nvisit)
     for i in range(data.nvisit):
         ind = data.vis_num==i
@@ -26,11 +31,11 @@ def plot_raw(data):
     plt.xlabel("Time after visit start (hours)")
     plt.ylabel("Flux (e-)")
     plt.tight_layout()
-    plt.savefig("raw_lc.pdf")
+    plt.savefig(meta.workdir + "/raw_lc_{0}.pdf".format(time_now))
     plt.show()
 
 
-def plot_fit(data, model):
+def plot_fit(data, model, meta):
     p = FormatParams(model.params, data)    #FIXME 
 
     sns.set_palette("muted")
@@ -83,11 +88,17 @@ def plot_fit(data, model):
     plt.xlim(xlo,xhi)
     plt.ylabel("Residuals (ppm)")
     plt.xlabel("Orbital phase")
-    
+
     plt.tight_layout()
-    plt.savefig("white_lc.pdf")
+    plt.savefig(meta.workdir + "/white_lc_{0}.pdf".format(time_now))
     plt.show()
     #plt.waitforbuttonpress(0) # this will wait for indefinite time
     plt.close()
 
+    #res_time = np.zeros(len(data.vis_num))
+    #for i in range(data.nvisit):
+    #    ind = data.vis_num == i
+    #    res_time[ind] = model.phase[ind] + 2.25314 * i
 
+    #plt.plot(res_time, 1.0e6*model.norm_resid, marker = 'o', markersize = 3, linestyle = "none")
+    #plt.show()

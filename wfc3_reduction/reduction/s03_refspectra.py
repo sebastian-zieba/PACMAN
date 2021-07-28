@@ -1,34 +1,31 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import pysynphot as S 
 from ..lib import manageevent as me
 #https://pysynphot.readthedocs.io/en/latest/bandpass.html#observation-mode
 #https://pysynphot.readthedocs.io/en/latest/appendixb.html#wfc3
 #https://pysynphot.readthedocs.io/en/latest/appendixb.html#mjd
-
-import sys, os
-
+import os
 from astropy.io import ascii
 from scipy.interpolate import interp1d
-
-
+from ..lib import plots
+from tqdm import tqdm
 
 
 def run03(eventlabel, workdir, meta=None):
 
+    # read in filelist
     filelist_path = meta.workdir + '/filelist.txt'
-
     if os.path.exists(filelist_path):
-        data = ascii.read(filelist_path)
+        filelist = ascii.read(filelist_path)
 
-    nvisit = data['nvisit']
-    t_mjd = data['t_mjd']
+    ### Bandpass
 
+    ivisit = filelist['ivisit']
+    t_mjd = filelist['t_mjd']
 
-    # store time when every visit started
+    # stores time when every visit started
     # pysynphot will then download the throughput from the time of observations
-    t_mjd_visit_starts = t_mjd[np.unique(nvisit, return_index=True)[1]]
-
+    t_mjd_visit_starts = t_mjd[np.unique(ivisit, return_index=True)[1]]
 
     if meta.grism == 'G141':
         grism = 'g141'
@@ -38,23 +35,17 @@ def run03(eventlabel, workdir, meta=None):
     if not os.path.exists(meta.workdir + '/ancil/bandpass'):
         os.makedirs(meta.workdir + '/ancil/bandpass')
 
-    for i, t_mjd_visit_start in enumerate(t_mjd_visit_starts):
+    for i, t_mjd_visit_start in enumerate(tqdm(t_mjd_visit_starts, desc='Download Bandpass for every visit')):
         bp = S.ObsBandpass('wfc3,ir,{0},mjd#{1}'.format(grism, t_mjd_visit_start))
         wvl, bp_val = bp.binset, bp(bp.binset)
-
         np.savetxt(meta.workdir + '/ancil/bandpass/bandpass_v{0}.txt'.format(i), list(zip(wvl, bp_val)))
 
-        plt.plot(wvl, bp_val, c='C0')
-        plt.xlabel('Angstrom')
-        plt.ylabel('Throughput')
-        plt.title('{0}_v{1}'.format(grism, i))
-        plt.savefig(meta.workdir + '/ancil/bandpass/bandpass_v{0}.png'.format(i))
-        plt.close()
-
-    print('Downloaded Bandpass for every visit.py')
+        if meta.save_bandpass_plot or meta.show_bandpass_plot:
+            plots.bandpass(wvl, bp_val, grism, i, meta)
 
 
 
+    ### Stellar Spectrum
 
     Teff, logg, MH = meta.Teff, meta.logg, meta.MH
 
@@ -80,34 +71,21 @@ def run03(eventlabel, workdir, meta=None):
     f = interp1d(x, y, kind='cubic')
 
 
-    nvisit = data['nvisit']
-
-
     # Muliply stellar spectrum and bandpass
-    for vi in np.unique(nvisit):
+    for vi in tqdm(np.unique(ivisit), desc='Multiply Bandpass with Stellar Spectrum for every visit'):
         throughput = np.loadtxt(meta.workdir + '/ancil/bandpass/bandpass_v{0}.txt'.format(vi)).T
-
         wvl_g = throughput[0]/1e4 #microns
         flux_g = throughput[1]
+        np.savetxt(meta.workdir + '/ancil/bandpass/refspec_v{0}.txt'.format(vi), list(zip(wvl_g, f(wvl_g)*flux_g)))
 
-        plt.plot(x, y, label='stellar spectrum')
-        plt.plot(wvl_g, flux_g, label='bandpass')
-        plt.plot(wvl_g, f(wvl_g)*flux_g, label='stellar spectrum * bandpass')
-
-        plt.xlim(0.7, 2)
-
-        #plt.xscale('log')
-        plt.legend()
-
-        plt.savefig(meta.workdir + '/ancil/bandpass/refspectra_v{0}.png'.format(vi))
-        plt.close()
-        np.savetxt(meta.workdir + '/ancil/bandpass/refspectra_v{0}.txt'.format(vi), list(zip(wvl_g, f(wvl_g)*flux_g)))
+        if meta.save_refspec_plot or meta.show_refspec_plot:
+            plots.refspec(x, y, wvl_g, flux_g, f, vi, meta)
 
 
     # Save results
     print('Saving Metadata')
     me.saveevent(meta, meta.workdir + '/WFC3_' + meta.eventlabel + "_Meta_Save", save=[])
 
-    print('Finished 03.py')
+    print('Finished s03 \n')
 
     return meta
