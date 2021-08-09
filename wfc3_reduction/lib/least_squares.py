@@ -1,8 +1,11 @@
 import numpy as np
 from . import mpfit
-from .plot_data import plot_raw, plot_fit
+from . import plots
+from .plots import plot_raw, plot_fit_lc
 from .formatter import PrintParams
 import pickle
+
+
 
 def residuals(params, data, model, fjac=None):			
     fit = model.fit(data, params)
@@ -22,9 +25,7 @@ def lsq_fit(fit_par, data, meta, model, myfuncs):
     for i in range(int(npar/nvisit)):						
         for j in range(nvisit):						
             parinfo[i*nvisit+j]['value'] = fit_par['value'][i]	
-            parinfo[i*nvisit+j]['step'] = 0.01*np.abs(fit_par['value'][i])
-            #FIXME: set stepsize small for first arg (need to update)
-            if i==2: parinfo[i*nvisit+j]['step'] = 0.00001
+            parinfo[i*nvisit+j]['step'] = fit_par['step_size'][i]
             parinfo[i*nvisit+j]['fixed'] = fit_par['fixed'][i].lower() == "true"
             if j>0 and fit_par['tied'][i].lower() == "true":
                 parinfo[i*nvisit+j]['tied'] = 'p[{0}]'.format(nvisit*i)	
@@ -42,6 +43,7 @@ def lsq_fit(fit_par, data, meta, model, myfuncs):
     if meta.run_plot_raw_data: plot_raw(data, meta)
     fa = {'data':data, 'model':model}
 
+    # FIXME SZ: NO FILE "white_systematics.txt"
     if meta.run_divide_white:
             sys_vector = np.genfromtxt("white_systematics.txt")
             data.all_sys = sys_vector
@@ -50,7 +52,7 @@ def lsq_fit(fit_par, data, meta, model, myfuncs):
 #		print "subtracting 2 from dof for divide-white"
 
 
-    m = mpfit.mpfit(residuals, params_s, functkw=fa, parinfo = parinfo, quiet=True) 
+    m = mpfit.mpfit(residuals, params_s, functkw=fa, parinfo = parinfo, quiet=False, maxiter=500)
     """#rescale error bars based on chi2
     #print "rescaling error bars to get chi2red = 1"
     #print "scale factor = ", np.sqrt(model.chi2red)
@@ -80,7 +82,8 @@ def lsq_fit(fit_par, data, meta, model, myfuncs):
         #print data.wavelength, "{0:0.3f}".format(m.params[data.par_order['A1']*nvisit])
         PrintParams(m, data)
 
-    if meta.run_show_plot: plot_fit(data, model, meta)
+    if meta.run_show_plot: plot_fit_lc(data, model, meta)
+    plots.rmsplot(model, meta)
 
     #model = Model(data , myfuncs)
     return  data, model, m.params

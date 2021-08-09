@@ -8,6 +8,9 @@ import os
 from ..lib import manageevent as me
 from ..lib import util
 import time as time_now
+from astropy.table import QTable
+from ..lib import plots
+
 
 def run22(eventlabel, workdir, meta=None):
 
@@ -22,6 +25,7 @@ def run22(eventlabel, workdir, meta=None):
 
 
     for wvl_bins in meta.wvl_bins:
+        print(meta.wvl_bins)
         #what bins do you want?
         #wave_bins = np.linspace(1.125, 1.65, 22)*1e4
         wave_bins = np.linspace(meta.wvl_min, meta.wvl_max, wvl_bins)*1e4
@@ -44,7 +48,7 @@ def run22(eventlabel, workdir, meta=None):
         npix = meta.BEAMA_f - meta.BEAMA_i #181  #width of spectrum in pixels (BEAMA_f - BEAMA_i)
         #d = d.reshape(nexp , npix,  -1)			#reshapes array by exposure
 
-        w = d[4].reshape(nexp, npix)[0] # d[0,:, 4]
+        w = d[9].reshape(nexp, npix)[0] # d[0,:, 4]
         #f = d[0, :, 2]
 
         w_hires = np.linspace(w.min(), w.max(), 10000)
@@ -64,37 +68,37 @@ def run22(eventlabel, workdir, meta=None):
             wave = (wave_bins[i] + wave_bins[i+1])/2./1.e4
             outname = dirname + "/speclc" + "{0:.3f}".format(wave)+".txt"
             #outname = "wasp33b_" + "{0:.4f}".format(wave)+".txt"
-            outfile = open(outname, 'w')
+            #outfile = open(outname, 'w')
 
+            table = QTable(names=('t_mjd', 't_bjd', 't_visit', 't_orbit', 'ivisit', 'iorbit', 'scan', 'spec_opt', 'var_opt', 'wave'))
 
-            print("#time", '\t\t', "photoelectrons", '\t', "error", '\t\t', "visit", '\t', "orbit", '\t', "scan", '\t', "wave_center", '\t', "wave_start",  '\t', "wave_end", file=outfile)
+            #print('#t_mjd', '\t', 't_bjd', '\t', 't_visit', '\t', 't_orbit', '\t', 'ivisit', '\t', 'iorbit', '\t', 'scan', '\t', 'spec_opt', '\t', 'var_opt', '\t','wave', file=outfile)
             for j in range(nexp):
-                time, phase, visnum, orbnum, scan = d[0].reshape(nexp, npix)[j], d[1].reshape(nexp, npix)[j], d[5].reshape(nexp, npix)[j], d[6].reshape(nexp, npix)[j], d[7].reshape(nexp, npix)[j]
-
-                f_interp = np.interp(w_hires, w, d[2].reshape(nexp, npix)[j])
-                variance_interp = np.interp(w_hires, w, d[3].reshape(nexp, npix)[j])
-
+                t_mjd, t_bjd, t_visit, t_orbit = d[0].reshape(nexp, npix)[j][0], d[1].reshape(nexp, npix)[j][0], d[2].reshape(nexp, npix)[j][0], d[3].reshape(nexp, npix)[j][0]
+                ivisit, iorbit, scan = d[4].reshape(nexp, npix)[j][0], d[5].reshape(nexp, npix)[j][0], d[6].reshape(nexp, npix)[j][0]
+                spec_opt,  var_opt = d[7].reshape(nexp, npix)[j], d[8].reshape(nexp, npix)[j]
+                f_interp = np.interp(w_hires, w, spec_opt)
+                variance_interp = np.interp(w_hires, w, var_opt)
 
                 #accounts for decrease in precision when spectrum is oversampled
                 variance_interp *= oversample_factor
-
 
                 fluxes = f_interp[wave_inds[i]]
                 errs = np.sqrt(variance_interp[wave_inds[i]])
 
                 meanflux, meanerr = weighted_mean(fluxes, errs)
 
-                print(phase, meanflux, meanerr**2, wave, 0., time, visnum, orbnum, scan, file=outfile)
-
+                #print(t_mjd, t_bjd, t_visit, t_orbit, ivisit, iorbit, scan, meanflux, meanerr**2, wave, file=outfile)
                 #print wave, np.sum(d[j, lo_res_wave_inds[i],2])
+                table.add_row([t_mjd, t_bjd, t_visit, t_orbit, ivisit, iorbit, scan, meanflux, meanerr**2, wave])
 
         #print wave, 1.0*sum(wave_inds)/len(w_hires), meanflux, meanerr
+            ascii.write(table, outname, format='ecsv', overwrite=True)
 
-        plt.plot(w_hires, f_interp)
-        for wave in wave_bins: plt.axvline(wave, color = '0.5')
-        plt.ylabel("Photelectrons")
-        plt.xlabel("Wavelength (angstroms)")
-        plt.tight_layout()
-        plt.savefig(dirname + 'spec_bins{0}.png'.format(wvl_bins))
-        plt.show()
+        plots.plot_wvl_bins(w_hires, f_interp, wave_bins, wvl_bins, dirname)
 
+        #outfile.close()
+
+    print('Finished s22 \n')
+
+    return meta

@@ -1,12 +1,12 @@
 # 00
 path     /home/zieba/Desktop/Data/L-98-59_Hubble15856/ #/home/zieba/Desktop/Data/GJ1214_Hubble13021 # #/home/zieba/Desktop/Data/WASP33_Hubble15109
 suffix             ima
-which_visits  [0,2,3,4,6] #[0,2] #[0] #[0,2,3,4,6]  #[0,1,2,3,4,5,6]
+which_visits  [0,2,3,4,6]  #[0,2] #[0] #[0,2]  #[0,2,3,4,6]  #[0,1,2,3,4,5,6]
 
 
 ## 02 barycorr
-save_barycorr_plot                    True
-show_barycorr_plot                    False
+save_barycorr_plot                   True
+show_barycorr_plot                   False
 
 
 ## 03
@@ -14,8 +14,8 @@ Teff  3412
 logg     4.94
 MH   -0.5
 sm   phoenix #kurutz
-save_bandpass_plot                    True
-show_bandpass_plot                    False
+save_bandpass_plot                   True
+show_bandpass_plot                   False
 save_refspec_plot                    True
 show_refspec_plot                    False
 
@@ -30,27 +30,43 @@ show_image_plot     False
 
 
 ## 20
-save_bkg_plot                    True
+window   55
+
+save_bkg_plot                    False
 show_bkg_plot                    False
-save_trace_plot                    True
-show_trace_plot                    False
+save_trace_plot                  False
+show_trace_plot                  False
+save_bkg_hist_plot               False
+show_bkg_hist_plot               False
+save_uptheramp_plot              False
+show_uptheramp_plot              False
+save_refspec_comp_plot           False
+show_refspec_comp_plot           False
+
+offset   0 #int
+BEAMA_i  15 #41
+BEAMA_f  196 #248
 
 diagnostics        False
 background_thld  1000 #background threshold in counts
-
-
-sig_cut  15  #optimal extraction, for cosmic rays etc
-nsmooth  9         #optimal extraction, created smoothed spatial profile, medial smoothing filter
-
 
 rmin     0
 rmax     512 #255
 cmin     0
 cmax     512 #255
-offset   0 #int
-rdnoise  22.0
-window   150
 
+flat     /home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/wfc3_reduction/ancil/flats/WFC3.IR.G141.flat.2.fits #ancil/flats/WFC3.IR.G102.flat.2.fits
+
+opt_extract  True
+sig_cut  15  #optimal extraction, for cosmic rays etc
+nsmooth  9         #optimal extraction, created smoothed spatial profile, medial smoothing filter
+
+rdnoise  22.0
+
+output   True
+correct_wave_shift   True
+
+one_di_per_visit     False
 
 #background_box   False #background count is being estimated by using a user-selected box. Need to set skyrmin etc
 #skyrmin  15
@@ -59,43 +75,7 @@ window   150
 #skycmax 100 #200 #500
 
 
-
-
-toffset  2458366
-
-
-
-
-###
-trace_image_output   True  # save trace
-trace_image_show     True  # show trace
-all_image_output     True # save all pics
-all_image_show   True  # show all pics
-
-
-output   True
-opt_extract  True
-correct_wave_shift   True
-plot_trace   True
-plot_spectrum    True
-one_di_per_visit     False
-
-
-###				
-BEAMA_i  15 #41
-BEAMA_f  196 #248
-flat     /home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/wfc3_reduction/ancil/flats/WFC3.IR.G141.flat.2.fits #ancil/flats/WFC3.IR.G102.flat.2.fits
-
-###		
-lc_type  transit
-skip_orbs_phase_curve    0_
-skip_orbs_eclipse    0_
-skip_orbs_transit    0_7_
-
-###
-ld_file  /ancil/LD_coefficients/HIP41378_ld_coeffs.dat
-fix_ld   False
-
+##21
 ### Wavelength bins
 #wave_bins = np.linspace(1.125, 1.65, 22)*1e4
 #wave_bins = np.linspace(1.125, 1.65, 12)*1e4
@@ -103,22 +83,39 @@ fix_ld   False
 #wave_bins = np.array([11400, 11800, 12200,12600,13000, 13400, 13800, 14200, 14600, 15000, 15400, 15800, 16200])
 wvl_min  1.125
 wvl_max  1.65
-wvl_bins   [12, 20]
-
-###
+wvl_bins   [12,20]
 
 
-###
 
+##30
+toffset  2458366
 
-##
+lc_type  transit
+
+ld_file  /home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/wfc3_reduction/limb-darkening/results/ld_outputfile.txt
+fix_ld   False
+
 run_verbose         True
 run_output          False
 run_show_plot       True
-run_mcmc        True
+run_mcmc            False
 run_nested          False
-run_lsq         True
+run_lsq             True
 run_plot_raw_data   True
-run_fit_white       False
+run_fit_white       True
 run_divide_white    False
-run_files ['/home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/run/run_2021-07-21_10-32-57_L-98-59_Hubble15856/extracted_lc/2021-07-21_10:33/lc_white.txt']
+run_files           ['/home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/run/run_2021-08-09_05-19-56_L-98-59_Hubble15856/extracted_sp/bins12_2021-08-09_06-01-51']
+run_myfuncs         ['constant','upstream_downstream','model_ramp','polynomial1','transit'] #['constant', 'upstream_downstream', 'ackbar', 'polynomial1', 'transit']# ['constant', 'upstream_downstream', 'model_ramp', 'polynomial2', 'transit']
+
+#mcmc
+run_nsteps          3000
+run_nwalkers	     25
+run_nburn           600
+
+
+
+
+
+#skip_orbs_phase_curve    0_
+#skip_orbs_eclipse    0_
+#skip_orbs_transit    0_7_

@@ -50,6 +50,7 @@ class Model:
 
 
     def fit(self, data, params):
+        #print(params)
         #loop over each observation
         for visit in range(data.nvisit):
             #FIXME don't do this every time fit is run

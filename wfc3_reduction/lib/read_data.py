@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import ascii
+import itertools
+
 
 class Data:
     """
@@ -30,7 +32,7 @@ class Data:
         # = np.genfromtxt(data_file)
         d = ascii.read(data_file)
         #d = d[:104]
-        #d = d[np.argsort(d[:,5])]   #FIXME (put indices in a file, or add header)
+        #d = d[np.argsort(d[:,5])]
 
 
         #removes first exposure from each orbit
@@ -42,26 +44,16 @@ class Data:
         t_vis = d['t_visit']
         t_orb = d['t_orbit']
 
-        #vis_num[np.where(vis_num == 0)] = 0
-        #vis_num[np.where(vis_num == 2)] = 1
-        #vis_num[np.where(vis_num == 3)] = 2
-        #vis_num[np.where(vis_num == 4)] = 3
-        #vis_num[np.where(vis_num == 6)] = 4
-
-
         n = len(d)
 
-
-#        t_orb_starts = np.zeros(n)
-        ind = np.diff(d['t_bjd']) < 30./60./24.
-        t_orb_startsi = np.concatenate(([t_orb[0]], t_orb[1:][~ind]))
-
-        import itertools
-        Y = [(x, len(list(y))) for x, y in itertools.groupby(orb_num)]
-
-        #t_orb_starts = (np.array([[t_orb_startsi[i]]*Y[i][1] for i in range(len(Y))])).flatten()
-        t_orb_starts = [([np.repeat(t_orb_startsi[i], Y[i][1]) for i in range(meta.norbit)])[ii] for ii in range(meta.norbit)]
-        t_orb_starts = [item for sublist in t_orb_starts for item in sublist]
+        #correct t_obs so that t_obs for the first exposure in orbit = 0
+        t_orb_starts = np.zeros(n)
+        t_orb_starts[0] = t_orb[0]
+        for i, t_orb_diff in enumerate(np.diff(t_orb)):
+            if t_orb_diff >= 0: # as long as t_orb increases, use same t_orb_start
+                t_orb_starts[i+1] = t_orb_starts[i]
+            else:
+                t_orb_starts[i+1] = t_orb[i + 1]
 
         t_orb = t_orb - t_orb_starts
         t_vis = t_vis - min(t_vis)
@@ -101,8 +93,10 @@ class Data:
         scan_direction = d['scan']
 
         #wavelength = d[0,3]
-
-        wavelength = 1.4
+        if meta.run_fit_white:
+            wavelength = 1.4
+        else:
+            wavelength = d['wave'][0]
         #print "setting wavelength by hand to fix_ld for white lc"
 
 
@@ -130,7 +124,7 @@ class Data:
         self.flux = flux
         self.err = err
         self.wavelength = wavelength
-        self.exp_time = np.median(np.diff(time))*60*60*24 #float(obs_par['exp_time'])
+        self.exp_time = np.median(np.diff(time))*60*60*24 #for supersampling in batman.py
         self.toffset = float(meta.toffset)
         self.nvisit = nvisit
         self.vis_num = vis_num

@@ -14,6 +14,8 @@ from ..lib.model import Model
 from ..lib.least_squares import lsq_fit
 from ..lib.mcmc import mcmc_fit
 from ..lib.nested import nested_sample
+import time
+import shutil
 
 
 def run30(eventlabel, workdir, meta=None):
@@ -21,34 +23,34 @@ def run30(eventlabel, workdir, meta=None):
     if meta == None:
         meta = me.loadevent(workdir + '/WFC3_' + eventlabel + "_Meta_Save")
 
-    #myfuncs = ['constant', 'upstream_downstream', 'ackbar', 'polynomial1', 'transit']
-    myfuncs = ['constant', 'upstream_downstream', 'model_ramp', 'polynomial1', 'transit'] 
-    #myfuncs = ['constant', 'upstream_downstream', 'model_ramp', 'polynomial2', 'transit']
+
+    # Create directories for Stage 3 processing
+    datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
+    meta.fitdir = '/fit_' + datetime + '_' + meta.eventlabel
+    if not os.path.exists(meta.workdir + meta.fitdir):
+        os.makedirs(meta.workdir + meta.fitdir)
+
+    # Copy ecf
+    shutil.copy(meta.workdir + "/obs_par.ecf", meta.workdir + meta.fitdir)
+    shutil.copy(meta.workdir + "/fit_par.txt", meta.workdir + meta.fitdir)
 
 
-    #defaults for command line flags
-    verbose         = meta.run_verbose
-    output          = meta.run_output
-    show_plot       = meta.run_show_plot
-    run_mcmc        = meta.run_mcmc
-    nested          = meta.run_nested
-    run_lsq         = meta.run_lsq
-    plot_raw_data   = meta.run_plot_raw_data
-    path            = workdir +"/extracted_lc/2021-07-28_02:40/"
-    fit_white       = meta.run_fit_white
-    divide_white    = meta.run_divide_white
-
-
+    myfuncs = meta.run_myfuncs
 
     #reads in observation and fit parameters
     fit_par =   ascii.read(meta.workdir + "/fit_par.txt", Reader=ascii.CommentedHeader)
-
-    files = ['/home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/run/run_2021-07-28_02-40-16_L-98-59_Hubble15856/extracted_lc/2021-07-28_02:40/lc_white.txt']#meta.run_files #glob.glob(os.path.join(path, "*"))
-    if fit_white: files = glob.glob(white_file)
+    if meta.run_fit_white:
+        files = meta.run_files #
+    else:
+        files = glob.glob(os.path.join(meta.run_files[0], "*"))  #
+    print(files)
 
     meta.run_out_name = "fit_" + pythontime.strftime("%Y_%m_%d_%H:%M") + ".txt"
 
     for f in files:
+
+        meta.fittime = time.strftime('%Y-%m-%d_%H-%M-%S')
+
         data = Data(f, meta, fit_par)
         model = Model(data, myfuncs)
         data, model, params = lsq_fit(fit_par, data, meta, model, myfuncs)

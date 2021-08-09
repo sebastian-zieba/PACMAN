@@ -3,7 +3,6 @@ from astropy.io import fits
 from numpy import *
 import scipy.signal
 from pylab import *
-
 from ..lib import optextr
 from scipy.optimize import leastsq
 from astropy.io import ascii
@@ -12,6 +11,8 @@ from astropy.table import QTable
 from ..lib import manageevent as me
 from ..lib import util
 from ..lib import plots
+from scipy.signal import find_peaks
+from tqdm import tqdm
 
 
 def run20(eventlabel, workdir, meta=None):
@@ -22,13 +23,12 @@ def run20(eventlabel, workdir, meta=None):
     # load in more information into meta
     meta = util.ancil(meta, s20=True)
 
-
     if meta.grism == 'G102':
         from ..lib import geometry102 as geo
     elif meta.grism == 'G141':
         from ..lib import geometry as geo
-    else:
-        print('Error: GRISM in obs_par.cf is neither G102 nor G141!')
+    #else:
+    #    print('Error: GRISM in obs_par.cf is neither G102 nor G141!')
 
     # TODO: cf mentioning
 
@@ -41,8 +41,8 @@ def run20(eventlabel, workdir, meta=None):
     dirname = meta.workdir + "/extracted_lc/" + datetime.strftime(datetime.now(), '%Y-%m-%d_%H:%M')
     if not os.path.exists(dirname): os.makedirs(dirname)
 
-    table_white = QTable(names=('phase', 'spec_opt', 'var_opt', 'spec_box', 'var_box', 't_mjd', 'ivisit', 'iorbit', 'scan', 't_visit','t_orbit', 't_bjd'))
-    table_spec = QTable(names=('t_mjd', 'phase', 'spec_opt', 'var_opt', 'template_waves', 'ivisit', 'iorbit', 'scan', 't_bjd'))
+    table_white = QTable(names=('t_mjd', 't_bjd', 't_visit','t_orbit', 'ivisit', 'iorbit', 'scan', 'spec_opt', 'var_opt', 'spec_box', 'var_box'))
+    table_spec = QTable(names=('t_mjd', 't_bjd', 't_visit','t_orbit', 'ivisit', 'iorbit', 'scan', 'spec_opt', 'var_opt', 'template_waves'))
     table_diagnostics = QTable(names=('nspectra', 't_mjd', 'numoutliers', 'skymedian', 'shift', "# nans"))
 
 
@@ -51,11 +51,13 @@ def run20(eventlabel, workdir, meta=None):
     meta.nexp = len(files_sp)
     nspectra = 0                                                #iterator variable to track number of spectra reduced
 
-    print('in total visit, orbit:', (meta.norbit, meta.nvisit))
+    bkg_lc = []
 
-    for i in np.arange(len(files_sp), dtype=int):
+    print('in total visit, orbit:', (meta.norbit, meta.nvisit), '\n')
+
+    for i in tqdm(np.arange(len(files_sp), dtype=int)):
         f = files_sp[i]
-        print("\nProgress: {0}/{1}".format(i, len(files_sp)))
+        #print("\nProgress: {0}/{1}".format(i+1, len(files_sp)))
         print("Filename: {0}".format(f))
         d = fits.open(f)                                        #opens the file
         scan = meta.scans_sp[i]
@@ -75,7 +77,7 @@ def run20(eventlabel, workdir, meta=None):
         cmin = int(meta.refpix[orbnum,2] + meta.POSTARG1/meta.platescale) + meta.BEAMA_i + meta.LTV1 + offset                      #determines left column for extraction (beginning of the trace)
         cmax = min(int(meta.refpix[orbnum,2] + meta.POSTARG1/meta.platescale) + meta.BEAMA_f + meta.LTV1 - offset, meta.subarray_size)     #right column (end of trace, or edge of detector)
         rmin, rmax = int(meta.rmin), int(meta.rmax)                     #top and bottom row for extraction (specified in obs_par.txt)
-        print(cmin, cmax, rmin, rmax)
+        #print(cmin, cmax, rmin, rmax)
         #skycmin, skycmax, skyrmin, skyrmax = meta.skycmin, meta.skycmax, meta.skyrmin, meta.skyrmax
 
         #D = np.zeros_like(d[1].data[rmin:rmax,cmin:cmax])                        #array to store the background-subtracted data
@@ -105,8 +107,15 @@ def run20(eventlabel, workdir, meta=None):
 
             diff = diff/flatfield[orbnum][rmin:rmax, cmin:cmax]                               #flatfields the differenced image
 
-            idx = np.argmax(scipy.signal.medfilt(np.sum(diff, axis = 1),3))                         #computes spatial index of peak counts in the difference image
+            #idx = np.argmax(scipy.signal.medfilt(np.sum(diff, axis = 1),3))                         #computes spatial index of peak counts in the difference image
 
+            rowsum = np.sum(diff, axis=1)                   # sum of every row
+            rowsum_absder = abs(rowsum[1:] - rowsum[:-1])   # absolute derivative
+
+            peaks, _ = find_peaks(rowsum_absder, height=max(rowsum_absder * 0.2), distance=meta.window)
+            print(peaks)
+            peaks = peaks[:2]
+            idx = int(np.mean(peaks))
 
             #estimates sky background and variance
             fullframe_diff = d[ii*5 + 1].data - d[ii*5 + 6].data                                       #fullframe difference between successive scans
@@ -118,8 +127,10 @@ def run20(eventlabel, workdir, meta=None):
 
             below_threshold = fullframe_diff<meta.background_thld
             skymedian = np.median(fullframe_diff[below_threshold].flatten())  # estimates the background counts
+            bkg_lc.append(skymedian)
             skyvar = util.median_abs_dev(fullframe_diff[below_threshold].flatten())  # variance for the background count estimate
-            plots.bkg_histogram(fullframe_diff, skymedian, meta, i, ii)
+            if meta.save_bkg_hist_plot or meta.show_bkg_hist_plot:
+                plots.bkg_hist(fullframe_diff, skymedian, meta, i, ii)
             print('bkg: ', skymedian, skyvar)
                 #skymedian, skyvar = bkg_histogram_median
 
@@ -133,8 +144,9 @@ def run20(eventlabel, workdir, meta=None):
 
 
             spectrum = diff[max(idx-meta.window, 0):min(idx+meta.window, rmax),:]        #selects postage stamp centered around spectrum
-            plots.uptheramp(diff, meta, i, ii, idx, orbnum)
 
+            if meta.save_uptheramp_plot or meta.show_uptheramp_plot:
+                plots.uptheramp(diff, meta, i, ii, orbnum, rowsum, rowsum_absder, peaks)
             #stores median of column that has spectrum on it (+/- 5 pix from center) for ii = 0
 
             err = np.zeros_like(spectrum) + float(meta.rdnoise)**2 + skyvar
@@ -168,7 +180,7 @@ def run20(eventlabel, workdir, meta=None):
         #corrects for wavelength drift over time
         if meta.correct_wave_shift == True:
             #if nspectra == 0:
-
+            #https: // matthew - brett.github.io / teaching / smoothing_intro.html
             model = np.loadtxt(meta.workdir + '/ancil/bandpass/refspec_v{0}.txt'.format(visnum)).T
             x_vals, y_vals = model[0]*10000, model[1]/max(model[1])
             sigma = 0.004*10000
@@ -192,7 +204,8 @@ def run20(eventlabel, workdir, meta=None):
             leastsq_res = leastsq(util.residuals2, p0, args=(modelx, modely, datax, datay))[0]
             print('leastsq_res', leastsq_res)
 
-            plots.refspec_comp(x_vals, y_vals, modelx, modely, p0, datax, datay, leastsq_res, meta, i)
+            if meta.save_refspec_comp_plot or meta.show_refspec_comp_plot:
+                plots.refspec_comp(x_vals, y_vals, modelx, modely, p0, datax, datay, leastsq_res, meta, i)
 
             template_waves = leastsq_res[0] + template_waves * leastsq_res[1]
 
@@ -228,14 +241,10 @@ def run20(eventlabel, workdir, meta=None):
 
        # print(phase[0], sum(spec_opt), sum(var_opt),  sum(spec_box), sum(var_box), time[0], visnum, orbnum, scan)
         if meta.output == True:
-            table_white.add_row([phase, sum(spec_opt), sum(var_opt),  sum(spec_box), sum(var_box), meta.t_mjd_sp[i], visnum, orbnum, scan, meta.t_visit_sp[i], meta.t_orbit_sp[i], meta.t_bjd_sp[i]])
-            #ascii.write(table_white, dirname+'/lc_white.txt', format='ecsv', overwrite=True)
-            #print(phase[0], sum(spec_opt), sum(var_opt),  sum(spec_box), sum(var_box), time[0], visnum, orbnum, scan, t_visiti, t_orbiti, file=whitefile)
+            table_white.add_row([meta.t_mjd_sp[i], meta.t_bjd_sp[i], meta.t_visit_sp[i], meta.t_orbit_sp[i], visnum, orbnum, scan, sum(spec_opt), sum(var_opt),  sum(spec_box), sum(var_box)])
             n = len(spec_opt)
             for ii in arange(n):
-                #print(time[0], phase[0], spec_opt[ii], var_opt[ii], template_waves[ii], visnum, orbnum, scan, file=specfile)
-                #print(time[0], phase[0], spec_opt[ii], var_opt[ii], template_waves[ii] - wavelengthsolutionoffset, visnum, orbnum, scan, file=specfile)
-                table_spec.add_row([meta.t_mjd_sp[i], phase, spec_opt[ii], var_opt[ii], template_waves[ii], visnum, orbnum, scan, meta.t_bjd_sp[i]])
+                table_spec.add_row([meta.t_mjd_sp[i], meta.t_bjd_sp[i], meta.t_visit_sp[i], meta.t_orbit_sp[i], visnum, orbnum, scan, spec_opt[ii], var_opt[ii], template_waves[ii]])
             #print(nspectra, time[0], numoutliers, skymedian, shift, file=diagnosticsfile)
             table_diagnostics.add_row([nspectra, meta.t_mjd_sp[i], numoutliers, skymedian, shift, sum(np.isnan(spec_opt))])
 
@@ -243,10 +252,12 @@ def run20(eventlabel, workdir, meta=None):
         #if nspectra%10 == 0: print("Extraction", '{0:1f}'.format(float(nspectra)/float(len(ancil.files))*100.), "% complete, time elapsed (min) =", '{0:0.1f}'.format(clock()/60.))
 
 
-        print("sky background!!", skymedian, visnum)
+        #print("sky background!!", skymedian, visnum)
         #print("length of spectrum", len(spec_opt))
         print("# nans", sum(np.isnan(spec_opt)))
         print(nspectra, meta.t_bjd_sp[i], sum(spec_opt), np.sum(spec_box), visnum, f, shift)
+        print('\n')
+    plots.bkg_lc(bkg_lc, meta)
 
     if meta.output == True:
         ascii.write(table_white, dirname+'/lc_white.txt', format='ecsv', overwrite=True)
@@ -265,7 +276,7 @@ def run20(eventlabel, workdir, meta=None):
     print("it's commented as LK 8/18")
     print("Should check at some point to see if it's right")
 
-    print('Finished 20.py')
+    print('Finished s20 \n')
 
     return meta
 

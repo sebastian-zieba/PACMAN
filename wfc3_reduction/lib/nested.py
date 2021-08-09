@@ -6,6 +6,8 @@ import dynesty
 import inspect
 from dynesty import plotting as dyplot
 import matplotlib.pyplot as plt
+import corner
+
 
 def name_and_args():
     caller = inspect.stack()[1][0]
@@ -21,8 +23,8 @@ def transform_uniform(x,a,b):
 def transform_normal(x,mu,sigma):
     return norm.ppf(x,loc=mu,scale=sigma)
 
-def format_params_for_mcmc(params, obs_par, fit_par):	#FIXME: make sure this works for cases when nvisit>1
-    nvisit = int(obs_par['nvisit'])				
+def format_params_for_mcmc(params, meta, fit_par):	#FIXME: make sure this works for cases when nvisit>1
+    nvisit = int(meta.nvisit)
     theta = []
 
     for i in range(len(fit_par)):
@@ -33,8 +35,8 @@ def format_params_for_mcmc(params, obs_par, fit_par):	#FIXME: make sure this wor
     return np.array(theta)
 
 
-def mcmc_output(samples, params, obs_par, fit_par, data):	#FIXME: make sure this works for cases when nvisit>1
-    nvisit = int(obs_par['nvisit'])				
+def mcmc_output(samples, params, meta, fit_par, data):	#FIXME: make sure this works for cases when nvisit>1
+    nvisit = int(meta.nvisit)
     labels = []
 
     for i in range(len(fit_par)):
@@ -48,8 +50,8 @@ def mcmc_output(samples, params, obs_par, fit_par, data):	#FIXME: make sure this
     fig.savefig(figname)
 
 
-def format_params_for_Model(theta, params, obs_par, fit_par):
-    nvisit = int(obs_par['nvisit'])
+def format_params_for_Model(theta, params, meta, fit_par):
+    nvisit = int(meta.nvisit)
     params_updated = []
     iter = 0									#this should be a more informative name FIXME
     for i in range(len(fit_par)):
@@ -66,35 +68,46 @@ def format_params_for_Model(theta, params, obs_par, fit_par):
                                     iter += 1
     return np.array(params_updated)
 
-def nested_sample(data, model, params, file_name, obs_par, fit_par):
-    x = format_params_for_mcmc(params, obs_par, fit_par)	
+def nested_sample(data, model, params, file_name, meta, fit_par):
+    x = format_params_for_mcmc(params, meta, fit_par)
 
     ndim = len(x) 
 
-    l_args = [params, data, model, obs_par, fit_par]
+    l_args = [params, data, model, meta, fit_par]
     p_args = [data]
     
-    dsampler = dynesty.DynamicNestedSampler(loglike, ptform, ndim, 
-                                            logl_args = l_args,
-                                            ptform_args = p_args,
-                                            update_interval=float(ndim))
-    dsampler.run_nested(wt_kwargs={'pfrac': 1.0})#, maxiter = 2000)
+    #dsampler = dynesty.DynamicNestedSampler(loglike, ptform, ndim,
+    #                                        logl_args = l_args,
+    #                                       ptform_args = p_args,
+    #                                        update_interval=float(ndim))
+    #dsampler.run_nested(wt_kwargs={'pfrac': 1.0})#, maxiter = 20000)
+    #results = dsampler.results
 
-    results = dsampler.results
+    sampler = dynesty.NestedSampler(loglike, ptform, ndim, logl_args = l_args,ptform_args = p_args,update_interval=float(ndim), nlive=200)
+    sampler.run_nested(dlogz=100)
+    results = sampler.results
 
     pickle.dump(results, open( "nested_results.p", "wb" ) )
-    #results.summary()
+    results.summary()
+
+    labels = []
+    for i in range(len(fit_par)):
+            if fit_par['fixed'][i].lower() == "false":
+                    if fit_par['tied'][i].lower() == "true": labels.append(fit_par['parameter'][i])
+                    else:
+                            for j in range(meta.nvisit): labels.append(fit_par['parameter'][i]+str(j))
+
 
     # Plot a summary of the run.
-    """rfig, raxes = dyplot.runplot(results)
-
+    rfig, raxes = dyplot.runplot(results)
+    plt.savefig(meta.workdir + meta.fitdir + '/nested_runplot_' + meta.fittime + '.png')
     # Plot traces and 1-D marginalized posteriors.
     tfig, taxes = dyplot.traceplot(results)
-
+    plt.savefig(meta.workdir + meta.fitdir + '/nested_traceplot_' + meta.fittime + '.png')
     # Plot the 2-D marginalized posteriors.
-    cfig, caxes = dyplot.cornerplot(results)
-
-    plt.show()"""
+    cfig, caxes = dyplot.cornerplot(results, show_titles=True, title_fmt='.4',labels=labels, color='blue', hist_kwargs=dict(facecolor='blue', edgecolor='blue'))
+    plt.savefig(meta.workdir + meta.fitdir + '/nested_cornerplot_' + meta.fittime + '.png')
+    #plt.show()
 
 
     return 0.
@@ -112,7 +125,7 @@ def ptform(u, data):
     
 
 
-def loglike(x, params, data, model, obs_par, fit_par):
-    updated_params = format_params_for_Model(x, params, obs_par, fit_par)
+def loglike(x, params, data, model, meta, fit_par):
+    updated_params = format_params_for_Model(x, params, meta, fit_par)
     fit = model.fit(data, updated_params)
     return fit.ln_like 
