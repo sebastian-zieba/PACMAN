@@ -42,7 +42,7 @@ def run30(eventlabel, workdir, meta=None):
     if meta.run_fit_white:
         files = meta.run_files #
     else:
-        files = glob.glob(os.path.join(meta.run_files[0], "*"))  #
+        files = glob.glob(os.path.join(meta.run_files[0], "*.txt"))  #
     print(files)
 
     meta.run_out_name = "fit_" + pythontime.strftime("%Y_%m_%d_%H:%M") + ".txt"
@@ -51,20 +51,47 @@ def run30(eventlabel, workdir, meta=None):
 
         meta.fittime = time.strftime('%Y-%m-%d_%H-%M-%S')
 
-        data = Data(f, meta, fit_par)
-        model = Model(data, myfuncs)
-        data, model, params = lsq_fit(fit_par, data, meta, model, myfuncs)
+        if meta.run_clipiters == 0:
+            print('\n')
+            data = Data(f, meta, fit_par)
+            model = Model(data, myfuncs)
+            data, model, params = lsq_fit(fit_par, data, meta, model, myfuncs, noclip=True)
+        else:
+            clip_idxs = []
+            for iii in range(meta.run_clipiters+1):
+                print('\n')
+                print('Sigma Iters: ', iii, 'of', meta.run_clipiters)
+                if iii == 0:
+                    data = Data(f, meta, fit_par)
+                else:
+                    data = Data(f, meta, fit_par, clip_idx)
+                model = Model(data, myfuncs)
+                if iii == meta.run_clipiters:
+                    data, model, params = lsq_fit(fit_par, data, meta, model, myfuncs, noclip=True)
+                else:
+                    data, model, params, clip_idx = lsq_fit(fit_par, data, meta, model, myfuncs)
+                    print("rms, chi2red = ", model.rms, model.chi2red)
+                    print(clip_idx == [])
+
+                    if clip_idx == []: break
+                    clip_idxs.append(clip_idx)
+                    print(clip_idxs)
+                    print('length: ', len(clip_idxs) )
+                    if len(clip_idxs)>1:
+                        clip_idx = update_clips(clip_idxs)
+                        print(clip_idx)
+                        clip_idxs = update_clips(clip_idxs)
+                        print(clip_idxs)
+
+
+
 
         """ind = model.resid/data.err > 10.
         print "num outliers", sum(ind)
         data.err[ind] = 1e12
         data, model = lsq_fit(fit_par, data, flags, model, myfuncs)"""
-    
-        ##rescale error bars so reduced chi-squared is one
-        """data.err *= np.sqrt(model.chi2red)                                      
-        data, model, params = lsq_fit(fit_par, data, flags, model, myfuncs)"""
+
         if meta.run_verbose == True: print("rms, chi2red = ", model.rms, model.chi2red)
-        
 
         #FIXME : make this automatic!
         """outfile = open("white_systematics.txt", "w")
@@ -72,6 +99,10 @@ def run30(eventlabel, workdir, meta=None):
         outfile.close()"""
                             
         if meta.run_mcmc:
+            ##rescale error bars so reduced chi-squared is one
+            data.err *= np.sqrt(model.chi2red)
+            data, model, params = lsq_fit(fit_par, data, meta, model, myfuncs, noclip=True)
+            if meta.run_verbose == True: print("rms, chi2red = ", model.rms, model.chi2red)
             output = mcmc_fit(data, model, params, f, meta, fit_par)
 
         if meta.run_nested:
@@ -82,3 +113,12 @@ def run30(eventlabel, workdir, meta=None):
             output = nested_sample(data, model, params, f, meta, fit_par)
 
     return meta
+
+def update_clips(clips_array):
+    clips_old = clips_array[0]
+    clips_new = clips_array[1]
+
+    clips_new[0] + sum([i <= clips_new[0] for i in clips_old])
+    clips_new_updated = [clips_new[ii] + sum([i <= clips_new[ii] for i in clips_old]) for ii in range(len(clips_new))]
+
+    return np.concatenate((clips_old, clips_new_updated))

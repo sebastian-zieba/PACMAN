@@ -15,7 +15,11 @@ eventlabel = 'L-98-59_Hubble15856'
 
 #workdir = '/home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/run/run_2021-08-09_05-19-56_L-98-59_Hubble15856/' #[0]
 #workdir = '/home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/run/run_2021-08-09_10-37-26_L-98-59_Hubble15856/' #[0,2]
-workdir = '/home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/run/run_2021-08-09_10-57-17_L-98-59_Hubble15856/' #[all]
+#workdir = '/home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/run/run_2021-08-09_10-57-17_L-98-59_Hubble15856/' #[all]
+
+workdir = '/home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/run/run_2021-08-16_22-31-42_L-98-59_Hubble15856/' #[all] window=10
+#workdir = '/home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/run/run_2021-08-17_20-54-55_L-98-59_Hubble15856/' #[all] window=5
+
 
 reload_meta(workdir, eventlabel)
 

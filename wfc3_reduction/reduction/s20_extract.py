@@ -51,11 +51,12 @@ def run20(eventlabel, workdir, meta=None):
     meta.nexp = len(files_sp)
     nspectra = 0                                                #iterator variable to track number of spectra reduced
 
+    peaks_all = []
     bkg_lc = []
 
     print('in total visit, orbit:', (meta.norbit, meta.nvisit), '\n')
 
-    for i in tqdm(np.arange(len(files_sp), dtype=int)):
+    for i in tqdm(np.arange(len(files_sp), dtype=int)):#
         f = files_sp[i]
         #print("\nProgress: {0}/{1}".format(i+1, len(files_sp)))
         print("Filename: {0}".format(f))
@@ -102,7 +103,7 @@ def run20(eventlabel, workdir, meta=None):
         #########################################################################################################################################################
 
         for ii in range(d[0].header['nsamp']-2):
-            print("Progress (up-the-ramp-samples): {0}/{1}".format(ii, d[0].header['nsamp']-2-1))
+            print("Progress (up-the-ramp-samples): {0}/{1}".format(ii+1, d[0].header['nsamp']-2))
             diff = d[ii*5 + 1].data[rmin:rmax,cmin:cmax] - d[ii*5 + 6].data[rmin:rmax,cmin:cmax]    #creates image that is the difference between successive scans
 
             diff = diff/flatfield[orbnum][rmin:rmax, cmin:cmax]                               #flatfields the differenced image
@@ -113,9 +114,11 @@ def run20(eventlabel, workdir, meta=None):
             rowsum_absder = abs(rowsum[1:] - rowsum[:-1])   # absolute derivative
 
             peaks, _ = find_peaks(rowsum_absder, height=max(rowsum_absder * 0.2), distance=meta.window)
-            print(peaks)
+            print('peak positions: ', peaks)
             peaks = peaks[:2]
-            idx = int(np.mean(peaks))
+            #idx = int(np.mean(peaks))
+
+            peaks_all.append(peaks)
 
             #estimates sky background and variance
             fullframe_diff = d[ii*5 + 1].data - d[ii*5 + 6].data                                       #fullframe difference between successive scans
@@ -143,10 +146,12 @@ def run20(eventlabel, workdir, meta=None):
                     cmin:cmax], ancil.wave_grid[0, jj, cmin:cmax][goodidx], diff[jj,goodidx])    #LK interpolation 8/18"""
 
 
-            spectrum = diff[max(idx-meta.window, 0):min(idx+meta.window, rmax),:]        #selects postage stamp centered around spectrum
+            spectrum = diff[max(min(peaks) - meta.window, 0):min(max(peaks) + meta.window, rmax),:]        #selects postage stamp centered around spectrum
 
             if meta.save_uptheramp_plot or meta.show_uptheramp_plot:
                 plots.uptheramp(diff, meta, i, ii, orbnum, rowsum, rowsum_absder, peaks)
+
+
             #stores median of column that has spectrum on it (+/- 5 pix from center) for ii = 0
 
             err = np.zeros_like(spectrum) + float(meta.rdnoise)**2 + skyvar
@@ -190,6 +195,7 @@ def run20(eventlabel, workdir, meta=None):
                 kernel = kernel / sum(kernel)
                 smoothed_vals[x_position] = sum(y_vals * kernel)
 
+            #FIXME SZ make this nicer
             modelx = np.concatenate((np.linspace(-10000, min(x_vals), 100, endpoint=False), x_vals,
                                      np.linspace(max(x_vals) + 10, 100000, 100, endpoint=False)))
             modely = np.concatenate((np.zeros(100), smoothed_vals, np.zeros(100)))
@@ -257,7 +263,10 @@ def run20(eventlabel, workdir, meta=None):
         print("# nans", sum(np.isnan(spec_opt)))
         print(nspectra, meta.t_bjd_sp[i], sum(spec_opt), np.sum(spec_box), visnum, f, shift)
         print('\n')
-    plots.bkg_lc(bkg_lc, meta)
+
+    if meta.save_uptheramp_plot_total or meta.show_uptheramp_plot_total:
+        plots.bkg_lc(bkg_lc, meta)
+        plots.uptheramp_evolution(peaks_all, meta)
 
     if meta.output == True:
         ascii.write(table_white, dirname+'/lc_white.txt', format='ecsv', overwrite=True)

@@ -1,17 +1,17 @@
 import numpy as np
 from . import mpfit
 from . import plots
-from .plots import plot_raw, plot_fit_lc
+from .plots import plot_raw, plot_fit_lc, plot_fit_lc2
 from .formatter import PrintParams
 import pickle
-
+from astropy.stats import sigma_clip
 
 
 def residuals(params, data, model, fjac=None):			
     fit = model.fit(data, params)
     return [0, fit.resid/data.err]
 
-def lsq_fit(fit_par, data, meta, model, myfuncs):
+def lsq_fit(fit_par, data, meta, model, myfuncs, noclip=False):
     nvisit = data.nvisit 
     npar = len(fit_par)*nvisit
 
@@ -52,14 +52,30 @@ def lsq_fit(fit_par, data, meta, model, myfuncs):
 #		print "subtracting 2 from dof for divide-white"
 
 
-    m = mpfit.mpfit(residuals, params_s, functkw=fa, parinfo = parinfo, quiet=False, maxiter=500)
-    """#rescale error bars based on chi2
-    #print "rescaling error bars to get chi2red = 1"
-    #print "scale factor = ", np.sqrt(model.chi2red)
-    print data.wavelength, np.sqrt(model.chi2red)
-    data.err = data.err*np.sqrt(model.chi2red)
-    m = mpfit.mpfit(residuals, params_s, functkw=fa, parinfo = parinfo, quiet=True) 
-    model = Model(m.params, data, flags)"""
+    m = mpfit.mpfit(residuals, params_s, functkw=fa, parinfo = parinfo, quiet=True, maxiter=500)
+
+    if noclip == False:
+        if sum(np.ma.getmask(sigma_clip(model.resid, sigma=meta.run_clipsigma, maxiters=1))) == 0:
+            clip_idx = []
+            if meta.run_show_plot: plot_fit_lc2(data, model, meta)
+        else:
+            clip_idx = np.where(np.ma.getmask(sigma_clip(model.resid, sigma=meta.run_clipsigma, maxiters=1))==True)[0]
+            print('Outlier Identified: ', len(clip_idx))
+            print('Outlier idx: ', clip_idx)
+            if meta.run_show_plot: plot_fit_lc(data, model, meta)
+
+    if noclip == True:
+        if meta.run_show_plot: plot_fit_lc2(data, model, meta)
+
+    #print(m.params)
+
+    #rescale error bars based on chi2
+    #print("rescaling error bars to get chi2red = 1")
+    #print("scale factor = ", np.sqrt(model.chi2red))
+    #print data.wavelength, np.sqrt(model.chi2red)
+    #data.err = data.err*np.sqrt(model.chi2red)
+    #m = mpfit.mpfit(residuals, params_s, functkw=fa, parinfo = parinfo, quiet=True)
+    #model = Model(m.params, data, flags)
     
     if m.errmsg: print("MPFIT error message", m.errmsg)
 
@@ -82,8 +98,15 @@ def lsq_fit(fit_par, data, meta, model, myfuncs):
         #print data.wavelength, "{0:0.3f}".format(m.params[data.par_order['A1']*nvisit])
         PrintParams(m, data)
 
-    if meta.run_show_plot: plot_fit_lc(data, model, meta)
-    plots.rmsplot(model, meta)
+    #if meta.run_show_plot: plot_fit_lc(data, model, meta)
+    plots.rmsplot(model, data, meta)
 
     #model = Model(data , myfuncs)
-    return  data, model, m.params
+
+    if noclip == False:
+        return data, model, m.params, clip_idx
+
+    if noclip == True:
+        return data, model, m.params
+
+

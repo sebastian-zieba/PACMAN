@@ -12,7 +12,7 @@ class Data:
         obs_par
         fit_par
     """
-    def __init__(self, data_file, meta, fit_par):
+    def __init__(self, data_file, meta, fit_par, clip_idx=[]):
         def format_prior_for_mcmc(self, meta, fit_par):
                 nvisit = int(meta.nvisit)
                 prior = []
@@ -120,19 +120,26 @@ class Data:
                 if fit_par['tied'][i].lower() == "true": nfree_param += 1
                 else: nfree_param += nvisit
 
-        self.time = time
-        self.flux = flux
-        self.err = err
+        idx_array = np.arange(len(time), dtype=int)
+        print('readdata:', clip_idx)
+        if len(clip_idx) == 0: clip_mask = idx_array
+        else:clip_mask = np.bitwise_and.reduce([idx_array!=i for i in clip_idx])
+
+        self.time = time[clip_mask]
+        print(len(time[clip_mask]))
+        self.flux = flux[clip_mask]
+        print('median log10 raw flux:', np.log10(np.median(flux[clip_mask])))
+        self.err = err[clip_mask]
         self.wavelength = wavelength
         self.exp_time = np.median(np.diff(time))*60*60*24 #for supersampling in batman.py
         self.toffset = float(meta.toffset)
         self.nvisit = nvisit
-        self.vis_num = vis_num
-        self.orb_num = orb_num
-        self.scan_direction = scan_direction
-        self.t_vis = t_vis
-        self.t_orb = t_orb
-        self.t_delay = t_delay
+        self.vis_num = vis_num[clip_mask]
+        self.orb_num = orb_num[clip_mask]
+        self.scan_direction = scan_direction[clip_mask]
+        self.t_vis = t_vis[clip_mask]
+        self.t_orb = t_orb[clip_mask]
+        self.t_delay = t_delay[clip_mask]
         self.parnames = fit_par['parameter']
         par_order = {line['parameter']: i for i, line in enumerate(fit_par)}
         self.par_order = par_order

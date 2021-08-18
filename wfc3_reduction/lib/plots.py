@@ -222,26 +222,28 @@ def uptheramp(diff, meta, i, ii, orbnum, rowsum, rowsum_absder, peaks):
 
     fig, ax = plt.subplots(1,3, figsize=(10,6))
 
-
     im = ax[0].imshow(diff, vmin=0, vmax=300, origin='lower')
     #ax[2].axhline(idx, c = 'b', ls='--')
     #ax[2].plot([cmin-cmin, cmin-cmin, cmax-cmin, cmax-cmin, cmin-cmin], [rmin, rmax, rmax, rmin, rmin], lw=2, c='r', alpha=0.85)
     ax[0].set_xlim(cmin-cmin, cmax-cmin)
     ax[0].set_ylim(0, 512)
-    ax[0].axhline(np.mean(peaks), c='green', ls='-', lw=2 )
-    ax[0].axhline(np.mean(peaks)+meta.window, c='r', ls='-', lw=3 )
-    ax[0].axhline(np.mean(peaks)-meta.window, c='r', ls='-', lw=3 )
+    ax[0].axhline(min(peaks), c='r', ls='--', lw=2)
+    ax[0].axhline(max(peaks), c='r', ls='--', lw=2)
+    ax[0].axhline(min(peaks)-meta.window, c='r', ls='-', lw=3)
+    ax[0].axhline(max(peaks)+meta.window, c='r', ls='-', lw=3)
     ax[0].title.set_text('spectrum, cmin to cmax')
 
-    ax[1].axhline(np.mean(peaks), c='green', ls='-', lw=2 )
-    ax[1].axhline(np.mean(peaks)-meta.window, c='r', ls='-', lw=3 )
-    ax[1].axhline(np.mean(peaks)+meta.window, c='r', ls='-', lw=3 )
+    ax[1].axhline(min(peaks), c='r', ls='--', lw=2 )
+    ax[1].axhline(max(peaks), c='r', ls='--', lw=2 )
+    ax[1].axhline(min(peaks)-meta.window, c='r', ls='-', lw=3 )
+    ax[1].axhline(max(peaks)+meta.window, c='r', ls='-', lw=3 )
     ax[1].plot(rowsum, p1)
     ax[1].set_ylim(0,512)
     ax[1].set_xlabel('lin Flux')
     ax[1].title.set_text('row Flux')
 
-    ax[2].axhline(np.mean(peaks), c='green', ls='-', lw=2 )
+    ax[2].axhline(min(peaks)-meta.window, c='r', ls='-', lw=3 )
+    ax[2].axhline(max(peaks)+meta.window, c='r', ls='-', lw=3 )
     ax[2].scatter(rowsum_absder[peaks], peaks, marker = 'x', c='r')
     ax[2].plot(rowsum_absder, p2)
     ax[2].set_ylim(0,512)
@@ -259,6 +261,56 @@ def uptheramp(diff, meta, i, ii, orbnum, rowsum, rowsum_absder, peaks):
     else:
         plt.show()
         plt.close('all')
+
+
+def uptheramp_evolution(peaks_all, meta):
+    peaks = np.array(peaks_all)
+    peaks = np.sort(peaks)
+    #nsamps_mask = []
+    #for i in nsamps:
+    #    nsamps_mask.append(np.arange(i, dtype=int))
+    #nsamps_mask = np.array(nsamps_mask)
+    #nsamps_mask[::2] = nsamps_mask[::-1][::2]
+    #nsamps_mask = np.array(nsamps_mask).flatten()
+
+    plt.clf()
+    fig, ax = plt.subplots(1,1, figsize=(8,4), sharex=True)
+
+    #for ii in range(max(nsamps)):
+    #    ax[0].plot(range(len(peaks[:,0][nsamps_mask==ii])), peaks[:,0][nsamps_mask==ii])
+    #    ax[0].plot(range(len(peaks[:,1][nsamps_mask==ii])), peaks[:,1][nsamps_mask==ii])
+    #    ax[1].plot(range(len(peaks[:,0][nsamps_mask==ii])), np.diff(peaks[nsamps_mask==ii]))
+
+    #ax[0].plot(range(len(peaks[:,0])), peaks[:,0])
+    #ax[0].plot(range(len(peaks[:,1])), peaks[:,1])
+    ax.plot(range(len(peaks[:,0])), np.diff(peaks))
+
+    ax.set_xlabel('# diff image')
+    #ax[0].set_ylabel('peak position')
+    ax.set_ylabel('peak distance')
+
+    #plt.legend()
+    plt.tight_layout()
+    if not os.path.isdir(meta.workdir + '/figs/uptheramp/'):
+        os.makedirs(meta.workdir + '/figs/uptheramp/')
+    plt.savefig(meta.workdir + '/figs/uptheramp/uptheramp_evolution.png')
+    plt.close('all')
+
+
+def bkg_lc(bkg_lc, meta):
+    plt.clf()
+    fig, ax = plt.subplots(1,1)
+    ax.plot(range(len(bkg_lc)), bkg_lc)
+    ax.set_xlabel('# diff image')
+    ax.set_ylabel('diff flux')
+    #plt.legend()
+    plt.tight_layout()
+    if not os.path.isdir(meta.workdir + '/figs/uptheramp/'):
+        os.makedirs(meta.workdir + '/figs/uptheramp/')
+    plt.savefig(meta.workdir + '/figs/uptheramp/bkg_lc.png')
+    plt.close('all')
+
+
 
 
 def refspec_comp(x_vals, y_vals, modelx, modely, p0, datax, datay, leastsq_res, meta, i):
@@ -285,19 +337,6 @@ def refspec_comp(x_vals, y_vals, modelx, modely, p0, datax, datay, leastsq_res, 
         plt.close('all')
 
 
-
-def bkg_lc(bkg_lc, meta):
-    plt.clf()
-    fig, ax = plt.subplots(1,1)
-    ax.plot(range(len(bkg_lc)), bkg_lc)
-    ax.set_xlabel('# diff image')
-    ax.set_ylabel('diff flux')
-    #plt.legend()
-    plt.tight_layout()
-    if not os.path.isdir(meta.workdir + '/figs/uptheramp/'):
-        os.makedirs(meta.workdir + '/figs/uptheramp/')
-    plt.savefig(meta.workdir + '/figs/uptheramp/bkg_lc.png')
-    plt.close('all')
 
 
 
@@ -388,8 +427,13 @@ def computeRMS(data, maxnbins=None, binstep=1, isrmserr=False):
 
 
 # Plot RMS vs. bin size looking for time-correlated noise
-def rmsplot(model, meta):
-    rms, stderr, binsz = computeRMS(model.norm_resid, binstep=1)
+def rmsplot(model, data, meta):
+
+    t_orb = data.t_orb
+    residuals = model.norm_resid
+    residuals = residuals[np.argsort(t_orb)]
+
+    rms, stderr, binsz = computeRMS(residuals, binstep=1)
     normfactor = 1e-6
     plt.rcParams.update({'legend.fontsize':11})
     plt.figure(1111, figsize=(8,6))
@@ -405,9 +449,10 @@ def rmsplot(model, meta):
     plt.yticks(size=12)
     plt.legend()
     #if savefile != None:
-    plt.savefig(meta.workdir + meta.fitdir + '/corr_noise.png')
+    plt.savefig(meta.workdir + meta.fitdir + '/corr_lc_{0}_len{1}.png'.format(meta.fittime, len(t_orb)))
     return
 
+from astropy.stats import sigma_clip
 
 def plot_fit_lc(data, fit, meta, mcmc=False):
     plt.clf()
@@ -428,12 +473,22 @@ def plot_fit_lc(data, fit, meta, mcmc=False):
 
     # plot data
     # plot best fit model from first visit
+
     ax[0].plot(phase_hr, calc_astro(t_hr, fit.params, data, fit.myfuncs, 0))
+
 
     # plot systematics removed data
     for i in range(data.nvisit):
         ind = data.vis_num == i
         ax[0].plot(fit.phase[ind], fit.data_nosys[ind], color=palette[i], marker='o', markersize=3, linestyle="none")
+
+    clip_mask = np.ma.getmask(sigma_clip(fit.resid, sigma=meta.run_clipsigma, maxiters=1))
+    ax[0].scatter(fit.phase[clip_mask], fit.data_nosys[clip_mask], marker='x', s=100, c='r')
+
+    ax[1].axhline(np.median(1.0e6 * fit.norm_resid), c='r')
+    clip_line = np.std(1.0e6 * fit.norm_resid)
+    ax[1].axhline(np.median(1.0e6 * fit.norm_resid)+clip_line*meta.run_clipsigma, c='r', ls='--')
+    ax[1].axhline(np.median(1.0e6 * fit.norm_resid)-clip_line*meta.run_clipsigma, c='r', ls='--')
 
     # add labels/set axes
     # xlo, xhi = np.min(model.phase)*0.9, np.max(model.phase)*1.1
@@ -466,14 +521,80 @@ def plot_fit_lc(data, fit, meta, mcmc=False):
 
     plt.tight_layout()
     if mcmc:
-        plt.savefig(meta.workdir + meta.fitdir + "/mcmc_lc_{0}.png".format(meta.fittime))
+        plt.savefig(meta.workdir + meta.fitdir + "/mcmc_lc_{0}_len{1}.png".format(meta.fittime, len(fit.phase)))
     else:
-        plt.savefig(meta.workdir + meta.fitdir + "/white_lc_{0}.png".format(meta.fittime))
+        plt.savefig(meta.workdir + meta.fitdir + "/white_lc_{0}_len{1}.png".format(meta.fittime, len(fit.phase)))
     plt.show()
     # plt.waitforbuttonpress(0) # this will wait for indefinite time
     plt.close()
 
 
+def plot_fit_lc2(data, fit, meta, mcmc=False):
+    plt.clf()
+    fig, ax = plt.subplots(2,1)
+    p = FormatParams(fit.params, data)  # FIXME
+
+    sns.set_palette("muted")
+    palette = sns.color_palette("muted", data.nvisit)
+
+    # ind = model.phase > 0.5
+    # model.phase[ind] -= 1.
+
+    # calculate a range of times at higher resolution to make model look nice
+    phase_hr = np.linspace(fit.phase.min() - 0.05, fit.phase.max() + 0.05, 1000)
+    t_hr = phase_hr * p.per[0] + p.t0[0] + data.toffset
+
+    # colors = ['blue', 'red', 'orange', 'gray']
+
+    # plot data
+    # plot best fit model from first visit
+
+    ax[0].plot(phase_hr, calc_astro(t_hr, fit.params, data, fit.myfuncs, 0))
+
+
+    # plot systematics removed data
+    for i in range(data.nvisit):
+        ind = data.vis_num == i
+        ax[0].plot(fit.phase[ind], fit.data_nosys[ind], color=palette[i], marker='o', markersize=3, linestyle="none")
+
+
+    # add labels/set axes
+    # xlo, xhi = np.min(model.phase)*0.9, np.max(model.phase)*1.1
+    xlo, xhi = -0.1, 0.1
+    ax[0].set_xlim(xlo, xhi)
+    ax[0].set_ylabel("Relative Flux")
+
+    # annotate plot with fit diagnostics
+    #ax = plt.gca()
+    ax[0].text(0.85, 0.29,
+            '$\chi^2_\\nu$:    ' + '{0:0.2f}'.format(fit.chi2red) + '\n'
+            + 'obs. rms:  ' + '{0:0d}'.format(int(fit.rms)) + '\n'
+            + 'exp. rms:  ' + '{0:0d}'.format(int(fit.rms_predicted)),
+            verticalalignment='top', horizontalalignment='left',
+            transform=ax[0].transAxes, fontsize=12
+            )
+
+    # plot fit residuals
+    ax[1].axhline(0, zorder=1, color='0.2', linestyle='dashed')
+
+    for i in range(data.nvisit):
+        ind = data.vis_num == i
+        ax[1].plot(fit.phase[ind], 1.0e6 * fit.norm_resid[ind], color=palette[i], marker='o', markersize=3,
+                 linestyle="none")
+
+    # add labels/set axes
+    ax[1].set_xlim(xlo, xhi)
+    ax[1].set_ylabel("Residuals (ppm)")
+    ax[1].set_xlabel("Orbital phase")
+
+    plt.tight_layout()
+    if mcmc:
+        plt.savefig(meta.workdir + meta.fitdir + "/mcmc_lc_{0}_len{1}.png".format(meta.fittime, len(fit.phase)))
+    else:
+        plt.savefig(meta.workdir + meta.fitdir + "/white_lc_{0}_len{1}.png".format(meta.fittime, len(fit.phase)))
+    plt.show()
+    # plt.waitforbuttonpress(0) # this will wait for indefinite time
+    plt.close()
 
 
 def plot_chains(ndim, sampler, nburn, labels, meta):

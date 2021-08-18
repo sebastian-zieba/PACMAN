@@ -33,6 +33,7 @@ def labels_gen(meta, fit_par):
                     if fit_par['tied'][i].lower() == "true": labels.append(fit_par['parameter'][i])
                     else:
                             for j in range(nvisit): labels.append(fit_par['parameter'][i]+str(j))
+    print(labels)
     return labels
 
 def mcmc_output(samples, params, meta, fit_par, data):	#FIXME: make sure this works for cases when nvisit>1
@@ -64,6 +65,9 @@ def format_params_for_Model(theta, params, meta, fit_par):
 
 def mcmc_fit(data, model, params, file_name, meta, fit_par):
     theta = format_params_for_mcmc(params, meta, fit_par)
+
+    labels = labels_gen(meta, fit_par)
+    print(labels)
 
     ndim, nwalkers = len(theta), meta.run_nwalkers
     sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args = (params, data, model, meta, fit_par))
