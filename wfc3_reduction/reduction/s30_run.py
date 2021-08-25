@@ -1,4 +1,7 @@
 import sys
+
+import matplotlib.pyplot as plt
+
 sys.path.append('../..')
 sys.path.append('/home/zieba/Desktop/Projects/Open_source/wfc-pipeline/')
 sys.path.insert(0, '../lib')
@@ -16,6 +19,7 @@ from ..lib.mcmc import mcmc_fit
 from ..lib.nested import nested_sample
 import time
 import shutil
+from ..lib.formatter import ReturnParams
 
 
 def run30(eventlabel, workdir, meta=None):
@@ -37,8 +41,18 @@ def run30(eventlabel, workdir, meta=None):
 
     myfuncs = meta.run_myfuncs
 
+
+    meta.fit_par_new = True
+
     #reads in observation and fit parameters
-    fit_par =   ascii.read(meta.workdir + "/fit_par.txt", Reader=ascii.CommentedHeader)
+    if meta.fit_par_new == False:
+        fit_par =   ascii.read(meta.workdir + "/fit_par_old.txt", Reader=ascii.CommentedHeader) # OLD fit_par.txt
+        shutil.copy(meta.workdir + "/fit_par_old.txt", meta.workdir + meta.fitdir)
+    else:
+        fit_par =   ascii.read(meta.workdir + "/fit_par_new2.txt", Reader=ascii.CommentedHeader)
+        shutil.copy(meta.workdir + "/fit_par_new2.txt", meta.workdir + meta.fitdir)
+    print(workdir)
+    print(fit_par)
     if meta.run_fit_white:
         files = meta.run_files #
     else:
@@ -47,15 +61,21 @@ def run30(eventlabel, workdir, meta=None):
 
     meta.run_out_name = "fit_" + pythontime.strftime("%Y_%m_%d_%H:%M") + ".txt"
 
+    vals = []
+    errs = []
+    idxs = []
+
     for f in files:
 
+        meta.run_file = f
         meta.fittime = time.strftime('%Y-%m-%d_%H-%M-%S')
 
         if meta.run_clipiters == 0:
             print('\n')
             data = Data(f, meta, fit_par)
+
             model = Model(data, myfuncs)
-            data, model, params = lsq_fit(fit_par, data, meta, model, myfuncs, noclip=True)
+            data, model, params, m = lsq_fit(fit_par, data, meta, model, myfuncs, noclip=True)
         else:
             clip_idxs = []
             for iii in range(meta.run_clipiters+1):
@@ -67,9 +87,9 @@ def run30(eventlabel, workdir, meta=None):
                     data = Data(f, meta, fit_par, clip_idx)
                 model = Model(data, myfuncs)
                 if iii == meta.run_clipiters:
-                    data, model, params = lsq_fit(fit_par, data, meta, model, myfuncs, noclip=True)
+                    data, model, params, m = lsq_fit(fit_par, data, meta, model, myfuncs, noclip=True)
                 else:
-                    data, model, params, clip_idx = lsq_fit(fit_par, data, meta, model, myfuncs)
+                    data, model, params, clip_idx, m = lsq_fit(fit_par, data, meta, model, myfuncs)
                     print("rms, chi2red = ", model.rms, model.chi2red)
                     print(clip_idx == [])
 
@@ -101,16 +121,72 @@ def run30(eventlabel, workdir, meta=None):
         if meta.run_mcmc:
             ##rescale error bars so reduced chi-squared is one
             data.err *= np.sqrt(model.chi2red)
-            data, model, params = lsq_fit(fit_par, data, meta, model, myfuncs, noclip=True)
+            data, model, params, m = lsq_fit(fit_par, data, meta, model, myfuncs, noclip=True)
             if meta.run_verbose == True: print("rms, chi2red = ", model.rms, model.chi2red)
             output = mcmc_fit(data, model, params, f, meta, fit_par)
 
         if meta.run_nested:
             ##rescale error bars so reduced chi-squared is one
             data.err *= np.sqrt(model.chi2red)
-            data, model, params = lsq_fit(fit_par, data, meta, model, myfuncs)
+            data, model, params, m = lsq_fit(fit_par, data, meta, model, myfuncs, noclip=True)
             if meta.run_verbose == True: print("rms, chi2red = ", model.rms, model.chi2red)
             output = nested_sample(data, model, params, f, meta, fit_par)
+
+        if meta.run_verbose:
+            #print "{0:0.3f}".format(data.wavelength), "{0:0.2f}".format(bestfit.chi2red)
+            #print data.wavelength, "{0:0.3f}".format(m.params[data.par_order['A1']*nvisit])
+            val, err, idx = ReturnParams(m, data)
+            #print(val)
+            #print(err)
+            #print(idx)
+
+        vals.append(val)
+        errs.append(err)
+        idxs.append(idx)
+
+    print('20 :', len(idxs[0]))
+    print('12 :', len(idxs))
+
+    def labels_gen(params, meta, fit_par):
+        nvisit = int(meta.nvisit)
+        labels = []
+
+        if meta.fit_par_new == False:
+            for i in range(len(fit_par)):
+                if fit_par['fixed'][i].lower() == "false":
+                    if fit_par['tied'][i].lower() == "true":
+                        labels.append(fit_par['parameter'][i])
+                    else:
+                        for j in range(nvisit): labels.append(fit_par['parameter'][i] + str(j))
+        else:
+            ii = 0
+            for i in range(int(len(params) / nvisit)):
+                if fit_par['fixed'][ii].lower() == "false":
+                    if str(fit_par['tied'][ii]) == "-1":
+                        labels.append(fit_par['parameter'][ii])
+                        ii = ii + 1
+                    else:
+                        for j in range(nvisit):
+                            labels.append(fit_par['parameter'][ii] + str(j))
+                            ii = ii + 1
+                else:
+                    ii = ii + 1
+
+        # print('labels', labels)
+        return labels
+
+
+
+    labels = labels_gen(params, meta, fit_par)
+
+    fig, ax = plt.subplots(len(idxs[0]), 1, figsize=(6.4,30), sharex=True)
+    for i in range(len(idxs[0])):
+        ax[i].errorbar(range(len(idxs)), [vals[ii][idxs[0][i]] for ii in range(len(vals))], yerr=[errs[ii][idxs[0][i]] for ii in range(len(errs))], fmt='.')
+        ax[i].set_ylabel(labels[i])
+    plt.subplots_adjust(hspace=0.01)
+    plt.tight_layout()
+    plt.subplots_adjust(hspace=0.01)
+    plt.savefig(meta.workdir + meta.fitdir + '/ls_{0}.png'.format(datetime), dpi=700, tight_layout=True)
 
     return meta
 

@@ -123,19 +123,80 @@ def image(dat, ima, results, i, meta):
 
 
 ## 20
-def bkg(d, meta, i):
+def spectrum2d(d, meta, i):
     plt.imshow(d[1].data, origin = 'lower',  vmin=0, vmax=300)
     plt.colorbar()
     plt.tight_layout()
     plt.title('Background, visit {0}, orbit {1}'.format(meta.ivisit_sp[i], meta.iorbit_sp[i]))
-    if meta.save_bkg_plot:
-        if not os.path.isdir(meta.workdir + '/figs/background'):
-            os.makedirs(meta.workdir + '/figs/background')
-        plt.savefig(meta.workdir + '/figs/background/background{0}.png'.format(i))
+    if meta.save_spectrum2d_plot:
+        if not os.path.isdir(meta.workdir + '/figs/spectrum2d'):
+            os.makedirs(meta.workdir + '/figs/spectrum2d')
+        plt.savefig(meta.workdir + '/figs/spectrum2d/spectrum2d_{0}.png'.format(i))
         plt.close('all')
     else:
         plt.show()
         plt.close('all')
+
+
+def spectrum1d_spec_opt(cmin,cmax,template_waves, spec_opt, meta, i):
+    plt.clf()
+    if not os.path.isdir(meta.workdir + '/figs/spec_opt/'):
+        os.makedirs(meta.workdir + '/figs/spec_opt/')
+    fig, ax = plt.subplots(2, 1, figsize=(6.4, 6.4*1.5))
+    ax[0].plot(np.arange(cmin,cmax, dtype=int), spec_opt)
+    ax[1].plot(template_waves, spec_opt)
+    ax[0].set_xlim(260, 455)
+    ax[1].set_xlim(9500, 18200)
+    ax[0].set_ylim(-2e5, 1e7)
+    ax[1].set_ylim(-2e5, 1e7)
+    plt.title('spectrum1d_spec_opt, visit {0}, orbit {1}'.format(meta.ivisit_sp[i], meta.iorbit_sp[i]))
+    plt.tight_layout()
+    plt.savefig(meta.workdir + '/figs/spec_opt/spec_opt_{0}.png'.format(i))
+    plt.close('all')
+
+
+def spectrum1d_spec_box(cmin,cmax,template_waves, spec_box, meta, i):
+    plt.clf()
+    if not os.path.isdir(meta.workdir + '/figs/spec_box/'):
+        os.makedirs(meta.workdir + '/figs/spec_box/')
+    fig, ax = plt.subplots(2, 1, figsize=(6.4, 6.4 * 1.5))
+    ax[0].plot(np.arange(cmin, cmax, dtype=int), spec_box)
+    ax[1].plot(template_waves, spec_box)
+    ax[0].set_xlim(260, 455)
+    ax[1].set_xlim(9500, 18200)
+    ax[0].set_ylim(-2e5, 1e7)
+    ax[1].set_ylim(-2e5, 1e7)
+    fig.suptitle('spectrum1d_spec_box, visit {0}, orbit {1}'.format(meta.ivisit_sp[i], meta.iorbit_sp[i]), y=0.99)
+    plt.tight_layout()
+    plt.savefig(meta.workdir + '/figs/spec_box/spec_box_{0}.png'.format(i))
+    plt.close('all')
+
+
+def spectrum1d_spec_opt_diff_plot(spec_opt_interp_all_diff, meta, wvl_hires):
+    if not os.path.isdir(meta.workdir + '/figs/spec_opt_diff/'):
+        os.makedirs(meta.workdir + '/figs/spec_opt_diff/')
+
+    for iiii in range(len(spec_opt_interp_all_diff)):
+        plt.clf()
+        fig, ax = plt.subplots(1, 1, figsize=(6.4, 6.4*1.5/2))
+        ax.plot(wvl_hires, spec_opt_interp_all_diff[iiii])
+        ax.set_xlim(10000, 17800)
+        ax.set_ylim(-1e6, 1e6)
+        fig.suptitle('Background Diff, from v{0} o{1} to v{2} o{3}'.format(meta.ivisit_sp[iiii], meta.iorbit_sp[iiii],meta.ivisit_sp[iiii+1], meta.iorbit_sp[iiii+1]),fontsize=12, y=0.99)
+        plt.tight_layout()
+        plt.savefig(meta.workdir + '/figs/spec_opt_diff/spec_opt_diff_{0}.png'.format(iiii))
+        plt.close('all')
+
+
+def c_diag(cmin_list,cmax_list, meta):
+    plt.clf()
+    if not os.path.isdir(meta.workdir + '/figs/c_diag/'):
+        os.makedirs(meta.workdir + '/figs/c_diag/')
+    fig, ax = plt.subplots(2, 1, figsize=(6.4, 4.8))
+    ax[0].plot(range(len(cmin_list)), cmin_list)
+    ax[1].plot(range(len(cmax_list)), cmax_list)
+    plt.savefig(meta.workdir + '/figs/c_diag/c_diag.png')
+    plt.close('all')
 
 
 def plot_trace(d, meta, visnum, orbnum, i):
@@ -318,10 +379,10 @@ def refspec_comp(x_vals, y_vals, modelx, modely, p0, datax, datay, leastsq_res, 
     plt.suptitle('refspec_comp {0}, visit {1}, orbit {2}'.format(i, meta.ivisit_sp[i], meta.iorbit_sp[i]))
     ax.plot(x_vals, y_vals, label='refspec')
     ax.plot(modelx, modely, label='refspec smoothed')
-    ax.plot((p0[0] + p0[1] * datax), datay * p0[2], label='initial guess')
+    #ax.plot((p0[0] + p0[1] * datax), datay * p0[2], label='initial guess')
     ax.plot((leastsq_res[0] + datax * leastsq_res[1]), datay * leastsq_res[2],
              label='spectrum fit, wvl = ({0:.5g}+{1:.5g}*x), {2:.5g}'.format(leastsq_res[0], leastsq_res[1], leastsq_res[2]))
-    ax.set_xlim(min(x_vals)/1.5, max(x_vals)*1.5)
+    ax.set_xlim(9000, 20000)
     ax.set_xscale('log')
     ax.set_xlabel('Wavelength (angstrom)')
     ax.set_xlabel('rel. Flux')
@@ -337,6 +398,23 @@ def refspec_comp(x_vals, y_vals, modelx, modely, p0, datax, datay, leastsq_res, 
         plt.close('all')
 
 
+def refspec_comp2(x_model, y_model, p0, x_data, y_data, leastsq_res, meta, i):
+    fig, ax = plt.subplots(1,1, figsize=(9,6))
+    plt.suptitle('refspec_comp {0}, visit {1}, orbit {2}'.format(i, meta.ivisit_sp[i], meta.iorbit_sp[i]))
+    ax.plot(x_model, y_model, label='first exp in orbit')
+    #ax.plot((p0[0] + p0[1] * x_data), y_data * p0[2], label='initial guess')
+    ax.plot((leastsq_res[0] + x_data * leastsq_res[1]), y_data * leastsq_res[2],
+             label='spectrum fit, wvl = ({0:.5g}+{1:.5g}*x), {2:.5g}'.format(leastsq_res[0], leastsq_res[1], leastsq_res[2]))
+    ax.set_xlim(9000, 20000)
+    ax.set_xscale('log')
+    ax.set_xlabel('Wavelength (angstrom)')
+    ax.set_xlabel('rel. Flux')
+    plt.legend()
+    plt.tight_layout()
+    if not os.path.isdir(meta.workdir + '/figs/drift/'):
+        os.makedirs(meta.workdir + '/figs/drift/')
+    plt.savefig(meta.workdir + '/figs/drift/drift{0}.png'.format(i))
+    plt.close('all')
 
 
 
@@ -375,20 +453,35 @@ matplotlib.rcParams.update({'axes.formatter.useoffset': False})
 
 
 def plot_raw(data, meta):
-    palette = sns.color_palette("husl", data.nvisit)
-    for i in range(data.nvisit):
-        ind = data.vis_num == i
-        plt.subplot((data.nvisit) * 100 + 10 + i + 1)
-        plt.plot(data.t_vis[ind] * 24., data.flux[ind], marker='o', \
+    #palette = sns.color_palette("husl", data.nvisit)
+    sns.set_palette("muted")
+    palette = sns.color_palette("muted", data.nvisit)
+    fig, ax = plt.subplots(data.nvisit, 1, figsize=(6.4, 2.4*data.nvisit), sharex=True)
+    if data.nvisit>1:
+        for i in range(data.nvisit):
+            ind = data.vis_num == i
+            #plt.subplot((data.nvisit) * 100 + 10 + i + 1)
+            ax[i].plot(data.t_vis[ind] * 24., data.flux[ind], marker='o', \
+                     markersize=3.0, linestyle="none", \
+                     label="Visit {0}".format(i), color=palette[i])
+            ax[i].set_xlim(((data.t_vis.min() - 0.02) * 24., (data.t_vis.max() + 0.05) * 24.))
+            ax[i].set_ylim((0.998 * data.flux.min(), 1.002 * data.flux.max()))
+            ax[i].legend(loc=1)
+            ax[i].set_ylabel("Flux (e-)")
+    else:
+
+        #plt.subplot((data.nvisit) * 100 + 10 + i + 1)
+        ax.plot(data.t_vis * 24., data.flux, marker='o', \
                  markersize=3.0, linestyle="none", \
-                 label="Visit {0}".format(i), color=palette[i])
-        plt.xlim(((data.t_vis.min() - 0.02) * 24., (data.t_vis.max() + 0.05) * 24.))
-        plt.ylim((0.998 * data.flux.min(), 1.002 * data.flux.max()))
-        plt.legend()
+                 label="Visit 0", color=palette[0])
+        ax.set_xlim(((data.t_vis.min() - 0.02) * 24., (data.t_vis.max() + 0.05) * 24.))
+        ax.set_ylim((0.998 * data.flux.min(), 1.002 * data.flux.max()))
+        ax.legend(loc=1)
+        ax.set_ylabel("Flux (e-)")
     plt.xlabel("Time after visit start (hours)")
-    plt.ylabel("Flux (e-)")
+    fig.suptitle('Filename: {0}'.format(meta.run_file.split('/')[-1]), fontsize=15, y=0.998)
     plt.tight_layout()
-    plt.savefig(meta.workdir + meta.fitdir + "/raw_lc_{0}.pdf".format(meta.fittime))
+    plt.savefig(meta.workdir + meta.fitdir + "/raw_lc_{0}_{1}.png".format(meta.run_file.split('/')[-1], meta.fittime))
     plt.show()
 
 
@@ -453,8 +546,11 @@ def rmsplot(model, data, meta):
     return
 
 from astropy.stats import sigma_clip
+import time
+
 
 def plot_fit_lc(data, fit, meta, mcmc=False):
+    datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
     plt.clf()
     fig, ax = plt.subplots(2,1)
     p = FormatParams(fit.params, data)  # FIXME
@@ -521,25 +617,24 @@ def plot_fit_lc(data, fit, meta, mcmc=False):
 
     plt.tight_layout()
     if mcmc:
-        plt.savefig(meta.workdir + meta.fitdir + "/mcmc_lc_{0}_len{1}.png".format(meta.fittime, len(fit.phase)))
+        plt.savefig(meta.workdir + meta.fitdir + "/mcmc_lc_{0}_len{1}_{2}.png".format(meta.fittime, len(fit.phase), datetime))
     else:
-        plt.savefig(meta.workdir + meta.fitdir + "/white_lc_{0}_len{1}.png".format(meta.fittime, len(fit.phase)))
+        plt.savefig(meta.workdir + meta.fitdir + "/white_lc_{0}_len{1}_{2}.png".format(meta.fittime, len(fit.phase), datetime))
     plt.show()
     # plt.waitforbuttonpress(0) # this will wait for indefinite time
     plt.close()
 
 
 def plot_fit_lc2(data, fit, meta, mcmc=False):
+    datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
     plt.clf()
     fig, ax = plt.subplots(2,1)
     p = FormatParams(fit.params, data)  # FIXME
-
     sns.set_palette("muted")
     palette = sns.color_palette("muted", data.nvisit)
 
     # ind = model.phase > 0.5
     # model.phase[ind] -= 1.
-
     # calculate a range of times at higher resolution to make model look nice
     phase_hr = np.linspace(fit.phase.min() - 0.05, fit.phase.max() + 0.05, 1000)
     t_hr = phase_hr * p.per[0] + p.t0[0] + data.toffset
@@ -589,9 +684,9 @@ def plot_fit_lc2(data, fit, meta, mcmc=False):
 
     plt.tight_layout()
     if mcmc:
-        plt.savefig(meta.workdir + meta.fitdir + "/mcmc_lc_{0}_len{1}.png".format(meta.fittime, len(fit.phase)))
+        plt.savefig(meta.workdir + meta.fitdir + "/mcmc_lc_{0}_len{1}_{2}.png".format(meta.fittime, len(fit.phase), datetime))
     else:
-        plt.savefig(meta.workdir + meta.fitdir + "/white_lc_{0}_len{1}.png".format(meta.fittime, len(fit.phase)))
+        plt.savefig(meta.workdir + meta.fitdir + "/white_lc_{0}_len{1}_{2}.png".format(meta.fittime, len(fit.phase), datetime))
     plt.show()
     # plt.waitforbuttonpress(0) # this will wait for indefinite time
     plt.close()
@@ -608,6 +703,6 @@ def plot_chains(ndim, sampler, nburn, labels, meta):
     fig.tight_layout()
     fig.subplots_adjust(wspace=0, hspace=0)
     if nburn == 0:
-        fig.savefig(meta.workdir + meta.fitdir + "/mcmc_chains_{0}.png".format(meta.fittime))
+        fig.savefig(meta.workdir + meta.fitdir + "/mcmc_chains_{0}_{1}.png".format(meta.run_file.split('/')[-1], meta.fittime))
     else:
-        fig.savefig(meta.workdir + meta.fitdir + "/mcmc_chains_noburn_{0}.png".format(meta.fittime))
+        fig.savefig(meta.workdir + meta.fitdir + "/mcmc_chains_noburn_{0}_{1}.png".format(meta.run_file.split('/')[-1], meta.fittime))

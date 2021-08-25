@@ -1,4 +1,6 @@
 import os, glob, scipy, numpy
+
+import matplotlib.pyplot as plt
 from astropy.io import fits
 from numpy import *
 import scipy.signal
@@ -54,6 +56,12 @@ def run20(eventlabel, workdir, meta=None):
     peaks_all = []
     bkg_lc = []
 
+    cmin_list= []
+    cmax_list= []
+
+    spec_opt_interp_all = []
+    wvl_hires = np.linspace(10000, 17800, 1000)
+
     print('in total visit, orbit:', (meta.norbit, meta.nvisit), '\n')
 
     for i in tqdm(np.arange(len(files_sp), dtype=int)):#
@@ -64,8 +72,8 @@ def run20(eventlabel, workdir, meta=None):
         scan = meta.scans_sp[i]
 
         # Plot with good visible background
-        if meta.save_bkg_plot or meta.show_bkg_plot:
-            plots.bkg(d, meta, i)
+        if meta.save_spectrum2d_plot or meta.show_spectrum2d_plot:
+            plots.spectrum2d(d, meta, i)
 
         visnum, orbnum = meta.ivisit_sp[i], meta.iorbit_sp_com[i]     #current visit and orbit number
         print('current visit, orbit:', (visnum, orbnum))
@@ -184,52 +192,99 @@ def run20(eventlabel, workdir, meta=None):
         shift = 0.
         #corrects for wavelength drift over time
         if meta.correct_wave_shift == True:
-            #if nspectra == 0:
-            #https: // matthew - brett.github.io / teaching / smoothing_intro.html
-            model = np.loadtxt(meta.workdir + '/ancil/bandpass/refspec_v{0}.txt'.format(visnum)).T
-            x_vals, y_vals = model[0]*10000, model[1]/max(model[1])
-            sigma = 0.004*10000
-            smoothed_vals = np.zeros(y_vals.shape)
-            for x_position, x_position_val in enumerate(x_vals):
-                kernel = np.exp(-(x_vals - x_position_val) ** 2 / (2 * sigma ** 2))
-                kernel = kernel / sum(kernel)
-                smoothed_vals[x_position] = sum(y_vals * kernel)
+            if i in meta.new_visit_idx_sp:
+                #if nspectra == 0:
+                template_waves = meta.wave_grid[0, int(meta.refpix[orbnum,1]) + meta.LTV1, cmin:cmax]             #LK interpolation 8/18 #use stellar model instead
+                #print(template_waves[-1]-template_waves[0])
+                #print(cmax-cmin)
+                #print((template_waves[-1] - template_waves[0])/(cmax-cmin))
+                #https: // matthew - brett.github.io / teaching / smoothing_intro.html
+                refspec = np.loadtxt(meta.workdir + '/ancil/bandpass/refspec_v{0}.txt'.format(visnum)).T
+                x_refspec, y_refspec_raw = refspec[0]*10000, refspec[1]/max(refspec[1])
 
-            #FIXME SZ make this nicer
-            modelx = np.concatenate((np.linspace(-10000, min(x_vals), 100, endpoint=False), x_vals,
-                                     np.linspace(max(x_vals) + 10, 100000, 100, endpoint=False)))
-            modely = np.concatenate((np.zeros(100), smoothed_vals, np.zeros(100)))
+                print(x_refspec[-1] - x_refspec[0])
+
+                sigma = 40#1*46.17#0.004*10000
+                y_refspec_kernel = np.zeros(y_refspec_raw.shape)
+
+                for x_position, x_position_val in enumerate(x_refspec):
+                    kernel = np.exp(-(x_refspec - x_position_val) ** 2 / (2 * sigma ** 2))
+                    kernel = kernel / sum(kernel)
+                    y_refspec_kernel[x_position] = sum(y_refspec_raw * kernel)
+
+                y_refspec_kernel = y_refspec_kernel/max(y_refspec_kernel)
+
+                #FIXME SZ make this nicer
+                x_refspec_new = np.concatenate((np.linspace(-10000, min(x_refspec), 100, endpoint=False),
+                                         x_refspec,
+                                         np.linspace(max(x_refspec) + 10, 100000, 100, endpoint=False)))
+                y_refspec_kernel_new = np.concatenate((np.zeros(100),
+                                         y_refspec_kernel,
+                                         np.zeros(100)))
+
+                x_data = template_waves
+                y_data = spec_opt/max(spec_opt)
 
 
-            template_waves = meta.wave_grid[0, int(meta.refpix[0,1]) + meta.LTV1, cmin:cmax]             #LK interpolation 8/18 #use stellar model instead
 
-            datax = template_waves
-            datay = spec_opt/max(spec_opt)
+                p0 = [0, 1, 1]
+                leastsq_res = leastsq(util.residuals2, p0, args=(x_refspec_new, y_refspec_kernel_new, x_data, y_data))[0]
+                print('leastsq_res', leastsq_res)
 
-            p0 = [0, 1, 1]
-            leastsq_res = leastsq(util.residuals2, p0, args=(modelx, modely, datax, datay))[0]
-            print('leastsq_res', leastsq_res)
+                if meta.save_refspec_comp_plot or meta.show_refspec_comp_plot:
+                    plots.refspec_comp(x_refspec, y_refspec_raw, x_refspec_new, y_refspec_kernel_new, p0, x_data, y_data, leastsq_res, meta, i)
 
-            if meta.save_refspec_comp_plot or meta.show_refspec_comp_plot:
-                plots.refspec_comp(x_vals, y_vals, modelx, modely, p0, datax, datay, leastsq_res, meta, i)
+                template_waves = leastsq_res[0] + x_data * leastsq_res[1]
 
-            template_waves = leastsq_res[0] + template_waves * leastsq_res[1]
+                #for all other but first exposure in visit exposures
+                template_waves_ref = np.copy(template_waves)
+                y_data_firstexpvisit = np.copy(y_data)
 
-            #template_waves -= 70.               #LK hack to get the wavelength solution right
-            #print("LK adjusting wavelength solution BY HAND!!!!")
-            #shift = 0.
-            #template_spectrum = spec_opt                                #makes the first exposure the template spectrum #stellar model * grism throughput
-            #best_spec = spec_opt
-            #best_var = var_opt
+                #template_waves -= 70.               #LK hack to get the wavelength solution right
+                #print("LK adjusting wavelength solution BY HAND!!!!")
+                #shift = 0.
+                #template_spectrum = spec_opt                                #makes the first exposure the template spectrum #stellar model * grism throughput
+                #best_spec = spec_opt
+                #best_var = var_opt
 
-            # else:
-            #     #shifts spectrum so it matches the template
-            #     [best_spec, best_var, shift] = interpolate_spectrum(spec_opt, np.sqrt(var_opt), template_spectrum, template_waves)
-            #     best_var = best_var**2
-            #
-            #     spec_opt = best_spec                                    #saves the interpolated spectrum
-            #     var_opt = best_var
+                # else:
+                #     #shifts spectrum so it matches the template
+                #     [best_spec, best_var, shift] = interpolate_spectrum(spec_opt, np.sqrt(var_opt), template_spectrum, template_waves)
+                #     best_var = best_var**2
+                #
+                #     spec_opt = best_spec                                    #saves the interpolated spectrum
+                #     var_opt = best_var
+            else:
 
+                #FIXME SZ make this nicer
+                x_model = np.concatenate((np.linspace(-10000, min(template_waves_ref), 100, endpoint=False),
+                                         template_waves_ref,
+                                         np.linspace(max(template_waves_ref) + 10, 100000, 100, endpoint=False)))
+                y_model = np.concatenate((np.zeros(100),
+                                         y_data_firstexpvisit,
+                                         np.zeros(100)))
+
+                x_data = meta.wave_grid[0, int(meta.refpix[orbnum,1]) + meta.LTV1, cmin:cmax]
+                y_data = spec_opt/max(spec_opt)
+
+                p0 = [0, 1, 1]
+                leastsq_res = leastsq(util.residuals2, p0, args=(x_model, y_model, x_data, y_data))[0]
+                print('leastsq_res', leastsq_res)
+
+               # if meta.save_refspec_comp_plot or meta.show_refspec_comp_plot:
+               #     plots.refspec_comp(x_vals, y_vals, modelx, modely, p0, datax, datay, leastsq_res, meta, i)
+                plots.refspec_comp2(x_model, y_model, p0, x_data, y_data, leastsq_res, meta, i)
+
+                template_waves = leastsq_res[0] + x_data * leastsq_res[1]
+
+        else:
+            template_waves = meta.wave_grid[0, int(meta.refpix[orbnum, 1]) + meta.LTV1, cmin:cmax]
+
+
+        cmin_list.append(cmin)
+        cmax_list.append(cmax)
+
+        spec_opt_interp_all.append(np.interp(wvl_hires, template_waves, spec_opt))
 
         #wavelengthsolutionoffset = 105.
 
@@ -242,6 +297,11 @@ def run20(eventlabel, workdir, meta=None):
         plt.legend()
         plt.show()"""
 
+        if meta.save_spectrum1d_spec_opt_plot or meta.show_spectrum1d_spec_opt_plot:
+            plots.spectrum1d_spec_opt(cmin,cmax,template_waves, spec_opt, meta, i)
+
+        if meta.save_spectrum1d_spec_box_plot or meta.show_spectrum1d_spec_box_plot:
+            plots.spectrum1d_spec_box(cmin,cmax,template_waves, spec_box, meta, i)
 
         #print(phase, sum(spec_opt), sum(var_opt),  sum(spec_box), sum(var_box), time, visnum, orbnum, scan)
 
@@ -264,6 +324,12 @@ def run20(eventlabel, workdir, meta=None):
         print(nspectra, meta.t_bjd_sp[i], sum(spec_opt), np.sum(spec_box), visnum, f, shift)
         print('\n')
 
+
+    if meta.save_spectrum1d_spec_opt_diff_plot or meta.show_spectrum1d_spec_opt_diff_plot:
+        spec_opt_interp_all = np.array(spec_opt_interp_all)
+        spec_opt_interp_all_diff = np.diff(spec_opt_interp_all, axis=0)
+        plots.spectrum1d_spec_opt_diff_plot(spec_opt_interp_all_diff, meta, wvl_hires)
+
     if meta.save_uptheramp_plot_total or meta.show_uptheramp_plot_total:
         plots.bkg_lc(bkg_lc, meta)
         plots.uptheramp_evolution(peaks_all, meta)
@@ -272,10 +338,9 @@ def run20(eventlabel, workdir, meta=None):
         ascii.write(table_white, dirname+'/lc_white.txt', format='ecsv', overwrite=True)
         ascii.write(table_spec, dirname+'/lc_spec.txt', format='ecsv', overwrite=True)
         ascii.write(table_diagnostics, dirname+'/diagnostics.txt', format='ecsv', overwrite=True)
-        #specfile.close()
-        #whitefile.close()
-        #diagnosticsfile.close()
 
+    if meta.save_c_diag_plot or meta.show_c_diag_plot:
+        plots.c_diag(cmin_list, cmax_list, meta)
 
     # Save results
     print('Saving Metadata')

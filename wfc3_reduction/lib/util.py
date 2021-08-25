@@ -97,6 +97,9 @@ def ancil(meta, s10=False, s20=False):
     meta.iorbit_sp = filelist['iorbit'][meta.mask_sp].data
     meta.ivisit_sp = filelist['ivisit'][meta.mask_sp].data
 
+    meta.new_orbit_idx_sp = np.concatenate(([0], np.where(np.diff(meta.iorbit_sp)!=0)[0]+1))
+    meta.new_visit_idx_sp = np.concatenate(([0], np.where(np.diff(meta.ivisit_sp)!=0)[0]+1))
+
     c = np.zeros(len(meta.iorbit_sp), dtype=int)
     for i in range(len(c) - 1):
         cc = np.diff(meta.iorbit_sp)

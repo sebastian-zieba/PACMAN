@@ -1,4 +1,7 @@
-class FormatParams: 
+import numpy as np
+
+
+class FormatParams:
     """
     doc
     """
@@ -27,12 +30,30 @@ class FormatParams:
         self.dTrap_s = params[data.par_order['dTrap_s']*data.nvisit:(1 + data.par_order['dTrap_s'])*data.nvisit]
         self.dTrap_f = params[data.par_order['dTrap_f']*data.nvisit:(1 + data.par_order['dTrap_f'])*data.nvisit]
 
-def PrintParams(m, data): 
+def PrintParams(m, data, savefile=False):
     for name in data.parnames:
         for vis in range(data.nvisit):
             if m.perror[data.par_order[name]*data.nvisit + vis] > 0.: 
-                print(name+"_"+str(vis), \
-                      "\t", "{0:0.4e}".format(m.params[data.par_order[name]*data.nvisit + vis]), \
-                      "\t", "{0:0.4e}".format(m.perror[data.par_order[name]*data.nvisit + vis]))
-                
-
+                if not savefile:
+                    print(name+"_"+str(vis), \
+                          "\t", "{0:0.4e}".format(m.params[data.par_order[name]*data.nvisit + vis]), \
+                          "\t", "{0:0.4e}".format(m.perror[data.par_order[name]*data.nvisit + vis]))
+                else:
+                    print(name+"_"+str(vis), \
+                          "\t", "{0:0.4e}".format(m.params[data.par_order[name]*data.nvisit + vis]), \
+                          "\t", "{0:0.4e}".format(m.perror[data.par_order[name]*data.nvisit + vis]), file=savefile)
+def ReturnParams(m, data):
+    val = []
+    err = []
+    for name in data.parnames:
+        for vis in range(data.nvisit):
+            if m.perror[data.par_order[name]*data.nvisit + vis] > 0.:
+                val.append(m.params[data.par_order[name]*data.nvisit + vis])
+                err.append(m.perror[data.par_order[name]*data.nvisit + vis])
+            else:
+                val.append(np.nan)
+                err.append(np.nan)
+    val = np.array(val)
+    err = np.array(err)
+    idx = np.arange(len(val), dtype=int)[~np.isnan(val)]
+    return val, err, idx

@@ -48,17 +48,26 @@ def run22(eventlabel, workdir, meta=None):
         npix = meta.BEAMA_f - meta.BEAMA_i #181  #width of spectrum in pixels (BEAMA_f - BEAMA_i)
         #d = d.reshape(nexp , npix,  -1)			#reshapes array by exposure
 
-        w = d[9].reshape(nexp, npix)[0] # d[0,:, 4]
+        t_mjd, t_bjd = d[0].reshape(nexp, npix), d[1].reshape(nexp, npix)
+        t_visit, t_orbit = d[2].reshape(nexp, npix), d[3].reshape(nexp, npix)
+        ivisit, iorbit = d[4].reshape(nexp, npix), d[5].reshape(nexp, npix)
+        scan = d[6].reshape(nexp, npix)
+        spec_opt, var_opt = d[7].reshape(nexp, npix), d[8].reshape(nexp, npix)
+        w = d[9].reshape(nexp, npix) # d[0,:, 4]
         #f = d[0, :, 2]
 
-        w_hires = np.linspace(w.min(), w.max(), 10000)
-        oversample_factor = len(w_hires)/len(w)*1.0
+        w_min = max(w[:,0])
+        w_max = min(w[:,-1])
 
+        #w_hires = np.linspace(w.min(), w.max(), 10000)
+        w_hires = np.linspace(w_min, w_max, 10000)
+        oversample_factor = len(w_hires)/npix*1.0
+        print(oversample_factor)
         #stores the indices corresponding to the wavelength range in each bin
         wave_inds = []
-        lo_res_wave_inds = []
+        #lo_res_wave_inds = []
         for i in range(len(wave_bins)- 1): wave_inds.append((w_hires >= wave_bins[i])&(w_hires <= wave_bins[i+1]))
-        for i in range(len(wave_bins)- 1): lo_res_wave_inds.append((w >= wave_bins[i])&(w <= wave_bins[i+1]))
+        #for i in range(len(wave_bins)- 1): lo_res_wave_inds.append((w >= wave_bins[i])&(w <= wave_bins[i+1]))
 
         datetime = time_now.strftime('%Y-%m-%d_%H-%M-%S')
         dirname = meta.workdir + "/extracted_sp/" + 'bins{0}_'.format(wvl_bins) + datetime
@@ -74,11 +83,15 @@ def run22(eventlabel, workdir, meta=None):
 
             #print('#t_mjd', '\t', 't_bjd', '\t', 't_visit', '\t', 't_orbit', '\t', 'ivisit', '\t', 'iorbit', '\t', 'scan', '\t', 'spec_opt', '\t', 'var_opt', '\t','wave', file=outfile)
             for j in range(nexp):
-                t_mjd, t_bjd, t_visit, t_orbit = d[0].reshape(nexp, npix)[j][0], d[1].reshape(nexp, npix)[j][0], d[2].reshape(nexp, npix)[j][0], d[3].reshape(nexp, npix)[j][0]
-                ivisit, iorbit, scan = d[4].reshape(nexp, npix)[j][0], d[5].reshape(nexp, npix)[j][0], d[6].reshape(nexp, npix)[j][0]
-                spec_opt,  var_opt = d[7].reshape(nexp, npix)[j], d[8].reshape(nexp, npix)[j]
-                f_interp = np.interp(w_hires, w, spec_opt)
-                variance_interp = np.interp(w_hires, w, var_opt)
+                t_mjd_i, t_bjd_i = t_mjd[j][0], t_bjd[j][0]
+                t_visit_i, t_orbit_i = t_visit[j][0], t_orbit[j][0]
+                ivisit_i, iorbit_i = ivisit[j][0], iorbit[j][0]
+                scan_i = scan[j][0]
+                spec_opt_i,  var_opt_i = spec_opt[j], var_opt[j]
+                w_i = w[j]
+
+                f_interp = np.interp(w_hires, w_i, spec_opt_i)
+                variance_interp = np.interp(w_hires, w_i, var_opt_i)
 
                 #accounts for decrease in precision when spectrum is oversampled
                 variance_interp *= oversample_factor
@@ -90,7 +103,7 @@ def run22(eventlabel, workdir, meta=None):
 
                 #print(t_mjd, t_bjd, t_visit, t_orbit, ivisit, iorbit, scan, meanflux, meanerr**2, wave, file=outfile)
                 #print wave, np.sum(d[j, lo_res_wave_inds[i],2])
-                table.add_row([t_mjd, t_bjd, t_visit, t_orbit, ivisit, iorbit, scan, meanflux, meanerr**2, wave])
+                table.add_row([t_mjd_i, t_bjd_i, t_visit_i, t_orbit_i, ivisit_i, iorbit_i, scan_i, meanflux, meanerr**2, wave])
 
         #print wave, 1.0*sum(wave_inds)/len(w_hires), meanflux, meanerr
             ascii.write(table, outname, format='ecsv', overwrite=True)

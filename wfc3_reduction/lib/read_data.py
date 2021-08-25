@@ -17,15 +17,24 @@ class Data:
                 nvisit = int(meta.nvisit)
                 prior = []
 
-                for i in range(len(fit_par)):
-                    if fit_par['fixed'][i].lower() == "false":
-                        if fit_par['tied'][i].lower() == "true": 
-                            prior.append([fit_par['prior'][i], float(fit_par['p1'][i]), 
-                                float(fit_par['p2'][i])])
-                        else: 
-                            for j in range(nvisit): 
-                                prior.append([fit_par['prior'][i], float(fit_par['p1'][i]), 
+                if meta.fit_par_new == False:
+                    #OLD fit_par.txt
+                    for i in range(len(fit_par)):
+                        if fit_par['fixed'][i].lower() == "false":
+                            if fit_par['tied'][i].lower() == "true":
+                                prior.append([fit_par['prior'][i], float(fit_par['p1'][i]),
                                     float(fit_par['p2'][i])])
+                            else:
+                                for j in range(nvisit):
+                                    prior.append([fit_par['prior'][i], float(fit_par['p1'][i]),
+                                        float(fit_par['p2'][i])])
+                else:
+                    for i in range(len(fit_par)):
+                        if fit_par['fixed'][i].lower() == "false":
+                            prior.append([fit_par['prior'][i], float(fit_par['p1'][i]),
+                                float(fit_par['p2'][i])])
+
+                print('prior, read_data', prior)
                 return prior
 
 	#read in data and sort by time
@@ -82,6 +91,7 @@ class Data:
         t_delay = t_delay[~ind]
         d = d[~ind]
 
+        #FIXME SZ IMPORTANT! WONT WORK IF VISIT HASNT 4 ORBITS!!
         ind = (orb_num%4 ==1)
         t_delay[ind] = 1.
         """ind = (orb_num==0)|(orb_num == 6)|(orb_num == 12)|(orb_num == 18)
@@ -92,6 +102,7 @@ class Data:
         time  = d['t_bjd']
         scan_direction = d['scan']
 
+        #FIXME SZ If white it should take wavelength integrated limb darking from file not just at 1.4 micron
         #wavelength = d[0,3]
         if meta.run_fit_white:
             wavelength = 1.4
@@ -115,10 +126,19 @@ class Data:
             fit_par['fixed'][np.where(fit_par['parameter']=='u2')] = "true"
 
         nfree_param = 0
-        for i in range(len(fit_par)):
-            if fit_par['fixed'][i].lower() == "false":
-                if fit_par['tied'][i].lower() == "true": nfree_param += 1
-                else: nfree_param += nvisit
+
+        if meta.fit_par_new == False:
+        # OLD fit_par.txt
+            for i in range(len(fit_par)):
+                if fit_par['fixed'][i].lower() == "false":
+                    if fit_par['tied'][i].lower() == "true": nfree_param += 1
+                    else: nfree_param += nvisit
+            # print('nfree_param, read_data', nfree_param)
+        else:
+            for i in range(len(fit_par)):
+                if fit_par['fixed'][i].lower() == "false":
+                    nfree_param += 1
+
 
         idx_array = np.arange(len(time), dtype=int)
         print('readdata:', clip_idx)
@@ -140,8 +160,16 @@ class Data:
         self.t_vis = t_vis[clip_mask]
         self.t_orb = t_orb[clip_mask]
         self.t_delay = t_delay[clip_mask]
-        self.parnames = fit_par['parameter']
-        par_order = {line['parameter']: i for i, line in enumerate(fit_par)}
+        if meta.fit_par_new == False:
+            self.parnames = fit_par['parameter'] # OLD fit_par.txt
+        else:
+            self.parnames = remove_dupl(fit_par['parameter'])
+        print('self.parnames ', self.parnames )
+        if meta.fit_par_new == False:
+            par_order = {line['parameter']: i for i, line in enumerate(fit_par)} # OLD fit_par.txt
+        else:
+            par_order = {line: i for i, line in enumerate(self.parnames)}
+        print('par_order', par_order)
         self.par_order = par_order
         self.nfree_param = nfree_param
         self.npoints = len(self.time)
@@ -162,3 +190,10 @@ class Data:
 
         #FIXME
         #self.white_systematics = np.genfromtxt("white_systematics.txt")
+
+
+def remove_dupl(seq):
+    #https://stackoverflow.com/questions/480214/how-do-you-remove-duplicates-from-a-list-whilst-preserving-order
+    seen = set()
+    seen_add = seen.add
+    return [x for x in seq if not (x in seen or seen_add(x))]
