@@ -40,7 +40,7 @@ def run20(eventlabel, workdir, meta=None):
 
     #STEP 0: User-set parameters and constants
 
-    dirname = meta.workdir + "/extracted_lc/" + datetime.strftime(datetime.now(), '%Y-%m-%d_%H:%M')
+    dirname = meta.workdir + "/extracted_lc/" + datetime.strftime(datetime.now(), '%Y-%m-%d_%H_%M')
     if not os.path.exists(dirname): os.makedirs(dirname)
 
     table_white = QTable(names=('t_mjd', 't_bjd', 't_visit','t_orbit', 'ivisit', 'iorbit', 'scan', 'spec_opt', 'var_opt', 'spec_box', 'var_box'))

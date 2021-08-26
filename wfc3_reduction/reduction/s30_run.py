@@ -59,7 +59,7 @@ def run30(eventlabel, workdir, meta=None):
         files = glob.glob(os.path.join(meta.run_files[0], "*.txt"))  #
     print(files)
 
-    meta.run_out_name = "fit_" + pythontime.strftime("%Y_%m_%d_%H:%M") + ".txt"
+    meta.run_out_name = "fit_" + pythontime.strftime("%Y_%m_%d_%H_%M") + ".txt"
 
     vals = []
     errs = []
@@ -189,14 +189,15 @@ def run30(eventlabel, workdir, meta=None):
     plt.savefig(meta.workdir + meta.fitdir + '/ls_{0}.png'.format(datetime), dpi=700, tight_layout=True)
 
 
-    f_lsq =  open(meta.workdir + meta.fitdir + "/lsq_res_{0}.txt".format(meta.fittime), 'w')
-    files_name_ending = [float(files[ii].split('speclc')[-1].split('.txt')[0]) for ii in range(len(files))]
-    rprs_vals_lsq = [vals[ii][idxs[0][5]] for ii in range(len(vals))]
-    rprs_errs_lsq = [errs[ii][idxs[0][5]] for ii in range(len(errs))]
-    rprs_idxs_lsq = [idxs[ii][idxs[0][5]] for ii in range(len(idxs))]
-    for row in zip(files_name_ending, rprs_vals_lsq, rprs_errs_lsq, rprs_idxs_lsq):
-        print("{: <10} {: <25} {: <25} {: <25}".format(*row), file=f_lsq)
-    f_lsq.close()
+    if not meta.run_fit_white:
+        f_lsq =  open(meta.workdir + meta.fitdir + "/lsq_res_{0}.txt".format(meta.fittime), 'w')
+        files_name_ending = [float(files[ii].split('speclc')[-1].split('.txt')[0]) for ii in range(len(files))]
+        rprs_vals_lsq = [vals[ii][idxs[0][5]] for ii in range(len(vals))]
+        rprs_errs_lsq = [errs[ii][idxs[0][5]] for ii in range(len(errs))]
+        rprs_idxs_lsq = [idxs[ii][idxs[0][5]] for ii in range(len(idxs))]
+        for row in zip(files_name_ending, rprs_vals_lsq, rprs_errs_lsq, rprs_idxs_lsq):
+            print("{: <10} {: <25} {: <25} {: <25}".format(*row), file=f_lsq)
+        f_lsq.close()
 
     return meta
 
