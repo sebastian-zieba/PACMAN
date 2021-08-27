@@ -20,6 +20,7 @@ from ..lib.nested import nested_sample
 import time
 import shutil
 from ..lib.formatter import ReturnParams
+from ..lib import sort_nicely as sn
 
 
 def run30(eventlabel, workdir, meta=None):
@@ -57,6 +58,7 @@ def run30(eventlabel, workdir, meta=None):
         files = meta.run_files #
     else:
         files = glob.glob(os.path.join(meta.run_files[0], "*.txt"))  #
+        files = sn.sort_nicely(files)
     print(files)
 
     meta.run_out_name = "fit_" + pythontime.strftime("%Y_%m_%d_%H_%M") + ".txt"
@@ -65,8 +67,8 @@ def run30(eventlabel, workdir, meta=None):
     errs = []
     idxs = []
 
-    for f in files:
-
+    for counter, f in enumerate(files):
+        print('File: {0}/{1}'.format(counter+1, len(files)))
         meta.run_file = f
         meta.fittime = time.strftime('%Y-%m-%d_%H-%M-%S')
 
@@ -123,14 +125,14 @@ def run30(eventlabel, workdir, meta=None):
             data.err *= np.sqrt(model.chi2red)
             data, model, params, m = lsq_fit(fit_par, data, meta, model, myfuncs, noclip=True)
             if meta.run_verbose == True: print("rms, chi2red = ", model.rms, model.chi2red)
-            output = mcmc_fit(data, model, params, f, meta, fit_par)
+            mcmc_fit(data, model, params, f, meta, fit_par)
 
         if meta.run_nested:
             ##rescale error bars so reduced chi-squared is one
             data.err *= np.sqrt(model.chi2red)
             data, model, params, m = lsq_fit(fit_par, data, meta, model, myfuncs, noclip=True)
             if meta.run_verbose == True: print("rms, chi2red = ", model.rms, model.chi2red)
-            output = nested_sample(data, model, params, f, meta, fit_par)
+            nested_sample(data, model, params, f, meta, fit_par)
 
         if meta.run_verbose:
             #print "{0:0.3f}".format(data.wavelength), "{0:0.2f}".format(bestfit.chi2red)
@@ -143,9 +145,6 @@ def run30(eventlabel, workdir, meta=None):
         vals.append(val)
         errs.append(err)
         idxs.append(idx)
-
-    print('20 :', len(idxs[0]))
-    print('12 :', len(idxs))
 
     def labels_gen(params, meta, fit_par):
         nvisit = int(meta.nvisit)

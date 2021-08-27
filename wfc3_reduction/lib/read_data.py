@@ -164,12 +164,12 @@ class Data:
             self.parnames = fit_par['parameter'] # OLD fit_par.txt
         else:
             self.parnames = remove_dupl(fit_par['parameter'])
-        print('self.parnames ', self.parnames )
+        #print('self.parnames ', self.parnames )
         if meta.fit_par_new == False:
             par_order = {line['parameter']: i for i, line in enumerate(fit_par)} # OLD fit_par.txt
         else:
             par_order = {line: i for i, line in enumerate(self.parnames)}
-        print('par_order', par_order)
+        #print('par_order', par_order)
         self.par_order = par_order
         self.nfree_param = nfree_param
         self.npoints = len(self.time)

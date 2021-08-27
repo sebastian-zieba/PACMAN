@@ -24,7 +24,6 @@ eventlabel = 'L-98-59_Hubble15856'
 #workdir = '/home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/run/run_2021-08-19_17-10-45_L-98-59_Hubble15856/' #[3], window=10, correct_shift=False, corrected refpix
 
 #workdir = '/home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/run/run_2021-08-19_19-22-39_L-98-59_Hubble15856/' #[all], window=10, correct_shift=False, corrected refpix
-
 workdir = '/home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/run/run_2021-08-21_02-00-29_L-98-59_Hubble15856_spec/' #[all], window=10, correct_shift=True, corrected refpix
 
 reload_meta(eventlabel, workdir)

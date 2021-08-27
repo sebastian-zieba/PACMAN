@@ -92,7 +92,7 @@ def lsq_fit(fit_par, data, meta, model, myfuncs, noclip=False):
 #		print "subtracting 2 from dof for divide-white"
 
 
-    m = mpfit.mpfit(residuals, params_s, functkw=fa, parinfo = parinfo, quiet=True, maxiter=1000)
+    m = mpfit.mpfit(residuals, params_s, functkw=fa, parinfo = parinfo, quiet=True)
 
     if noclip == False:
         if sum(np.ma.getmask(sigma_clip(model.resid, sigma=meta.run_clipsigma, maxiters=1))) == 0:

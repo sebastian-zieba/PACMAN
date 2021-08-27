@@ -482,7 +482,7 @@ def plot_raw(data, meta):
     fig.suptitle('Filename: {0}'.format(meta.run_file.split('/')[-1]), fontsize=15, y=0.998)
     plt.tight_layout()
     plt.savefig(meta.workdir + meta.fitdir + "/raw_lc_{0}_{1}.png".format(meta.run_file.split('/')[-1], meta.fittime))
-    plt.show()
+    plt.close()
 
 
 # COMPUTE ROOT-MEAN-SQUARE AND STANDARD ERROR OF DATA FOR VARIOUS BIN SIZES
@@ -522,9 +522,9 @@ def computeRMS(data, maxnbins=None, binstep=1, isrmserr=False):
 # Plot RMS vs. bin size looking for time-correlated noise
 def rmsplot(model, data, meta):
 
-    t_orb = data.t_orb
+    time = data.time
     residuals = model.norm_resid
-    residuals = residuals[np.argsort(t_orb)]
+    residuals = residuals[np.argsort(time)]
 
     rms, stderr, binsz = computeRMS(residuals, binstep=1)
     normfactor = 1e-6
@@ -542,8 +542,8 @@ def rmsplot(model, data, meta):
     plt.yticks(size=12)
     plt.legend()
     #if savefile != None:
-    plt.savefig(meta.workdir + meta.fitdir + '/corr_lc_{0}_len{1}.png'.format(meta.fittime, len(t_orb)))
-    return
+    plt.savefig(meta.workdir + meta.fitdir + '/corr_lc_{0}_len{1}.png'.format(meta.fittime, len(time)))
+    plt.close()
 
 from astropy.stats import sigma_clip
 import time
@@ -620,7 +620,6 @@ def plot_fit_lc(data, fit, meta, mcmc=False):
         plt.savefig(meta.workdir + meta.fitdir + "/mcmc_lc_{0}_len{1}_{2}.png".format(meta.fittime, len(fit.phase), datetime))
     else:
         plt.savefig(meta.workdir + meta.fitdir + "/white_lc_{0}_len{1}_{2}.png".format(meta.fittime, len(fit.phase), datetime))
-    plt.show()
     # plt.waitforbuttonpress(0) # this will wait for indefinite time
     plt.close()
 
@@ -687,7 +686,6 @@ def plot_fit_lc2(data, fit, meta, mcmc=False):
         plt.savefig(meta.workdir + meta.fitdir + "/mcmc_lc_{0}_len{1}_{2}.png".format(meta.fittime, len(fit.phase), datetime))
     else:
         plt.savefig(meta.workdir + meta.fitdir + "/white_lc_{0}_len{1}_{2}.png".format(meta.fittime, len(fit.phase), datetime))
-    plt.show()
     # plt.waitforbuttonpress(0) # this will wait for indefinite time
     plt.close()
 
@@ -706,3 +704,4 @@ def plot_chains(ndim, sampler, nburn, labels, meta):
         fig.savefig(meta.workdir + meta.fitdir + "/mcmc_chains_{0}_{1}.png".format(meta.run_file.split('/')[-1], meta.fittime))
     else:
         fig.savefig(meta.workdir + meta.fitdir + "/mcmc_chains_noburn_{0}_{1}.png".format(meta.run_file.split('/')[-1], meta.fittime))
+    plt.close()
