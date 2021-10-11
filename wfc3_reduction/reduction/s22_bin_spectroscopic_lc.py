@@ -1,4 +1,5 @@
 #This code reads in the optimally extracted lightcurve and bins it into channels 5 pixels wide, following Berta '12
+import numpy as np
 from numpy import *
 from pylab import *
 from astropy.io import ascii
@@ -30,6 +31,17 @@ def run22(eventlabel, workdir, meta=None):
         #wave_bins = np.linspace(1.125, 1.65, 22)*1e4
         wave_bins = np.linspace(meta.wvl_min, meta.wvl_max, wvl_bins)*1e4
         print(wave_bins)
+
+        a = 8000
+        b = 10809
+        c = 10858
+        d = 11400
+        ab = np.linspace(a, b, 13)
+        cd = np.linspace(c, d, 4)
+
+        wave_bins = np.concatenate((ab,cd))
+        print(wave_bins)
+
         #wave_bins = np.linspace(1.139, 1.631, 12)*1e4
         #wave_bins = np.array([11400, 11800, 12200,12600,13000, 13400, 13800, 14200, 14600, 15000, 15400, 15800, 16200])
 

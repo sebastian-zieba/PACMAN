@@ -68,7 +68,8 @@ def run30(eventlabel, workdir, meta=None):
     idxs = []
 
     for counter, f in enumerate(files):
-        print('File: {0}/{1}'.format(counter+1, len(files)))
+        print('\n File: {0}/{1}'.format(counter+1, len(files)))
+        time.sleep(1.5)
         meta.run_file = f
         meta.fittime = time.strftime('%Y-%m-%d_%H-%M-%S')
 
@@ -175,9 +176,9 @@ def run30(eventlabel, workdir, meta=None):
         return labels
 
 
-
+    print(vals)
     labels = labels_gen(params, meta, fit_par)
-
+    print(labels)
     fig, ax = plt.subplots(len(idxs[0]), 1, figsize=(6.4,30), sharex=True)
     for i in range(len(idxs[0])):
         ax[i].errorbar(range(len(idxs)), [vals[ii][idxs[0][i]] for ii in range(len(vals))], yerr=[errs[ii][idxs[0][i]] for ii in range(len(errs))], fmt='.')
@@ -187,13 +188,13 @@ def run30(eventlabel, workdir, meta=None):
     plt.subplots_adjust(hspace=0.01)
     plt.savefig(meta.workdir + meta.fitdir + '/ls_{0}.png'.format(datetime), dpi=700, tight_layout=True)
 
-
+    print(idxs)
     if not meta.run_fit_white:
         f_lsq =  open(meta.workdir + meta.fitdir + "/lsq_res_{0}.txt".format(meta.fittime), 'w')
         files_name_ending = [float(files[ii].split('speclc')[-1].split('.txt')[0]) for ii in range(len(files))]
-        rprs_vals_lsq = [vals[ii][idxs[0][5]] for ii in range(len(vals))]
-        rprs_errs_lsq = [errs[ii][idxs[0][5]] for ii in range(len(errs))]
-        rprs_idxs_lsq = [idxs[ii][idxs[0][5]] for ii in range(len(idxs))]
+        rprs_vals_lsq = [vals[ii][idxs[0][1]] for ii in range(len(vals))]
+        rprs_errs_lsq = [errs[ii][idxs[0][1]] for ii in range(len(errs))]
+        rprs_idxs_lsq = [idxs[ii][idxs[0][1]] for ii in range(len(idxs))]
         for row in zip(files_name_ending, rprs_vals_lsq, rprs_errs_lsq, rprs_idxs_lsq):
             print("{: <10} {: <25} {: <25} {: <25}".format(*row), file=f_lsq)
         f_lsq.close()

@@ -41,6 +41,8 @@ def run10(eventlabel, workdir, meta=None):
 		dat = ima[1].data[meta.di_rmin:meta.di_rmax, meta.di_cmin:meta.di_cmax]				#cuts out stamp around the target star
 		err = ima[2].data[meta.di_rmin:meta.di_rmax, meta.di_cmin:meta.di_cmax]
 
+		plots.image_quick(ima, i, meta)
+
 		results = gaussfitter.gaussfit(dat, err)
 
 		if meta.save_image_plot or meta.show_image_plot:

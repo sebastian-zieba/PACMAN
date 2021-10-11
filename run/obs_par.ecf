@@ -1,5 +1,6 @@
 # 00
-path     /home/zieba/Desktop/Data/L-98-59_Hubble15856/ #/home/zieba/Desktop/Data/GJ1214_Hubble13021 # #/home/zieba/Desktop/Data/WASP33_Hubble15109
+path     /home/zieba/Desktop/Data/L-98-59_Hubble15856/
+#path     /home/zieba/Desktop/Data/KELT11_Hubble15926
 suffix             ima
 which_visits  [0,2,3,4,6] #[0] # #[0,2] # #[0,2]  #[0,2,3,4,6]  #[0,1,2,3,4,5,6]
 
@@ -13,7 +14,11 @@ show_barycorr_plot                   False
 Teff  3412
 logg     4.94
 MH   -0.5
-sm   phoenix #kurutz
+sm   phoenix
+#Teff  5375
+#logg     3.7
+#MH   0.17
+#sm   kurutz
 save_bandpass_plot                   True
 show_bandpass_plot                   False
 save_refspec_plot                    True
@@ -25,6 +30,10 @@ di_rmin  270 #130 #270 #130 #
 di_rmax  290 #160 #285 #155 #
 di_cmin  245 #15 #245 #125 #
 di_cmax  265 #35 #260 #150 #
+#di_rmin  200 #130 #270 #130 #
+#di_rmax  250 #160 #285 #155 #
+#di_cmin  200 #15 #245 #125 #
+#di_cmax  275 #35 #260 #150 #
 save_image_plot     True
 show_image_plot     False
 
@@ -44,13 +53,13 @@ save_c_diag_plot                           False
 show_c_diag_plot                           False
 save_trace_plot                            False
 show_trace_plot                            False
-save_bkg_hist_plot                         True
+save_bkg_hist_plot                         False
 show_bkg_hist_plot                         False
 save_uptheramp_plot                        False
 show_uptheramp_plot                        False
 save_refspec_comp_plot                     True
 show_refspec_comp_plot                     False
-save_uptheramp_plot_total                  True
+save_uptheramp_plot_total                  False
 show_uptheramp_plot_total                  False
 
 
@@ -59,9 +68,6 @@ show_uptheramp_plot_total                  False
 offset   0 #int
 
 
-#FIXME SZ do that in util.py because its grism dependent
-BEAMA_i  15 #41
-BEAMA_f  196 #248
 
 diagnostics        False
 background_thld  1000 #background threshold in counts
@@ -72,6 +78,7 @@ cmin     0
 cmax     512 #255
 
 flat     /home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/wfc3_reduction/ancil/flats/WFC3.IR.G141.flat.2.fits #ancil/flats/WFC3.IR.G102.flat.2.fits
+#flat     /home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/wfc3_reduction/ancil/flats/WFC3.IR.G102.flat.2.fits
 
 opt_extract  True
 sig_cut  15  #optimal extraction, for cosmic rays etc
@@ -99,14 +106,17 @@ correct_wave_shift   True
 #wave_bins = np.linspace(1.125, 1.65, 12)*1e4
 #wave_bins = np.linspace(1.139, 1.631, 12)*1e4
 #wave_bins = np.array([11400, 11800, 12200,12600,13000, 13400, 13800, 14200, 14600, 15000, 15400, 15800, 16200])
-wvl_min  1.125
-wvl_max  1.65
-wvl_bins   [6]
+#wvl_min  1.125
+#wvl_max  1.65
+#wvl_bins   [6]
+wvl_min  0.777
+wvl_max  1.14
+wvl_bins   [17]
 
 
 
 ##30
-toffset  2458366
+toffset  2457483
 
 lc_type  transit
 
@@ -116,7 +126,7 @@ fix_ld   False
 run_verbose         True
 run_output          False
 run_show_plot       True
-run_mcmc            False
+run_mcmc            True
 run_nested          False
 run_lsq             True
 run_plot_raw_data   True
@@ -124,13 +134,17 @@ run_fit_white       False
 run_divide_white    False
 #run_files           ['/home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/run/run_2021-08-16_22-31-42_L-98-59_Hubble15856/extracted_lc/2021-08-16_22:32/lc_white.txt']
 #run_files           ['/home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/run/run_2021-08-16_22-31-42_L-98-59_Hubble15856/extracted_sp/bins12_2021-08-17_23-34-29']
-run_files           ['/home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/run/run_2021-08-16_22-31-42_L-98-59_Hubble15856/extracted_sp/bins6_2021-08-18_16-24-36']
-run_myfuncs         ['constant','upstream_downstream','model_ramp','polynomial1','transit'] #['constant', 'upstream_downstream', 'ackbar', 'polynomial1', 'transit']# ['constant', 'upstream_downstream', 'model_ramp', 'polynomial2', 'transit']
+#run_files           ['/home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/run/run_2021-09-05_22-39-58_KELT11_Hubble15926_spec/extracted_sp/bins6_2021-09-06_03-41-46']
+#run_files           ['/home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/run/run_2021-09-05_22-39-58_KELT11_Hubble15926_spec/extracted_sp/bins9_2021-09-06_05-30-51']
+run_files           ['/home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/run/run_2021-09-05_22-39-58_KELT11_Hubble15926_spec/extracted_sp/bins17_2021-09-13_13-25-01']
+run_myfuncs         ['constant','upstream_downstream','model_ramp','polynomial2','transit'] #['constant', 'upstream_downstream', 'ackbar', 'polynomial1', 'transit']# ['constant', 'upstream_downstream', 'model_ramp', 'polynomial2', 'transit']
+
+save_allan_plot    True
 
 #mcmc
-run_nsteps          10000
-run_nwalkers	     80
-run_nburn           5000
+run_nsteps         4000
+run_nwalkers	    25
+run_nburn          2000
 
 
 run_clipsigma       0

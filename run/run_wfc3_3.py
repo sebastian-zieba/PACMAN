@@ -8,6 +8,7 @@ import wfc3_reduction.reduction.s30_run as s30
 from wfc3_reduction.lib.reload_meta import reload_meta
 
 eventlabel = 'L-98-59_Hubble15856'
+#eventlabel = 'KELT11_Hubble15926'
 
 #workdir = '/home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/run/run_2021-08-03_12-22-13_L-98-59_Hubble15856/' #[0]
 #workdir = '/home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/run/run_2021-08-04_03-19-10_L-98-59_Hubble15856/' #[0,2]
@@ -30,7 +31,13 @@ eventlabel = 'L-98-59_Hubble15856'
 #workdir = '/home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/run/run_2021-08-19_19-22-39_L-98-59_Hubble15856/' #[all], window=10, correct_shift=False, corrected refpix
 
 #workdir = '/home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/run/run_2021-08-21_02-00-29_L-98-59_Hubble15856/' #[all], window=10, correct_shift=True, corrected refpix
-workdir = '/home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/run/run_2021-08-21_02-00-29_L-98-59_Hubble15856_spec/' #[all], window=10, correct_shift=True, corrected refpix
+#workdir = '/home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/run/run_2021-08-21_02-00-29_L-98-59_Hubble15856_spec/' #[all], window=10, correct_shift=True, corrected refpix
+
+#workdir = '/home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/run/run_2021-09-05_22-39-58_KELT11_Hubble15926/'
+#workdir = '/home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/run/run_2021-09-05_22-39-58_KELT11_Hubble15926_spec/'
+
+#workdir = '/home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/run/run_2021-09-15_01-18-37_KELT11_Hubble15926/'
+workdir = '/home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/run/run_2021-09-15_04-17-52_L-98-59_Hubble15856/'
 
 reload_meta(eventlabel, workdir)
 

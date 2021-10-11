@@ -63,7 +63,7 @@ def run03(eventlabel, workdir, meta=None):
     # Generate Stellar spectrum
     stellar_spectrum = S.Icat(sm, Teff, MH, logg)
     wvl = stellar_spectrum.wave/1e4 #microns
-    flux = stellar_spectrum.flux*1e7/(np.pi)
+    flux = stellar_spectrum.flux*1e7/(np.pi)*wvl
     flux = flux/max(flux)
 
     x = wvl

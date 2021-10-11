@@ -72,6 +72,52 @@ def refspec(x, y, wvl_g, flux_g, f, vi, meta):
 
 
 ## 10
+
+## 10
+def image_quick(ima, i, meta):
+    plt.figure(10044)
+    plt.clf()
+    fig, ax = plt.subplots(1,1, figsize=(4.5,5.3))
+
+    plt.rcParams['image.cmap'] = 'viridis'
+
+    nrow = len(ima[1].data[:, 0])
+    ncol = len(ima[1].data[0, :])
+
+    plt.suptitle("Direct image #{0}, visit #{1}, orbit #{2}".format(i, meta.ivisit_di[i], meta.iorbit_di[i]))
+
+    ax.title.set_text('Full Direct Image')
+    im = ax.imshow(ima[1].data * ima[0].header['exptime'], origin='lower', vmin=0, vmax=500)
+
+    cmin = meta.di_cmin
+    cmax = meta.di_cmax
+    rmin = meta.di_rmin
+    rmax = meta.di_rmax
+    ax.plot([cmin, cmin, cmax, cmax, cmin], [rmin, rmax, rmax, rmin, rmin], lw=1, c='r', alpha=0.85)
+
+    ax.set_xlabel('columns')
+    ax.set_ylabel('rows')
+
+    # make colorbar same size as subplot
+    aspect = 20
+    pad_fraction = 0.5
+    divider = make_axes_locatable(ax)
+    width = axes_size.AxesY(ax, aspect=1. / aspect)
+    pad = axes_size.Fraction(pad_fraction, width)
+    cax = divider.append_axes("right", size=width, pad=pad)
+    plt.colorbar(im, cax=cax, label='flux')
+
+    plt.tight_layout()
+    if meta.save_image_plot:
+        if not os.path.isdir(meta.workdir + '/figs/images/'):
+            os.makedirs(meta.workdir + '/figs/images/')
+        plt.savefig(meta.workdir + '/figs/images/quick{0}.png'.format(i))
+        plt.close('all')
+    else:
+        plt.show()
+        plt.close('all')
+
+
 def image(dat, ima, results, i, meta):
     plt.figure(1004)
     plt.clf()
@@ -122,6 +168,7 @@ def image(dat, ima, results, i, meta):
         plt.close('all')
 
 
+
 ## 20
 def spectrum2d(d, meta, i):
     plt.imshow(d[1].data, origin = 'lower',  vmin=0, vmax=300)
@@ -145,10 +192,14 @@ def spectrum1d_spec_opt(cmin,cmax,template_waves, spec_opt, meta, i):
     fig, ax = plt.subplots(2, 1, figsize=(6.4, 6.4*1.5))
     ax[0].plot(np.arange(cmin,cmax, dtype=int), spec_opt)
     ax[1].plot(template_waves, spec_opt)
-    ax[0].set_xlim(260, 455)
-    ax[1].set_xlim(9500, 18200)
-    ax[0].set_ylim(-2e5, 1e7)
-    ax[1].set_ylim(-2e5, 1e7)
+    if meta.grism == 'G141':
+        ax[0].set_xlim(260, 455)
+        ax[1].set_xlim(9500, 18200)
+    elif meta.grism == 'G102':
+        ax[0].set_xlim(100, 400)
+        ax[1].set_xlim(5000, 16000)
+    ax[0].set_ylim(-2e5, 2e7)
+    ax[1].set_ylim(-2e5, 2e7)
     plt.title('spectrum1d_spec_opt, visit {0}, orbit {1}'.format(meta.ivisit_sp[i], meta.iorbit_sp[i]))
     plt.tight_layout()
     plt.savefig(meta.workdir + '/figs/spec_opt/spec_opt_{0}.png'.format(i))
@@ -162,10 +213,14 @@ def spectrum1d_spec_box(cmin,cmax,template_waves, spec_box, meta, i):
     fig, ax = plt.subplots(2, 1, figsize=(6.4, 6.4 * 1.5))
     ax[0].plot(np.arange(cmin, cmax, dtype=int), spec_box)
     ax[1].plot(template_waves, spec_box)
-    ax[0].set_xlim(260, 455)
-    ax[1].set_xlim(9500, 18200)
-    ax[0].set_ylim(-2e5, 1e7)
-    ax[1].set_ylim(-2e5, 1e7)
+    if meta.grism == 'G141':
+        ax[0].set_xlim(260, 455)
+        ax[1].set_xlim(9500, 18200)
+    elif meta.grism == 'G102':
+        ax[0].set_xlim(100, 400)
+        ax[1].set_xlim(5000, 16000)
+    ax[0].set_ylim(-2e5, 2e7)
+    ax[1].set_ylim(-2e5, 2e7)
     fig.suptitle('spectrum1d_spec_box, visit {0}, orbit {1}'.format(meta.ivisit_sp[i], meta.iorbit_sp[i]), y=0.99)
     plt.tight_layout()
     plt.savefig(meta.workdir + '/figs/spec_box/spec_box_{0}.png'.format(i))
@@ -180,7 +235,10 @@ def spectrum1d_spec_opt_diff_plot(spec_opt_interp_all_diff, meta, wvl_hires):
         plt.clf()
         fig, ax = plt.subplots(1, 1, figsize=(6.4, 6.4*1.5/2))
         ax.plot(wvl_hires, spec_opt_interp_all_diff[iiii])
-        ax.set_xlim(10000, 17800)
+        if meta.grism == 'G141':
+            ax.set_xlim(10000, 17800)
+        elif meta.grism == 'G102':
+            ax.set_xlim(5000, 16000)
         ax.set_ylim(-1e6, 1e6)
         fig.suptitle('Background Diff, from v{0} o{1} to v{2} o{3}'.format(meta.ivisit_sp[iiii], meta.iorbit_sp[iiii],meta.ivisit_sp[iiii+1], meta.iorbit_sp[iiii+1]),fontsize=12, y=0.99)
         plt.tight_layout()
@@ -382,7 +440,10 @@ def refspec_comp(x_vals, y_vals, modelx, modely, p0, datax, datay, leastsq_res, 
     #ax.plot((p0[0] + p0[1] * datax), datay * p0[2], label='initial guess')
     ax.plot((leastsq_res[0] + datax * leastsq_res[1]), datay * leastsq_res[2],
              label='spectrum fit, wvl = ({0:.5g}+{1:.5g}*x), {2:.5g}'.format(leastsq_res[0], leastsq_res[1], leastsq_res[2]))
-    ax.set_xlim(9000, 20000)
+    if meta.grism == 'G141':
+        ax.set_xlim(9000, 20000)
+    elif meta.grism == 'G102':
+        ax.set_xlim(5000, 16000)
     ax.set_xscale('log')
     ax.set_xlabel('Wavelength (angstrom)')
     ax.set_xlabel('rel. Flux')
@@ -405,7 +466,10 @@ def refspec_comp2(x_model, y_model, p0, x_data, y_data, leastsq_res, meta, i):
     #ax.plot((p0[0] + p0[1] * x_data), y_data * p0[2], label='initial guess')
     ax.plot((leastsq_res[0] + x_data * leastsq_res[1]), y_data * leastsq_res[2],
              label='spectrum fit, wvl = ({0:.5g}+{1:.5g}*x), {2:.5g}'.format(leastsq_res[0], leastsq_res[1], leastsq_res[2]))
-    ax.set_xlim(9000, 20000)
+    if meta.grism == 'G141':
+        ax.set_xlim(9000, 20000)
+    elif meta.grism == 'G102':
+        ax.set_xlim(5000, 16000)
     ax.set_xscale('log')
     ax.set_xlabel('Wavelength (angstrom)')
     ax.set_xlabel('rel. Flux')

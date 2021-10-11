@@ -90,6 +90,7 @@ def ancil(meta, s10=False, s20=False):
 
     ###
     # 03
+    # FIXME SZ Should make sure all visits use the same grism. Not only the very first observation
     meta.filter = filelist['filter/grism'][meta.mask_di][0]
     meta.grism = filelist['filter/grism'][meta.mask_sp][0]
 
@@ -124,6 +125,14 @@ def ancil(meta, s10=False, s20=False):
     meta.LTV2 = int(f[1].header['LTV2'])
 
     meta.subarray_size = f[1].header['SIZAXIS1']  # size of subarray
+
+    if meta.grism == 'G102':
+        meta.BEAMA_i = 41
+        meta.BEAMA_f = 248
+    elif meta.grism == 'G141':
+        meta.BEAMA_i = 15
+        meta.BEAMA_f = 196
+
 
     if s10:
         if 't_bjd' in filelist.keys():

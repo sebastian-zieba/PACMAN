@@ -9,6 +9,7 @@ import wfc3_reduction.reduction.s02_barycorr as s02
 import wfc3_reduction.reduction.s03_refspectra as s03
 
 eventlabel = 'L-98-59_Hubble15856'
+#eventlabel = 'KELT11_Hubble15926'
 
 reload(s00)
 meta = s00.run00(eventlabel)

@@ -82,7 +82,7 @@ class Data:
         #remove first orbit of each visit
         #norbit -= 4
         ind = (orb_num%4 == 0)
-
+        #ind = (orb_num%10 == 0)
         orb_num = orb_num[~ind]
         vis_num = vis_num[~ind]
         t_vis = t_vis[~ind]
@@ -92,7 +92,8 @@ class Data:
         d = d[~ind]
 
         #FIXME SZ IMPORTANT! WONT WORK IF VISIT HASNT 4 ORBITS!!
-        ind = (orb_num%4 ==1)
+        ind = (orb_num%4 == 1)
+        #ind = (orb_num%10 == 1)
         t_delay[ind] = 1.
         """ind = (orb_num==0)|(orb_num == 6)|(orb_num == 12)|(orb_num == 18)
         t_delay[ind] = 1."""

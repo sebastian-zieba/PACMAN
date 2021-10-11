@@ -94,7 +94,7 @@ def labels_gen(params, meta, fit_par):
 
 def mcmc_output(samples, params, meta, fit_par, data):	#FIXME: make sure this works for cases when nvisit>1
     labels = labels_gen(params, meta, fit_par)
-
+    print(labels)
     fig = corner.corner(samples, labels=labels, show_titles=True,quantiles=[0.16, 0.5, 0.84],title_fmt='.4')
 
     figname = meta.workdir + meta.fitdir + "/pairs_{0}_".format(meta.run_file.split('/')[-1]) + meta.fittime + ".png"
@@ -168,11 +168,14 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
     else:
         thin_corner = 1
 
+    labels = labels_gen(params, meta, fit_par)
+    plots.plot_chains(ndim, sampler, 0, labels, meta)
+    plots.plot_chains(ndim, sampler, nburn, labels, meta)
+
     samples = sampler.chain[:, nburn::thin_corner, :].reshape((-1, ndim))
     mcmc_output(samples, params, meta, fit_par, data)
 
     samples = sampler.chain[:, nburn:, :].reshape((-1, ndim))
-    labels = labels_gen(params, meta, fit_par)
 
     plots.plot_chains(ndim, sampler, 0, labels, meta)
     plots.plot_chains(ndim, sampler, nburn, labels, meta)

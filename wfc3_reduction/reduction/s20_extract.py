@@ -1,6 +1,7 @@
 import os, glob, scipy, numpy
 
 import matplotlib.pyplot as plt
+import numpy as np
 from astropy.io import fits
 from numpy import *
 import scipy.signal
@@ -62,6 +63,8 @@ def run20(eventlabel, workdir, meta=None):
     spec_opt_interp_all = []
     wvl_hires = np.linspace(10000, 17800, 1000)
 
+    spec1d_all = []
+
     print('in total visit, orbit:', (meta.norbit, meta.nvisit), '\n')
 
     for i in tqdm(np.arange(len(files_sp), dtype=int)):#
@@ -114,7 +117,7 @@ def run20(eventlabel, workdir, meta=None):
             print("Progress (up-the-ramp-samples): {0}/{1}".format(ii+1, d[0].header['nsamp']-2))
             diff = d[ii*5 + 1].data[rmin:rmax,cmin:cmax] - d[ii*5 + 6].data[rmin:rmax,cmin:cmax]    #creates image that is the difference between successive scans
 
-            diff = diff/flatfield[orbnum][rmin:rmax, cmin:cmax]                               #flatfields the differenced image
+            #diff = diff/flatfield[orbnum][rmin:rmax, cmin:cmax]                               #flatfields the differenced image
 
             #idx = np.argmax(scipy.signal.medfilt(np.sum(diff, axis = 1),3))                         #computes spatial index of peak counts in the difference image
 
@@ -188,6 +191,12 @@ def run20(eventlabel, workdir, meta=None):
         #phase = (time-ancil.t0)/ancil.period - math.floor((time-ancil.t0)/ancil.period)
         #if phase > 0.5: phase = phase - 1.0                                    #calculates orbital phase
 
+        print(len(np.arange(cmin, cmax)))
+        template_waves = meta.wave_grid[0, int(meta.refpix[orbnum, 1]) + meta.LTV1, cmin:cmax]
+        print(len(template_waves))
+
+        np.savetxt(meta.workdir + 'template_waves.txt', list(zip(np.arange(cmin, cmax), template_waves)))
+
         phase = 0
         shift = 0.
         #corrects for wavelength drift over time
@@ -195,6 +204,7 @@ def run20(eventlabel, workdir, meta=None):
             if i in meta.new_visit_idx_sp:
                 #if nspectra == 0:
                 template_waves = meta.wave_grid[0, int(meta.refpix[orbnum,1]) + meta.LTV1, cmin:cmax]             #LK interpolation 8/18 #use stellar model instead
+                g102mask = template_waves > 8200
                 #print(template_waves[-1]-template_waves[0])
                 #print(cmax-cmin)
                 #print((template_waves[-1] - template_waves[0])/(cmax-cmin))
@@ -204,7 +214,7 @@ def run20(eventlabel, workdir, meta=None):
 
                 print(x_refspec[-1] - x_refspec[0])
 
-                sigma = 40#1*46.17#0.004*10000
+                sigma = 20#1*46.17#0.004*10000
                 y_refspec_kernel = np.zeros(y_refspec_raw.shape)
 
                 for x_position, x_position_val in enumerate(x_refspec):
@@ -222,10 +232,8 @@ def run20(eventlabel, workdir, meta=None):
                                          y_refspec_kernel,
                                          np.zeros(100)))
 
-                x_data = template_waves
-                y_data = spec_opt/max(spec_opt)
-
-
+                x_data = template_waves[g102mask]
+                y_data = (spec_opt/max(spec_opt))[g102mask]
 
                 p0 = [0, 1, 1]
                 leastsq_res = leastsq(util.residuals2, p0, args=(x_refspec_new, y_refspec_kernel_new, x_data, y_data))[0]
@@ -234,11 +242,11 @@ def run20(eventlabel, workdir, meta=None):
                 if meta.save_refspec_comp_plot or meta.show_refspec_comp_plot:
                     plots.refspec_comp(x_refspec, y_refspec_raw, x_refspec_new, y_refspec_kernel_new, p0, x_data, y_data, leastsq_res, meta, i)
 
-                template_waves = leastsq_res[0] + x_data * leastsq_res[1]
+                template_waves = leastsq_res[0] + template_waves * leastsq_res[1]
 
                 #for all other but first exposure in visit exposures
                 template_waves_ref = np.copy(template_waves)
-                y_data_firstexpvisit = np.copy(y_data)
+                y_data_firstexpvisit = np.copy(spec_opt/max(spec_opt))
 
                 #template_waves -= 70.               #LK hack to get the wavelength solution right
                 #print("LK adjusting wavelength solution BY HAND!!!!")
@@ -318,12 +326,32 @@ def run20(eventlabel, workdir, meta=None):
         #if nspectra%10 == 0: print("Extraction", '{0:1f}'.format(float(nspectra)/float(len(ancil.files))*100.), "% complete, time elapsed (min) =", '{0:0.1f}'.format(clock()/60.))
 
 
+
+
+        spec1d_all.append(spec_opt)
+
+
         #print("sky background!!", skymedian, visnum)
         #print("length of spectrum", len(spec_opt))
         print("# nans", sum(np.isnan(spec_opt)))
         print(nspectra, meta.t_bjd_sp[i], sum(spec_opt), np.sum(spec_box), visnum, f, shift)
         print('\n')
 
+    spec1d_all_diff = np.diff(spec1d_all, axis=0)
+    for iiii in range(len(spec1d_all_diff)):
+        plt.plot(range(len(spec1d_all_diff[iiii])), spec1d_all_diff[iiii])
+        if not os.path.isdir(meta.workdir + '/figs/scale/'):
+            os.makedirs(meta.workdir + '/figs/scale/')
+        plt.savefig(meta.workdir + '/figs/scale/scale{0}.png'.format(iiii))
+        plt.close()
+
+    if meta.output == True:
+        ascii.write(table_white, dirname+'/lc_white.txt', format='ecsv', overwrite=True)
+        ascii.write(table_spec, dirname+'/lc_spec.txt', format='ecsv', overwrite=True)
+        ascii.write(table_diagnostics, dirname+'/diagnostics.txt', format='ecsv', overwrite=True)
+    # Save results
+    print('Saving Metadata')
+    me.saveevent(meta, meta.workdir + '/WFC3_' + meta.eventlabel + "_Meta_Save", save=[])
 
     if meta.save_spectrum1d_spec_opt_diff_plot or meta.show_spectrum1d_spec_opt_diff_plot:
         spec_opt_interp_all = np.array(spec_opt_interp_all)
@@ -334,17 +362,8 @@ def run20(eventlabel, workdir, meta=None):
         plots.bkg_lc(bkg_lc, meta)
         plots.uptheramp_evolution(peaks_all, meta)
 
-    if meta.output == True:
-        ascii.write(table_white, dirname+'/lc_white.txt', format='ecsv', overwrite=True)
-        ascii.write(table_spec, dirname+'/lc_spec.txt', format='ecsv', overwrite=True)
-        ascii.write(table_diagnostics, dirname+'/diagnostics.txt', format='ecsv', overwrite=True)
-
     if meta.save_c_diag_plot or meta.show_c_diag_plot:
         plots.c_diag(cmin_list, cmax_list, meta)
-
-    # Save results
-    print('Saving Metadata')
-    me.saveevent(meta, meta.workdir + '/WFC3_' + meta.eventlabel + "_Meta_Save", save=[])
 
     print("I made a change to how the wavelength interpolation is being done")
     print("it's commented as LK 8/18")

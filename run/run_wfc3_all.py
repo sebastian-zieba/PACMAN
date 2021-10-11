@@ -13,6 +13,7 @@ import wfc3_reduction.reduction.s21_ld_inputmaker as s21
 import wfc3_reduction.reduction.s22_bin_spectroscopic_lc as s22
 
 eventlabel = 'L-98-59_Hubble15856'
+#eventlabel = 'KELT11_Hubble15926'
 
 reload(s00)
 meta = s00.run00(eventlabel)
