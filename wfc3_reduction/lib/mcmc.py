@@ -14,27 +14,54 @@ def quantile(x, q):
 
 def format_params_for_mcmc(params, meta, fit_par):	#FIXME: make sure this works for cases when nvisit>1
     nvisit = int(meta.nvisit)
-    theta = []
+    #theta = []
+    print('params', params)
 
-    if meta.fit_par_new == False:
-        for i in range(len(fit_par)):
-                if fit_par['fixed'][i].lower() == "false":
-                        if fit_par['tied'][i].lower() == "true": theta.append(params[i*nvisit])
-                        else:
-                                for j in range(nvisit): theta.append(params[i*nvisit+j])
-    else:
-        ii = 0
-        for i in range(int(len(params)/nvisit)):
-                if fit_par['fixed'][ii].lower() == "false":
-                        if str(fit_par['tied'][ii]) == "-1":
-                            theta.append(params[i*nvisit])
-                            ii = ii + 1
-                        else:
-                            for j in range(nvisit):
-                                theta.append(params[i*nvisit+j])
-                                ii = ii + 1
-                else:
-                    ii = ii + 1
+    fixed_array = np.array(fit_par['fixed'])
+    tied_array = np.array(fit_par['tied'])
+    free_array = []
+
+    for i in range(len(fixed_array)):
+        if fixed_array[i].lower() == 'true' and tied_array[i] == -1:
+            free_array.append(False)
+            free_array.append(False)
+            free_array.append(False)
+            free_array.append(False)
+            free_array.append(False)
+        if fixed_array[i].lower() == 'true' and not tied_array[i] == -1:
+            free_array.append(False)
+        if fixed_array[i].lower() == 'false' and tied_array[i] == -1:
+            free_array.append(True)
+            free_array.append(False)
+            free_array.append(False)
+            free_array.append(False)
+            free_array.append(False)
+        if fixed_array[i].lower() == 'false' and not tied_array[i] == -1:
+            free_array.append(True)
+    free_array = np.array(free_array)
+
+    theta = params[free_array]
+
+    # if meta.fit_par_new == False:
+    #     for i in range(len(fit_par)):
+    #             if fit_par['fixed'][i].lower() == "false":
+    #                     if fit_par['tied'][i].lower() == "true": theta.append(params[i*nvisit])
+    #                     else:
+    #                             for j in range(nvisit): theta.append(params[i*nvisit+j])
+    # else:
+    #     ii = 0
+    #     for i in range(int(len(params)/nvisit)):
+    #             if fit_par['fixed'][ii].lower() == "false":
+    #                     if str(fit_par['tied'][ii]) == "-1":
+    #                         theta.append(params[i*nvisit])
+    #                         ii = ii + 1
+    #                     else:
+    #                         for j in range(nvisit):
+    #                             theta.append(params[i*nvisit+j])
+    #                             ii = ii + 1
+    #             else:
+    #                 ii = ii + 1
+    #print(len(theta))
     #print('theta', theta)
     return np.array(theta)
 
@@ -62,7 +89,8 @@ def get_step_size(params, meta, fit_par):
                                 ii = ii + 1
                 else:
                     ii = ii + 1
-
+    #print(len(step_size))
+    #print('step size', np.array(step_size))
     return np.array(step_size)
 
 def labels_gen(params, meta, fit_par):
@@ -104,40 +132,81 @@ def mcmc_output(samples, params, meta, fit_par, data):	#FIXME: make sure this wo
 def format_params_for_Model(theta, params, meta, fit_par):
     nvisit = int(meta.nvisit)
     params_updated = []
-    iter = 0									#this should be a more informative name FIXME
+    # iter = 0									#this should be a more informative name FIXME
+    #
+    # if meta.fit_par_new == False:
+    #     for i in range(len(fit_par)):
+    #             if fit_par['fixed'][i].lower() == "true":
+    #                     for j in range(nvisit):
+    #                             params_updated.append(params[i*nvisit+j])
+    #             else:
+    #                     if fit_par['tied'][i].lower() == "true":
+    #                             for j in range(nvisit): params_updated.append(theta[iter])
+    #                             iter += 1
+    #                     else:
+    #                             for j in range(nvisit):
+    #                                     params_updated.append(theta[iter])
+    #                                     iter += 1
+    # else:
+    #     ii = 0
+    #     for i in range(int(len(params)/nvisit)):
+    #             if fit_par['fixed'][ii].lower() == "true":
+    #                     for j in range(nvisit):
+    #                             params_updated.append(params[i*nvisit+j])
+    #                     ii = ii + 1
+    #             else:
+    #                     if str(fit_par['tied'][ii]) == "-1":
+    #                             for j in range(nvisit): params_updated.append(theta[iter])
+    #                             iter += 1
+    #                             ii = ii + 1
+    #                     else:
+    #                             for j in range(nvisit):
+    #                                     params_updated.append(theta[iter])
+    #                                     iter += 1
+    #                                     ii = ii + 1
 
-    if meta.fit_par_new == False:
-        for i in range(len(fit_par)):
-                if fit_par['fixed'][i].lower() == "true":
-                        for j in range(nvisit):
-                                params_updated.append(params[i*nvisit+j])
-                else:
-                        if fit_par['tied'][i].lower() == "true":
-                                for j in range(nvisit): params_updated.append(theta[iter])
-                                iter += 1
-                        else:
-                                for j in range(nvisit):
-                                        params_updated.append(theta[iter])
-                                        iter += 1
-    else:
-        ii = 0
-        for i in range(int(len(params)/nvisit)):
-                if fit_par['fixed'][ii].lower() == "true":
-                        for j in range(nvisit):
-                                params_updated.append(params[i*nvisit+j])
-                        ii = ii + 1
-                else:
-                        if str(fit_par['tied'][ii]) == "-1":
-                                for j in range(nvisit): params_updated.append(theta[iter])
-                                iter += 1
-                                ii = ii + 1
-                        else:
-                                for j in range(nvisit):
-                                        params_updated.append(theta[iter])
-                                        iter += 1
-                                        ii = ii + 1
 
-   # print('params', params)
+    fixed_array = np.array(fit_par['fixed'])
+    tied_array = np.array(fit_par['tied'])
+    free_array = []
+
+    for i in range(len(fixed_array)):
+        if fixed_array[i].lower() == 'true' and tied_array[i] == -1:
+            free_array.append(False)
+            free_array.append(False)
+            free_array.append(False)
+            free_array.append(False)
+            free_array.append(False)
+        if fixed_array[i].lower() == 'true' and not tied_array[i] == -1:
+            free_array.append(False)
+        if fixed_array[i].lower() == 'false' and tied_array[i] == -1:
+            free_array.append(True)
+            free_array.append(True)
+            free_array.append(True)
+            free_array.append(True)
+            free_array.append(True)
+        if fixed_array[i].lower() == 'false' and not tied_array[i] == -1:
+            free_array.append(True)
+    free_array = np.array(free_array)
+
+    def repeated(array, index, n_times):
+        array_new = []
+        index_index = 0
+        for ii in range(len(array)):
+            if ii in index:
+                array_new.append([array[index[index_index]]] * n_times)
+            else:
+                array_new.append([array[ii]])
+            index_index = index_index + 1
+        array_new2 = np.array([item for sublist in array_new for item in sublist])
+        return array_new2
+
+    theta_new = repeated(theta, [0, 1], 5)
+
+    params_updated = np.copy(params)
+    params_updated[free_array] = theta_new
+
+    #print('params', params)
     #print('params_updated', params_updated)
     #print(len(params))
     #print(len(params_updated))
