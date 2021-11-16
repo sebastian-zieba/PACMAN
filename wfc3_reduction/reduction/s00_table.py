@@ -46,6 +46,7 @@ def run00(eventlabel):
     # Copy ecf
     shutil.copy(ecffile, meta.workdir)
     shutil.copy('fit_par.txt', meta.workdir)
+    shutil.copy('fit_par_new2.txt', meta.workdir)
 
     # Create list of file segments
     meta = util.readfiles(meta)
