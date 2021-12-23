@@ -3,8 +3,6 @@
 The Code
 ==============
 
+lib
+''''''''''''''''''''
 
-jwstobsim
----------------
-.. automodule:: jwstobsim.utils
-   :inherited-members:

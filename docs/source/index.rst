@@ -1,29 +1,29 @@
-.. JWST-obsim documentation master file, created by
-   sphinx-quickstart on Fri Aug  7 05:07:10 2020.
+.. PACMAN documentation master file, created by
+   sphinx-quickstart on Mon Dec 20 11:05:56 2021.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to the documentation of the JWST-observation simulator!
-===============================================================
+Welcome to PACMAN's documentation!
+==================================
 
-This tool creates simulated spectra based on PandExo.
+**Welcome to the documentation for PACMAN**
 
-Guide
-^^^^^
+PACMAN is a pipeline to reduce and analyse HST data (G102 or G141). 
 
-Soon to be added...
+It takes 'ima' dataproducts created by STSci and outputs as a product a light curve. The user has then the possablility to fit various fuctions (transit, eclipse, visit long quadratic trends, orbital exponential trends, etc ...) to this light curve.
 
+THIS PIPELINE IS STILL UNDER HEAVY DEVELOPEMENT! 
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
+
    installation
    quickstart
-   tutorial
+   pcf
    api
-   acknowledgements
-
+   contact
 
 Indices and tables
 ==================
