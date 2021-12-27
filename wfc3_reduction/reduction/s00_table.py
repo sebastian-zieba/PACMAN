@@ -16,6 +16,9 @@ from tqdm import tqdm
 
 
 class MetaClass:
+    """
+    A Class which will contain all the metadata of the analysis.
+    """
     def __init__(self):
         # initialize Univ
         # Univ.__init__(self)
@@ -25,6 +28,55 @@ class MetaClass:
 
 
 def run00(eventlabel):
+    """
+    This function does the initial setup of the analysis, including creating a table with information on the observations.
+
+    - 1. Creates a MetaData object
+    - 2. Creates a new run directory with the following form, e.g.: ./run/run_2021-01-01_12-34-56_eventname/
+    - 3. Copy and pastes the control file (obs_par.ecf) and the fit parameters file (fit_par.txt) into the new directory
+    - 4. Reads in all fits files and creates a table which will be saved in filelist.txt.
+    - 5. Saves metadata into a file called something like ./run/run_2021-01-01_12-34-56_eventname/WFC3_eventname_Meta_Save.dat
+
+    The information listed in filelist.txt are:
+
+    * :filenames: The name of the observational file (the file will end with .ima)
+    * :filter/grism: The specific filter or grism used in this observation (taken from the header)
+    * :ivisit: The visit number when the observation was taken (will be calculated in s00)
+    * :iorbit: The orbit number when the observation was taken (will be calculated in s00)
+    * :t_mjd: Mid exposure time (exposure start and end is taken from the header)
+    * :t_visit: Time elapsed since the first exposure in the visit
+    * :t_orbit: Time elapsed since the first exposure in the visit
+    * :scan: Scan direction (0: forward - lower flux, 1: reverse - higher flux, -1: postarg2=0)
+    * :exp: Exposure time
+
+    .. note:: We use the following approach to determine the visit and orbit number:
+
+               - if two exposures arent in the same orbit and more than an orbital period apart -> not subsequent orbits but a new visit
+               - if two exposures are more than 10 min apart but less than an orbital period -> subsequent orbits
+               - else: two exposures less than 10 mins apart -> same orbit and same visit
+
+    .. note:: We use the following approach to determine the scan direction:
+
+               - if postarg2 < 0   --> scans[i] = 1  --> reverse scan
+               - if postarg2 == 0  --> scans[i] = -1 --> no scan direction given
+               - else:             --> scans[i] = 0  --> forward scan
+
+
+    Parameters
+    ----------
+    eventlabel: str
+      the label given to the event in the run script. Will determine the name of the run directory
+
+
+    Returns
+    -------
+    meta
+      meta object with all the meta data stored in s00
+
+    History
+    -------
+    Written by Sebastian Zieba      December 2021
+    """
 
     # Initialize metadata object
     meta = MetaClass()
@@ -46,7 +98,7 @@ def run00(eventlabel):
     # Copy ecf
     shutil.copy(ecffile, meta.workdir)
     shutil.copy('fit_par.txt', meta.workdir)
-    shutil.copy('fit_par_new2.txt', meta.workdir)
+    shutil.copy('fit_par_new2.txt', meta.workdir) #TODO switch back to fit_par.txt
 
     # Create list of file segments
     meta = util.readfiles(meta)
@@ -100,11 +152,11 @@ def run00(eventlabel):
             ivisit_begin = i
             iorbit = 0
             ivisit += 1
-        # if two exposure more than 10 min apart but less than an orbital period -> subsequent orbits
+        # if two exposures are more than 10 min apart but less than an orbital period -> subsequent orbits
         elif 10 < times_diff[i] * 24 * 60 <= 100:
             iorbit_begin = i
             iorbit += 1
-        # else: two exposures less than 10mins apart -> same orbit and same visit
+        # else: two exposures less than 10 mins apart -> same orbit and same visit
         iorbits[i] = iorbit
         ivisits[i] = ivisit
         tos[i] = (itime - times[iorbit_begin]) * 24 * 60  # time since first exposure in orbit

@@ -9,6 +9,31 @@ from ..lib import manageevent as me
 
 
 def run02(eventlabel, workdir, meta=None):
+	"""
+	Performs the barycentric correction of the observation times
+
+	- performs the barycentric correction based on the t_mjd in filelist.txt.
+	- Adds another column to filelist.txt called t_bjd
+	- Plots will be saved in ./run/run_2021-01-01_12-34-56_eventname/ancil/horizons
+
+	Parameters
+	----------
+	eventlabel : str
+	   the label given to the event in the run script. Will determine the name of the run directory
+	workdir : str
+	   the name of the work directory.
+	meta
+	   the name of the metadata file
+
+	Returns
+	-------
+	meta
+	   meta object with all the meta data stored in s01
+
+	History
+	-------
+	Written by Sebastian Zieba      December 2021
+	"""
 
 	# read in filelist
 	filelist_path = meta.workdir + '/filelist.txt'
