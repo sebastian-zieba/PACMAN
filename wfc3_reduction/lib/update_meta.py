@@ -1,18 +1,18 @@
-from . import readECF as rd
+from . import read_pcf as rd
 from . import manageevent as me
 
 
-def reload_meta(eventlabel, workdir):
+def update_meta(eventlabel, workdir):
 
     meta = me.loadevent(workdir + '/WFC3_' + eventlabel + "_Meta_Save")
 
-    ecffile = workdir + 'obs_par.ecf'
-    ecf = rd.read_ecf(ecffile)
-    rd.store_ecf(meta, ecf)
+    pcffile = workdir + 'obs_par.pcf'
+    pcf = rd.read_pcf(pcffile)
+    rd.store_pcf(meta, pcf)
 
     meta.workdir = workdir
     me.saveevent(meta, meta.workdir + '/WFC3_' + meta.eventlabel + "_Meta_Save", save=[])
 
-    print('Succsesfully reloaded meta file')
+    print('Successfully reloaded meta file')
 
     return 0

@@ -9,6 +9,38 @@ from ..lib import util
 
 ## 02
 def barycorr(x,y,z,time, obsx, obsy, obsz, coordtable, meta):
+    """
+    This function plots the vectorfile positions of HST and where the observations where taken
+
+    Parameters
+    ---------------
+    x: array
+        X position from vectorfile
+    y: array
+        Y position from vectorfile
+    z: array
+        Z position from vectorfile
+    time: array
+        times from the vectorfile
+    obsx: array
+        X position of observations
+    obsy: array
+        Y position of observations
+    obsz: array
+        Z position of observations
+    coordtable
+        a list of files containing the vector information of HST downloaded in s01
+    meta
+        the name of the metadata file
+
+    Returns
+    ----------
+    Saves and/or Shows a plot
+
+    Revisions
+    ----------
+    Written by Sebastian Zieba      December 2021
+    """
     plt.rcParams["figure.figsize"] = (8, 6)
     fig = plt.figure(1001)
     plt.clf()
@@ -53,18 +85,22 @@ def bandpass(wvl, bp_val, grism, i, meta):
 
 
 ## 03
-def refspec(x, y, wvl_g, flux_g, f, vi, meta):
+def refspec(bp_wvl, bp_val, sm_wvl, sm_flux, wvl_ref, flux_ref, meta):
+    """
+    Plots the bandpass, the stellar spectrum and the product of the both
+    """
     plt.rcParams["figure.figsize"] = (9, 6)
     plt.figure(1003)
     plt.clf()
-    plt.plot(x, y, label='stellar spectrum')
-    plt.plot(wvl_g, flux_g, label='bandpass')
-    plt.plot(wvl_g, f(wvl_g)*flux_g, label='stellar spectrum * bandpass')
-    plt.xlim(0.7, 2)
-    plt.legend()
+    plt.plot(bp_wvl, bp_val, label='bandpass')
+    plt.plot(sm_wvl, sm_flux, label='stellar spectrum')
+    plt.plot(wvl_ref, flux_ref, label='stellar spectrum * bandpass')
+    plt.xscale('log')
+    plt.xlim(0.7*1e-6, 2*1e-6)
+    plt.legend(loc=4)
     plt.tight_layout()
     if meta.save_refspec_plot:
-        plt.savefig(meta.workdir + '/ancil/bandpass/refspec_v{0}.png'.format(vi))
+        plt.savefig(meta.workdir + '/ancil/bandpass/refspec.png')
         plt.close('all')
     else:
         plt.show()
@@ -75,6 +111,9 @@ def refspec(x, y, wvl_g, flux_g, f, vi, meta):
 
 ## 10
 def image_quick(ima, i, meta):
+    """
+    This plots the full direct image.
+    """
     plt.figure(10044)
     plt.clf()
     fig, ax = plt.subplots(1,1, figsize=(4.5,5.3))
@@ -111,7 +150,7 @@ def image_quick(ima, i, meta):
     if meta.save_image_plot:
         if not os.path.isdir(meta.workdir + '/figs/images/'):
             os.makedirs(meta.workdir + '/figs/images/')
-        plt.savefig(meta.workdir + '/figs/images/quick{0}.png'.format(i))
+        plt.savefig(meta.workdir + '/figs/images/quick_di{0}.png'.format(i))
         plt.close('all')
     else:
         plt.show()
@@ -119,6 +158,10 @@ def image_quick(ima, i, meta):
 
 
 def image(dat, ima, results, i, meta):
+    """
+    This plots the full direct image with the guess of the target (defined using di_rmin, etc.) marked as a red box.
+    It also plots a zoom into the guess position of the target with the gaussian fit solution marked with a cross.
+    """
     plt.figure(1004)
     plt.clf()
     fig, ax = plt.subplots(1,2, figsize=(9,5.3))
@@ -161,7 +204,7 @@ def image(dat, ima, results, i, meta):
     if meta.save_image_plot:
         if not os.path.isdir(meta.workdir + '/figs/images/'):
             os.makedirs(meta.workdir + '/figs/images/')
-        plt.savefig(meta.workdir + '/figs/images/{0}.png'.format(i))
+        plt.savefig(meta.workdir + '/figs/images/di_{0}.png'.format(i))
         plt.close('all')
     else:
         plt.show()
@@ -171,6 +214,9 @@ def image(dat, ima, results, i, meta):
 
 ## 20
 def spectrum2d(d, meta, i):
+    """
+    Plot the spectrum with a low vmax to make the background better visible
+    """
     plt.imshow(d[1].data, origin = 'lower',  vmin=0, vmax=300)
     plt.colorbar()
     plt.tight_layout()

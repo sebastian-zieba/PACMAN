@@ -14,7 +14,7 @@ Quickstart
 ima files!
 
 
-3. Setup the PACMAN control file (.pcf) and PACMAN
+3. Setup the PACMAN control file (.pcf) and run PACMAN
 -----------------------------------------------------------------
 
 

@@ -32,14 +32,17 @@ def run22(eventlabel, workdir, meta=None):
         wave_bins = np.linspace(meta.wvl_min, meta.wvl_max, wvl_bins)*1e4
         print(wave_bins)
 
-        a = 8000
-        b = 10809
-        c = 10858
-        d = 11400
-        ab = np.linspace(a, b, 13)
-        cd = np.linspace(c, d, 4)
+        #file_mario = '/home/zieba/Documents/L98-59_bins_2.txt'
+        #wvl_mario0, wvl_mario1,_,_,_,_=np.loadtxt(file_mario).T
+        #wave_bins = np.concatenate((wvl_mario0, [wvl_mario1[-1]]))+154
+        #a = 8000
+        #b = 10809
+        #c = 10858
+        #d = 11400
+        #ab = np.linspace(a, b, 13)
+        #cd = np.linspace(c, d, 4)
 
-        wave_bins = np.concatenate((ab,cd))
+        #wave_bins = np.concatenate((ab,cd))
         print(wave_bins)
 
         #wave_bins = np.linspace(1.139, 1.631, 12)*1e4

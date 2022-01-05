@@ -35,6 +35,9 @@ def run02(eventlabel, workdir, meta=None):
 	Written by Sebastian Zieba      December 2021
 	"""
 
+	if meta == None:
+		meta = me.loadevent(workdir + '/WFC3_' + eventlabel + "_Meta_Save")
+
 	# read in filelist
 	filelist_path = meta.workdir + '/filelist.txt'
 	if os.path.exists(filelist_path):

@@ -1,14 +1,10 @@
 import os, glob, scipy, numpy
-
-import matplotlib.pyplot as plt
 import numpy as np
-from astropy.io import fits
+from astropy.io import ascii, fits
 from numpy import *
-import scipy.signal
 from pylab import *
 from ..lib import optextr
 from scipy.optimize import leastsq
-from astropy.io import ascii
 from datetime import datetime
 from astropy.table import QTable
 from ..lib import manageevent as me
@@ -19,57 +15,46 @@ from tqdm import tqdm
 
 
 def run20(eventlabel, workdir, meta=None):
-
+    """
+    This function extracts the spectrum and saves the total flux and the flux as a function of wavelength into files.
+    """
     if meta == None:
         meta = me.loadevent(workdir + '/WFC3_' + eventlabel + "_Meta_Save")
 
     # load in more information into meta
     meta = util.ancil(meta, s20=True)
 
-    if meta.grism == 'G102':
-        from ..lib import geometry102 as geo
-    elif meta.grism == 'G141':
-        from ..lib import geometry as geo
-    #else:
-    #    print('Error: GRISM in obs_par.cf is neither G102 nor G141!')
-
-    # TODO: cf mentioning
-
-
     ###############################################################################################################################################################
     ###############################################################################################################################################################
 
-    #STEP 0: User-set parameters and constants
+    #STEP 0: Set up files and directories
 
     dirname = meta.workdir + "/extracted_lc/" + datetime.strftime(datetime.now(), '%Y-%m-%d_%H_%M')
     if not os.path.exists(dirname): os.makedirs(dirname)
 
+    # initialize the astropy tables where we will save the extracted spectra
     table_white = QTable(names=('t_mjd', 't_bjd', 't_visit','t_orbit', 'ivisit', 'iorbit', 'scan', 'spec_opt', 'var_opt', 'spec_box', 'var_box'))
     table_spec = QTable(names=('t_mjd', 't_bjd', 't_visit','t_orbit', 'ivisit', 'iorbit', 'scan', 'spec_opt', 'var_opt', 'template_waves'))
     table_diagnostics = QTable(names=('nspectra', 't_mjd', 'numoutliers', 'skymedian', 'shift', "# nans"))
 
-
-    # Only use the files which are in the visits one is interested in. These are set by setting which_visits in obs_par
     files_sp = meta.files_sp
     meta.nexp = len(files_sp)
-    nspectra = 0                                                #iterator variable to track number of spectra reduced
+    nspectra = 0                                                # iterator variable to track number of spectra reduced
 
-    peaks_all = []
+    # the following lists are used for diagnostic plots
+    if meta.save_uptheramp_plot_total or meta.show_uptheramp_plot_total:
+        peaks_all = []
     bkg_lc = []
-
     cmin_list= []
     cmax_list= []
-
     spec_opt_interp_all = []
-    wvl_hires = np.linspace(10000, 17800, 1000)
-
+    wvl_hires = np.linspace(7000, 17800, 1000)
     spec1d_all = []
 
-    print('in total visit, orbit:', (meta.norbit, meta.nvisit), '\n')
+    print('in total #visits, #orbits:', (meta.nvisit, meta.norbit), '\n')
 
     for i in tqdm(np.arange(len(files_sp), dtype=int)):#
         f = files_sp[i]
-        #print("\nProgress: {0}/{1}".format(i+1, len(files_sp)))
         print("Filename: {0}".format(f))
         d = fits.open(f)                                        #opens the file
         scan = meta.scans_sp[i]
@@ -78,8 +63,8 @@ def run20(eventlabel, workdir, meta=None):
         if meta.save_spectrum2d_plot or meta.show_spectrum2d_plot:
             plots.spectrum2d(d, meta, i)
 
-        visnum, orbnum = meta.ivisit_sp[i], meta.iorbit_sp_com[i]     #current visit and orbit number
-        print('current visit, orbit:', (visnum, orbnum))
+        visnum, orbnum = meta.ivisit_sp[i], meta.iorbit_sp_cumulative[i]     #current visit and cumulative orbit number
+        print('current visit, orbit: ', (visnum, orbnum))
 
         # Plot trace
         if meta.save_trace_plot or meta.show_trace_plot:
@@ -108,7 +93,6 @@ def run20(eventlabel, workdir, meta=None):
         var_box = np.zeros(cmax - cmin)                                #box spectrum variance
         var_opt = np.zeros(cmax - cmin)                                #optimal spectrum variance
 
-
         #########################################################################################################################################################
         # loops over up-the-ramp-samples (skipping first two very short exposures); gets all needed input for optextr routine                    #
         #########################################################################################################################################################
@@ -121,15 +105,16 @@ def run20(eventlabel, workdir, meta=None):
 
             #idx = np.argmax(scipy.signal.medfilt(np.sum(diff, axis = 1),3))                         #computes spatial index of peak counts in the difference image
 
+            # determine the aperture cutout
             rowsum = np.sum(diff, axis=1)                   # sum of every row
-            rowsum_absder = abs(rowsum[1:] - rowsum[:-1])   # absolute derivative
-
+            rowsum_absder = abs(rowsum[1:] - rowsum[:-1])   # absolute derivative in order to determine where the spectrum is
             peaks, _ = find_peaks(rowsum_absder, height=max(rowsum_absder * 0.2), distance=meta.window)
             print('peak positions: ', peaks)
-            peaks = peaks[:2]
+            peaks = peaks[:2] # only take the two biggest peaks (there should be only 2)
             #idx = int(np.mean(peaks))
 
-            peaks_all.append(peaks)
+            if meta.save_uptheramp_plot_total or meta.show_uptheramp_plot_total:
+                peaks_all.append(peaks)
 
             #estimates sky background and variance
             fullframe_diff = d[ii*5 + 1].data - d[ii*5 + 6].data                                       #fullframe difference between successive scans
@@ -139,8 +124,9 @@ def run20(eventlabel, workdir, meta=None):
             #    skymedian = np.median(fullframe_diff[skyrmin:skyrmax,skycmin:skycmax])                    #estimates the background counts
             #    skyvar = util.median_abs_dev(fullframe_diff[skyrmin:skyrmax,skycmin:skycmax].flatten())            #variance for the background count estimate
 
-            below_threshold = fullframe_diff<meta.background_thld
-            skymedian = np.median(fullframe_diff[below_threshold].flatten())  # estimates the background counts
+            ### BACKGROUND SUBTRACTION
+            below_threshold = fullframe_diff < meta.background_thld # mask with all pixels below the user defined threshold
+            skymedian = np.median(fullframe_diff[below_threshold].flatten())  # estimates the background counts by taking the flux median of the pixels below the flux threshold
             bkg_lc.append(skymedian)
             skyvar = util.median_abs_dev(fullframe_diff[below_threshold].flatten())  # variance for the background count estimate
             if meta.save_bkg_hist_plot or meta.show_bkg_hist_plot:
@@ -195,7 +181,7 @@ def run20(eventlabel, workdir, meta=None):
         template_waves = meta.wave_grid[0, int(meta.refpix[orbnum, 1]) + meta.LTV1, cmin:cmax]
         print(len(template_waves))
 
-        np.savetxt(meta.workdir + 'template_waves.txt', list(zip(np.arange(cmin, cmax), template_waves)))
+        #np.savetxt(meta.workdir + 'template_waves.txt', list(zip(np.arange(cmin, cmax), template_waves)))
 
         phase = 0
         shift = 0.
@@ -204,26 +190,26 @@ def run20(eventlabel, workdir, meta=None):
             if i in meta.new_visit_idx_sp:
                 #if nspectra == 0:
                 template_waves = meta.wave_grid[0, int(meta.refpix[orbnum,1]) + meta.LTV1, cmin:cmax]             #LK interpolation 8/18 #use stellar model instead
-                g102mask = template_waves > 8200
-                #print(template_waves[-1]-template_waves[0])
-                #print(cmax-cmin)
-                #print((template_waves[-1] - template_waves[0])/(cmax-cmin))
+                g102mask = template_waves > 8200 # we dont use the spectrum below 8200 angstrom for the interpolation as the reference bandpass cuts out below this wavelength
+
                 #https: // matthew - brett.github.io / teaching / smoothing_intro.html
-                refspec = np.loadtxt(meta.workdir + '/ancil/bandpass/refspec_v{0}.txt'.format(visnum)).T
-                x_refspec, y_refspec_raw = refspec[0]*10000, refspec[1]/max(refspec[1])
+                refspec = np.loadtxt(meta.workdir + '/ancil/bandpass/refspec.txt').T
+                x_refspec, y_refspec_raw = refspec[0]*1e10, refspec[1]/max(refspec[1])
 
-                print(x_refspec[-1] - x_refspec[0])
+                kernel_bool = False
+                if kernel_bool:
+                    print(x_refspec[-1] - x_refspec[0])
 
-                sigma = 20#1*46.17#0.004*10000
-                y_refspec_kernel = np.zeros(y_refspec_raw.shape)
+                    sigma = 20#1*46.17#0.004*10000
+                    y_refspec_kernel = np.zeros(y_refspec_raw.shape)
 
-                for x_position, x_position_val in enumerate(x_refspec):
-                    kernel = np.exp(-(x_refspec - x_position_val) ** 2 / (2 * sigma ** 2))
-                    kernel = kernel / sum(kernel)
-                    y_refspec_kernel[x_position] = sum(y_refspec_raw * kernel)
+                    for x_position, x_position_val in enumerate(x_refspec):
+                        kernel = np.exp(-(x_refspec - x_position_val) ** 2 / (2 * sigma ** 2))
+                        kernel = kernel / sum(kernel)
+                        y_refspec_kernel[x_position] = sum(y_refspec_raw * kernel)
+                    y_refspec_kernel = y_refspec_kernel/max(y_refspec_kernel)
 
-                y_refspec_kernel = y_refspec_kernel/max(y_refspec_kernel)
-
+                y_refspec_kernel = y_refspec_raw
                 #FIXME SZ make this nicer
                 x_refspec_new = np.concatenate((np.linspace(-10000, min(x_refspec), 100, endpoint=False),
                                          x_refspec,
@@ -234,6 +220,8 @@ def run20(eventlabel, workdir, meta=None):
 
                 x_data = template_waves[g102mask]
                 y_data = (spec_opt/max(spec_opt))[g102mask]
+
+                np.savetxt(meta.workdir + '/first_exp.txt', list(zip(x_data, y_data)))
 
                 p0 = [0, 1, 1]
                 leastsq_res = leastsq(util.residuals2, p0, args=(x_refspec_new, y_refspec_kernel_new, x_data, y_data))[0]

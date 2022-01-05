@@ -17,12 +17,12 @@ def getcoords(file):
     Use regular expressions to extract X,Y,Z, and time values from the
     horizons file.
 
-    Parameters:
+    Parameters
     -----------
     file : Strings list
            A list containing the lines of a horizons file.
 
-    Returns:
+    Returns
     --------
     A four elements list containing the X, Y, Z, and time arrays of
     values from file.
@@ -52,12 +52,12 @@ def getcoords(file):
 
     # print(x, y, z, t)
 
-  Modification History:
-  ---------------------
-  2010-11-01  patricio  Written by Patricio Cubillos. 
+    Modification History
+    ---------------------
+    2010-11-01  patricio  Written by Patricio Cubillos.
                         pcubillos@fulbrightmail.org
 
-  """
+    """
     x, y, z, time = [], [], [], []
     for i in np.arange(len(file)):
         # Use regular expressions to match strings enclosed between X,
@@ -84,13 +84,10 @@ def suntimecorr(meta, obst, coordtable, verbose=False):
     former, for solar-system objects) may be gotten from JPL's
     Horizons system.
 
-    Parameters:
+    Parameters
     -----------
-
-    ra :         Float
-                 Right ascension of target object in radians.
-    dec :        Float
-                 Declination of target object in radians.
+    meta
+                 includes ra, dec and other information
     obst :       Float or Numpy Float array
                  Time of observation in Julian Date (may be a vector)
     coordtable : String 
@@ -100,14 +97,15 @@ def suntimecorr(meta, obst, coordtable, verbose=False):
     verbose :    Boolean
                  If True, print X,Y,Z coordinates.
 
-    Returns:
+    Returns
     --------
+
     This function returns the time correction in seconds to be ADDED
     to the observation time to get the time when the observed photons
     would have reached the plane perpendicular to their travel and
     containing the reference position.
 
-    Notes: 
+    Notes
     ------ 
 
     The position vectors from coordtable are given in the following
@@ -173,7 +171,7 @@ def suntimecorr(meta, obst, coordtable, verbose=False):
                                            !  vectors only.
     !$$EOF
 
-    Example:
+    Example
     ---------
     >>> # Spitzer is in nearly the Earth's orbital plane.  Light coming from
     >>> # the north ecliptic pole should hit the observatory and the sun at
@@ -184,14 +182,12 @@ def suntimecorr(meta, obst, coordtable, verbose=False):
     >>> ra  = 18.0 * np.pi /  12 # ecliptic north pole coordinates in radians
     >>> dec = 66.5 * np.pi / 180 # "
     >>> obst = np.array([2453607.078])       # Julian date of 2005-08-24 14:00
-    >>> print( sc.suntimecorr(ra, dec, obst, 
-                              '/home/esp01/ancil/horizons/cs41_spitzer.vec') )
+    >>> print( sc.suntimecorr(ra, dec, obst, '/home/esp01/ancil/horizons/cs41_spitzer.vec') )
     1.00810877 # about 1 sec, close to zero
     
     >>> # If the object has the RA and DEC of Spitzer, light time should be
     >>> # about 8 minutes to the sun.
-    >>> obs  = np.array([111093592.8346969, -97287023.315796047, 
-                         -42212080.826677799])
+    >>> obs  = np.array([111093592.8346969, -97287023.315796047, -42212080.826677799])
     >>> # vector to the object
     >>> obst = np.array([2453602.5])
     
@@ -201,12 +197,11 @@ def suntimecorr(meta, obst, coordtable, verbose=False):
     >>> decobs = np.arctan(obs[2]/ np.sqrt(obs[0]**2 + obs[1]**2))
     >>> print(raobs, decobs)
     -0.7192383661, -0.2784282118
-    >>> print( sc.suntimecorr(raobs, decobs, obst, 
-                          '/home/esp01/ancil/horizons/cs41_spitzer.vec') / 60.0)
+    >>> print( sc.suntimecorr(raobs, decobs, obst, '/home/esp01/ancil/horizons/cs41_spitzer.vec') / 60.0)
     8.5228630 # good, about 8 minutes light time to travel 1 AU
 
 
-    Modification History:
+    Modification History
     ---------------------
     2005-12-01 statia   Written by Statia Luszcz.
     2006-03-09 jh	Corrected 90deg error in algorithm, renamed,
@@ -222,8 +217,8 @@ def suntimecorr(meta, obst, coordtable, verbose=False):
 			Header update.
     2010-07-10 patricio Converted to python. (pcubillos@fulbrightmail.org)
     2010-11-01 patricio Docstring updated.
-
-  """
+    December 2021  SZ   Added meta file dependence, check if observations are in vector file and make plots
+    """
 
     ra = meta.ra
     dec = meta.dec

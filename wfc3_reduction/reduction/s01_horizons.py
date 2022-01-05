@@ -19,6 +19,8 @@ def run01(eventlabel, workdir, meta=None):
       Also helpful: https://github.com/kevin218/POET/blob/master/code/doc/spitzer_Horizons_README.txt
     - txt file with HST positions in space will be saved in ./run/run_2021-01-01_12-34-56_eventname/ancil/horizons
 
+    .. warning:: This step needs an internet connection!
+
 
     Parameters
     ----------
@@ -38,6 +40,9 @@ def run01(eventlabel, workdir, meta=None):
     -------
     Written by Sebastian Zieba      December 2021
     """
+
+    if meta == None:
+        meta = me.loadevent(workdir + '/WFC3_' + eventlabel + "_Meta_Save")
 
     # read in filelist
     filelist_path = meta.workdir + '/filelist.txt'

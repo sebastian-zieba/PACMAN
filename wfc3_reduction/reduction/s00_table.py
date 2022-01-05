@@ -7,12 +7,11 @@ import os, time
 import shutil
 from astropy.table import QTable
 from astropy.io import ascii, fits
-from ..lib import readECF as rd
+from ..lib import read_pcf as rd
 from ..lib import util
 from ..lib import manageevent as me
 from scipy.stats import rankdata
 from tqdm import tqdm
-# TODO Change name of readECF
 
 
 class MetaClass:
@@ -20,10 +19,6 @@ class MetaClass:
     A Class which will contain all the metadata of the analysis.
     """
     def __init__(self):
-        # initialize Univ
-        # Univ.__init__(self)
-        # self.initpars(ecf)
-        # self.foo = 2
         return
 
 
@@ -33,21 +28,21 @@ def run00(eventlabel):
 
     - 1. Creates a MetaData object
     - 2. Creates a new run directory with the following form, e.g.: ./run/run_2021-01-01_12-34-56_eventname/
-    - 3. Copy and pastes the control file (obs_par.ecf) and the fit parameters file (fit_par.txt) into the new directory
+    - 3. Copy and pastes the control file (obs_par.pcf) and the fit parameters file (fit_par.txt) into the new directory
     - 4. Reads in all fits files and creates a table which will be saved in filelist.txt.
     - 5. Saves metadata into a file called something like ./run/run_2021-01-01_12-34-56_eventname/WFC3_eventname_Meta_Save.dat
 
     The information listed in filelist.txt are:
 
-    * :filenames: The name of the observational file (the file will end with .ima)
-    * :filter/grism: The specific filter or grism used in this observation (taken from the header)
-    * :ivisit: The visit number when the observation was taken (will be calculated in s00)
-    * :iorbit: The orbit number when the observation was taken (will be calculated in s00)
-    * :t_mjd: Mid exposure time (exposure start and end is taken from the header)
-    * :t_visit: Time elapsed since the first exposure in the visit
-    * :t_orbit: Time elapsed since the first exposure in the visit
-    * :scan: Scan direction (0: forward - lower flux, 1: reverse - higher flux, -1: postarg2=0)
-    * :exp: Exposure time
+    * **filenames**: The name of the observational file (the file will end with .ima)
+    * **filter/grism**: The specific filter or grism used in this observation (taken from the header)
+    * **ivisit**: The visit number when the observation was taken (will be calculated in s00)
+    * **iorbit**: The orbit number when the observation was taken (will be calculated in s00)
+    * **t_mjd**: Mid exposure time (exposure start and end is taken from the header)
+    * **t_visit**: Time elapsed since the first exposure in the visit
+    * **t_orbit**: Time elapsed since the first exposure in the visit
+    * **scan**: Scan direction (0: forward - lower flux, 1: reverse - higher flux, -1: postarg2=0)
+    * **exp**: Exposure time
 
     .. note:: We use the following approach to determine the visit and orbit number:
 
@@ -73,14 +68,21 @@ def run00(eventlabel):
     meta
       meta object with all the meta data stored in s00
 
-    History
-    -------
+
+    Revisions
+    ----------
     Written by Sebastian Zieba      December 2021
+
     """
 
     # Initialize metadata object
     meta = MetaClass()
     meta.eventlabel = eventlabel
+
+    #this file is saved in /wfc3-pipeline/wfc3_reduction/reduction/s00_table.py
+    #topdir is just the path of the directory /wfc3-pipeline/
+    meta.topdir = '/'.join(os.path.realpath(__file__).split('/')[:-3])
+    meta.ancildir = meta.topdir + '/wfc3_reduction/ancil/'
 
     # Create directories for Stage 3 processing
     datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
@@ -91,14 +93,13 @@ def run00(eventlabel):
         os.makedirs(meta.workdir + "/figs")
 
     # Load Eureka! control file and store values in Event object
-    ecffile = 'obs_par.ecf'
-    ecf = rd.read_ecf(ecffile)
-    rd.store_ecf(meta, ecf)
+    pcffile = 'obs_par.pcf'
+    pcf = rd.read_pcf(pcffile)
+    rd.store_pcf(meta, pcf)
 
-    # Copy ecf
-    shutil.copy(ecffile, meta.workdir)
+    # Copy pcf
+    shutil.copy(pcffile, meta.workdir)
     shutil.copy('fit_par.txt', meta.workdir)
-    shutil.copy('fit_par_new2.txt', meta.workdir) #TODO switch back to fit_par.txt
 
     # Create list of file segments
     meta = util.readfiles(meta)
@@ -184,6 +185,8 @@ def run00(eventlabel):
                names=('filenames', 'filter/grism', 'ivisit', 'iorbit', 't_mjd', 't_visit', 't_orbit',
                       'scan', 'exp'))# scan: (0: forward - lower flux, 1: reverse - higher flux, -1: postarg2=0)
     ascii.write(table, meta.workdir + '/filelist.txt', format='ecsv', overwrite=True)
+
+    #TODO: make filelist.txt easier readable. more separation between columns
 
     # Save results
     print('Saving Metadata')

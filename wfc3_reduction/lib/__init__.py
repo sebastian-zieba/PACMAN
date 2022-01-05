@@ -2,13 +2,16 @@
 
 ## s00
 from . import manageevent
-from . import readECF
+from . import read_pcf
 from . import util
 
 ## s02
 from . import suntimecorr
 from . import splinterp
 from . import plots
+
+## s03
+from . import stellar_spectrum
 
 
 ## s10

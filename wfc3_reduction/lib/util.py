@@ -7,6 +7,169 @@ import multiprocessing as mp
 import os
 from tqdm import tqdm
 import numpy.ma as ma
+from astropy.io import ascii
+
+
+#s00
+def readfiles(meta):
+    """
+    Reads in the files saved in topdir + datadir and saves them into a list
+
+    Parameters
+    -----------
+    meta
+        metadata object
+
+    Returns
+    ----------
+    meta
+        metadata object but adds segment_list to metadata containing the sorted data fits files
+
+    Revisions
+    ----------
+    Written by Sebastian Zieba      December 2021
+
+    """
+    meta.segment_list = []
+    for fname in os.listdir(str(meta.path)):
+        if fname.endswith(meta.suffix + '.fits'):
+            meta.segment_list.append(str(meta.path) +'/'+ fname)
+    return meta
+
+
+
+#s02
+
+def ancil(meta, s10=False, s20=False):
+    """
+    This function loads in a lot of useful arrays and values into meta
+
+    The following additional information are being loading into meta:
+
+    - **norbit:**   number of orbits
+    - **nvisit:**   number of visits
+    - **files_sp:** all spectra files
+    - **files_di:** all direct image files
+    - **ra:** RA of the target in radians (from the header) (Note: this data is taken from the first spectrum file)
+    - **dec:** DEC of the target in radians (from the header) (Note: this data is taken from the first spectrum file)
+    - **coordtable:** a list of files containing the vector information of HST downloaded in s01
+
+
+    Parameters
+    -----------
+    meta
+        metadata object
+    s10: bool
+        Is set to True when s10 is being performed
+    s20: bool
+        Is set to True when s20 is being performed
+
+    Returns
+    ----------
+    meta
+        metadata object
+
+    Revisions
+    ----------
+    Written by Sebastian Zieba      December 2021
+    """
+
+    filelist = ascii.read(meta.workdir + '/filelist.txt')
+
+    aa = filelist['iorbit'].data
+    bb = np.diff(aa)
+    meta.norbit, meta.nvisit = len(np.insert(aa[1:][np.where(bb != 0)], 0, aa[0])), len(set(filelist['ivisit'].data))
+
+    meta.mask_sp = np.array([i[0] for i in filelist['filter/grism']]) == 'G'
+    meta.mask_di = np.array([i[0] for i in filelist['filter/grism']]) == 'F'
+    meta.files_sp = [meta.path + '/' + i for i in filelist['filenames'][meta.mask_sp].data]
+    meta.files_di = [meta.path + '/' + i for i in filelist['filenames'][meta.mask_di].data]
+
+    f = fits.open(meta.files_sp[0])
+
+    meta.ra = f[0].header['ra_targ'] * math.pi / 180.0  # stores right ascension
+    meta.dec = f[0].header['dec_targ'] * math.pi / 180.0  # stores declination
+
+    meta.coordtable = []  # table of spacecraft coordinates
+    for i in range(max(filelist['ivisit']) + 1): meta.coordtable.append(
+        meta.workdir + '/ancil/horizons/' + "/horizons_results_v" + str(i) + ".txt")
+
+    ###
+    # 03
+    # FIXME SZ Should make sure all visits use the same grism. Not only the very first observation
+    meta.filter = filelist['filter/grism'][meta.mask_di][0]
+    meta.grism = filelist['filter/grism'][meta.mask_sp][0]
+
+    meta.scans_sp = filelist['scan'][meta.mask_sp].data
+    meta.iorbit_sp = filelist['iorbit'][meta.mask_sp].data
+    meta.ivisit_sp = filelist['ivisit'][meta.mask_sp].data
+
+    # the following lists store the indices of spectral files where the orbit/visit increases
+    meta.new_orbit_idx_sp = np.concatenate(([0], np.where(np.diff(meta.iorbit_sp)!=0)[0]+1))
+    meta.new_visit_idx_sp = np.concatenate(([0], np.where(np.diff(meta.ivisit_sp)!=0)[0]+1))
+
+    # the following list stores the cumulative orbit number
+    meta.iorbit_sp_cumulative = np.zeros(len(meta.iorbit_sp), dtype=int)
+    c = 0
+    for i in range(len(meta.iorbit_sp) - 1):
+        if meta.iorbit_sp[i + 1] != meta.iorbit_sp[i]:
+            c = c + 1
+        meta.iorbit_sp_cumulative[i + 1] = c
+
+    meta.iorbit_di = filelist['iorbit'][meta.mask_di].data
+    meta.ivisit_di = filelist['ivisit'][meta.mask_di].data
+    meta.t_mjd_sp = filelist['t_mjd'][meta.mask_sp].data
+
+    meta.t_orbit_sp = filelist['t_orbit'][meta.mask_sp].data
+    meta.t_visit_sp = filelist['t_visit'][meta.mask_sp].data
+
+    meta.platescale = 0.13  # IR detector has plate scale of 0.13 arcsec/pixel
+
+    meta.POSTARG1 = f[0].header['POSTARG1']  # x-coordinate of the observer requested target offset
+    meta.POSTARG2 = f[0].header['POSTARG2']  # y-coordinate of the observer requested target offset
+    meta.LTV1 = int(f[1].header['LTV1'])
+    meta.LTV2 = int(f[1].header['LTV2'])
+
+    meta.subarray_size = f[1].header['SIZAXIS1']  # size of subarray
+
+    if meta.grism == 'G102':
+        meta.BEAMA_i = 41
+        meta.BEAMA_f = 248
+    elif meta.grism == 'G141':
+        meta.BEAMA_i = 15
+        meta.BEAMA_f = 196
+
+
+    if s10:
+        if 't_bjd' in filelist.keys():
+            meta.t_bjd_sp = filelist['t_bjd'][meta.mask_sp].data
+        if 't_bjd' in filelist.keys():
+            meta.t_bjd_di = filelist['t_bjd'][meta.mask_di].data
+
+    if s20:
+        meta.refpix = np.genfromtxt(meta.workdir + "/xrefyref.txt")
+        # meta.refpix = ascii.read(meta.workdir + "/xrefyref.txt") # reads in reference pixels
+        # # TODO Fix the possibility of two DIs in an orbit or only one DI per visit
+        # meta.refpix = ascii.read(meta.workdir + "/xrefyref.txt")
+        # refpix_orbit_rows = np.zeros(meta.norbit)
+        # refpix_orbit_cols = np.zeros(meta.norbit)
+        # for i in range(meta.norbit):
+        #     refpix_orbit_rows[i] = meta.refpix['x_pos'][i]
+        #     refpix_orbit_cols[i] = meta.refpix['y_pos'][i]
+
+
+        #idx = np.argsort(refpix[:, 0])  # sort by time
+        #meta.refpix = refpix[idx]  # reference pixels from direct image
+
+    return meta
+
+
+
+
+
+
+
+
 
 
 def computeRMS(data, maxnbins=None, binstep=1, isrmserr=False):
@@ -49,103 +212,7 @@ def weighted_mean(data, err):            #calculates the weighted mean for data 
 
 
 
-def readfiles(meta):
-    """
-    Reads in the files saved in topdir + datadir and saves them into a list
 
-    Args:
-        meta: metadata object
-
-    Returns:
-        meta: metadata object but adds segment_list to metadata containing the sorted data fits files
-    """
-    meta.segment_list = []
-    for fname in os.listdir(str(meta.path)):
-        if fname.endswith(meta.suffix + '.fits'):
-            meta.segment_list.append(str(meta.path) +'/'+ fname)
-    return meta
-
-
-def ancil(meta, s10=False, s20=False):
-
-    filelist = ascii.read(meta.workdir + '/filelist.txt')
-
-    aa = filelist['iorbit'].data
-    bb = np.diff(aa)
-    meta.norbit, meta.nvisit = len(np.insert(aa[1:][np.where(bb != 0)], 0, aa[0])), len(set(filelist['ivisit'].data))
-
-    meta.mask_sp = np.array([i[0] for i in filelist['filter/grism']]) == 'G'
-    meta.mask_di = np.array([i[0] for i in filelist['filter/grism']]) == 'F'
-    meta.files_sp = [meta.path + '/' + i for i in filelist['filenames'][meta.mask_sp].data]
-    meta.files_di = [meta.path + '/' + i for i in filelist['filenames'][meta.mask_di].data]
-
-    f = fits.open(meta.files_sp[0])
-
-    meta.ra = f[0].header['ra_targ'] * math.pi / 180.0  # stores right ascension
-    meta.dec = f[0].header['dec_targ'] * math.pi / 180.0  # stores declination
-
-    meta.coordtable = []  # table of spacecraft coordinates
-    for i in range(max(filelist['ivisit']) + 1): meta.coordtable.append(
-        meta.workdir + '/ancil/horizons/' + "/horizons_results_v" + str(i) + ".txt")
-
-    ###
-    # 03
-    # FIXME SZ Should make sure all visits use the same grism. Not only the very first observation
-    meta.filter = filelist['filter/grism'][meta.mask_di][0]
-    meta.grism = filelist['filter/grism'][meta.mask_sp][0]
-
-    meta.scans_sp = filelist['scan'][meta.mask_sp].data
-    meta.iorbit_sp = filelist['iorbit'][meta.mask_sp].data
-    meta.ivisit_sp = filelist['ivisit'][meta.mask_sp].data
-
-    meta.new_orbit_idx_sp = np.concatenate(([0], np.where(np.diff(meta.iorbit_sp)!=0)[0]+1))
-    meta.new_visit_idx_sp = np.concatenate(([0], np.where(np.diff(meta.ivisit_sp)!=0)[0]+1))
-
-    c = np.zeros(len(meta.iorbit_sp), dtype=int)
-    for i in range(len(c) - 1):
-        cc = np.diff(meta.iorbit_sp)
-        if cc[i] == 0:
-            c[i + 1] = c[i]
-        else:
-            c[i + 1] = c[i] + 1
-    meta.iorbit_sp_com  = c
-
-    meta.iorbit_di = filelist['iorbit'][meta.mask_di].data
-    meta.ivisit_di = filelist['ivisit'][meta.mask_di].data
-    meta.t_mjd_sp = filelist['t_mjd'][meta.mask_sp].data
-
-    meta.t_orbit_sp = filelist['t_orbit'][meta.mask_sp].data
-    meta.t_visit_sp = filelist['t_visit'][meta.mask_sp].data
-
-    meta.platescale = 0.13  # IR detector has plate scale of 0.13 arcsec/pixel
-
-    meta.POSTARG1 = f[0].header['POSTARG1']  # x-coordinate of the observer requested target offset
-    meta.POSTARG2 = f[0].header['POSTARG2']  # y-coordinate of the observer requested target offset
-    meta.LTV1 = int(f[1].header['LTV1'])
-    meta.LTV2 = int(f[1].header['LTV2'])
-
-    meta.subarray_size = f[1].header['SIZAXIS1']  # size of subarray
-
-    if meta.grism == 'G102':
-        meta.BEAMA_i = 41
-        meta.BEAMA_f = 248
-    elif meta.grism == 'G141':
-        meta.BEAMA_i = 15
-        meta.BEAMA_f = 196
-
-
-    if s10:
-        if 't_bjd' in filelist.keys():
-            meta.t_bjd_sp = filelist['t_bjd'][meta.mask_sp].data
-        if 't_bjd' in filelist.keys():
-            meta.t_bjd_di = filelist['t_bjd'][meta.mask_di].data
-
-    if s20:
-        meta.refpix = np.genfromtxt(meta.workdir + "/xrefyref.txt")  # reads in reference pixels for each visit and sorts them by time
-        #idx = np.argsort(refpix[:, 0])  # sort by time
-        #meta.refpix = refpix[idx]  # reference pixels from direct image
-
-    return meta
 
 
 def get_wave_grid(meta):
