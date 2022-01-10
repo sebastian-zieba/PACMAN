@@ -10,20 +10,20 @@ TODO: Add short installation guide
 
 ### With Git/GitHub
 
-1. You can install Eureka! directly from source on [GitHub](https://github.com/lkreidberg/wfc3-pipeline) in one of two ways:
-	- On the [GitHub website](https://github.com/lkreidberg/wfc3-pipeline), click on **Code** and **Download ZIP** followed by unpacking the distribution by opening up a terminal and typing:
+1. You can install PACMAN directly from source on [GitHub](https://github.com/sebastian-zieba/PACMAN) in one of two ways:
+	- On the [GitHub website](https://github.com/sebastian-zieba/PACMAN), click on **Code** and **Download ZIP** followed by unpacking the distribution by opening up a terminal and typing:
 
 		```bash
-		unzip wfc3-pipeline-master.zip
+		unzip PACMAN-master.zip
 		```
 
 	- OR, clone the repository using ``git`` by typing:
 
 		```bash
-		git clone https://github.com/lkreidberg/wfc3-pipeline.git
+		git clone https://github.com/sebastian-zieba/PACMAN.git
 		```
 
-2. Navigate into the newly created directory and **install** Eureka! by running ``setup.py``:
+2. Navigate into the newly created directory and **install** PACMAN by running ``setup.py``:
 
 	```bash
 	python setup.py install
@@ -38,7 +38,7 @@ TODO: Add short installation guide
 
 ## Documentation
 
-Check out the docs at TODO: Write documentation!
+Check out the docs [here](https://pacmandocs.readthedocs.io/en/latest/)
 
 
 
