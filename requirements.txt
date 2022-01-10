@@ -7,7 +7,6 @@ corner
 dynesty
 seaborn
 pandas
-yaml
 pyyaml
 bokeh
 selenium
