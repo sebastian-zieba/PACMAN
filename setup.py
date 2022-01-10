@@ -36,7 +36,7 @@
 
 
 from setuptools import setup, find_packages
-setup(name='wfc3-pipeline',
+setup(name='PACMAN',
       version='0.0.1',
       packages=find_packages(".")
       )

@@ -10,6 +10,4 @@ pandas
 pyyaml
 bokeh
 selenium
-pyfits
-pysynphot
 tqdm
