@@ -3,3 +3,7 @@ reduction/tmp/
 fit/
 # Sphinx documentation
 docs/_build/
+# Pycharm directory
+#.idea/
+#run directory
+run/run_20*/

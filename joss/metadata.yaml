@@ -1,0 +1,21 @@
+variables:
+  archive_doi: "https://doi.org/xxx"
+  formatted_doi: "xxx"
+  repository: "https://github.com/sebastian-zieba/PACMAN"
+  doi_batch_id: "xxxx"
+  editor_url: "xxx"
+  review_issue_url: "https://github.com/xxx"
+  paper_url: "xxx"
+
+metadata:
+  logo_path: "figures/joss-logo.png"
+  citation_author: "Zieba et al."
+  issue: "xxx"
+  page: "xxx"
+  volume: "xxx"
+  editor_name: "xxx"
+  published: "xxx"
+  reviewers:
+    - "xxx"
+    - "xxx"
+  submitted: "xxx"

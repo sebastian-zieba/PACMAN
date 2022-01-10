@@ -1,0 +1,27 @@
+on: [push]
+
+jobs:
+  paper:
+    runs-on: ubuntu-latest
+    name: Paper Draft
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        
+      - name: Generate .tex
+        uses: docker://openjournals/paperdraft:latest
+        with:
+          args: joss/paper.md --defaults=metadata.yaml --to=latex --output=paper.tex
+          journal: joss
+
+      - name: Generate .pdf
+        uses: docker://openjournals/paperdraft:latest
+        with:
+          args: joss/paper.md --defaults=metadata.yaml
+          journal: joss
+          
+      - name: Upload
+        uses: actions/upload-artifact@v2
+        with:
+          name: joss
+          path: joss
