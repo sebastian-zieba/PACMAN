@@ -4,94 +4,94 @@ The Code (API)
 ===============
 
 
-wfc3_reduction.reduction
+reduction
 """""""""""""""""""""""""""
 
-wfc3_reduction.reduction.s00_table
+reduction.s00_table
 ----------------------------------------
-.. automodule:: wfc3_reduction.reduction.s00_table
+.. automodule:: pacman.reduction.s00_table
     :members:
     :undoc-members:
     :show-inheritance:
 
-wfc3_reduction.reduction.s01_horizons
+reduction.s01_horizons
 ----------------------------------------
-.. automodule:: wfc3_reduction.reduction.s01_horizons
+.. automodule:: pacman.reduction.s01_horizons
     :members:
     :undoc-members:
     :show-inheritance:
 
-wfc3_reduction.reduction.s02_barycorr
+reduction.s02_barycorr
 ----------------------------------------
-.. automodule:: wfc3_reduction.reduction.s02_barycorr
+.. automodule:: pacman.reduction.s02_barycorr
     :members:
     :undoc-members:
     :show-inheritance:
 
-wfc3_reduction.reduction.s03_refspectra
+reduction.s03_refspectra
 ----------------------------------------
-.. automodule:: wfc3_reduction.reduction.s03_refspectra
+.. automodule:: pacman.reduction.s03_refspectra
     :members:
     :undoc-members:
     :show-inheritance:
 
-wfc3_reduction.reduction.s10_direct_images
+reduction.s10_direct_images
 -------------------------------------------
-.. automodule:: wfc3_reduction.reduction.s10_direct_images
+.. automodule:: pacman.reduction.s10_direct_images
     :members:
     :undoc-members:
     :show-inheritance:
 
 
-wfc3_reduction.lib
+lib
 """""""""""""""""""""""""""
 
-wfc3_reduction.lib.util
+lib.util
 ----------------------------------------
-.. automodule:: wfc3_reduction.lib.util
+.. automodule:: pacman.lib.util
     :members:
     :undoc-members:
     :show-inheritance:
 
-wfc3_reduction.lib.read_pcf
+lib.read_pcf
 ----------------------------------------
-.. automodule:: wfc3_reduction.lib.read_pcf
+.. automodule:: pacman.lib.read_pcf
     :members:
     :undoc-members:
     :show-inheritance:
 
-wfc3_reduction.lib.manageevent
+lib.manageevent
 ----------------------------------------
-.. automodule:: wfc3_reduction.lib.manageevent
+.. automodule:: pacman.lib.manageevent
     :members:
     :undoc-members:
     :show-inheritance:
 
-wfc3_reduction.lib.suntimecorr
+lib.suntimecorr
 ----------------------------------------
-.. automodule:: wfc3_reduction.lib.suntimecorr
+.. automodule:: pacman.lib.suntimecorr
     :members:
     :undoc-members:
     :show-inheritance:
 
 
-wfc3_reduction.lib.plots
+lib.plots
 ----------------------------------------
-.. automodule:: wfc3_reduction.lib.plots
+.. automodule:: pacman.lib.plots
     :members:
     :undoc-members:
     :show-inheritance:
 
-wfc3_reduction.lib.stellar_spectrum
+lib.stellar_spectrum
 ----------------------------------------
-.. automodule:: wfc3_reduction.lib.stellar_spectrum
+.. automodule:: pacman.lib.stellar_spectrum
     :members:
     :undoc-members:
     :show-inheritance:
 
-wfc3_reduction.lib.gaussfitter
+lib.gaussfitter
 ----------------------------------------
-.. automodule:: wfc3_reduction.lib.gaussfitter
+.. automodule:: pacman.lib.gaussfitter
     :members:
     :undoc-members:
     :show-inheritance:

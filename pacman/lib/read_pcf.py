@@ -211,7 +211,7 @@ def read_pcf(file):
 
 def store_pcf(meta, pcf):
     """
-    Store values from Eureka control file as parameters in Meta object.
+    Store values from PACMAN control file as parameters in Meta object.
     """
     for key in pcf.__dict__.keys():
         try:

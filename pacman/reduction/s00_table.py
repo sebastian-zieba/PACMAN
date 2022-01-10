@@ -92,7 +92,7 @@ def run00(eventlabel):
     if not os.path.exists(meta.workdir + "/figs"):
         os.makedirs(meta.workdir + "/figs")
 
-    # Load Eureka! control file and store values in Event object
+    # Load PACMAN control file and store values in Event object
     pcffile = 'obs_par.pcf'
     pcf = rd.read_pcf(pcffile)
     rd.store_pcf(meta, pcf)
