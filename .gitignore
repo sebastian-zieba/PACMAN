@@ -1,6 +1,7 @@
 __pycache__/
 reduction/tmp/
 fit/
+*.log
 *.egg-info/
 # Sphinx documentation
 docs/_build/
