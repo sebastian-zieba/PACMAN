@@ -127,8 +127,8 @@ def ancil(meta, s10=False, s20=False):
 
     meta.POSTARG1 = f[0].header['POSTARG1']  # x-coordinate of the observer requested target offset
     meta.POSTARG2 = f[0].header['POSTARG2']  # y-coordinate of the observer requested target offset
-    meta.LTV1 = int(f[1].header['LTV1'])
-    meta.LTV2 = int(f[1].header['LTV2'])
+    meta.LTV1 = int(f[1].header['LTV1'])     # X offset to get into physical pixels
+    meta.LTV2 = int(f[1].header['LTV2'])     # Y offset to get into physical pixels
 
     meta.subarray_size = f[1].header['SIZAXIS1']  # size of subarray
 
