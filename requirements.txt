@@ -11,3 +11,7 @@ pyyaml
 bokeh
 selenium
 tqdm
+nbsphinx
+numpydoc
+myst_parser
+recommonmark
