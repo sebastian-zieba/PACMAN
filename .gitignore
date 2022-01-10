@@ -1,6 +1,7 @@
 __pycache__/
 reduction/tmp/
 fit/
+*.egg-info/
 # Sphinx documentation
 docs/_build/
 docs/build/
@@ -8,3 +9,4 @@ docs/build/
 .idea/
 #run directory
 run/run_20*/
+
