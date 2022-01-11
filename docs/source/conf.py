@@ -13,7 +13,7 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath('../..'))
+#sys.path.insert(0, os.path.abspath('../..'))
 sys.path.insert(0, os.path.abspath('..'))
 
 
@@ -26,7 +26,7 @@ copyright = '2021, Laura Kreidberg, Sebastian Zieba'
 author = 'Laura Kreidberg, Sebastian Zieba'
 
 # The full version, including alpha/beta/rc tags
-release = '0.0.0'
+release = '0.0.1'
 
 
 # -- General configuration ---------------------------------------------------

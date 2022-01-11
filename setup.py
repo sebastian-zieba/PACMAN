@@ -18,8 +18,8 @@ REQUIRES = ['numpy',
 DEPENDENCY_LINKS = []
 
 FILES = []
-for root, _, files in os.walk("wfc3-pipeline"):
-    FILES += [os.path.join(root.replace("wfc3-pipeline/", ""), fname) \
+for root, _, files in os.walk("PACMAN"):
+    FILES += [os.path.join(root.replace("PACMAN/", ""), fname) \
         for fname in files if not fname.endswith(".py") and not fname.endswith(".pyc")]
 
 setup(name='PACMAN',
