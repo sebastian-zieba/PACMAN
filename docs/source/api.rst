@@ -9,14 +9,14 @@ reduction
 
 reduction.s00_table
 ----------------------------------------
-.. automodule:: pacman.reduction.s00_table
+.. automodule:: pacmann.reduction.s00_table
     :members:
     :undoc-members:
     :show-inheritance:
 
 reduction.s01_horizons
 ----------------------------------------
-.. automodule:: pacman.reduction.s01_horizons
+.. automodule:: pacmann.reduction.s01_horizons
     :members:
     :undoc-members:
     :show-inheritance:
