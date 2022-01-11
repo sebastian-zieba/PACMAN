@@ -4,19 +4,19 @@ The Code (API)
 ===============
 
 
-pacmann.reduction
+wfc3_reduction.reduction
 """""""""""""""""""""""""""
 
-pacmann.reduction.s00_table
+wfc3_reduction.reduction.s00_table
 ----------------------------------------
-.. automodule:: pacmann.reduction.s00_table
+.. automodule:: wfc3_reduction.reduction.s00_table
     :members:
     :undoc-members:
     :show-inheritance:
 
-reduction.s01_horizons
+wfc3_reduction.reduction.s01_horizons
 ----------------------------------------
-.. automodule:: pacmann.reduction.s01_horizons
+.. automodule:: wfc3_reduction.reduction.s01_horizons
     :members:
     :undoc-members:
     :show-inheritance:
