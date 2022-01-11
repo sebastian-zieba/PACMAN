@@ -9,21 +9,21 @@ wfc3_reduction.reduction
 
 wfc3_reduction.reduction.s00_table
 ----------------------------------------
-.. automodule:: wfc3_reduction.reduction.s00_table
+.. automodule:: pacmann.reduction.s00_table
     :members:
     :undoc-members:
     :show-inheritance:
 
 wfc3_reduction.reduction.s01_horizons
 ----------------------------------------
-.. automodule:: wfc3_reduction.reduction.s01_horizons
+.. automodule:: pacmann.reduction.s01_horizons
     :members:
     :undoc-members:
     :show-inheritance:
 
 reduction.s02_barycorr
 ----------------------------------------
-.. automodule:: pacman.reduction.s02_barycorr
+.. automodule:: pacmann.reduction.s02_barycorr
     :members:
     :undoc-members:
     :show-inheritance:
