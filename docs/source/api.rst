@@ -4,10 +4,10 @@ The Code (API)
 ===============
 
 
-reduction
+pacmann.reduction
 """""""""""""""""""""""""""
 
-reduction.s00_table
+pacmann.reduction.s00_table
 ----------------------------------------
 .. automodule:: pacmann.reduction.s00_table
     :members:
