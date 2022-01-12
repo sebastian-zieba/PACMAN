@@ -6,6 +6,7 @@ emcee
 corner
 dynesty
 seaborn
+h5py
 pyyaml
 tqdm
 nbsphinx
