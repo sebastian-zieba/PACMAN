@@ -16,7 +16,7 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join('..', '..', 'pacman')))
 sys.path.insert(0, os.path.abspath('../..'))
 sys.path.insert(0, os.path.abspath('..'))
-
+sys.path.insert(0, os.path.abspath('../pacman'))
 
 # -- Project information -----------------------------------------------------
 

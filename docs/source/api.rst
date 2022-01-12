@@ -48,14 +48,14 @@ lib
 
 lib.util
 ----------------------------------------
-.. automodule:: pacman.lib.util
+.. automodule:: lib.util
     :members:
     :undoc-members:
     :show-inheritance:
 
 lib.read_pcf
 ----------------------------------------
-.. automodule:: pacman.lib.read_pcf
+.. automodule:: lib.read_pcf
     :members:
     :undoc-members:
     :show-inheritance:
