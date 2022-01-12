@@ -13,15 +13,11 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath('..'))
-sys.path.insert(0, os.path.abspath('../..'))
+#sys.path.insert(0, os.path.abspath('..'))
+#sys.path.insert(0, os.path.abspath('../..'))
 
-print(sys.path)
-print(os.path.abspath('..'))
-print(sys.path)
-print(os.path.abspath('../..'))
-print(sys.path)
-import sphinx_rtd_theme
+sys.path.append(os.path.abspath('../..'))
+sys.path.append(os.path.abspath('..'))
 
 # -- Project information -----------------------------------------------------
 
