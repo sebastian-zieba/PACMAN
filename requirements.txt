@@ -5,6 +5,7 @@ astropy
 emcee
 corner
 dynesty
+batman-package
 seaborn
 h5py
 pyyaml
