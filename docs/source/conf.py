@@ -12,11 +12,12 @@
 #
 import os
 import sys
+import sphinx_rtd_theme
 
 sys.path.insert(0, os.path.abspath(os.path.join('..', '..', 'pacman')))
 sys.path.insert(0, os.path.abspath('../..'))
 sys.path.insert(0, os.path.abspath('..'))
-sys.path.insert(0, os.path.abspath('../pacman'))
+sys.path.insert(0, os.path.abspath('../../pacman'))
 
 # -- Project information -----------------------------------------------------
 
@@ -37,14 +38,18 @@ extensions = ['sphinx_rtd_theme', 'sphinx.ext.todo', 'sphinx.ext.viewcode',
               'sphinx.ext.autodoc', 'numpydoc', 'nbsphinx', 'myst_parser',
               'sphinx.ext.autosectionlabel', 'sphinx.ext.napoleon']
 
-master_doc = 'index'
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
+
+# The master toctree document.
+master_doc = 'index'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = []
+#exclude_patterns = []
+exclude_patterns = ['_build']
+
 
 pygments_style = 'sphinx'
 # -- Options for HTML output -------------------------------------------------
@@ -55,7 +60,6 @@ pygments_style = 'sphinx'
 html_theme = 'sphinx_rtd_theme'
 
 
-import sphinx_rtd_theme
 # Add any paths that contain custom themes here, relative to this directory.
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
