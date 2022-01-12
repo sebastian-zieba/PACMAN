@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import pysynphot as S
+#import pysynphot as S
 from ..lib import manageevent as me
 # https://pysynphot.readthedocs.io/en/latest/bandpass.html#observation-mode
 # https://pysynphot.readthedocs.io/en/latest/appendixb.html#wfc3
