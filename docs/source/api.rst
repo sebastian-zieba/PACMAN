@@ -9,7 +9,7 @@ reduction
 
 reduction.s00_table
 ----------------------------------------
-.. automodule:: reduction.s00_table
+.. automodule:: pacman.reduction.s00_table
     :members:
     :undoc-members:
     :show-inheritance:
@@ -37,7 +37,7 @@ reduction.s03_refspectra
 
 reduction.s10_direct_images
 -------------------------------------------
-.. automodule:: reduction.s10_direct_images
+.. automodule:: pacman.reduction.s10_direct_images
     :members:
     :undoc-members:
     :show-inheritance:
@@ -48,14 +48,14 @@ lib
 
 lib.util
 ----------------------------------------
-.. automodule:: lib.util
+.. automodule:: pacman.lib.util
     :members:
     :undoc-members:
     :show-inheritance:
 
 lib.read_pcf
 ----------------------------------------
-.. automodule:: lib.read_pcf
+.. automodule:: pacman.lib.read_pcf
     :members:
     :undoc-members:
     :show-inheritance:
