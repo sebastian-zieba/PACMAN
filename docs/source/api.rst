@@ -9,7 +9,7 @@ reduction
 
 reduction.s00_table
 ----------------------------------------
-.. automodule:: pacman.reduction.s00_table
+.. automodule:: reduction.s00_table
     :members:
     :undoc-members:
     :show-inheritance:
@@ -37,7 +37,7 @@ reduction.s03_refspectra
 
 reduction.s10_direct_images
 -------------------------------------------
-.. automodule:: pacman.reduction.s10_direct_images
+.. automodule:: reduction.s10_direct_images
     :members:
     :undoc-members:
     :show-inheritance:
