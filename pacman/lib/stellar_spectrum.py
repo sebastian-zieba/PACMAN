@@ -130,12 +130,31 @@ def get_sm(meta, user_met, user_logg, user_teff):
     met_url = label + l0 + l1 #e.g., ckp05
     full_url = rooturl + sm + '/' + met_url
 
-    sm_dir = meta.ancildir + '/stellar_models/{0}/'.format(sm)
-    if not os.path.exists(sm_dir):
-        os.mkdir(sm_dir)
+    sm_dir_run = meta.workdir + 'ancil/stellar_models/'
+    if not os.path.exists(sm_dir_run):
+        os.mkdir(sm_dir_run)
+
+    if sm =='k93models':
+        sm_dir_run = meta.workdir + 'ancil/stellar_models/{0}/'.format(sm)
+        if not os.path.exists(sm_dir_run):
+            os.mkdir(sm_dir_run)
+
+    if sm == 'ck04models':
+        sm_dir_run = meta.workdir + 'ancil/stellar_models/{0}/'.format(sm)
+        if not os.path.exists(sm_dir_run):
+            os.mkdir(sm_dir_run)
+
+    if sm == 'phoenix':
+        sm_dir_run = meta.workdir + 'ancil/stellar_models/{0}/'.format(sm)
+        if not os.path.exists(sm_dir_run):
+            os.mkdir(sm_dir_run)
+
+    sm_dir_pkg = meta.pacmandir + '/ancil/stellar_models/{0}/'.format(sm)
+    if not os.path.exists(sm_dir_pkg):
+        os.mkdir(sm_dir_pkg)
 
     # check if a list of all downloadable files exists. If not create it.
-    file_list_path = sm_dir + '/file_list.txt'
+    file_list_path = sm_dir_pkg + '/file_list.txt'
     if not os.path.exists(file_list_path):
         #inspired by code in:
         # https://stackoverflow.com/questions/40543200/want-to-get-all-links-in-a-webpage-using-urllib-request
@@ -183,12 +202,14 @@ def get_sm(meta, user_met, user_logg, user_teff):
     filename = met_url + '_' + '{0}'.format(int(chosen_teff)) + '.fits'
     full_url = full_url + '/' + filename
 
-    if not os.path.exists(sm_dir + filename):
+    # If the file wasnt downloaded yet, download it. Then move it into meta.workdir + 'ancil/stellar_models/{0}/'.format(sm)
+    filepath = sm_dir_run + filename
+    if not os.path.exists(filepath):
+        print(os.path.exists(filepath))
         downloader(full_url)
-        os.rename(filename, sm_dir + filename)
+        os.rename(filename, filepath)
 
     # the files contains all available log g for a specific metallicity and temperature
-    filepath = sm_dir + filename
     hdul = fits.open(filepath)
     cols = hdul[1].data.names
 

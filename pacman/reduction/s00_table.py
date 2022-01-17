@@ -79,10 +79,10 @@ def run00(eventlabel):
     meta = MetaClass()
     meta.eventlabel = eventlabel
 
-    #this file is saved in /wfc3-pipeline/wfc3_reduction/reduction/s00_table.py
-    #topdir is just the path of the directory /wfc3-pipeline/
-    meta.topdir = '/'.join(os.path.realpath(__file__).split('/')[:-3])
-    meta.ancildir = meta.topdir + '/wfc3_reduction/ancil/'
+    #this file is saved in /pacman/reduction/s00_table.py
+    #topdir is just the path of the directory /pacman/
+    meta.pacmandir = '/'.join(os.path.realpath(__file__).split('/')[:-2]) + '/'
+    print(meta.pacmandir)
 
     # Create directories for Stage 3 processing
     datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
@@ -110,14 +110,14 @@ def run00(eventlabel):
     # A file called "filelist.txt" should include all _ima.fits file names and if they are a spec or di
     times = np.zeros(len(files))
     exp = np.zeros(len(files))
-    filter = np.zeros(len(files), dtype=object)
+    filter = np.zeros(len(files), object)
     scans = np.zeros(len(files), dtype=int) #stores scan directions
 
     # Will create a table with the properties of all _ima.fits files at the first run
     for i, file in enumerate(tqdm(files, desc='Reading in files and their header information')):
         ima = fits.open(file)
         #the header "filter" tells us if the observation used a Filter (-> Direct Image) or a Grism (-> Spectrum)
-        filter[i] = str(ima[0].header['filter'])
+        filter[i] = ima[0].header['filter']
         exp[i] = ima[0].header['exptime']
         times[i] = (ima[0].header['expstart'] + ima[0].header['expend'])/(2.0)#ima[0].header['expstart']
         #scan direction
@@ -132,6 +132,7 @@ def run00(eventlabel):
     times = times[tsort]
     exp = exp[tsort]
     filter = filter[tsort]
+    filter = np.array([str(iii) for iii in filter])
     scans = scans[tsort]
 
     # Identify orbits and visits
@@ -184,7 +185,7 @@ def run00(eventlabel):
     table = QTable([files, filter, ivisits, iorbits, times, tvs, tos, scans, exp],
                names=('filenames', 'filter/grism', 'ivisit', 'iorbit', 't_mjd', 't_visit', 't_orbit',
                       'scan', 'exp'))# scan: (0: forward - lower flux, 1: reverse - higher flux, -1: postarg2=0)
-    ascii.write(table, meta.workdir + '/filelist.txt', format='ecsv', overwrite=True)
+    ascii.write(table, meta.workdir + '/filelist.txt', format='rst', overwrite=True)
 
     #TODO: make filelist.txt easier readable. more separation between columns
 

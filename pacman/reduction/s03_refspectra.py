@@ -1,15 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
-#import pysynphot as S
 from ..lib import manageevent as me
-# https://pysynphot.readthedocs.io/en/latest/bandpass.html#observation-mode
-# https://pysynphot.readthedocs.io/en/latest/appendixb.html#wfc3
-# https://pysynphot.readthedocs.io/en/latest/appendixb.html#mjd
 import os
-from astropy.io import ascii
 from scipy.interpolate import interp1d
 from ..lib import plots
-from tqdm import tqdm
 from ..lib import stellar_spectrum
 
 
@@ -115,14 +109,14 @@ def run03(eventlabel, workdir, meta=None):
     elif meta.grism == 'G102':
         grism = 'g102'
 
-    bp_wvl, bp_val = np.loadtxt(meta.ancildir + '/bandpass/bandpass_{0}.txt'.format(grism)).T
+    bp_wvl, bp_val = np.loadtxt(meta.pacmandir + '/ancil/bandpass/bandpass_{0}.txt'.format(grism)).T
 
     # if meta.save_bandpass_plot or meta.show_bandpass_plot:
     #    plots.bandpass(bp_wvl, bp_val, grism, 0, meta)
 
     ### Stellar Spectrum
     Teff, logg, MH = meta.Teff, meta.logg, meta.MH
-    meta.sm='ck04models'
+    meta.sm = 'ck04models'
     print(meta.sm)
     print(meta.sm in ['k93models', 'ck04models', 'phoenix'])
     if meta.sm in ['k93models', 'ck04models', 'phoenix']:
@@ -140,13 +134,17 @@ def run03(eventlabel, workdir, meta=None):
     sm_flux = sm_flux #* sm_wvl  # in order to convert from W/m^3/sr units to W/m^2/sr
     sm_flux = sm_flux / max(sm_flux)
 
+    meta.refspecdir = meta.workdir + '/ancil/refspec/'
+    if not os.path.exists(meta.refspecdir):
+        os.mkdir(meta.refspecdir)
+
     plt.plot(bp_wvl*1e6, bp_val)
     plt.xlim(0.6, 1.7)
-    plt.savefig(meta.workdir + '/ancil/bandpass/bandpass.png')
+    plt.savefig(meta.refspecdir + '/bandpass.png')
     plt.close()
     plt.plot(sm_wvl*1e6, sm_flux)
     plt.xlim(0.6, 1.7)
-    plt.savefig(meta.workdir + '/ancil/bandpass/sm.png')
+    plt.savefig(meta.refspecdir + '/sm.png')
     plt.close()
 
     sm_wvl_binned, sm_flux_binned = binning(sm_wvl, sm_flux, bp_wvl)
@@ -170,36 +168,11 @@ def run03(eventlabel, workdir, meta=None):
     flux_ref = f(bp_wvl[1:-1]) * bp_val[1:-1]
     flux_ref = flux_ref / max(flux_ref)
 
-    if not os.path.exists(meta.workdir + '/ancil/bandpass/'):
-        os.mkdir(meta.workdir + '/ancil/bandpass/')
-    np.savetxt(meta.workdir + '/ancil/bandpass/refspec.txt', list(zip(wvl_ref, flux_ref)))
+    np.savetxt(meta.refspecdir + '/refspec.txt', list(zip(wvl_ref, flux_ref)))
 
     if meta.save_refspec_plot or meta.show_refspec_plot:
         plots.refspec(bp_wvl, bp_val, sm_wvl, sm_flux, wvl_ref, flux_ref, meta)
 
-    #
-    # # Generate Stellar spectrum
-    # stellar_spectrum = S.Icat(sm, Teff, MH, logg)
-    # wvl = stellar_spectrum.wave/1e4 #microns
-    # flux = stellar_spectrum.flux*1e7/(np.pi)*wvl
-    # flux = flux/max(flux)
-    #
-    # x = wvl
-    # y = flux
-    # f = interp1d(x, y, kind='cubic')
-    #
-    #
-    # # Muliply stellar spectrum and bandpass
-    # for vi in tqdm(np.unique(ivisit), desc='Multiply Bandpass with Stellar Spectrum for every visit'):
-    #     throughput = np.loadtxt(meta.workdir + '/ancil/bandpass/bandpass_v{0}.txt'.format(vi)).T
-    #     wvl_g = throughput[0]/1e4 #microns
-    #     flux_g = throughput[1]
-    #     np.savetxt(meta.workdir + '/ancil/bandpass/refspec_v{0}.txt'.format(vi), list(zip(wvl_g, f(wvl_g)*flux_g)))
-    #
-    #     if meta.save_refspec_plot or meta.show_refspec_plot:
-    #         plots.refspec(x, y, wvl_g, flux_g, f, vi, meta)
-    #
-    #
     # Save results
     print('Saving Metadata')
     me.saveevent(meta, meta.workdir + '/WFC3_' + meta.eventlabel + "_Meta_Save", save=[])

@@ -100,7 +100,7 @@ def refspec(bp_wvl, bp_val, sm_wvl, sm_flux, wvl_ref, flux_ref, meta):
     plt.legend(loc=4)
     plt.tight_layout()
     if meta.save_refspec_plot:
-        plt.savefig(meta.workdir + '/ancil/bandpass/refspec.png')
+        plt.savefig(meta.refspecdir + '/refspec.png')
         plt.close('all')
     else:
         plt.show()

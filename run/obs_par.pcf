@@ -1,5 +1,6 @@
 # 00
-path            /home/zieba/Desktop/Data/KELT11_Hubble15926
+rundir          /home/zieba/Desktop/Projects/Open_source/PACMAN/run
+datadir         /home/zieba/Desktop/Data/KELT11_Hubble15926
 suffix          ima
 which_visits    [0]
 

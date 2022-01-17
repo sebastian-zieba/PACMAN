@@ -13,7 +13,7 @@ from astropy.io import ascii
 #s00
 def readfiles(meta):
     """
-    Reads in the files saved in topdir + datadir and saves them into a list
+    Reads in the files saved in datadir and saves them into a list
 
     Parameters
     -----------
@@ -31,9 +31,9 @@ def readfiles(meta):
 
     """
     meta.segment_list = []
-    for fname in os.listdir(str(meta.path)):
+    for fname in os.listdir(str(meta.datadir)):
         if fname.endswith(meta.suffix + '.fits'):
-            meta.segment_list.append(str(meta.path) +'/'+ fname)
+            meta.segment_list.append(str(meta.datadir) +'/'+ fname)
     return meta
 
 
@@ -82,8 +82,8 @@ def ancil(meta, s10=False, s20=False):
 
     meta.mask_sp = np.array([i[0] for i in filelist['filter/grism']]) == 'G'
     meta.mask_di = np.array([i[0] for i in filelist['filter/grism']]) == 'F'
-    meta.files_sp = [meta.path + '/' + i for i in filelist['filenames'][meta.mask_sp].data]
-    meta.files_di = [meta.path + '/' + i for i in filelist['filenames'][meta.mask_di].data]
+    meta.files_sp = [meta.datadir + '/' + i for i in filelist['filenames'][meta.mask_sp].data]
+    meta.files_di = [meta.datadir + '/' + i for i in filelist['filenames'][meta.mask_di].data]
 
     f = fits.open(meta.files_sp[0])
 

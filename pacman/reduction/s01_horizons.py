@@ -4,10 +4,12 @@
 
 import os
 import numpy as np
-import urllib.request
+#import urllib.request
 from astropy.io import ascii
 from tqdm import tqdm
 from ..lib import manageevent as me
+from urllib.request import urlopen
+from shutil import copyfileobj
 
 
 def run01(eventlabel, workdir, meta=None):
@@ -98,14 +100,10 @@ def run01(eventlabel, workdir, meta=None):
 
         settings_new = settings + '&' + set_start + '&' + set_end
 
-        # t_start = Time(t_start, format='jd', scale='utc')
-        # t_end = Time(t_end, format='jd', scale='utc')
-        # print(t_start.isot)
+        filename = meta.workdir + '/ancil/horizons' + '/horizons_results_v{0}.txt'.format(i)
 
-        # os.system('perl ./util/horizons.pl JD{0} JD{1} > ./ancil/bjd_conversion/horizons_results_v{2}.txt'.format(t_start, t_end, i))
-
-        urllib.request.urlretrieve(settings_new,
-                                   meta.workdir + '/ancil/horizons' + '/horizons_results_v{0}.txt'.format(i))
+        with urlopen(settings_new) as in_stream, open(filename, 'wb') as out_file:
+            copyfileobj(in_stream, out_file)
 
     # Save results
     print('Saving Metadata')

@@ -1,8 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pysynphot as S 
-#https://pysynphot.readthedocs.io/en/latest/bandpass.html#observation-mode
-#https://pysynphot.readthedocs.io/en/latest/appendixb.html#wfc3
+# https://pysynphot.readthedocs.io/en/latest/bandpass.html#observation-mode
+# https://pysynphot.readthedocs.io/en/latest/appendixb.html#wfc3
+# https://pysynphot.readthedocs.io/en/latest/appendixb.html#mjd
 import os
 from astropy.io import ascii
 from tqdm import tqdm
