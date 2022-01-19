@@ -82,9 +82,10 @@ def get_sm(meta, user_met, user_logg, user_teff):
     flux: numpy array
         stellar flux in units of W/sr/m^3
 
-	History
-	-------
-	Written by Sebastian Zieba      December 2021
+    Notes:
+    ----------
+    History:
+        Written by Sebastian Zieba      December 2021
     """
     rooturl = 'https://archive.stsci.edu/hlsps/reference-atlases/cdbs/grid/'
     sm = meta.sm

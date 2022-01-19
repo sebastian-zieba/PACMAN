@@ -4,13 +4,11 @@
 
 import os
 import numpy as np
-#import urllib.request
 from astropy.io import ascii
 from tqdm import tqdm
-from ..lib import manageevent as me
 from urllib.request import urlopen
 from shutil import copyfileobj
-
+from ..lib import manageevent as me
 
 def run01(eventlabel, workdir, meta=None):
     """
@@ -36,12 +34,15 @@ def run01(eventlabel, workdir, meta=None):
     Returns
     -------
     meta
-       meta object with all the meta data stored in s01
+       meta object with all the meta data stored in s00
 
-    History
-    -------
-    Written by Sebastian Zieba      December 2021
+    Notes:
+    ----------
+    History:
+        Written by Sebastian Zieba      December 2021
     """
+
+    print('Starting s01')
 
     if meta == None:
         meta = me.loadevent(workdir + '/WFC3_' + eventlabel + "_Meta_Save")

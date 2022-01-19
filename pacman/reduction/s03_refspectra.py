@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import numpy as np
 from ..lib import manageevent as me
 import os
@@ -94,12 +93,15 @@ def run03(eventlabel, workdir, meta=None):
 	Returns
 	-------
 	meta
-	   meta object with all the meta data stored in s01
+	   meta object with all the meta data stored in s02
 
-	History
-	-------
-	Written by Sebastian Zieba      December 2021
+    Notes:
+    ----------
+    History:
+        Written by Sebastian Zieba      December 2021
     """
+
+    print('Starting s03')
 
     if meta == None:
         meta = me.loadevent(workdir + '/WFC3_' + eventlabel + "_Meta_Save")
@@ -137,15 +139,6 @@ def run03(eventlabel, workdir, meta=None):
     meta.refspecdir = meta.workdir + '/ancil/refspec/'
     if not os.path.exists(meta.refspecdir):
         os.mkdir(meta.refspecdir)
-
-    plt.plot(bp_wvl*1e6, bp_val)
-    plt.xlim(0.6, 1.7)
-    plt.savefig(meta.refspecdir + '/bandpass.png')
-    plt.close()
-    plt.plot(sm_wvl*1e6, sm_flux)
-    plt.xlim(0.6, 1.7)
-    plt.savefig(meta.refspecdir + '/sm.png')
-    plt.close()
 
     sm_wvl_binned, sm_flux_binned = binning(sm_wvl, sm_flux, bp_wvl)
 

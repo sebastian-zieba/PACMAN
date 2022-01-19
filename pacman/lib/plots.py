@@ -37,9 +37,10 @@ def barycorr(x,y,z,time, obsx, obsy, obsz, coordtable, meta):
     ----------
     Saves and/or Shows a plot
 
-    Revisions
+    Notes:
     ----------
-    Written by Sebastian Zieba      December 2021
+    History:
+        Written by Sebastian Zieba      December 2021
     """
     plt.rcParams["figure.figsize"] = (8, 6)
     fig = plt.figure(1001)

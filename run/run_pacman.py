@@ -11,11 +11,11 @@ import pacman.reduction.s30_run as s30
 from pacman.lib.update_meta import update_meta
 from pacman.lib import sort_nicely as sn
 
-run_s00 = False     # read in fits files and create filelist.txt
-run_s01 = False     # download positions of HST during observations
-run_s02 = False     # correct the MJD to BJD using the positions of HST
+run_s00 = True     # read in fits files and create filelist.txt
+run_s01 = True     # download positions of HST during observations
+run_s02 = True     # correct the MJD to BJD using the positions of HST
 run_s03 = True      # download the stellar spectrum and create a reference spectrum with the bandpass of the grism
-run_s10 = False     # determine the position of the source by looking at the direct image
+run_s10 = True     # determine the position of the source by looking at the direct image
 run_s20 = False     # extract the spectra
 run_s30 = False     # fit models to the extracted light curve(s)
 
@@ -26,16 +26,12 @@ if run_s00:
     meta = s00.run00(eventlabel)
     runs = [i for i in os.listdir('.') if os.path.isdir(i)]
     runs = sn.sort_nicely(runs)
-    print(runs)
     workdir = runs[-1] + '/'
-    print(workdir)
 
 if not run_s00:
     runs = [i for i in os.listdir('.') if os.path.isdir(i)]
     runs = sn.sort_nicely(runs)
-    print(runs)
     workdir = runs[-1] + '/'
-    print(workdir)
 
 if run_s01:
     update_meta(eventlabel, workdir)

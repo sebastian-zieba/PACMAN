@@ -30,10 +30,13 @@ def run02(eventlabel, workdir, meta=None):
 	meta
 		meta object with all the meta data stored in s01
 
-	History
-	-------
-	Written by Sebastian Zieba      December 2021
+    Notes:
+    ----------
+    History:
+        Written by Sebastian Zieba      December 2021
 	"""
+
+    print('Starting s02')
 
     if meta == None:
         meta = me.loadevent(workdir + '/WFC3_' + eventlabel + "_Meta_Save")

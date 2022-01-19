@@ -16,6 +16,9 @@ def run10(eventlabel, workdir, meta=None):
 	Opens the direct images to determine the position of the star on the detector.
 	The positions are then saved in x and y physical pixel coordinates into a new txt file called xrefyref.txt.
 	"""
+
+	print('Starting s10')
+
 	if meta == None:
 		meta = me.loadevent(workdir + '/WFC3_' + eventlabel + "_Meta_Save")
 
@@ -50,11 +53,12 @@ def run10(eventlabel, workdir, meta=None):
 			plots.image(dat, ima, results, i, meta)
 
 		# save positions into a file
+		# TODO: convert this txt file to an astropy table
 		print(t_bjd[i], results[3]+meta.di_rmin-LTV1, results[2]+meta.di_cmin-LTV2, file=f)
 		#table.add_row([t_bjd[i], results[3]+meta.di_rmin-LTV1, results[2]+meta.di_cmin-LTV2, int(ivisit_di[i]), int(iorbit_di[i])])
 
 		ima.close()
-	#TODO Make iorbit and ivisit integers!
+
 	#ascii.write(table, meta.workdir + '/xrefyref.txt', format='ecsv', overwrite=True)
 	f.close()
 	# Save results

@@ -69,11 +69,14 @@ def run00(eventlabel):
       meta object with all the meta data stored in s00
 
 
-    Revisions
+    Notes:
     ----------
-    Written by Sebastian Zieba      December 2021
+    History:
+        Written by Sebastian Zieba      December 2021
 
     """
+
+    print('Starting s00')
 
     # Initialize metadata object
     meta = MetaClass()
@@ -82,7 +85,6 @@ def run00(eventlabel):
     #this file is saved in /pacman/reduction/s00_table.py
     #topdir is just the path of the directory /pacman/
     meta.pacmandir = '/'.join(os.path.realpath(__file__).split('/')[:-2]) + '/'
-    print(meta.pacmandir)
 
     # Create directories for Stage 3 processing
     datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
@@ -121,9 +123,10 @@ def run00(eventlabel):
         exp[i] = ima[0].header['exptime']
         times[i] = (ima[0].header['expstart'] + ima[0].header['expend'])/(2.0)#ima[0].header['expstart']
         #scan direction
+        # scan: (0: forward - lower flux, 1: reverse - higher flux, -1: Filter)
         scans[i] = 0  # sets scan direction
         if ima[0].header['postarg2'] < 0: scans[i] = 1
-        elif ima[0].header['postarg2'] == 0: scans[i]= -1
+        elif filter[i][0] == 'F': scans[i]= -1
         ima.close()
 
     # files are chronologically sorted
@@ -144,9 +147,9 @@ def run00(eventlabel):
     tvs = np.zeros(len(times)) #time since begin of visit
     iorbit_begin = 0 #index of first exposure in orbit
     ivisit_begin = 0 #index of first exposure in visit
-
     times_diff = np.insert(np.diff(times), 0, 0)
 
+    #TODO: Q: Are there visits with a break of an orbit in between?
     for i, itime in enumerate(tqdm(times, desc='Determining Orbit and Visit')):
         # if two exposures arent in the same orbit and more than an orbital period apart -> not subsequent orbits but a new visit
         if times_diff[i] * 24 * 60 > 100:
@@ -164,17 +167,21 @@ def run00(eventlabel):
         tos[i] = (itime - times[iorbit_begin]) * 24 * 60  # time since first exposure in orbit
         tvs[i] = (itime - times[ivisit_begin]) * 24 * 60  # time since first exposure in visit
 
+
+    # TODO: Q: Keep this functionality?
+    # TODO: add possibility to enter 'all' instead a list of visit numbers
     # Only save information of the visits of interest
-    mask_visit = [any(tup) for tup in zip(*[ivisits == i for i in meta.which_visits])]
-    files = files[mask_visit]
-    filter = filter[mask_visit]
-    ivisits = ivisits[mask_visit]
-    iorbits = iorbits[mask_visit]
-    times = times[mask_visit]
-    tvs = tvs[mask_visit]
-    tos = tos[mask_visit]
-    scans = scans[mask_visit]
-    exp = exp[mask_visit]
+    if meta.which_visits != 'all':
+        mask_visit = [any(tup) for tup in zip(*[ivisits == i for i in meta.which_visits])]
+        files = files[mask_visit]
+        filter = filter[mask_visit]
+        ivisits = ivisits[mask_visit]
+        iorbits = iorbits[mask_visit]
+        times = times[mask_visit]
+        tvs = tvs[mask_visit]
+        tos = tos[mask_visit]
+        scans = scans[mask_visit]
+        exp = exp[mask_visit]
 
     # changing the numberation of the visits:
     # eg: which_visits = [0,2,5,6]
@@ -186,8 +193,6 @@ def run00(eventlabel):
                names=('filenames', 'filter/grism', 'ivisit', 'iorbit', 't_mjd', 't_visit', 't_orbit',
                       'scan', 'exp'))# scan: (0: forward - lower flux, 1: reverse - higher flux, -1: postarg2=0)
     ascii.write(table, meta.workdir + '/filelist.txt', format='rst', overwrite=True)
-
-    #TODO: make filelist.txt easier readable. more separation between columns
 
     # Save results
     print('Saving Metadata')

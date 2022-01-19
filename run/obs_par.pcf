@@ -1,33 +1,33 @@
 # 00
-rundir          /home/zieba/Desktop/Projects/Open_source/PACMAN/run
-datadir         /home/zieba/Desktop/Data/KELT11_Hubble15926
-suffix          ima
-which_visits    [0]
+rundir                                /home/zieba/Desktop/Projects/Open_source/PACMAN/run      #location of run dir
+datadir                               /home/zieba/Desktop/Data/GJ1214_Hubble13021              #location of data dir
+suffix                                ima                                                      #data suffix
+which_visits                          all                                                      #which visits to use
 
 
 ## 02 barycorr
-save_barycorr_plot                   True
+save_barycorr_plot                   True                                                      #save a plot with locations of HST?
 show_barycorr_plot                   False
 
 
 ## 03
-Teff  3412
-logg     4.94
-MH   -0.5
-sm   phoenix #kurutz
-save_bandpass_plot                   True
-show_bandpass_plot                   False
-save_refspec_plot                    True
-show_refspec_plot                    False
+Teff                                  3412
+logg                                  4.94
+MH                                    -0.5
+sm                                    phoenix
+save_bandpass_plot                    True
+show_bandpass_plot                    False
+save_refspec_plot                     True
+show_refspec_plot                     False
 
 
 ## 10
-di_rmin  270 #130 #270 #130 #
-di_rmax  290 #160 #285 #155 #
-di_cmin  245 #15 #245 #125 #
-di_cmax  265 #35 #260 #150 #
-save_image_plot     True
-show_image_plot     False
+di_rmin                               270
+di_rmax                               290
+di_cmin                               245
+di_cmax                               265
+save_image_plot                       True
+show_image_plot                       False
 
 
 ## 20
