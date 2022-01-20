@@ -1,5 +1,5 @@
 ---
-title: '`PACMAN`: An HST Pipeline for Atmospheric Characterization... MADE AVAILABLE NOW'
+title: '`PACMAN`: A pipeline to reduce and analyze Hubble Wide Field Camera 3 IF Grism data'
 tags:
   - HST
   - python
