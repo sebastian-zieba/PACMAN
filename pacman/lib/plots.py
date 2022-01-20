@@ -94,14 +94,16 @@ def refspec(bp_wvl, bp_val, sm_wvl, sm_flux, wvl_ref, flux_ref, meta):
     plt.figure(1003)
     plt.clf()
     plt.plot(bp_wvl, bp_val, label='bandpass')
-    plt.plot(sm_wvl, sm_flux, label='stellar spectrum')
+    plt.plot(sm_wvl, sm_flux, label='stellar spectrum ({0})'.format(meta.sm))
     plt.plot(wvl_ref, flux_ref, label='stellar spectrum * bandpass')
     plt.xscale('log')
     plt.xlim(0.7*1e-6, 2*1e-6)
+    plt.xlabel('wavelength (m)')
+    plt.ylabel('norm. intensity')
     plt.legend(loc=4)
     plt.tight_layout()
     if meta.save_refspec_plot:
-        plt.savefig(meta.refspecdir + '/refspec.png')
+        plt.savefig(meta.refspecdir + '/refspec.png', dpi=200)
         plt.close('all')
     else:
         plt.show()

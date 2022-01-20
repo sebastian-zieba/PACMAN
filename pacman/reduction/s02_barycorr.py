@@ -63,7 +63,7 @@ def run02(eventlabel, workdir, meta=None):
     # phase = (time - ancil.t0) / ancil.period - math.floor((time - ancil.t0) / ancil.period)
     # if phase > 0.5: phase = phase - 1.0
 
-    print('Writing t_bjd into ./filelist.txt')
+    print('Writing t_bjd into filelist.txt')
     if not any(np.array(filelist.keys()) == 't_bjd'):
         filelist.add_column(Column(data=t_bjd, name='t_bjd'))
         ascii.write(filelist, filelist_path, format='ecsv', overwrite=True)

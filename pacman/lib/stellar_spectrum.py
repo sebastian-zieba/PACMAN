@@ -205,8 +205,8 @@ def get_sm(meta, user_met, user_logg, user_teff):
 
     # If the file wasnt downloaded yet, download it. Then move it into meta.workdir + 'ancil/stellar_models/{0}/'.format(sm)
     filepath = sm_dir_run + filename
+    print('Was the stellar model fits file already downloaded?:', os.path.exists(filepath), '\n')
     if not os.path.exists(filepath):
-        print(os.path.exists(filepath))
         downloader(full_url)
         os.rename(filename, filepath)
 

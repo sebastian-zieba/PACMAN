@@ -10,7 +10,7 @@ In the following, we look at the contents of the pcf.
 Stage 3
 --------
 
-.. include:: obs_par.pcf
+.. include:: media/obs_par.pcf
    :literal:
 
 ncpu

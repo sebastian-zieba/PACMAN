@@ -35,7 +35,7 @@ def run00(eventlabel):
     The information listed in filelist.txt are:
 
     * **filenames**: The name of the observational file (the file will end with .ima)
-    * **filter/grism**: The specific filter or grism used in this observation (taken from the header)
+    * **instr**: The specific filter or grism used in this observation (taken from the header)
     * **ivisit**: The visit number when the observation was taken (will be calculated in s00)
     * **iorbit**: The orbit number when the observation was taken (will be calculated in s00)
     * **t_mjd**: Mid exposure time (exposure start and end is taken from the header)
@@ -76,7 +76,7 @@ def run00(eventlabel):
 
     """
 
-    print('Starting s00')
+    print('\nStarting s00')
 
     # Initialize metadata object
     meta = MetaClass()
@@ -106,27 +106,27 @@ def run00(eventlabel):
     # Create list of file segments
     meta = util.readfiles(meta)
     num_data_files = len(meta.segment_list)
-    print(f'\nFound {num_data_files} data file(s) ending in {meta.suffix}.fits')
+    print(f'Found {num_data_files} data file(s) ending in {meta.suffix}.fits')
     files = meta.segment_list  # gets list of filenames in directory
 
     # A file called "filelist.txt" should include all _ima.fits file names and if they are a spec or di
     times = np.zeros(len(files))
     exp = np.zeros(len(files))
-    filter = np.zeros(len(files), object)
+    instr = np.zeros(len(files), object)
     scans = np.zeros(len(files), dtype=int) #stores scan directions
 
     # Will create a table with the properties of all _ima.fits files at the first run
     for i, file in enumerate(tqdm(files, desc='Reading in files and their header information')):
         ima = fits.open(file)
-        #the header "filter" tells us if the observation used a Filter (-> Direct Image) or a Grism (-> Spectrum)
-        filter[i] = ima[0].header['filter']
+        #the header "instr" tells us if the observation used a Filter (-> Direct Image) or a Grism (-> Spectrum)
+        instr[i] = ima[0].header['filter']
         exp[i] = ima[0].header['exptime']
         times[i] = (ima[0].header['expstart'] + ima[0].header['expend'])/(2.0)#ima[0].header['expstart']
         #scan direction
         # scan: (0: forward - lower flux, 1: reverse - higher flux, -1: Filter)
         scans[i] = 0  # sets scan direction
         if ima[0].header['postarg2'] < 0: scans[i] = 1
-        elif filter[i][0] == 'F': scans[i]= -1
+        if instr[i][0] == 'F': scans[i]= -1
         ima.close()
 
     # files are chronologically sorted
@@ -134,8 +134,8 @@ def run00(eventlabel):
     files = np.array([i.split('/')[-1] for i in files])[tsort]
     times = times[tsort]
     exp = exp[tsort]
-    filter = filter[tsort]
-    filter = np.array([str(iii) for iii in filter])
+    instr = instr[tsort]
+    instr = np.array([str(iii) for iii in instr])
     scans = scans[tsort]
 
     # Identify orbits and visits
@@ -169,12 +169,12 @@ def run00(eventlabel):
 
 
     # TODO: Q: Keep this functionality?
-    # TODO: add possibility to enter 'all' instead a list of visit numbers
     # Only save information of the visits of interest
-    if meta.which_visits != 'all':
+
+    if meta.which_visits != 'everything':
         mask_visit = [any(tup) for tup in zip(*[ivisits == i for i in meta.which_visits])]
         files = files[mask_visit]
-        filter = filter[mask_visit]
+        instr = instr[mask_visit]
         ivisits = ivisits[mask_visit]
         iorbits = iorbits[mask_visit]
         times = times[mask_visit]
@@ -182,15 +182,18 @@ def run00(eventlabel):
         tos = tos[mask_visit]
         scans = scans[mask_visit]
         exp = exp[mask_visit]
+        print('The user does not want to analyse every visit (which_visits != everything). '
+              'The amount of files analyzed therefore reduced from {0} to {1}.'.format(num_data_files, sum(mask_visit)))
+
 
     # changing the numberation of the visits:
     # eg: which_visits = [0,2,5,6]
     # convert ivisits = [0,0,0,0,2,2,2,5,5,5,6,6,6] into [0,0,0,1,1,1,2,2,2,3,3,3]
     ivisits = rankdata(ivisits, method='dense')-1
 
-    print('Writing table into ./filelist.txt')
-    table = QTable([files, filter, ivisits, iorbits, times, tvs, tos, scans, exp],
-               names=('filenames', 'filter/grism', 'ivisit', 'iorbit', 't_mjd', 't_visit', 't_orbit',
+    print('Writing table into filelist.txt')
+    table = QTable([files, instr, ivisits, iorbits, times, tvs, tos, scans, exp],
+               names=('filenames', 'instr', 'ivisit', 'iorbit', 't_mjd', 't_visit', 't_orbit',
                       'scan', 'exp'))# scan: (0: forward - lower flux, 1: reverse - higher flux, -1: postarg2=0)
     ascii.write(table, meta.workdir + '/filelist.txt', format='rst', overwrite=True)
 

@@ -80,8 +80,8 @@ def ancil(meta, s10=False, s20=False):
     bb = np.diff(aa)
     meta.norbit, meta.nvisit = len(np.insert(aa[1:][np.where(bb != 0)], 0, aa[0])), len(set(filelist['ivisit'].data))
 
-    meta.mask_sp = np.array([i[0] for i in filelist['filter/grism']]) == 'G'
-    meta.mask_di = np.array([i[0] for i in filelist['filter/grism']]) == 'F'
+    meta.mask_sp = np.array([i[0] for i in filelist['instr']]) == 'G'
+    meta.mask_di = np.array([i[0] for i in filelist['instr']]) == 'F'
     meta.files_sp = [meta.datadir + '/' + i for i in filelist['filenames'][meta.mask_sp].data]
     meta.files_di = [meta.datadir + '/' + i for i in filelist['filenames'][meta.mask_di].data]
 
@@ -96,9 +96,9 @@ def ancil(meta, s10=False, s20=False):
 
     ###
     # 03
-    # FIXME SZ Should make sure all visits use the same grism. Not only the very first observation
-    meta.filter = filelist['filter/grism'][meta.mask_di][0]
-    meta.grism = filelist['filter/grism'][meta.mask_sp][0]
+    # TODO: Q: Is it okay if I assume everything in datadir uses same Filter Grism pair?
+    meta.filter = filelist['instr'][meta.mask_di][0]
+    meta.grism = filelist['instr'][meta.mask_sp][0]
 
     meta.scans_sp = filelist['scan'][meta.mask_sp].data
     meta.iorbit_sp = filelist['iorbit'][meta.mask_sp].data

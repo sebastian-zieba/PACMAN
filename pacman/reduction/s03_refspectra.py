@@ -111,6 +111,8 @@ def run03(eventlabel, workdir, meta=None):
     elif meta.grism == 'G102':
         grism = 'g102'
 
+    print('Using {0} grism.'.format(grism))
+
     bp_wvl, bp_val = np.loadtxt(meta.pacmandir + '/ancil/bandpass/bandpass_{0}.txt'.format(grism)).T
 
     # if meta.save_bandpass_plot or meta.show_bandpass_plot:
@@ -118,9 +120,8 @@ def run03(eventlabel, workdir, meta=None):
 
     ### Stellar Spectrum
     Teff, logg, MH = meta.Teff, meta.logg, meta.MH
-    meta.sm = 'ck04models'
-    print(meta.sm)
-    print(meta.sm in ['k93models', 'ck04models', 'phoenix'])
+    print('Using {0} model.\n'.format(meta.sm))
+
     if meta.sm in ['k93models', 'ck04models', 'phoenix']:
         sm_wvl, sm_flux = stellar_spectrum.get_sm(meta, MH, logg, Teff)
     elif meta.sm == 'blackbody':
