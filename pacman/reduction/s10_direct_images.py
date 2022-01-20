@@ -46,6 +46,8 @@ def run10(eventlabel, workdir, meta=None):
 
 		plots.image_quick(ima, i, meta)
 
+		#TODO: CHECK IF BOX IS EVEN ON SILICON. OTHERWISE data AND err WILL BE EMPTY AND THE GAUSSFIT WILL TERMINATE THE STAGE.
+
 		# run the fitter
 		results = gaussfitter.gaussfit(dat, err)
 

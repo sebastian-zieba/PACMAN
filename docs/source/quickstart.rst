@@ -1,27 +1,7 @@
 .. _quickstart:
 
-Quickstart
+Run PACMAN
 ============
-
-1. Installation and requirements
--------------------------------------------
-
-See installation.rst
-
-
-2. Download data
--------------------------------------------
-
-ima files!
-
-
-3. Setup the PACMAN control file (.pcf)
--------------------------------------------
-
-See pcf.rst
-
-4. Run PACMAN
--------------------------------------------
 
 PACMAN is separated into different stages. Here a quick summary before we look into each of them ińto more detail by
 applying PACMAN on real observations:
@@ -51,37 +31,90 @@ Introduction
 Let's apply PACMAN on real observations of GJ1214. The planet was observed in HST GO13021 in 15 visits.
 Let's just look at the last two visits (so which_visits = [13,14]) for simplicity.
 
-Nomenclature:
+Directories
 :::::::::::::::::::::::::::::::::::::::::
-* run directory:
-/home/zieba/Desktop/Projects/Open_source/PACMAN/run
+* **run directory**:
 
-* work directory:
-/home/zieba/Desktop/Projects/Open_source/PACMAN/run/run_2022-01-19_16-46-19_GJ1214_Hubble13021
+Contents:
 
-* data directory:
-/home/zieba/Desktop/Data/GJ1214_Hubble13021
+ - run_pacman.py
+
+ - obs_par.pcf
+
+ - fit_par
+
+Example: ``/home/zieba/Desktop/Projects/Open_source/PACMAN/run``.
+
+    .. note:: | The pcf file in the run directory is ONLY used in Stage 00. It will be copied over to the work directory. The copied pcf file in the work directory will then be the pcf file for all following stages. The same is true for the fit_par.txt file. So, after running Stage 00, PACMAN does not care anymore about the changes made to the pcf file and the fit_par file in the run directory.
+
+* **work directory**:
+
+This directory will be created after running Stage 00.
+All the results of the following stages will be stored here.
+
+Example: ``/home/zieba/Desktop/Projects/Open_source/PACMAN/run/run_2022-01-19_16-46-19_GJ1214_Hubble13021``.
+It therefore has the following form:
+
+.. code-block:: python
+
+    datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
+    meta.workdir = 'run_' + datetime + '_' + meta.eventlabel
+
+* **data directory**:
+
+Example: ``/home/zieba/Desktop/Data/GJ1214_Hubble13021``.
+
+
+* **pipeline directory**:
+
+This is the heart of PACMAN containing all the code to run the different Stages.
+
+Example: ``/home/zieba/Desktop/Projects/Open_source/PACMAN/pacman``
+
+
+Download data
+:::::::::::::::::::::::::::::::::::::::::
+
+You can find and download HST observations on `MAST <https://mast.stsci.edu/search/hst/ui/#/>`_.
+Note that the website only allows you to mark a maximum of 100 observations to download.
+You can also download the files by using the `old HST MAST search tool <https://archive.stsci.edu/hst/search.php>`_ which does not have this limitation but might be retired soon.
+In this example we will analyse HST/G141 of GJ 1214 b taken in Program 13021.
+If you want to download the same data, enter Proposal ID = 13021 and click on search.
+You can now select files we want to download by ticking them off and then selecting "Download Data".
+PACMAN can currently just work with files with an ``ima`` extension, so you want to select these.
+``ima`` is an intermediate data product standing for calibrated intermediate IR multiaccum image.
+From the `WFC3 data handbook (Types of WFC3 Files) <https://hst-docs.stsci.edu/wfc3dhb/chapter-2-wfc3-data-structure/2-1-types-of-wfc3-files>`_: "For the IR detector, an intermediate MultiAccum (ima) file is the result after all calibrations are applied (dark subtraction, linearity correction, flat fielding, etc.) to all of the individual readouts of the IR exposure."
+Finally, move these fits files into a new directory. You will have to specify the location of this "data directory" then in the pcf file.
+
+Setup the PACMAN control file (.pcf)
+:::::::::::::::::::::::::::::::::::::::::
+
+See pcf.rst
+
 
 Stage 00
 :::::::::::::::::::::::::::::::::::::::::
 
 This step first creates a new directory for the analysis which will be used as the work directory ('workdir').
 It will be saved in the rundir and have a form like:
-/home/zieba/Desktop/Projects/Open_source/PACMAN/run/run_2022-01-19_16-46-19_GJ1214_Hubble13021
+``/home/zieba/Desktop/Projects/Open_source/PACMAN/run/run_2022-01-19_16-46-19_GJ1214_Hubble13021``
 
 The fit_par.txt and obs_par.pcf files will be copied there.
 After running Stage 00 you should get an output like this:
 
-| Starting s00
-| Found 1145 data file(s) ending in ima.fits
-| Reading in files and their header information: 100%|██████████| 1145/1145 [00:03<00:00, 368.21it/s]
-| Determining Orbit and Visit: 100%|██████████| 1145/1145 [00:00<00:00, 311606.42it/s]
-| The user does not want to analyse every visit (which_visits != everything). The amount of files analyzed therefore reduced from 1145 to 158.
-| Writing table into filelist.txt
-| Saving Metadata
-| Finished s00
 
-You will also end up with a new file called filelist.txt. It should look like this:
+.. code-block:: console
+
+	    Starting s00
+	    Found 1145 data file(s) ending in ima.fits
+	    Reading in files and their header information: 100%|██████████| 1145/1145 [00:03<00:00, 368.21it/s]
+	    Determining Orbit and Visit: 100%|██████████| 1145/1145 [00:00<00:00, 311606.42it/s]
+	    The user does not want to analyse every visit (which_visits != everything). The amount of files analyzed therefore reduced from 1145 to 158.
+	    Writing table into filelist.txt
+	    Saving Metadata
+	    Finished s00
+
+You will also end up with a new file called ``filelist.txt``. It should look like this:
 
 .. include:: media/filelist.txt
    :literal:
@@ -121,9 +154,9 @@ Next we download the locations of HST. This will be later used for the barycentr
 
     .. warning:: This step needs an internet connection!
 
-    .. note:: | At the beginning of every stage we read in again the pcf file located in the work directory (e.g. /home/zieba/Desktop/Projects/Open_source/PACMAN/run/run_2022-01-19_16-46-19_GJ1214_Hubble13021).
+    .. note:: | At the beginning of every stage we read in again the pcf file located in the work directory.
               | This ensures that any user-made changes to the pcf file will be considered when running a new stage.
-              | This means that the pcf file in the run directory (e.g., /home/zieba/Desktop/Projects/Open_source/PACMAN/run) is ONLY used in Stage 00. The same is true for the fit_par.txt file. So, after running Stage 00, PACMAN does not care anymore about the changes made to the pcf file and the fit_par file in the run directory.
+              | This means that the pcf file in the run directory is ONLY used in Stage 00. The same is true for the fit_par.txt file. So, after running Stage 00, PACMAN does not care anymore about the changes made to the pcf file and the fit_par file in the run directory.
 
 After running Stage 01 you should get an output like this:
 
@@ -168,22 +201,34 @@ Here we show the plot generated for the second of the two visits:
 
 The axis are the distance of HST to the Solar System Barycenter in kilometers.
 Horizons start and Horizons end show where our Horizon file starts and ends containing X,Y,Z information.
-The black crosses in the plot show the times when HST actually observed. One can see that HST observed 4 orbits in this particular visit (which agrees with the filetable.txt from Stage 00).
+The black crosses in the plot show the times when HST actually observed. One can see that HST observed 4 orbits in this particular visit (which agrees with the ``filetable.txt`` from Stage 00).
 One can also see the colored curve is a bit wiggley. This is in fact the rotation of HST around the earth.
 The colored curve consists out of a lot of points. Every one of them are a X,Y,Z position of HST downloaded from HORIZONS. The color coding denotes the time direction.
+
+The ``filetable.txt`` has be updated by the end of this stage and contains a new column called ``t_bjd`` with the time of observations in BJD.
+E.g. (only showing the first few lines):
+
+.. include:: media/filelist_updated.txt
+   :literal:
 
 Stage 03
 :::::::::::::::::::::::::::::::::::::::::
 
-This Stage starts by downloading a stellar model.
+This Stage starts by downloading a stellar model or calculating one in case of the black body spectrum.
 
     .. note:: | PACMAN currently offers the following stellar models:
-              | - THE 1993 KURUCZ STELLAR ATMOSPHERES ATLAS (k93models)
-              | - THE STELLAR ATMOSPHERE MODELS BY CASTELLI AND KURUCZ 2004 (ck04models)
-              | - THE PHOENIX MODELS BY FRANCE ALLARD AND COLLABORATORS (phoenix)
-              | - blackbody spectrum
+              | - THE 1993 KURUCZ STELLAR ATMOSPHERES ATLAS (``k93models``)
+              | - THE STELLAR ATMOSPHERE MODELS BY CASTELLI AND KURUCZ 2004 (``ck04models``)
+              | - THE PHOENIX MODELS BY FRANCE ALLARD AND COLLABORATORS (``phoenix``)
+              | - ``blackbody`` spectrum
               | The stellar models (exluding the blackbody one) are retrieved from https://archive.stsci.edu/hlsps/reference-atlases/cdbs/grid/
 
+    .. warning:: If the user decides on any stellar model which has to be downloaded (``k93models``, ``ck04models`` or ``phoenix``), then internet connection is required! The blackbody model does not require a connection however.
+
+The user sets Teff, logg and MH in the pcf file. For ``k93models``, ``ck04models`` and ``phoenix`` the closest available metallicity, then the closest available effective temperature and finally the closest available surface gravity is searched and then used.
+To see the workflow see the code block below.
+
+Let's look at an example for GJ 1214:
 We use the stellar parameters published in `Cloutier et al. 2021 <https://ui.adsabs.harvard.edu/abs/2021AJ....162..174C/abstract>`_.
 
 | Teff   =  3250
@@ -247,6 +292,67 @@ We use the stellar parameters published in `Cloutier et al. 2021 <https://ui.ads
 	    Saving Metadata
 	    Finished s03
 
+.. note::
+
+	The stellar models will be saved into the run directory. E.g., ``/home/zieba/Desktop/Projects/Open_source/PACMAN/run/run_2022-01-19_19-06-02_GJ1214_Hubble13021/ancil/stellar_models/phoenix/phoenixm05_3400.fits``.
+	If the file already exists then it will not be downloaded again.
+
+
+After downloading or calculating the stellar spectrum, it gets multiplied with the bandpass (if the observations used G102 or G141 is recognized automatically).
+The bandpass files are stored in the pipeline directory (e.g., ``/home/zieba/Desktop/Projects/Open_source/PACMAN/pacman/ancil/bandpass``).
+The final plot of this Stage shows the stellar spectrum, the bandpass and the product of these two. This product will be then used as the reference spectrum for wavelength calibration.
 
 .. image:: media/refspec.png
+
+
+
+Stage 10
+:::::::::::::::::::::::::::::::::::::::::
+
+This stage determines the position of the star in each direct image.
+
+Let's look at an example using the two GJ1214 visits from earlier:
+
+You can run Stage 10 first without giving any guess on where the star is located.
+This will save a plot showing you the direct image which you can then use to refine your guess.
+
+First run
+''''''''''''''''''''''''
+
+In this first run I did not change the settings in the pcf file from a previous analysis of a different dataset:
+
+| di_rmin                      90
+| di_rmax                      120
+| di_cmin                      220
+| di_cmax                      250
+
+You will end up with a plot like this:
+
+.. image:: media/quick_di0_wrong.png
+
+
+Second run
+''''''''''''''''''''''''
+
+| di_rmin                      120
+| di_rmax                      160
+| di_cmin                      5
+| di_cmax                      50
+
+
+.. image:: media/quick_di0.png
+.. image:: media/di_0.png
+
+
+.. code-block:: console
+
+	    Successfully reloaded meta file
+	    Starting s10
+	    Determining Source Positions for Direct Images: 100%|██████████| 8/8 [00:10<00:00,  1.37s/it]
+	    Saving Metadata
+	    Finished s10
+
+
+.. include:: media/xrefyref.txt
+   :literal:
 

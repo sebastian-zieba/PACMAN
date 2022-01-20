@@ -119,14 +119,14 @@ def image_quick(ima, i, meta):
     """
     plt.figure(10044)
     plt.clf()
-    fig, ax = plt.subplots(1,1, figsize=(4.5,5.3))
+    fig, ax = plt.subplots(1,1, figsize=(8,8))
 
     plt.rcParams['image.cmap'] = 'viridis'
 
     nrow = len(ima[1].data[:, 0])
     ncol = len(ima[1].data[0, :])
 
-    plt.suptitle("Direct image #{0}, visit #{1}, orbit #{2}".format(i, meta.ivisit_di[i], meta.iorbit_di[i]))
+    plt.suptitle("Direct image #{0}, visit #{1}, orbit #{2}".format(i, meta.ivisit_di[i], meta.iorbit_di[i]), y=0.92)
 
     ax.title.set_text('Full Direct Image')
     im = ax.imshow(ima[1].data * ima[0].header['exptime'], origin='lower', vmin=0, vmax=500)
@@ -135,7 +135,7 @@ def image_quick(ima, i, meta):
     cmax = meta.di_cmax
     rmin = meta.di_rmin
     rmax = meta.di_rmax
-    ax.plot([cmin, cmin, cmax, cmax, cmin], [rmin, rmax, rmax, rmin, rmin], lw=1, c='r', alpha=0.85)
+    ax.plot([cmin, cmin, cmax, cmax, cmin], [rmin, rmax, rmax, rmin, rmin], lw=2, c='r', alpha=0.8)
 
     ax.set_xlabel('columns')
     ax.set_ylabel('rows')
@@ -153,7 +153,7 @@ def image_quick(ima, i, meta):
     if meta.save_image_plot:
         if not os.path.isdir(meta.workdir + '/figs/images/'):
             os.makedirs(meta.workdir + '/figs/images/')
-        plt.savefig(meta.workdir + '/figs/images/quick_di{0}.png'.format(i))
+        plt.savefig(meta.workdir + '/figs/images/quick_di{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=180)
         plt.close('all')
     else:
         plt.show()
@@ -167,14 +167,14 @@ def image(dat, ima, results, i, meta):
     """
     plt.figure(1004)
     plt.clf()
-    fig, ax = plt.subplots(1,2, figsize=(9,5.3))
+    fig, ax = plt.subplots(1,2, figsize=(10,6))
 
     plt.rcParams['image.cmap'] = 'viridis'
 
     nrow = len(ima[1].data[:, 0])
     ncol = len(ima[1].data[0, :])
 
-    plt.suptitle("Direct image #{0}, visit #{1}, orbit #{2}".format(i, meta.ivisit_di[i], meta.iorbit_di[i]))
+    plt.suptitle("Direct image #{0}, visit #{1}, orbit #{2}".format(i, meta.ivisit_di[i], meta.iorbit_di[i]), y=0.885)
 
     ax[0].title.set_text('Full Direct Image')
     ax[0].imshow(ima[1].data * ima[0].header['exptime'], origin='lower', vmin=0, vmax=500)
@@ -182,7 +182,7 @@ def image(dat, ima, results, i, meta):
     cmax = meta.di_cmax
     rmin = meta.di_rmin
     rmax = meta.di_rmax
-    ax[0].plot([cmin, cmin, cmax, cmax, cmin], [rmin, rmax, rmax, rmin, rmin], lw=1, c='r', alpha=0.85)
+    ax[0].plot([cmin, cmin, cmax, cmax, cmin], [rmin, rmax, rmax, rmin, rmin], lw=2, c='r', alpha=0.8)
     ax[0].set_xlabel('columns')
     ax[0].set_ylabel('rows')
 
@@ -207,7 +207,7 @@ def image(dat, ima, results, i, meta):
     if meta.save_image_plot:
         if not os.path.isdir(meta.workdir + '/figs/images/'):
             os.makedirs(meta.workdir + '/figs/images/')
-        plt.savefig(meta.workdir + '/figs/images/di_{0}.png'.format(i))
+        plt.savefig(meta.workdir + '/figs/images/di_{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
     else:
         plt.show()
