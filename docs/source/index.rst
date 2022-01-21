@@ -12,7 +12,7 @@ PACMAN is a pipeline to reduce and analyse HST data (G102 or G141).
 
 It takes 'ima' dataproducts created by STSci and outputs as a product a light curve. The user has then the possablility to fit various fuctions (transit, eclipse, visit long quadratic trends, orbital exponential trends, etc ...) to this light curve.
 
-THIS PIPELINE IS STILL UNDER HEAVY DEVELOPEMENT! 
+THIS PIPELINE IS STILL UNDER HEAVY DEVELOPMENT!!! Use at your own risk.
 
 .. toctree::
    :maxdepth: 2

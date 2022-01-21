@@ -42,6 +42,12 @@ reduction.s10_direct_images
     :undoc-members:
     :show-inheritance:
 
+reduction.s20_extract
+-------------------------------------------
+.. automodule:: pacman.reduction.s20_extract
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 lib
 """""""""""""""""""""""""""
@@ -67,13 +73,21 @@ lib.manageevent
     :undoc-members:
     :show-inheritance:
 
+
+
+lib.update_meta
+----------------------------------------
+.. automodule:: pacman.lib.update_meta
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 lib.suntimecorr
 ----------------------------------------
 .. automodule:: pacman.lib.suntimecorr
     :members:
     :undoc-members:
     :show-inheritance:
-
 
 lib.plots
 ----------------------------------------
@@ -82,12 +96,17 @@ lib.plots
     :undoc-members:
     :show-inheritance:
 
+
+
 lib.stellar_spectrum
 ----------------------------------------
 .. automodule:: pacman.lib.stellar_spectrum
     :members:
     :undoc-members:
     :show-inheritance:
+
+
+
 
 lib.gaussfitter
 ----------------------------------------
@@ -98,6 +117,20 @@ lib.gaussfitter
 
 
 
+
+lib.geometry
+----------------------------------------
+.. automodule:: pacman.lib.geometry
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+lib.geometry102
+----------------------------------------
+.. automodule:: pacman.lib.geometry102
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 
 

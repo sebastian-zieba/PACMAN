@@ -1,13 +1,8 @@
 import numpy as np
-#import pysynphot as S
 import os
 from urllib.request import urlopen
 import os.path
 from astropy.io import fits
-
-
-#user_met, user_logg, user_teff = 0.4, 4.6, 5600.0
-#sm = 'ck04models'
 
 
 def get_bb(user_teff):

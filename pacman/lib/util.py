@@ -1,16 +1,15 @@
 import numpy as np
 from astropy.io import ascii, fits
 import math
-import numpy as np
 from importlib import reload
 import multiprocessing as mp
 import os
 from tqdm import tqdm
 import numpy.ma as ma
-from astropy.io import ascii
 
 
 #s00
+
 def readfiles(meta):
     """
     Reads in the files saved in datadir and saves them into a list
@@ -25,9 +24,10 @@ def readfiles(meta):
     meta
         metadata object but adds segment_list to metadata containing the sorted data fits files
 
-    Revisions
+    Notes:
     ----------
-    Written by Sebastian Zieba      December 2021
+    History:
+        Written by Sebastian Zieba      December 2021
 
     """
     meta.segment_list = []
@@ -69,9 +69,10 @@ def ancil(meta, s10=False, s20=False):
     meta
         metadata object
 
-    Revisions
+    Notes:
     ----------
-    Written by Sebastian Zieba      December 2021
+    History:
+        Written by Sebastian Zieba      December 2021
     """
 
     filelist = ascii.read(meta.workdir + '/filelist.txt')
@@ -147,6 +148,11 @@ def ancil(meta, s10=False, s20=False):
             meta.t_bjd_di = filelist['t_bjd'][meta.mask_di].data
 
     if s20:
+        meta.rdnoise = 22.0 #read noise
+        if meta.grism == 'G102':
+            meta.flat = meta.pacmandir + '/ancil/flats/WFC3.IR.G102.flat.2.fits'
+        elif meta.grism == 'G141':
+            meta.flat = meta.pacmandir + '/ancil/flats/WFC3.IR.G141.flat.2.fits'
         meta.refpix = np.genfromtxt(meta.workdir + "/xrefyref.txt")
         # meta.refpix = ascii.read(meta.workdir + "/xrefyref.txt") # reads in reference pixels
         # # TODO Fix the possibility of two DIs in an orbit or only one DI per visit
@@ -164,8 +170,43 @@ def ancil(meta, s10=False, s20=False):
     return meta
 
 
+#s20
+
+def get_wave_grid(meta):
+
+    if meta.grism == 'G102':
+        from ..lib import geometry102 as geo
+    elif meta.grism == 'G141':
+        from ..lib import geometry141 as geo
+
+    wave_grid = np.empty((meta.norbit*meta.nvisit, meta.subarray_size, meta.subarray_size))
+
+    #calculates wavelength solution row by row for each orbit
+    for i in range(meta.norbit):
+        for j in range(meta.subarray_size):
+            disp_solution = geo.dispersion(meta.refpix[i,1], -meta.LTV2+j)
+            delx = 0.5 + np.arange(meta.subarray_size) - (meta.refpix[i,2] + meta.LTV1 + meta.POSTARG1/meta.platescale)
+            wave_grid[i, j, :] = disp_solution[0] + delx*disp_solution[1]
+
+    return wave_grid
 
 
+def get_flatfield(meta):                    #function that flatfields a data array D, which starts at [minr, cmin] of hdu[1].data
+    flat = fits.open(meta.flat)                #reads in flatfield cube
+    WMIN = flat[0].header['WMIN']                #constants for computing flatfield coefficients
+    WMAX = flat[0].header['WMAX']
+
+    a0 = flat[0].data[-meta.LTV1:-meta.LTV1+meta.subarray_size, -meta.LTV2:-meta.LTV2+meta.subarray_size]
+    a1 = flat[1].data[-meta.LTV1:-meta.LTV1+meta.subarray_size, -meta.LTV2:-meta.LTV2+meta.subarray_size]
+    a2 = flat[2].data[-meta.LTV1:-meta.LTV1+meta.subarray_size, -meta.LTV2:-meta.LTV2+meta.subarray_size]
+
+    flatfield = []
+    for i in range(meta.norbit*meta.nvisit):
+        wave = meta.wave_grid[i, :]
+        x = (wave - WMIN)/(WMAX-WMIN)
+        flatfield.append(a0+a1*x+a2*x**2)
+        flatfield[i][flatfield[i] < 0.5] = -1.        #sets flatfield pixels below 0.5 to -1 so they can be masked
+    return flatfield
 
 
 
@@ -215,43 +256,7 @@ def weighted_mean(data, err):            #calculates the weighted mean for data 
 
 
 
-def get_wave_grid(meta):
 
-    if meta.grism == 'G102':
-        from ..lib import geometry102 as geo
-    elif meta.grism == 'G141':
-        from ..lib import geometry as geo
-    else:
-        print('Error: GRISM in obs_par.cf is neither G102 nor G141!')
-
-    wave_grid = np.empty((meta.norbit*meta.nvisit, meta.subarray_size, meta.subarray_size))
-
-    #calculates wavelength solution row by row for each orbit
-    for i in range(meta.norbit):
-        for j in range(meta.subarray_size):
-            disp_solution = geo.dispersion(meta.refpix[i,1], -meta.LTV2+j)
-            delx = 0.5 + np.arange(meta.subarray_size) - (meta.refpix[i,2] + meta.LTV1 + meta.POSTARG1/meta.platescale)
-            wave_grid[i, j, :] = disp_solution[0] + delx*disp_solution[1]
-
-    return wave_grid
-
-
-def get_flatfield(meta):                    #function that flatfields a data array D, which starts at [minr, cmin] of hdu[1].data
-    flat = fits.open(meta.flat)                #reads in flatfield cube
-    WMIN = flat[0].header['WMIN']                #constants for computing flatfield coefficients
-    WMAX = flat[0].header['WMAX']
-
-    a0 = flat[0].data[-meta.LTV1:-meta.LTV1+meta.subarray_size, -meta.LTV2:-meta.LTV2+meta.subarray_size]
-    a1 = flat[1].data[-meta.LTV1:-meta.LTV1+meta.subarray_size, -meta.LTV2:-meta.LTV2+meta.subarray_size]
-    a2 = flat[2].data[-meta.LTV1:-meta.LTV1+meta.subarray_size, -meta.LTV2:-meta.LTV2+meta.subarray_size]
-
-    flatfield = []
-    for i in range(meta.norbit*meta.nvisit):
-        wave = meta.wave_grid[i, :]
-        x = (wave - WMIN)/(WMAX-WMIN)
-        flatfield.append(a0+a1*x+a2*x**2)
-        flatfield[i][flatfield[i] < 0.5] = -1.        #sets flatfield pixels below 0.5 to -1 so they can be masked
-    return flatfield
 
 
 

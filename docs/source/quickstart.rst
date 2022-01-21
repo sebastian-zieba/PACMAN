@@ -319,30 +319,63 @@ This will save a plot showing you the direct image which you can then use to ref
 First run
 ''''''''''''''''''''''''
 
-In this first run I did not change the settings in the pcf file from a previous analysis of a different dataset:
+For demonstration purposures, in this first run I did not change the settings in the pcf file from a previous analysis of a different dataset:
 
-| di_rmin                      90
-| di_rmax                      120
-| di_cmin                      220
-| di_cmax                      250
+| di_rmin    | 320
+| di_rmax    | 360
+| di_cmin    | 100
+| di_cmax    | 150
 
-You will end up with a plot like this:
+The terminal should give you something like this:
+
+.. code-block:: console
+
+	    Successfully reloaded meta file
+	    Starting s10
+	    Determining Source Positions for Direct Images:  12%|█▎        | 1/8 [00:01<00:07,  1.01s/it]
+	    Your guess for di_rmax is outside of the image.
+
+	    Your guess for di_rmax is outside of the image.
+	    Determining Source Positions for Direct Images:  38%|███▊      | 3/8 [00:02<00:04,  1.04it/s]
+	    Your guess for di_rmax is outside of the image.
+	    Determining Source Positions for Direct Images:  50%|█████     | 4/8 [00:03<00:03,  1.04it/s]
+	    Your guess for di_rmax is outside of the image.
+
+	    Your guess for di_rmax is outside of the image.
+	    Determining Source Positions for Direct Images:  75%|███████▌  | 6/8 [00:05<00:01,  1.09it/s]
+	    Your guess for di_rmax is outside of the image.
+	    Determining Source Positions for Direct Images:  88%|████████▊ | 7/8 [00:06<00:00,  1.20it/s]
+	    Your guess for di_rmax is outside of the image.
+
+	    Your guess for di_rmax is outside of the image.
+	    Saving Metadata
+	    Finished s10
+
+	    Determining Source Positions for Direct Images: 100%|██████████| 8/8 [00:06<00:00,  1.17it/s]
+
+
+We see that we got messages while running that our guesses were outside of the image.
+In order to determine now where the star actually is, this run saved the images as plots into a new directory: run directory + /figs/images
+
+You will end up with plots like this one:
 
 .. image:: media/quick_di0_wrong.png
+
+You can see that our "initial guess" (the red box in the plot) was off by a lot from the star. Lets try again with a better guess, now that we know where the star is.
 
 
 Second run
 ''''''''''''''''''''''''
 
-| di_rmin                      120
-| di_rmax                      160
-| di_cmin                      5
-| di_cmax                      50
+By estimating by eye we can tell the star is approximately at row = 140 and col = 30. So our new guess is:
+
+| di_rmin   | 120
+| di_rmax   | 160
+| di_cmin   | 5
+| di_cmax   | 50
 
 
-.. image:: media/quick_di0.png
-.. image:: media/di_0.png
-
+The terminal should give you something like this:
 
 .. code-block:: console
 
@@ -352,7 +385,38 @@ Second run
 	    Saving Metadata
 	    Finished s10
 
+You will end up with plots like this one:
+
+.. image:: media/quick_di0.png
+
+This time we have the star in our cutout box!
+A second plot shows you the best fit to the star by using a 2D gaussian.
+
+.. image:: media/di_0.png
+
+The positions of the star in physical pixels are then saved into a new file called ``xrefyref.txt``:
 
 .. include:: media/xrefyref.txt
    :literal:
+
+| First column is the time when the Direct Image was taken
+| Second column is the row position of the star in physical pixels
+| Third column is the column position of the star in physical pixels
+
+You might notice that the fit resulted to a target location of approximately row = 513 and col = 403 but in the plots the target is closer to being at approximately row = 140 and col = 30 (by estimating by eye).
+This is because the table accounted for the offset in X and Y to subsection start. This information can be found in the header:
+
+| LTV1    =  -374.0 / offset in X to subsection start
+| LTV2    =  -374.0 / offset in Y to subsection start
+
+
+
+Stage 20
+:::::::::::::::::::::::::::::::::::::::::
+
+This new step finally extract the spectra.
+
+A new directory will be created in the work directory. It will look similar to this ``workdir + extracted_lc/2022-01-21_18-33-25``.
+We will save the flux information into there.
+
 

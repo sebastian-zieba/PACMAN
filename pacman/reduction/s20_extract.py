@@ -7,17 +7,19 @@ from ..lib import optextr
 from scipy.optimize import leastsq
 from datetime import datetime
 from astropy.table import QTable
+from scipy.signal import find_peaks
+from tqdm import tqdm
 from ..lib import manageevent as me
 from ..lib import util
 from ..lib import plots
-from scipy.signal import find_peaks
-from tqdm import tqdm
-
 
 def run20(eventlabel, workdir, meta=None):
     """
     This function extracts the spectrum and saves the total flux and the flux as a function of wavelength into files.
     """
+
+    print('Starting s20')
+
     if meta == None:
         meta = me.loadevent(workdir + '/WFC3_' + eventlabel + "_Meta_Save")
 
@@ -25,11 +27,10 @@ def run20(eventlabel, workdir, meta=None):
     meta = util.ancil(meta, s20=True)
 
     ###############################################################################################################################################################
+    #STEP 0: Set up files and directories
     ###############################################################################################################################################################
 
-    #STEP 0: Set up files and directories
-
-    dirname = meta.workdir + "/extracted_lc/" + datetime.strftime(datetime.now(), '%Y-%m-%d_%H_%M')
+    dirname = meta.workdir + "/extracted_lc/" + datetime.strftime(datetime.now(), '%Y-%m-%d_%H-%M-%S')
     if not os.path.exists(dirname): os.makedirs(dirname)
 
     # initialize the astropy tables where we will save the extracted spectra
@@ -37,9 +38,9 @@ def run20(eventlabel, workdir, meta=None):
     table_spec = QTable(names=('t_mjd', 't_bjd', 't_visit','t_orbit', 'ivisit', 'iorbit', 'scan', 'spec_opt', 'var_opt', 'template_waves'))
     table_diagnostics = QTable(names=('nspectra', 't_mjd', 'numoutliers', 'skymedian', 'shift', "# nans"))
 
-    files_sp = meta.files_sp
-    meta.nexp = len(files_sp)
-    nspectra = 0                                                # iterator variable to track number of spectra reduced
+    files_sp = meta.files_sp     # spectra files
+    meta.nexp = len(files_sp)    # number of exposures
+    nspectra = 0                 # iterator variable to track number of spectra reduced
 
     # the following lists are used for diagnostic plots
     if meta.save_uptheramp_plot_total or meta.show_uptheramp_plot_total:
@@ -53,15 +54,15 @@ def run20(eventlabel, workdir, meta=None):
 
     print('in total #visits, #orbits:', (meta.nvisit, meta.norbit), '\n')
 
-    for i in tqdm(np.arange(len(files_sp), dtype=int)):#
-        f = files_sp[i]
+    for i in tqdm(np.arange(len(files_sp), dtype=int)):
+        f = files_sp[i]                     # current file
         print("Filename: {0}".format(f))
-        d = fits.open(f)                                        #opens the file
-        scan = meta.scans_sp[i]
+        d = fits.open(f)                    # opens the file
+        scan = meta.scans_sp[i]             # scan direction of the spectrum.
 
         # Plot with good visible background
-        if meta.save_spectrum2d_plot or meta.show_spectrum2d_plot:
-            plots.spectrum2d(d, meta, i)
+        if meta.save_sp2d_plot or meta.show_sp2d_plot:
+            plots.sp2d(d, meta, i)
 
         visnum, orbnum = meta.ivisit_sp[i], meta.iorbit_sp_cumulative[i]     #current visit and cumulative orbit number
         print('current visit, orbit: ', (visnum, orbnum))
@@ -70,7 +71,9 @@ def run20(eventlabel, workdir, meta=None):
         if meta.save_trace_plot or meta.show_trace_plot:
             plots.plot_trace(d, meta, visnum, orbnum, i)
 
+        #TODO: Q: What is the offset used for?
         offset = meta.offset
+        #TODO: calculation of the start and end of the trace could be moved to util.py. It's also used in plots.plot_trace
         cmin = int(meta.refpix[orbnum,2] + meta.POSTARG1/meta.platescale) + meta.BEAMA_i + meta.LTV1 + offset                      #determines left column for extraction (beginning of the trace)
         cmax = min(int(meta.refpix[orbnum,2] + meta.POSTARG1/meta.platescale) + meta.BEAMA_f + meta.LTV1 - offset, meta.subarray_size)     #right column (end of trace, or edge of detector)
         rmin, rmax = int(meta.rmin), int(meta.rmax)                     #top and bottom row for extraction (specified in obs_par.txt)
@@ -82,8 +85,9 @@ def run20(eventlabel, workdir, meta=None):
         M = np.ones_like(d[1].data[rmin:rmax, cmin:cmax])                        #mask for bad pixels
 
         meta.wave_grid = util.get_wave_grid(meta)  # gets grid of wavelength solutions for each orbit and row
-        flatfield = util.get_flatfield(meta)
 
+        #TODO: Q: Bad pixel mask? With flat field file? Is there a different file with bad pixels?
+        flatfield = util.get_flatfield(meta)
         bpix = d[3].data[rmin:rmax,cmin:cmax]
         badpixind =  (bpix==4)|(bpix==512)|(flatfield[orbnum][rmin:rmax, cmin:cmax] == -1.)    #selects bad pixels
         M[badpixind] = 0.0                                        #initializes bad pixel mask

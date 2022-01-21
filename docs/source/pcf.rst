@@ -19,6 +19,7 @@ Stage 00
 rundir
 ''''''''''''''''''''''''''''''''''''''''''''
 Example: ``/home/zieba/Desktop/Projects/Open_source/PACMAN/run``
+
 The directory where you want PACMAN to run and save data to.
 If you downloaded or cloned the GitHub repository it includes a run directory you can use for the runs.
 It has to include three files:
@@ -33,7 +34,8 @@ It has to include three files:
 datadir
 ''''''''''''''''''''''''''''''''''''''''''''
 Example: ``/home/zieba/Desktop/Data/GJ1214_Hubble13021``
-The location of your data
+
+This path should be correspond to the location of your data.
 
 .. warning::
 
@@ -62,6 +64,7 @@ Stage 02
 
 save_barycorr_plot/show_barycorr_plot
 ''''''''''''''''''''''''''''''''''''''''''''
+Example: ``True``
 
 Saves or shows a plot with the downloaded X,Y,Z positions of HST from the `HORIZONS system <https://ssd.jpl.nasa.gov/horizons/>`_ by JPL during the observations.
 
@@ -75,9 +78,9 @@ Stage 03
 
 Teff, logg, MH
 ''''''''''''''''''''''''''''''''''''''''''''
-| Example: ``Teff    3250``
-| Example: ``logg    5.026``
-| Example: ``MH      0.29``
+| Example: ``Teff  3250``
+| Example: ``logg  5.026``
+| Example: ``MH    0.29``
 
 effective Temperature (Teff), surface gravity (logg) and metallicity (MH) of the star.
 
@@ -100,6 +103,7 @@ The stellar models (exluding the blackbody one) are retrieved from https://archi
 
 save_refspec_plot/show_refspec_plot
 ''''''''''''''''''''''''''''''''''''''''''''
+Example: ``True``
 
 .. image:: media/refspec.png
 
@@ -111,8 +115,37 @@ Stage 10
 di_rmin, di_rmax, di_cmin, di_cmax
 ''''''''''''''''''''''''''''''''''''''''''''
 
+| Example: ``di_rmin  120``
+| Example: ``di_rmax  160``
+| Example: ``di_cmin  5``
+| Example: ``di_cmax  50``
+
+These values have the goal of cutting out stamp around the target star.
+Below you will find an example:
+
+.. image:: media/quick_di0.png
+
+You can see that the cutout (the red box in the plot) is well chosen which is needed to determine the star position.
+
 
 save_image_plot/show_image_plot
 ''''''''''''''''''''''''''''''''''''''''''''
+Example: ``True``
+
+Saves two plots for every direct image.
+The first one just shows the image with the location of the direct image cutout.
+The second plot shows the cutout on the left and the result of the 2D gaussian fit on the right. The gaussian fit only considers the cutout for the fit.
+
+.. image:: media/quick_di0.png
+.. image:: media/di_0.png
+
+
+Stage 20
+---------------------------------------------------------
+
+
+
+
+
 
 

@@ -111,8 +111,6 @@ def refspec(bp_wvl, bp_val, sm_wvl, sm_flux, wvl_ref, flux_ref, meta):
 
 
 ## 10
-
-## 10
 def image_quick(ima, i, meta):
     """
     This plots the full direct image.
@@ -126,7 +124,7 @@ def image_quick(ima, i, meta):
     nrow = len(ima[1].data[:, 0])
     ncol = len(ima[1].data[0, :])
 
-    plt.suptitle("Direct image #{0}, visit #{1}, orbit #{2}".format(i, meta.ivisit_di[i], meta.iorbit_di[i]), y=0.92)
+    plt.suptitle("Direct image #{0}, visit #{1}, orbit #{2}".format(i, meta.ivisit_di[i], meta.iorbit_di[i]), y=0.94)
 
     ax.title.set_text('Full Direct Image')
     im = ax.imshow(ima[1].data * ima[0].header['exptime'], origin='lower', vmin=0, vmax=500)
@@ -216,22 +214,52 @@ def image(dat, ima, results, i, meta):
 
 
 ## 20
-def spectrum2d(d, meta, i):
+def sp2d(d, meta, i):
     """
     Plot the spectrum with a low vmax to make the background better visible
     """
-    plt.imshow(d[1].data, origin = 'lower',  vmin=0, vmax=300)
+    plt.imshow(d[1].data, origin = 'lower',  vmin=0, vmax=np.max(d[1].data)/50)
     plt.colorbar()
     plt.tight_layout()
-    plt.title('Background, visit {0}, orbit {1}'.format(meta.ivisit_sp[i], meta.iorbit_sp[i]))
-    if meta.save_spectrum2d_plot:
-        if not os.path.isdir(meta.workdir + '/figs/spectrum2d'):
-            os.makedirs(meta.workdir + '/figs/spectrum2d')
-        plt.savefig(meta.workdir + '/figs/spectrum2d/spectrum2d_{0}.png'.format(i))
+    plt.title('Spectrum w/ low vmax, visit {0}, orbit {1}'.format(meta.ivisit_sp[i], meta.iorbit_sp[i]))
+    if meta.save_sp2d_plot:
+        if not os.path.isdir(meta.workdir + '/figs/sp2d'):
+            os.makedirs(meta.workdir + '/figs/sp2d')
+        plt.savefig(meta.workdir + '/figs/sp2d/sp2d_{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
     else:
         plt.show()
         plt.close('all')
+
+
+def plot_trace(d, meta, visnum, orbnum, i):
+    """
+    Plots the spectrum together with the trace
+    #TODO: Q: The plot shouldnt change between observations in the same orbit (same direct image)
+    """
+    if meta.grism == 'G102':
+        from ..lib import geometry102 as geo
+    elif meta.grism == 'G141':
+        from ..lib import geometry141 as geo
+
+    trace = geo.trace(meta.refpix[:,1], meta.refpix[:,2])                #determines trace coefficients
+    trace_i = meta.refpix[orbnum,2] + meta.POSTARG1/meta.platescale + float(meta.BEAMA_i + meta.LTV1)          #start of trace
+    trace_f = meta.refpix[orbnum,2] + meta.POSTARG1/meta.platescale + float(meta.BEAMA_f + meta.LTV1)          #end of trace
+    tracex = np.linspace(trace_i, trace_f,100)                    #x values over which to compute trace
+    tracey = meta.refpix[orbnum,1] + meta.LTV2 + trace[0][orbnum] + \
+    trace[1][orbnum]*(tracex - tracex[0])                    #y values of trace
+    plt.imshow(d[1].data, origin = 'lower', vmin=0, vmax=4000)            #plots raw image
+    plt.colorbar()
+    plt.plot(tracex, tracey, color='yellow', linewidth=2)                #plots trace on raw image frame
+    plt.title('Spectrum w/ trace (line), visit {0}, orbit {1}'.format(meta.ivisit_sp[i], meta.iorbit_sp[i]))
+    if meta.save_trace_plot:
+        if not os.path.isdir(meta.workdir + '/figs/trace/'):
+            os.makedirs(meta.workdir + '/figs/trace/')
+        plt.savefig(meta.workdir + '/figs/trace/trace_{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
+        plt.close()
+    else:
+        plt.show()
+        plt.close()
 
 
 def spectrum1d_spec_opt(cmin,cmax,template_waves, spec_opt, meta, i):
@@ -306,34 +334,6 @@ def c_diag(cmin_list,cmax_list, meta):
     plt.close('all')
 
 
-def plot_trace(d, meta, visnum, orbnum, i):
-    if meta.grism == 'G102':
-        from ..lib import geometry102 as geo
-    elif meta.grism == 'G141':
-        from ..lib import geometry as geo
-    else:
-        print('Error: GRISM in obs_par.cf is neither G102 nor G141!')
-
-    trace = geo.trace(meta.refpix[:,1], meta.refpix[:,2])                #determines trace coefficients
-
-    trace_i = meta.refpix[orbnum,2] + meta.POSTARG1/meta.platescale + float(meta.BEAMA_i + meta.LTV1)          #start of trace
-    trace_f = meta.refpix[orbnum,2] + meta.POSTARG1/meta.platescale + float(meta.BEAMA_f + meta.LTV1)          #end of trace
-    tracex = np.linspace(trace_i, trace_f,100)                    #x values over which to compute trace
-    tracey = meta.refpix[orbnum,1] + meta.LTV2 + trace[0][orbnum] + \
-    trace[1][orbnum]*(tracex - tracex[0])                    #y values of trace
-    plt.imshow(d[1].data, origin = 'lower', vmin=0, vmax=40000)            #plots raw image
-    plt.colorbar()
-    plt.plot(tracex, tracey, color='yellow', linewidth=2)                #plots trace on raw image frame
-    plt.title('Trace marked with a line, visit {0}, orbit {1}'.format(meta.ivisit_sp[i], meta.iorbit_sp[i]))
-    if meta.save_trace_plot:
-        if not os.path.isdir(meta.workdir + '/figs/trace/'):
-            os.makedirs(meta.workdir + '/figs/trace/')
-        plt.savefig(meta.workdir + '/figs/trace/{0}.png'.format(i))
-        plt.close()
-    else:
-        plt.show()
-        plt.close()
-    return [trace_i, trace_f]
 
 
 def bkg_hist(fullframe_diff, skymedian, meta, i, ii):

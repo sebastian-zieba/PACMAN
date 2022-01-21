@@ -1,8 +1,13 @@
 import numpy as np
 
-#calculates the slope and intercept for the trace, given the position  of the direct image in physical pixels
-#these coefficients are for the WFC3 G141 grism
-def trace(X_ref, Y_ref):		
+
+def trace(X_ref, Y_ref):
+	"""
+	Calculates the slope and intercept for the trace, given the position  of the direct image in physical pixels.
+	These coefficients are for the WFC3 G141 grism.
+
+	See also: https://ui.adsabs.harvard.edu/abs/2009wfc..rept...18K/abstract
+	"""
 	BEAMA_i = 41 
 	BEAMA_f = 248
 
@@ -23,8 +28,17 @@ def trace(X_ref, Y_ref):
 	
 	return [DYDX_0, DYDX_1]
 
-#calculates coefficients for the dispersion solution
-def dispersion(X_ref, Y_ref):		#X_ref and Y_ref are the centroid position in physical pixels
+
+def dispersion(X_ref, Y_ref):
+	"""
+    calculates coefficients for the dispersion solution
+	See also: https://ui.adsabs.harvard.edu/abs/2009wfc..rept...18K/abstract
+
+    Parameters
+    ----------
+    eventlabel : X_ref and Y_ref
+       centroid position in physical pixels
+    """
 	DLDP_0_0 = 6.38738E+03 
 	DLDP_0_1 = 4.55507E-02
 	DLDP_0_2 = 0.0

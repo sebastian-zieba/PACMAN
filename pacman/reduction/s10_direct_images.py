@@ -1,15 +1,14 @@
 # This code computes the mean position of the direct image for each visit
 
-from ..lib import manageevent as me
 from astropy.io import ascii, fits
-from ..lib import gaussfitter
-from ..lib import plots
 from tqdm import tqdm
 import os
-from ..lib import util
 from astropy.io import ascii
 from astropy.table import QTable
-
+from ..lib import util
+from ..lib import gaussfitter
+from ..lib import plots
+from ..lib import manageevent as me
 
 def run10(eventlabel, workdir, meta=None):
 	"""
@@ -23,7 +22,6 @@ def run10(eventlabel, workdir, meta=None):
 		meta = me.loadevent(workdir + '/WFC3_' + eventlabel + "_Meta_Save")
 
 	f = open(meta.workdir + '/xrefyref.txt', 'w')						#opens file to store positions of reference pixels
-
 	#table = QTable(names=('t_bjd', 'ivisit', 'iorbit', 'x_pos', 'y_pos')) # creates table to store positions of reference pixels
 
 	# load in more information into meta
@@ -38,6 +36,7 @@ def run10(eventlabel, workdir, meta=None):
 
 		ima = fits.open(file)
 
+		# TODO: Q: POSTARG are not important to calculate the physical postion right?
 		LTV1 = ima[1].header['LTV1']					#X offset to get into physical pixels
 		LTV2 = ima[1].header['LTV2']					#Y offset to get to physical pixels
 
@@ -46,7 +45,20 @@ def run10(eventlabel, workdir, meta=None):
 
 		plots.image_quick(ima, i, meta)
 
-		#TODO: CHECK IF BOX IS EVEN ON SILICON. OTHERWISE data AND err WILL BE EMPTY AND THE GAUSSFIT WILL TERMINATE THE STAGE.
+		# If the guess for the cutout is outside of the dimensions of the dataset we will do the next iteration.
+		# If this wouldn't be checked for, data AND err WILL BE EMPTY AND THE GAUSSFIT WILL TERMINATE THE STAGE.
+		if meta.di_rmax > ima[1].data.shape[0] or meta.di_rmax < 0:
+			print('\nYour guess for di_rmax is outside of the image.')
+			continue
+		if meta.di_cmax > ima[1].data.shape[1] or meta.di_cmax < 0:
+			print('\nYour guess for di_cmax is outside of the image.')
+			continue
+		if meta.di_rmin > ima[1].data.shape[0] or meta.di_rmin < 0:
+			print('\nYour guess for di_rmin is outside of the image.')
+			continue
+		if meta.di_cmin > ima[1].data.shape[1] or meta.di_cmin < 0:
+			print('\nYour guess for di_cmin is outside of the image.')
+			continue
 
 		# run the fitter
 		results = gaussfitter.gaussfit(dat, err)
@@ -56,6 +68,7 @@ def run10(eventlabel, workdir, meta=None):
 
 		# save positions into a file
 		# TODO: convert this txt file to an astropy table
+		# TODO: instead of listing the time and positions, the visit&orbit number and positions would be better
 		print(t_bjd[i], results[3]+meta.di_rmin-LTV1, results[2]+meta.di_cmin-LTV2, file=f)
 		#table.add_row([t_bjd[i], results[3]+meta.di_rmin-LTV1, results[2]+meta.di_cmin-LTV2, int(ivisit_di[i]), int(iorbit_di[i])])
 

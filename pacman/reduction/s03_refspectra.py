@@ -1,10 +1,9 @@
 import numpy as np
-from ..lib import manageevent as me
 import os
 from scipy.interpolate import interp1d
 from ..lib import plots
 from ..lib import stellar_spectrum
-
+from ..lib import manageevent as me
 
 def binning(x_input, y_input, x_ref):
     """

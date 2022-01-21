@@ -7,11 +7,11 @@ import os, time
 import shutil
 from astropy.table import QTable
 from astropy.io import ascii, fits
+from scipy.stats import rankdata
+from tqdm import tqdm
 from ..lib import read_pcf as rd
 from ..lib import util
 from ..lib import manageevent as me
-from scipy.stats import rankdata
-from tqdm import tqdm
 
 
 class MetaClass:
