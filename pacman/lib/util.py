@@ -173,7 +173,9 @@ def ancil(meta, s10=False, s20=False):
 #s20
 
 def get_wave_grid(meta):
-
+    """
+    Gets grid of wavelength solutions for each orbit and row.
+    """
     if meta.grism == 'G102':
         from ..lib import geometry102 as geo
     elif meta.grism == 'G141':
@@ -192,6 +194,9 @@ def get_wave_grid(meta):
 
 
 def get_flatfield(meta):                    #function that flatfields a data array D, which starts at [minr, cmin] of hdu[1].data
+    """
+    Opens the flat file and uses it for bad pixel masking.
+    """
     flat = fits.open(meta.flat)                #reads in flatfield cube
     WMIN = flat[0].header['WMIN']                #constants for computing flatfield coefficients
     WMAX = flat[0].header['WMAX']
@@ -207,6 +212,17 @@ def get_flatfield(meta):                    #function that flatfields a data arr
         flatfield.append(a0+a1*x+a2*x**2)
         flatfield[i][flatfield[i] < 0.5] = -1.        #sets flatfield pixels below 0.5 to -1 so they can be masked
     return flatfield
+
+
+def median_abs_dev(vec):
+    """
+    Used to determine the variance for the background count estimate
+    """
+    med = ma.median(vec)
+    return ma.median(abs(vec - med))
+
+
+
 
 
 
@@ -249,35 +265,6 @@ def weighted_mean(data, err):            #calculates the weighted mean for data 
     mu = np.sum(data[ind]*weights)/np.sum(weights)
     var = 1.0/np.sum(weights)
     return [mu, np.sqrt(var)]                
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-def median_abs_dev(vec):
-    med = ma.median(vec)
-    return ma.median(abs(vec - med))
-
-
-
-
-
-
-
-
-
-
-
 
 
 

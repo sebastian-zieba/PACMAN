@@ -144,8 +144,63 @@ Stage 20
 ---------------------------------------------------------
 
 
+window
+''''''''''''''''''''''''''''''''''''''''''''
+
+
+
+background_thld
+''''''''''''''''''''''''''''''''''''''''''''
 
 
 
 
+opt_extract
+''''''''''''''''''''''''''''''''''''''''''''
+`optimal extraction <https://ui.adsabs.harvard.edu/abs/1986PASP...98..609H>`_
+
+
+
+sig_cut, nsmooth
+''''''''''''''''''''''''''''''''''''''''''''
+sig_cut: for cosmic rays etc
+
+smooth: created smoothed spatial profile, medial smoothing filter
+
+
+save_optextr_plot
+''''''''''''''''''''''''''''''''''''''''''''
+.. image:: media/stage20/optextr0-0.png
+
+save_sp2d_plot/show_sp2d_plot
+''''''''''''''''''''''''''''''''''''''''''''
+.. image:: media/stage20/sp2d_0.png
+
+save_trace_plot/show_trace_plot
+''''''''''''''''''''''''''''''''''''''''''''
+.. image:: media/stage20/trace_0.png
+
+save_bkg_hist_plot/show_bkg_hist_plot
+''''''''''''''''''''''''''''''''''''''''''''
+.. image:: media/stage20/bkg_hist0-0.png
+
+save_utr_plot/show_utr_plot
+''''''''''''''''''''''''''''''''''''''''''''
+.. image:: media/stage20/utr0-0.png
+
+save_sp1d_plot/show_sp1d_plot
+''''''''''''''''''''''''''''''''''''''''''''
+.. image:: media/stage20/sp1d_0.png
+
+save_bkg_evo_plot/show_bkg_evo_plot
+''''''''''''''''''''''''''''''''''''''''''''
+.. image:: media/stage20/bkg_evo.png
+
+save_sp1d_diff_plot/show_sp1d_diff_plot
+''''''''''''''''''''''''''''''''''''''''''''
+.. image:: media/stage20/sp1d_diff_0.png
+
+save_utr_aper_evo_plot/show_utr_aper_evo_plot
+''''''''''''''''''''''''''''''''''''''''''''
+.. image:: media/stage20/utr_aper_evo.png
 

@@ -419,4 +419,20 @@ This new step finally extract the spectra.
 A new directory will be created in the work directory. It will look similar to this ``workdir + extracted_lc/2022-01-21_18-33-25``.
 We will save the flux information into there.
 
+The user can decide if they want to use `optimal extraction <https://ui.adsabs.harvard.edu/abs/1986PASP...98..609H>`_ to extract the spectra.
+
+
+.. image:: media/stage20/sp2d_0.png
+
+.. image:: media/stage20/utr0-0.png
+
+.. image:: media/stage20/bkg_hist0-0.png
+
+.. image:: media/stage20/sp1d_0.png
+
+
+
+
+
+
 

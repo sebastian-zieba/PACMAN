@@ -13,7 +13,7 @@ from astropy.table import QTable
 from ..lib import plots
 
 
-def run22(eventlabel, workdir, meta=None):
+def run21(eventlabel, workdir, meta=None):
 
     if meta == None:
         meta = me.loadevent(workdir + '/WFC3_' + eventlabel + "_Meta_Save")

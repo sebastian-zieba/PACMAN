@@ -133,6 +133,12 @@ lib.geometry102
     :show-inheritance:
 
 
+lib.optextr
+----------------------------------------
+.. automodule:: pacman.lib.optextr
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 
 

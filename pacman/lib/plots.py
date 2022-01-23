@@ -68,21 +68,21 @@ def barycorr(x,y,z,time, obsx, obsy, obsz, coordtable, meta):
 
 
 ## 03
-def bandpass(wvl, bp_val, grism, i, meta):
-    plt.rcParams["figure.figsize"] = (9, 6)
-    plt.figure(1002)
-    plt.clf()
-    plt.plot(wvl, bp_val, c='C0')
-    plt.xlabel('Angstrom')
-    plt.ylabel('Throughput')
-    plt.title('{0}_v{1}'.format(grism, i))
-    plt.tight_layout()
-    if meta.save_bandpass_plot:
-        plt.savefig(meta.workdir + '/ancil/bandpass/bandpass_v{0}.png'.format(i))
-        plt.close('all')
-    else:
-        plt.show()
-        plt.close('all')
+# def bandpass(wvl, bp_val, grism, i, meta):
+#     plt.rcParams["figure.figsize"] = (9, 6)
+#     plt.figure(1002)
+#     plt.clf()
+#     plt.plot(wvl, bp_val, c='C0')
+#     plt.xlabel('Angstrom')
+#     plt.ylabel('Throughput')
+#     plt.title('{0}_v{1}'.format(grism, i))
+#     plt.tight_layout()
+#     if meta.save_bandpass_plot:
+#         plt.savefig(meta.workdir + '/ancil/bandpass/bandpass_v{0}.png'.format(i))
+#         plt.close('all')
+#     else:
+#         plt.show()
+#         plt.close('all')
 
 
 ## 03
@@ -232,7 +232,7 @@ def sp2d(d, meta, i):
         plt.close('all')
 
 
-def plot_trace(d, meta, visnum, orbnum, i):
+def trace(d, meta, visnum, orbnum, i):
     """
     Plots the spectrum together with the trace
     #TODO: Q: The plot shouldnt change between observations in the same orbit (same direct image)
@@ -262,100 +262,28 @@ def plot_trace(d, meta, visnum, orbnum, i):
         plt.close()
 
 
-def spectrum1d_spec_opt(cmin,cmax,template_waves, spec_opt, meta, i):
-    plt.clf()
-    if not os.path.isdir(meta.workdir + '/figs/spec_opt/'):
-        os.makedirs(meta.workdir + '/figs/spec_opt/')
-    fig, ax = plt.subplots(2, 1, figsize=(6.4, 6.4*1.5))
-    ax[0].plot(np.arange(cmin,cmax, dtype=int), spec_opt)
-    ax[1].plot(template_waves, spec_opt)
-    if meta.grism == 'G141':
-        ax[0].set_xlim(260, 455)
-        ax[1].set_xlim(9500, 18200)
-    elif meta.grism == 'G102':
-        ax[0].set_xlim(100, 400)
-        ax[1].set_xlim(5000, 16000)
-    ax[0].set_ylim(-2e5, 2e7)
-    ax[1].set_ylim(-2e5, 2e7)
-    plt.title('spectrum1d_spec_opt, visit {0}, orbit {1}'.format(meta.ivisit_sp[i], meta.iorbit_sp[i]))
-    plt.tight_layout()
-    plt.savefig(meta.workdir + '/figs/spec_opt/spec_opt_{0}.png'.format(i))
-    plt.close('all')
-
-
-def spectrum1d_spec_box(cmin,cmax,template_waves, spec_box, meta, i):
-    plt.clf()
-    if not os.path.isdir(meta.workdir + '/figs/spec_box/'):
-        os.makedirs(meta.workdir + '/figs/spec_box/')
-    fig, ax = plt.subplots(2, 1, figsize=(6.4, 6.4 * 1.5))
-    ax[0].plot(np.arange(cmin, cmax, dtype=int), spec_box)
-    ax[1].plot(template_waves, spec_box)
-    if meta.grism == 'G141':
-        ax[0].set_xlim(260, 455)
-        ax[1].set_xlim(9500, 18200)
-    elif meta.grism == 'G102':
-        ax[0].set_xlim(100, 400)
-        ax[1].set_xlim(5000, 16000)
-    ax[0].set_ylim(-2e5, 2e7)
-    ax[1].set_ylim(-2e5, 2e7)
-    fig.suptitle('spectrum1d_spec_box, visit {0}, orbit {1}'.format(meta.ivisit_sp[i], meta.iorbit_sp[i]), y=0.99)
-    plt.tight_layout()
-    plt.savefig(meta.workdir + '/figs/spec_box/spec_box_{0}.png'.format(i))
-    plt.close('all')
-
-
-def spectrum1d_spec_opt_diff_plot(spec_opt_interp_all_diff, meta, wvl_hires):
-    if not os.path.isdir(meta.workdir + '/figs/spec_opt_diff/'):
-        os.makedirs(meta.workdir + '/figs/spec_opt_diff/')
-
-    for iiii in range(len(spec_opt_interp_all_diff)):
-        plt.clf()
-        fig, ax = plt.subplots(1, 1, figsize=(6.4, 6.4*1.5/2))
-        ax.plot(wvl_hires, spec_opt_interp_all_diff[iiii])
-        if meta.grism == 'G141':
-            ax.set_xlim(10000, 17800)
-        elif meta.grism == 'G102':
-            ax.set_xlim(5000, 16000)
-        ax.set_ylim(-1e6, 1e6)
-        fig.suptitle('Background Diff, from v{0} o{1} to v{2} o{3}'.format(meta.ivisit_sp[iiii], meta.iorbit_sp[iiii],meta.ivisit_sp[iiii+1], meta.iorbit_sp[iiii+1]),fontsize=12, y=0.99)
-        plt.tight_layout()
-        plt.savefig(meta.workdir + '/figs/spec_opt_diff/spec_opt_diff_{0}.png'.format(iiii))
-        plt.close('all')
-
-
-def c_diag(cmin_list,cmax_list, meta):
-    plt.clf()
-    if not os.path.isdir(meta.workdir + '/figs/c_diag/'):
-        os.makedirs(meta.workdir + '/figs/c_diag/')
-    fig, ax = plt.subplots(2, 1, figsize=(6.4, 4.8))
-    ax[0].plot(range(len(cmin_list)), cmin_list)
-    ax[1].plot(range(len(cmax_list)), cmax_list)
-    plt.savefig(meta.workdir + '/figs/c_diag/c_diag.png')
-    plt.close('all')
-
-
-
-
 def bkg_hist(fullframe_diff, skymedian, meta, i, ii):
-
+    """
+    Plot saving a histogram of the fluxes in the up-the-ramp sample. Showing the user decided background threshold and the median flux below the threshold.
+    """
     histo = fullframe_diff.flatten()
     fig, ax = plt.subplots(2,1)
-    yy, xx, _ = ax[0].hist(histo, int(len(histo)/500), facecolor='k', alpha=0.2)
+    yy, xx, _ = ax[0].hist(histo, int(len(histo)/2000), facecolor='k', alpha=0.2)
     plt.suptitle('UpTheRamp {0}-{1}, visit {2}, orbit {3}'.format(i, ii, meta.ivisit_sp[i], meta.iorbit_sp[i]))
     ax[0].axvline(meta.background_thld, lw=2, ls='-', c='b', label='background_thld')
     ax[0].axvline(skymedian, lw=2, ls='--', c='b', label='skymedian')
     ax[0].set_yscale('log')
     ax[0].set_xlabel('Flux')
     ax[0].set_ylabel('log. Frequ.')
-    ax[0].legend()
+    ax[0].legend(loc=1)
     ax[1].axvline(skymedian, lw=2, ls='--', c='b', label='skymedian {0:.3g}'.format(skymedian))
     ax[1].set_xlabel('Flux')
     ax[1].set_ylabel('lin. Frequ.')
-    zoom = 200
+    zoom = 150
     #yyy, xxx, _ = ax[1].hist(histo, 51, range=(skymedian - zoom, skymedian + zoom), facecolor='k', alpha=0.2)
-    ax[1].hist(histo, 51, range=(skymedian - zoom, skymedian + zoom), facecolor='k', alpha=0.2)
+    ax[1].hist(histo, 41, range=(skymedian - zoom, skymedian + zoom), facecolor='k', alpha=0.2)
     #xmax = xxx[np.argsort(yyy)[::-1]][0]
-    ax[1].legend()
+    ax[1].legend(loc=1)
     plt.tight_layout()
     #data_new = histo[((skymedian - zoom) < histo) & (histo < (skymedian + zoom))]
     #var = util.median_abs_dev(data_new)
@@ -368,21 +296,19 @@ def bkg_hist(fullframe_diff, skymedian, meta, i, ii):
     #ax[1].axvline(x_new[np.argmax(p)], lw=2, ls='--', c='g', label='gaussian {0:.3g}'.format(x_new[np.argmax(p)]))
 
     if meta.save_bkg_hist_plot:
-        if not os.path.isdir(meta.workdir + '/figs/bkg_histogram/'):
-            os.makedirs(meta.workdir + '/figs/bkg_histogram/')
-        plt.savefig(meta.workdir + '/figs/bkg_histogram/bkg_histogram{0}-{1}.png'.format(i,ii))
-        #plt.show()
+        if not os.path.isdir(meta.workdir + '/figs/bkg_hist/'):
+            os.makedirs(meta.workdir + '/figs/bkg_hist/')
+        plt.savefig(meta.workdir + '/figs/bkg_hist/bkg_hist{0}-{1}.png'.format(i,ii), bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
     else:
         plt.show()
         plt.close()
 
 
-def uptheramp(diff, meta, i, ii, orbnum, rowsum, rowsum_absder, peaks):
-    p1 = np.arange(len(diff))
-    p2 = (p1[1:] + p1[:-1]) / 2
-
-    #rmin, rmax = max(idx - meta.window, 0), min(idx + meta.window, meta.rmax)
+def utr(diff, meta, i, ii, orbnum, rowsum, rowsum_absder, peaks):
+    """
+    Saves a plot of up-the-ramp sample, the row by row sum and the derivate of the latter. It furthermore shows the aperture used for the analysis.
+    """
     cmin = int(meta.refpix[
                    orbnum, 2] + meta.POSTARG1 / meta.platescale) + meta.BEAMA_i + meta.LTV1 + meta.offset  # determines left column for extraction (beginning of the trace)
     cmax = min(int(meta.refpix[orbnum, 2] + meta.POSTARG1 / meta.platescale) + meta.BEAMA_f + meta.LTV1 - meta.offset,
@@ -394,44 +320,119 @@ def uptheramp(diff, meta, i, ii, orbnum, rowsum, rowsum_absder, peaks):
     #ax[2].axhline(idx, c = 'b', ls='--')
     #ax[2].plot([cmin-cmin, cmin-cmin, cmax-cmin, cmax-cmin, cmin-cmin], [rmin, rmax, rmax, rmin, rmin], lw=2, c='r', alpha=0.85)
     ax[0].set_xlim(cmin-cmin, cmax-cmin)
-    ax[0].set_ylim(0, 512)
+    ax[0].set_ylim(meta.rmin, meta.rmax)
     ax[0].axhline(min(peaks), c='r', ls='--', lw=2)
     ax[0].axhline(max(peaks), c='r', ls='--', lw=2)
     ax[0].axhline(min(peaks)-meta.window, c='r', ls='-', lw=3)
     ax[0].axhline(max(peaks)+meta.window, c='r', ls='-', lw=3)
     ax[0].title.set_text('spectrum, cmin to cmax')
 
+    p1 = np.arange(len(diff))
     ax[1].axhline(min(peaks), c='r', ls='--', lw=2 )
     ax[1].axhline(max(peaks), c='r', ls='--', lw=2 )
     ax[1].axhline(min(peaks)-meta.window, c='r', ls='-', lw=3 )
     ax[1].axhline(max(peaks)+meta.window, c='r', ls='-', lw=3 )
     ax[1].plot(rowsum, p1)
-    ax[1].set_ylim(0,512)
+    ax[1].set_ylim(meta.rmin, meta.rmax)
     ax[1].set_xlabel('lin Flux')
-    ax[1].title.set_text('row Flux')
+    ax[1].title.set_text('sum row Flux')
 
+    p2 = (p1[1:] + p1[:-1]) / 2
     ax[2].axhline(min(peaks)-meta.window, c='r', ls='-', lw=3 )
     ax[2].axhline(max(peaks)+meta.window, c='r', ls='-', lw=3 )
     ax[2].scatter(rowsum_absder[peaks], peaks, marker = 'x', c='r')
     ax[2].plot(rowsum_absder, p2)
-    ax[2].set_ylim(0,512)
+    ax[2].set_ylim(meta.rmin, meta.rmax)
     ax[2].set_xlabel('lin Flux')
     ax[2].title.set_text('Derivative')
 
     plt.colorbar(im)
     plt.tight_layout()
     plt.suptitle('UpTheRamp {0}-{1}, visit {2}, orbit {3}'.format(i, ii, meta.ivisit_sp[i], meta.iorbit_sp[i]))
-    if meta.save_uptheramp_plot:
-        if not os.path.isdir(meta.workdir + '/figs/uptheramp/'):
-            os.makedirs(meta.workdir + '/figs/uptheramp/')
-        plt.savefig(meta.workdir + '/figs/uptheramp/newuptheramp{0}-{1}.png'.format(i, ii))
+    if meta.save_utr_plot:
+        if not os.path.isdir(meta.workdir + '/figs/utr/'):
+            os.makedirs(meta.workdir + '/figs/utr/')
+        plt.savefig(meta.workdir + '/figs/utr/utr{0}-{1}.png'.format(i, ii), bbox_inches='tight', pad_inches=0.05, dpi=100)
         plt.close('all')
     else:
         plt.show()
         plt.close('all')
 
 
-def uptheramp_evolution(peaks_all, meta):
+def sp1d(template_waves, spec_box, meta, i, spec_opt=False):
+    """
+    Plots the resulting spectrum. If the user did optimal extraction, a comparison between optextr and box sum will be shown.
+    """
+    plt.clf()
+    #fig, ax = plt.subplots(1, 1, figsize=(6.4, 6.4))
+    plt.plot(template_waves, spec_box, c='r', label='box sum')
+    if meta.opt_extract:
+        plt.plot(template_waves, spec_opt, c='k', label='optimal extraction')
+    plt.legend()
+    plt.title('sp1d, visit {0}, orbit {1}'.format(meta.ivisit_sp[i], meta.iorbit_sp[i]))
+    plt.tight_layout()
+    if meta.save_sp1d_plot:
+        if not os.path.isdir(meta.workdir + '/figs/sp1d/'):
+            os.makedirs(meta.workdir + '/figs/sp1d/')
+        plt.savefig(meta.workdir + '/figs/sp1d/sp1d_{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
+        plt.close('all')
+    else:
+        plt.show()
+        plt.close('all')
+
+
+def bkg_evo(bkg_evo, meta):
+    """
+    Plot of the background flux as a function of up the ramp sample
+    """
+    plt.clf()
+    fig, ax = plt.subplots(1,1)
+    ax.plot(range(len(bkg_evo)), bkg_evo)
+    ax.set_xlabel('# diff image')
+    ax.set_ylabel('diff flux')
+    #plt.legend()
+    plt.tight_layout()
+    if meta.save_bkg_evo_plot:
+        if not os.path.isdir(meta.workdir + '/figs/bkg_evo/'):
+            os.makedirs(meta.workdir + '/figs/bkg_evo/')
+        plt.savefig(meta.workdir + '/figs/bkg_evo/bkg_evo.png', bbox_inches='tight', pad_inches=0.05, dpi=120)
+        plt.close('all')
+    else:
+        plt.show()
+        plt.close('all')
+
+
+def sp1d_diff(sp1d_all_diff, meta, wvl_hires):
+    """
+    Difference of 1D spectrum between two consecutive exposures
+    """
+    if not os.path.isdir(meta.workdir + '/figs/sp1d_diff/'):
+        os.makedirs(meta.workdir + '/figs/sp1d_diff/')
+    ylimmin = np.min(sp1d_all_diff)
+    ylimmax = np.max(sp1d_all_diff)
+    for iiii in range(len(sp1d_all_diff)):
+        plt.clf()
+        fig, ax = plt.subplots(1, 1, figsize=(6.4, 6.4*1.5/2))
+        ax.plot(wvl_hires, sp1d_all_diff[iiii])
+        if meta.grism == 'G141':
+            ax.set_xlim(10000, 17800)
+        elif meta.grism == 'G102':
+            ax.set_xlim(5000, 16000)
+        ax.set_ylim(ylimmin*1.2, ylimmax*1.2)
+        fig.suptitle('Background Diff, from v{0} o{1} to v{2} o{3}'.format(meta.ivisit_sp[iiii], meta.iorbit_sp[iiii],meta.ivisit_sp[iiii+1], meta.iorbit_sp[iiii+1]),fontsize=12, y=0.99)
+        plt.tight_layout()
+        if meta.save_sp1d_diff_plot:
+            plt.savefig(meta.workdir + '/figs/sp1d_diff/sp1d_diff_{0}.png'.format(iiii), bbox_inches='tight', pad_inches=0.05, dpi=120)
+            plt.close('all')
+        else:
+            plt.show()
+            plt.close('all')
+
+
+def utr_aper_evo(peaks_all, meta):
+    """
+    Plot of the evolution in aperture size
+    """
     peaks = np.array(peaks_all)
     peaks = np.sort(peaks)
     #nsamps_mask = []
@@ -459,24 +460,18 @@ def uptheramp_evolution(peaks_all, meta):
 
     #plt.legend()
     plt.tight_layout()
-    if not os.path.isdir(meta.workdir + '/figs/uptheramp/'):
-        os.makedirs(meta.workdir + '/figs/uptheramp/')
-    plt.savefig(meta.workdir + '/figs/uptheramp/uptheramp_evolution.png')
-    plt.close('all')
+    if meta.save_utr_aper_evo_plot:
+        if not os.path.isdir(meta.workdir + '/figs/utr_aper_evo/'):
+            os.makedirs(meta.workdir + '/figs/utr_aper_evo/')
+        plt.savefig(meta.workdir + '/figs/utr_aper_evo/utr_aper_evo.png', bbox_inches='tight', pad_inches=0.05, dpi=120)
+        plt.close('all')
+    else:
+        plt.show()
+        plt.close('all')
 
 
-def bkg_lc(bkg_lc, meta):
-    plt.clf()
-    fig, ax = plt.subplots(1,1)
-    ax.plot(range(len(bkg_lc)), bkg_lc)
-    ax.set_xlabel('# diff image')
-    ax.set_ylabel('diff flux')
-    #plt.legend()
-    plt.tight_layout()
-    if not os.path.isdir(meta.workdir + '/figs/uptheramp/'):
-        os.makedirs(meta.workdir + '/figs/uptheramp/')
-    plt.savefig(meta.workdir + '/figs/uptheramp/bkg_lc.png')
-    plt.close('all')
+
+
 
 
 
