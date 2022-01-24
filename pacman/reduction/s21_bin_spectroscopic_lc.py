@@ -1,19 +1,23 @@
 #This code reads in the optimally extracted lightcurve and bins it into channels 5 pixels wide, following Berta '12
 import numpy as np
-from numpy import *
-from pylab import *
+#from numpy import *
+#from pylab import *
 from astropy.io import ascii
 from scipy import signal
-import matplotlib.pyplot as plt
 import os
-from ..lib import manageevent as me
-from ..lib import util
 import time as time_now
 from astropy.table import QTable
+from tqdm import tqdm
 from ..lib import plots
+from ..lib import sort_nicely as sn
+from ..lib import manageevent as me
 
 
 def run21(eventlabel, workdir, meta=None):
+    """
+    This function reads in the lc_spec.txt file with the flux as a funtion of wavelength and bins it into light curves.
+    """
+    print('Starting s21\n')
 
     if meta == None:
         meta = me.loadevent(workdir + '/WFC3_' + eventlabel + "_Meta_Save")
@@ -26,11 +30,13 @@ def run21(eventlabel, workdir, meta=None):
 
 
     for wvl_bins in meta.wvl_bins:
-        print(meta.wvl_bins)
+        #TODO: Q: Which ways should the user have to define bins? Bin edges; mid bin; custom list of edges?
+        #TODO: Rename wvl_bins because it's not the number bins but the number of edges; so #bins-1
+        print('Number of bin edges:', wvl_bins)
         #what bins do you want?
         #wave_bins = np.linspace(1.125, 1.65, 22)*1e4
         wave_bins = np.linspace(meta.wvl_min, meta.wvl_max, wvl_bins)*1e4
-        print(wave_bins)
+        #print(wave_bins)
 
         #file_mario = '/home/zieba/Documents/L98-59_bins_2.txt'
         #wvl_mario0, wvl_mario1,_,_,_,_=np.loadtxt(file_mario).T
@@ -43,7 +49,7 @@ def run21(eventlabel, workdir, meta=None):
         #cd = np.linspace(c, d, 4)
 
         #wave_bins = np.concatenate((ab,cd))
-        print(wave_bins)
+        #print(wave_bins)
 
         #wave_bins = np.linspace(1.139, 1.631, 12)*1e4
         #wave_bins = np.array([11400, 11800, 12200,12600,13000, 13400, 13800, 14200, 14600, 15000, 15400, 15800, 16200])
@@ -52,11 +58,18 @@ def run21(eventlabel, workdir, meta=None):
         #wave_bins = np.array([1.129595435219961752e+00, 1.180470435219961756e+00, 1.231345435219961759e+00, 1.282220435219961763e+00, 1.333095435219961766e+00, 1.383970435219961770e+00, 1.434845435219961773e+00, 1.485720435219961777e+00, 1.536595435219961781e+00, 1.587470435219961784e+00, 1.638345435219961788e+00])*1.e4
 
         #reads in spectra
+        #print(meta.most_recent_s20)
+        #print(meta.most_recent_s20==True)
+        if meta.most_recent_s20:
+            lst_dir = os.listdir(meta.workdir + "/extracted_lc/")
+            lst_dir = sn.sort_nicely(lst_dir)
+            spec_dir = lst_dir[-1]
+        else:
+            spec_dir = s20_spec_dir_path
 
-        lst = os.listdir(meta.workdir + "/extracted_lc/")
-        print(lst)
-        print(lst.sort())
-        d = ascii.read(meta.workdir + "/extracted_lc/" + lst[0] + "/lc_spec.txt")
+        print("Chosen directory with the spectroscopic flux file:", spec_dir)
+
+        d = ascii.read(meta.workdir + "/extracted_lc/" + spec_dir + "/lc_spec.txt")
         d = np.array([d[i].data for i in d.colnames])
 
         nexp = meta.nexp		#number of exposures
@@ -77,7 +90,7 @@ def run21(eventlabel, workdir, meta=None):
         #w_hires = np.linspace(w.min(), w.max(), 10000)
         w_hires = np.linspace(w_min, w_max, 10000)
         oversample_factor = len(w_hires)/npix*1.0
-        print(oversample_factor)
+        #print(oversample_factor)
         #stores the indices corresponding to the wavelength range in each bin
         wave_inds = []
         #lo_res_wave_inds = []
@@ -88,7 +101,8 @@ def run21(eventlabel, workdir, meta=None):
         dirname = meta.workdir + "/extracted_sp/" + 'bins{0}_'.format(wvl_bins) + datetime
         if not os.path.exists(dirname): os.makedirs(dirname)
 
-        for i in range(len(wave_bins) - 1):
+        for i in tqdm(range(len(wave_bins) - 1), desc='***************** Looping over Bins'):
+
             wave = (wave_bins[i] + wave_bins[i+1])/2./1.e4
             outname = dirname + "/speclc" + "{0:.3f}".format(wave)+".txt"
             #outname = "wasp33b_" + "{0:.4f}".format(wave)+".txt"
@@ -127,6 +141,6 @@ def run21(eventlabel, workdir, meta=None):
 
         #outfile.close()
 
-    print('Finished s22 \n')
+    print('Finished s21 \n')
 
     return meta

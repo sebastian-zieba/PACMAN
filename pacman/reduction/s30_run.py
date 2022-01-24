@@ -1,15 +1,12 @@
 import sys
-
 import matplotlib.pyplot as plt
-
-sys.path.append('../..')
-sys.path.append('/home/zieba/Desktop/Projects/Open_source/wfc-pipeline/')
-sys.path.insert(0, '../lib')
 import numpy as np
 import glob
 import os
 from astropy.io import ascii
 import getopt
+import time
+import shutil
 import time as pythontime
 from ..lib import manageevent as me
 from ..lib.read_data import Data
@@ -17,17 +14,21 @@ from ..lib.model import Model
 from ..lib.least_squares import lsq_fit
 from ..lib.mcmc import mcmc_fit
 from ..lib.nested import nested_sample
-import time
-import shutil
 from ..lib.formatter import ReturnParams
 from ..lib import sort_nicely as sn
+#sys.path.append('../..')
+#sys.path.append('/home/zieba/Desktop/Projects/Open_source/wfc-pipeline/')
+#sys.path.insert(0, '../lib')
 
 
 def run30(eventlabel, workdir, meta=None):
+    """
+    This functions reads in the spectroscopic or white light curve(s) and fits a model to them.
+    """
+    print('Starting s30')
 
     if meta == None:
         meta = me.loadevent(workdir + '/WFC3_' + eventlabel + "_Meta_Save")
-
 
     # Create directories for Stage 3 processing
     datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
@@ -35,32 +36,47 @@ def run30(eventlabel, workdir, meta=None):
     if not os.path.exists(meta.workdir + meta.fitdir):
         os.makedirs(meta.workdir + meta.fitdir)
 
-    # Copy ecf
-    shutil.copy(meta.workdir + "/obs_par.ecf", meta.workdir + meta.fitdir)
+    # Copy pcf and fit_par files
+    shutil.copy(meta.workdir + "/obs_par.pcf", meta.workdir + meta.fitdir)
     shutil.copy(meta.workdir + "/fit_par.txt", meta.workdir + meta.fitdir)
 
+    # reads in fit parameters
+    #TODO: Check that fit_par is configed fine. Eg initial value has to be within boundaries!
+    fit_par = ascii.read(meta.workdir + "/fit_par.txt", Reader=ascii.CommentedHeader)
 
-    myfuncs = meta.run_myfuncs
+    #read in the user wanted fit functions
+    myfuncs = meta.s30_myfuncs
 
 
-    meta.fit_par_new = True
-
-    #reads in observation and fit parameters
-    if meta.fit_par_new == False:
-        fit_par =   ascii.read(meta.workdir + "/fit_par_old.txt", Reader=ascii.CommentedHeader) # OLD fit_par.txt
-        shutil.copy(meta.workdir + "/fit_par_old.txt", meta.workdir + meta.fitdir)
-    else:
-        fit_par =   ascii.read(meta.workdir + "/fit_par_new2.txt", Reader=ascii.CommentedHeader)
-        shutil.copy(meta.workdir + "/fit_par_new2.txt", meta.workdir + meta.fitdir)
-    print(workdir)
-    print(fit_par)
+    #read in the files (white or spectroscopic) which will be fitted
     if meta.run_fit_white:
-        files = meta.run_files #
+        print('White light curve fit will be performed')
+        files = []
+        if meta.most_recent_s20:
+            lst_dir = os.listdir(meta.workdir + "/extracted_lc/")
+            lst_dir = sn.sort_nicely(lst_dir)
+            white_dir = lst_dir[-1]
+            files.append(meta.workdir + "/extracted_lc/" + white_dir + "/lc_white.txt")
+        else:
+            files.append(meta.run_white_file)
+    elif meta.run_fit_spec:
+        print('Spectroscopic light curve fit(s) will be performed')
+        if meta.most_recent_s21:
+            #TODO: This also includes the "bins12" when sorting. But i only want to sort by the time in the dir names. So just use the end of the dir names instead
+            lst_dir = os.listdir(meta.workdir + "/extracted_sp/")
+            lst_dir = sn.sort_nicely(lst_dir)
+            spec_dir = lst_dir[-1]
+            files = glob.glob(os.path.join(meta.workdir + "/extracted_sp/" + spec_dir, "*.txt"))  #
+            files = sn.sort_nicely(files)
+        else:
+            files = glob.glob(os.path.join(meta.run_spec_dir, "*.txt"))  #
+            files = sn.sort_nicely(files)
     else:
-        files = glob.glob(os.path.join(meta.run_files[0], "*.txt"))  #
-        files = sn.sort_nicely(files)
-    print(files)
+        print('Neither run_fit_white nor run_fit_spec are True!')
 
+    print('Identified file(s) for fitting:', files)
+
+    #run_output saves the spectrum?
     meta.run_out_name = "fit_" + pythontime.strftime("%Y_%m_%d_%H_%M") + ".txt"
 
     vals = []
@@ -69,16 +85,15 @@ def run30(eventlabel, workdir, meta=None):
 
     for counter, f in enumerate(files):
         print('\n File: {0}/{1}'.format(counter+1, len(files)))
-        time.sleep(1.5)
+        time.sleep(1.1) #sleep to prevent overwriting of data if saved in the same second
         meta.run_file = f
         meta.fittime = time.strftime('%Y-%m-%d_%H-%M-%S')
 
         if meta.run_clipiters == 0:
             print('\n')
             data = Data(f, meta, fit_par)
-
             model = Model(data, myfuncs)
-            data, model, params, m = lsq_fit(fit_par, data, meta, model, myfuncs, noclip=True)
+            data, model, params, m = lsq_fit(fit_par, data, meta, model, myfuncs, noclip=True) #not clipping
         else:
             clip_idxs = []
             for iii in range(meta.run_clipiters+1):
@@ -151,26 +166,18 @@ def run30(eventlabel, workdir, meta=None):
         nvisit = int(meta.nvisit)
         labels = []
 
-        if meta.fit_par_new == False:
-            for i in range(len(fit_par)):
-                if fit_par['fixed'][i].lower() == "false":
-                    if fit_par['tied'][i].lower() == "true":
-                        labels.append(fit_par['parameter'][i])
-                    else:
-                        for j in range(nvisit): labels.append(fit_par['parameter'][i] + str(j))
-        else:
-            ii = 0
-            for i in range(int(len(params) / nvisit)):
-                if fit_par['fixed'][ii].lower() == "false":
-                    if str(fit_par['tied'][ii]) == "-1":
-                        labels.append(fit_par['parameter'][ii])
-                        ii = ii + 1
-                    else:
-                        for j in range(nvisit):
-                            labels.append(fit_par['parameter'][ii] + str(j))
-                            ii = ii + 1
-                else:
+        ii = 0
+        for i in range(int(len(params) / nvisit)):
+            if fit_par['fixed'][ii].lower() == "false":
+                if str(fit_par['tied'][ii]) == "-1":
+                    labels.append(fit_par['parameter'][ii])
                     ii = ii + 1
+                else:
+                    for j in range(nvisit):
+                        labels.append(fit_par['parameter'][ii] + str(j))
+                        ii = ii + 1
+            else:
+                ii = ii + 1
 
         # print('labels', labels)
         return labels

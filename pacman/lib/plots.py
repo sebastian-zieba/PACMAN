@@ -218,7 +218,7 @@ def sp2d(d, meta, i):
     """
     Plot the spectrum with a low vmax to make the background better visible
     """
-    plt.imshow(d[1].data, origin = 'lower',  vmin=0, vmax=np.max(d[1].data)/50)
+    plt.imshow(d[1].data, origin = 'lower',  vmin=0, vmax=500)
     plt.colorbar()
     plt.tight_layout()
     plt.title('Spectrum w/ low vmax, visit {0}, orbit {1}'.format(meta.ivisit_sp[i], meta.iorbit_sp[i]))
@@ -470,17 +470,10 @@ def utr_aper_evo(peaks_all, meta):
         plt.close('all')
 
 
-
-
-
-
-
-
-def refspec_comp(x_vals, y_vals, modelx, modely, p0, datax, datay, leastsq_res, meta, i):
+def refspec_comp(modelx, modely, p0, datax, datay, leastsq_res, meta, i):
     fig, ax = plt.subplots(1,1, figsize=(9,6))
     plt.suptitle('refspec_comp {0}, visit {1}, orbit {2}'.format(i, meta.ivisit_sp[i], meta.iorbit_sp[i]))
-    ax.plot(x_vals, y_vals, label='refspec')
-    ax.plot(modelx, modely, label='refspec smoothed')
+    ax.plot(modelx, modely, label='refspec')
     #ax.plot((p0[0] + p0[1] * datax), datay * p0[2], label='initial guess')
     ax.plot((leastsq_res[0] + datax * leastsq_res[1]), datay * leastsq_res[2],
              label='spectrum fit, wvl = ({0:.5g}+{1:.5g}*x), {2:.5g}'.format(leastsq_res[0], leastsq_res[1], leastsq_res[2]))
@@ -496,38 +489,19 @@ def refspec_comp(x_vals, y_vals, modelx, modely, p0, datax, datay, leastsq_res, 
     if meta.save_refspec_comp_plot:
         if not os.path.isdir(meta.workdir + '/figs/drift/'):
             os.makedirs(meta.workdir + '/figs/drift/')
-        plt.savefig(meta.workdir + '/figs/drift/drift{0}.png'.format(i))
+        plt.savefig(meta.workdir + '/figs/drift/drift{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
     else:
         plt.show()
         plt.close('all')
 
 
-def refspec_comp2(x_model, y_model, p0, x_data, y_data, leastsq_res, meta, i):
-    fig, ax = plt.subplots(1,1, figsize=(9,6))
-    plt.suptitle('refspec_comp {0}, visit {1}, orbit {2}'.format(i, meta.ivisit_sp[i], meta.iorbit_sp[i]))
-    ax.plot(x_model, y_model, label='first exp in orbit')
-    #ax.plot((p0[0] + p0[1] * x_data), y_data * p0[2], label='initial guess')
-    ax.plot((leastsq_res[0] + x_data * leastsq_res[1]), y_data * leastsq_res[2],
-             label='spectrum fit, wvl = ({0:.5g}+{1:.5g}*x), {2:.5g}'.format(leastsq_res[0], leastsq_res[1], leastsq_res[2]))
-    if meta.grism == 'G141':
-        ax.set_xlim(9000, 20000)
-    elif meta.grism == 'G102':
-        ax.set_xlim(5000, 16000)
-    ax.set_xscale('log')
-    ax.set_xlabel('Wavelength (angstrom)')
-    ax.set_xlabel('rel. Flux')
-    plt.legend()
-    plt.tight_layout()
-    if not os.path.isdir(meta.workdir + '/figs/drift/'):
-        os.makedirs(meta.workdir + '/figs/drift/')
-    plt.savefig(meta.workdir + '/figs/drift/drift{0}.png'.format(i))
-    plt.close('all')
 
-
-
-##22
+##21
 def plot_wvl_bins(w_hires, f_interp, wave_bins, wvl_bins, dirname):
+    """
+    Plot of a 1D spectrum and the bins
+    """
     plt.plot(w_hires, f_interp)
     for wave in wave_bins: plt.axvline(wave, color='0.5')
     plt.ylabel("Photelectrons")
@@ -736,6 +710,7 @@ def plot_fit_lc2(data, fit, meta, mcmc=False):
     datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
     plt.clf()
     fig, ax = plt.subplots(2,1)
+    print(fit.params)
     p = FormatParams(fit.params, data)  # FIXME
     sns.set_palette("muted")
     palette = sns.color_palette("muted", data.nvisit)
@@ -744,6 +719,12 @@ def plot_fit_lc2(data, fit, meta, mcmc=False):
     # model.phase[ind] -= 1.
     # calculate a range of times at higher resolution to make model look nice
     phase_hr = np.linspace(fit.phase.min() - 0.05, fit.phase.max() + 0.05, 1000)
+    #print(phase_hr)
+    print(p.per)
+    print(p.per[0])
+    print(p.t0)
+    print(p.t0[0])
+    print(data.toffset)
     t_hr = phase_hr * p.per[0] + p.t0[0] + data.toffset
 
     # colors = ['blue', 'red', 'orange', 'gray']

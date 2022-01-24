@@ -12,6 +12,7 @@ from .splinterp import splinterp
 import astropy.time
 from . import plots
 
+
 def getcoords(file):
     """
     Use regular expressions to extract X,Y,Z, and time values from the

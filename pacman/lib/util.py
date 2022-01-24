@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from astropy.io import ascii, fits
 import math
 from importlib import reload
@@ -6,6 +7,7 @@ import multiprocessing as mp
 import os
 from tqdm import tqdm
 import numpy.ma as ma
+from scipy.interpolate import interp1d
 
 
 #s00
@@ -222,10 +224,51 @@ def median_abs_dev(vec):
     return ma.median(abs(vec - med))
 
 
+def read_refspec(meta, i, smooth=False, sigma=40):
+    #https://matthew-brett.github.io/teaching/smoothing_intro.html
+    refspec = np.loadtxt(meta.workdir + '/ancil/refspec/refspec.txt').T
+    x_refspec, y_refspec_raw = refspec[0]*1e10, refspec[1]/max(refspec[1])
+
+    if smooth == True:
+        sigma = sigma#1*46.17#0.004*10000
+        y_refspec_kernel = np.zeros(y_refspec_raw.shape)
+
+        for x_position, x_position_val in enumerate(x_refspec):
+            kernel = np.exp(-(x_refspec - x_position_val) ** 2 / (2 * sigma ** 2))
+            kernel = kernel / sum(kernel)
+            y_refspec_kernel[x_position] = sum(y_refspec_raw * kernel)
+        y_refspec_kernel = y_refspec_kernel/max(y_refspec_kernel)
+        y_refspec = y_refspec_kernel
+        if meta.save_refspec_smooth_plot:
+            plt.plot(x_refspec, y_refspec_raw, label='refspec')
+            plt.plot(x_refspec, y_refspec_kernel, label='refspec smoothed')
+            plt.legend()
+            plt.title('refspec smoothing, visit {0}, orbit {1}'.format(meta.ivisit_sp[i], meta.iorbit_sp[i]))
+            if not os.path.isdir(meta.workdir + '/figs/refspec_smooth/'):
+                os.makedirs(meta.workdir + '/figs/refspec_smooth/')
+            plt.savefig(meta.workdir + '/figs/refspec_smooth/refspec_smooth_{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05,
+                        dpi=120)
+            plt.close('all')
+    else:
+        y_refspec = y_refspec_raw
+
+    return (x_refspec, y_refspec)
 
 
+def residuals2(params, x1, y1, x2, y2):
+    """
+    calculate residuals for leastsq.
+    """
+    a, b, c = params
+    x1=np.array(x1)
+    x2=np.array(x2)
+    y1=np.array(y1)
+    y2=np.array(y2)
 
+    f = interp1d(x1, y1, kind='cubic')
+    fit = f(a+b*x2)*c
 
+    return fit - y2
 
 
 
@@ -275,19 +318,8 @@ def residuals(params, template_waves, template, spectrum, error):
     x = (template-fit)/error
     return (template-fit)/error
 
-from scipy.interpolate import interp1d
 
-def residuals2(params, x1, y1, x2, y2):
-    a, b, c = params
-    x1=np.array(x1)
-    x2=np.array(x2)
-    y1=np.array(y1)
-    y2=np.array(y2)
 
-    f = interp1d(x1, y1, kind='cubic')
-    fit = f(a+b*x2)*c
-
-    return fit - y2
 
 def interpolate_spectrum(spectrum, error, template, template_waves):
     p0 = [1., 1.0]                                        #initial guess for parameters shift and scale

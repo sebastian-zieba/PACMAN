@@ -1,4 +1,4 @@
-import os, glob, scipy, numpy, sys
+import os, glob, scipy, sys
 import numpy as np
 from astropy.io import ascii, fits
 #from numpy import *
@@ -53,12 +53,13 @@ def run20(eventlabel, workdir, meta=None):
         wvl_hires = np.linspace(7000, 17800, 1000)
 
 
-
-
     print('in total #visits, #orbits:', (meta.nvisit, meta.norbit), '\n')
+
+    #TODO: Offer testing possibility: Just run the first N files
+
     # in order to have the correct order of print() with tqdm, i added file=sys.stdout
     # source: https://stackoverflow.com/questions/36986929/redirect-print-command-in-python-script-through-tqdm-write
-    for i in tqdm(np.arange(2, dtype=int), desc='***************** Looping over files', file=sys.stdout):#tqdm(np.arange(len(files_sp), dtype=int)):
+    for i in tqdm(np.arange(len(files_sp), dtype=int), desc='***************** Looping over files', file=sys.stdout):#tqdm(np.arange(len(files_sp), dtype=int)):
         f = files_sp[i]                     # current file
         print("\nFilename: {0}".format(f))
         d = fits.open(f)                    # opens the file
@@ -105,6 +106,11 @@ def run20(eventlabel, workdir, meta=None):
         #TODO: Q: M is not used
         #TODO: Q: Earlier M was used to do the interpolation to correct for bad pixels (line 154)
         M = np.ones_like(d[1].data[rmin:rmax, cmin:cmax])                        #mask for bad pixels
+
+        #TODO: The next line is often creating errors!! Example:
+        #/home/zieba/Desktop/Projects/Open_source/PACMAN/pacman/lib/util.py:213: RuntimeWarning: invalid value encountered in subtract x = (wave - WMIN)/(WMAX-WMIN)
+        #/home/zieba/Desktop/Projects/Open_source/PACMAN/pacman/lib/util.py:214: RuntimeWarning: overflow encountered in square flatfield.append(a0+a1*x+a2*x**2)
+        #/home/zieba/Desktop/Projects/Open_source/PACMAN/pacman/lib/util.py:214: RuntimeWarning: invalid value encountered in multiply flatfield.append(a0+a1*x+a2*x**2)
         flatfield = util.get_flatfield(meta)
         bpix = d[3].data[rmin:rmax,cmin:cmax]
         badpixind =  (bpix==4)|(bpix==512)|(flatfield[orbnum][rmin:rmax, cmin:cmax] == -1.)    #selects bad pixels
@@ -202,54 +208,45 @@ def run20(eventlabel, workdir, meta=None):
 
         #corrects for wavelength drift over time
         if meta.correct_wave_shift == True:
+            #TODO: Q: Use refspec if first exposure in visit
+            #TODO: Q: Otherwise just do wavelength calibration relative to prior exposure
             if i in meta.new_visit_idx_sp:
+                print(i)
                 #if nspectra == 0:
-                template_waves = meta.wave_grid[0, int(meta.refpix[orbnum,1]) + meta.LTV1, cmin:cmax]             #LK interpolation 8/18 #use stellar model instead
+                #template_waves = meta.wave_grid[0, int(meta.refpix[orbnum,1]) + meta.LTV1, cmin:cmax]             #LK interpolation 8/18 #use stellar model instead
                 g102mask = template_waves > 8200 # we dont use the spectrum below 8200 angstrom for the interpolation as the reference bandpass cuts out below this wavelength
 
-                #https: // matthew - brett.github.io / teaching / smoothing_intro.html
-                refspec = np.loadtxt(meta.workdir + '/ancil/refspec/refspec.txt').T
-                x_refspec, y_refspec_raw = refspec[0]*1e10, refspec[1]/max(refspec[1])
+                #TODO: Add smooth_bool and smooth_sigma to pcf
+                #TODO: SMOOTHING SHOULD BE IN s03_refspectra!! OTHERWISE I'M ALSO SMOOTHING THE BANDPASS!!
+                x_refspec, y_refspec = util.read_refspec(meta, i, smooth=True, sigma=60)
 
-                kernel_bool = False
-                if kernel_bool:
-                    print(x_refspec[-1] - x_refspec[0])
-
-                    sigma = 20#1*46.17#0.004*10000
-                    y_refspec_kernel = np.zeros(y_refspec_raw.shape)
-
-                    for x_position, x_position_val in enumerate(x_refspec):
-                        kernel = np.exp(-(x_refspec - x_position_val) ** 2 / (2 * sigma ** 2))
-                        kernel = kernel / sum(kernel)
-                        y_refspec_kernel[x_position] = sum(y_refspec_raw * kernel)
-                    y_refspec_kernel = y_refspec_kernel/max(y_refspec_kernel)
-
-                y_refspec_kernel = y_refspec_raw
-                #FIXME SZ make this nicer
-                x_refspec_new = np.concatenate((np.linspace(-10000, min(x_refspec), 100, endpoint=False),
+                #TODO: This is so bad
+                #np.savetxt('testing_refspex_smoothed.txt', list(zip(x_refspec, y_refspec)))
+                #np.savetxt('testing_firstexp.txt', list(zip(template_waves, spec_opt/max(spec_opt))))
+                x_refspec_new = np.concatenate((np.linspace(-5000, min(x_refspec), 10, endpoint=False),
                                          x_refspec,
-                                         np.linspace(max(x_refspec) + 10, 100000, 100, endpoint=False)))
-                y_refspec_kernel_new = np.concatenate((np.zeros(100),
-                                         y_refspec_kernel,
-                                         np.zeros(100)))
+                                         np.linspace(max(x_refspec) + 350, 30000, 10, endpoint=False)))
+                y_refspec_new = np.concatenate((np.zeros(10),
+                                         y_refspec,
+                                         np.zeros(10)))
 
+                #TODO: will break if optimal extractions isnt used!
                 x_data = template_waves[g102mask]
                 y_data = (spec_opt/max(spec_opt))[g102mask]
 
-                #np.savetxt(meta.workdir + '/first_exp.txt', list(zip(x_data, y_data)))
-
-                p0 = [0, 1, 1]
-                leastsq_res = leastsq(util.residuals2, p0, args=(x_refspec_new, y_refspec_kernel_new, x_data, y_data))[0]
-                print('leastsq_res', leastsq_res)
+                p0 = [0, 1, 1] # initial guess for least squares
+                leastsq_res = leastsq(util.residuals2, p0, args=(x_refspec_new, y_refspec_new, x_data, y_data))[0]
+                #print('leastsq_res', leastsq_res)
 
                 if meta.save_refspec_comp_plot or meta.show_refspec_comp_plot:
-                    plots.refspec_comp(x_refspec, y_refspec_raw, x_refspec_new, y_refspec_kernel_new, p0, x_data, y_data, leastsq_res, meta, i)
+                    plots.refspec_comp(x_refspec_new, y_refspec_new, p0, x_data, y_data, leastsq_res, meta, i)
 
-                template_waves = leastsq_res[0] + template_waves * leastsq_res[1]
 
                 #for all other but first exposure in visit exposures
-                template_waves_ref = np.copy(template_waves)
-                y_data_firstexpvisit = np.copy(spec_opt/max(spec_opt))
+                x_data_firstexpvisit = leastsq_res[0] + template_waves * leastsq_res[1]
+                y_data_firstexpvisit = np.copy(y_data)
+
+                wvls = np.copy(x_data_firstexpvisit)
 
                 #template_waves -= 70.               #LK hack to get the wavelength solution right
                 #print("LK adjusting wavelength solution BY HAND!!!!")
@@ -266,36 +263,54 @@ def run20(eventlabel, workdir, meta=None):
                 #     spec_opt = best_spec                                    #saves the interpolated spectrum
                 #     var_opt = best_var
             else:
+                # if i in (meta.new_visit_idx_sp+1):
+                #     print('true')
+                #     #FIXME SZ make this nicer
+                #     x_model = np.concatenate((np.linspace(-10000, min(x_data_firstexpvisit), 100, endpoint=False),
+                #                              x_data_firstexpvisit,
+                #                              np.linspace(max(x_data_firstexpvisit) + 10, 100000, 100, endpoint=False)))
+                #     y_model = np.concatenate((np.zeros(100),
+                #                              y_data_firstexpvisit,
+                #                              np.zeros(100)))
+                # else:
+                #     x_model = np.concatenate((np.linspace(-10000, min(x_data_priorexp), 100, endpoint=False),
+                #                              x_data_priorexp,
+                #                              np.linspace(max(x_data_priorexp) + 10, 100000, 100, endpoint=False)))
+                #     y_model = np.concatenate((np.zeros(100),
+                #                              y_data_priorexp,
+                #                              np.zeros(100)))
 
-                #FIXME SZ make this nicer
-                x_model = np.concatenate((np.linspace(-10000, min(template_waves_ref), 100, endpoint=False),
-                                         template_waves_ref,
-                                         np.linspace(max(template_waves_ref) + 10, 100000, 100, endpoint=False)))
-                y_model = np.concatenate((np.zeros(100),
+                #TODO: So bad too
+                x_model = np.concatenate((np.linspace(-5000, min(x_data_firstexpvisit), 10, endpoint=False),
+                                         x_data_firstexpvisit,
+                                         np.linspace(max(x_data_firstexpvisit) + 350, 30000, 10, endpoint=False)))
+                y_model = np.concatenate((np.zeros(10),
                                          y_data_firstexpvisit,
-                                         np.zeros(100)))
+                                         np.zeros(10)))
 
                 x_data = meta.wave_grid[0, int(meta.refpix[orbnum,1]) + meta.LTV1, cmin:cmax]
                 y_data = spec_opt/max(spec_opt)
 
                 p0 = [0, 1, 1]
                 leastsq_res = leastsq(util.residuals2, p0, args=(x_model, y_model, x_data, y_data))[0]
-                print('leastsq_res', leastsq_res)
+                #print('leastsq_res', leastsq_res)
 
                # if meta.save_refspec_comp_plot or meta.show_refspec_comp_plot:
                #     plots.refspec_comp(x_vals, y_vals, modelx, modely, p0, datax, datay, leastsq_res, meta, i)
-                plots.refspec_comp2(x_model, y_model, p0, x_data, y_data, leastsq_res, meta, i)
+                plots.refspec_comp(x_model, y_model, p0, x_data, y_data, leastsq_res, meta, i)
 
-                template_waves = leastsq_res[0] + x_data * leastsq_res[1]
-
+                wvls = leastsq_res[0] + x_data * leastsq_res[1]
+                #
+                # x_data_priorexp = wvls
+                # y_data_priorexp = y_data
         else:
-            template_waves = meta.wave_grid[0, int(meta.refpix[orbnum, 1]) + meta.LTV1, cmin:cmax]
+            wvls = template_waves
 
         # stores 1d spectra into list for plot
         if meta.opt_extract and (meta.save_sp1d_diff_plot or meta.show_sp1d_diff_plot):
-            sp1d_all.append(np.interp(wvl_hires, template_waves, spec_opt))
+            sp1d_all.append(np.interp(wvl_hires, wvls, spec_opt))
         if not meta.opt_extract and (meta.save_sp1d_diff_plot or meta.show_sp1d_diff_plot):
-            sp1d_all.append(np.interp(wvl_hires, template_waves, spec_box))
+            sp1d_all.append(np.interp(wvl_hires, wvls, spec_box))
 
         #wavelengthsolutionoffset = 105.
 
@@ -311,9 +326,9 @@ def run20(eventlabel, workdir, meta=None):
         # plot of the 1d spectrum
         if meta.save_sp1d_plot or meta.show_sp1d_plot:
             if meta.opt_extract:
-                plots.sp1d(template_waves, spec_box, meta, i, spec_opt = spec_opt)
+                plots.sp1d(wvls, spec_box, meta, i, spec_opt = spec_opt)
             else:
-                plots.sp1d(template_waves, spec_box, meta, i)
+                plots.sp1d(wvls, spec_box, meta, i)
 
 
         #print(phase, sum(spec_opt), sum(var_opt),  sum(spec_box), sum(var_box), time, visnum, orbnum, scan)
@@ -324,7 +339,7 @@ def run20(eventlabel, workdir, meta=None):
             table_white.add_row([meta.t_mjd_sp[i], meta.t_bjd_sp[i], meta.t_visit_sp[i], meta.t_orbit_sp[i], visnum, orbnum, scan, sum(spec_opt), sum(var_opt),  sum(spec_box), sum(var_box)])
             n = len(spec_opt)
             for ii in np.arange(n):
-                table_spec.add_row([meta.t_mjd_sp[i], meta.t_bjd_sp[i], meta.t_visit_sp[i], meta.t_orbit_sp[i], visnum, orbnum, scan, spec_opt[ii], var_opt[ii], template_waves[ii]])
+                table_spec.add_row([meta.t_mjd_sp[i], meta.t_bjd_sp[i], meta.t_visit_sp[i], meta.t_orbit_sp[i], visnum, orbnum, scan, spec_opt[ii], var_opt[ii], wvls[ii]])
             #print(nspectra, time[0], numoutliers, skymedian, shift, file=diagnosticsfile)
             table_diagnostics.add_row([nspectra, meta.t_mjd_sp[i], numoutliers, skymedian, shift, sum(np.isnan(spec_opt))])
 
@@ -336,7 +351,7 @@ def run20(eventlabel, workdir, meta=None):
         #print("sky background!!", skymedian, visnum)
         #print("length of spectrum", len(spec_opt))
         #TODO: Will break if user doesn't use optimal extraction!!
-        print("# nans", sum(np.isnan(spec_opt)))
+        #print("# nans", sum(np.isnan(spec_opt)))
         #print(nspectra, meta.t_bjd_sp[i], sum(spec_opt), np.sum(spec_box), visnum, f, shift)
         print('\n')
 

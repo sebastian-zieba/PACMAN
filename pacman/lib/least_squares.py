@@ -12,6 +12,7 @@ def residuals(params, data, model, fjac=None):
     return [0, fit.resid/data.err]
 
 def lsq_fit(fit_par, data, meta, model, myfuncs, noclip=False):
+    #TODO: noclip = True should be standard
     nvisit = data.nvisit 
     npar = len(data.parnames)*nvisit
 
@@ -23,56 +24,38 @@ def lsq_fit(fit_par, data, meta, model, myfuncs, noclip=False):
     #loops through parameters and visits
     #sets initial guess, step size, tie, bounds
 
-    if meta.fit_par_new == False:
-        for i in range(int(npar/nvisit)):
+    ii=0
+    for i in range(int(len(data.parnames))):
+        if str(fit_par['tied'][ii]) == "-1":
             for j in range(nvisit):
-                parinfo[i*nvisit+j]['value'] = fit_par['value'][i]
-                parinfo[i*nvisit+j]['step'] = fit_par['step_size'][i]
-                parinfo[i*nvisit+j]['fixed'] = fit_par['fixed'][i].lower() == "true"
-                if j>0 and fit_par['tied'][i].lower() == "true":
+                parinfo[i*nvisit+j]['value'] = fit_par['value'][ii]
+                parinfo[i*nvisit+j]['step'] = fit_par['step_size'][ii]
+                parinfo[i*nvisit+j]['fixed'] = fit_par['fixed'][ii].lower() == "true"
+                if j>0 and str(fit_par['tied'][ii]) == "-1":
                     parinfo[i*nvisit+j]['tied'] = 'p[{0}]'.format(nvisit*i)
-                if fit_par['lo_lim'][i].lower() == "true":
+                if fit_par['lo_lim'][ii].lower() == "true":
                     parinfo[i*nvisit+j]['limited'][0] = True
-                    parinfo[i*nvisit+j]['limits'][0] = fit_par['lo_val'][i]
-                if fit_par['hi_lim'][i].lower() == "true":
+                    parinfo[i*nvisit+j]['limits'][0] = fit_par['lo_val'][ii]
+                if fit_par['hi_lim'][ii].lower() == "true":
                     parinfo[i*nvisit+j]['limited'][1] = True
-                    parinfo[i*nvisit+j]['limits'][1] = fit_par['hi_val'][i]
-                params_s.append(fit_par['value'][i])
-
-    else:
-        ii=0
-        for i in range(int(len(data.parnames))):
-            if str(fit_par['tied'][ii]) == "-1":
-                for j in range(nvisit):
-                    parinfo[i*nvisit+j]['value'] = fit_par['value'][ii]
-                    parinfo[i*nvisit+j]['step'] = fit_par['step_size'][ii]
-                    parinfo[i*nvisit+j]['fixed'] = fit_par['fixed'][ii].lower() == "true"
-                    if j>0 and str(fit_par['tied'][ii]) == "-1":
-                        parinfo[i*nvisit+j]['tied'] = 'p[{0}]'.format(nvisit*i)
-                    if fit_par['lo_lim'][ii].lower() == "true":
-                        parinfo[i*nvisit+j]['limited'][0] = True
-                        parinfo[i*nvisit+j]['limits'][0] = fit_par['lo_val'][ii]
-                    if fit_par['hi_lim'][ii].lower() == "true":
-                        parinfo[i*nvisit+j]['limited'][1] = True
-                        parinfo[i*nvisit+j]['limits'][1] = fit_par['hi_val'][ii]
-                    params_s.append(fit_par['value'][ii])
-                ii = ii+1
-            else:
-                for j in range(nvisit):
-                    parinfo[i * nvisit + j]['value'] = fit_par['value'][ii]
-                    parinfo[i * nvisit + j]['step'] = fit_par['step_size'][ii]
-                    parinfo[i * nvisit + j]['fixed'] = fit_par['fixed'][ii].lower() == "true"
-                    if j > 0 and str(fit_par['tied'][ii]) == "-1":
-                        parinfo[i * nvisit + j]['tied'] = 'p[{0}]'.format(nvisit * i)
-                    if fit_par['lo_lim'][ii].lower() == "true":
-                        parinfo[i * nvisit + j]['limited'][0] = True
-                        parinfo[i * nvisit + j]['limits'][0] = fit_par['lo_val'][ii]
-                    if fit_par['hi_lim'][ii].lower() == "true":
-                        parinfo[i * nvisit + j]['limited'][1] = True
-                        parinfo[i * nvisit + j]['limits'][1] = fit_par['hi_val'][ii]
-                    params_s.append(fit_par['value'][ii])
-                    ii = ii + 1
-
+                    parinfo[i*nvisit+j]['limits'][1] = fit_par['hi_val'][ii]
+                params_s.append(fit_par['value'][ii])
+            ii = ii+1
+        else:
+            for j in range(nvisit):
+                parinfo[i * nvisit + j]['value'] = fit_par['value'][ii]
+                parinfo[i * nvisit + j]['step'] = fit_par['step_size'][ii]
+                parinfo[i * nvisit + j]['fixed'] = fit_par['fixed'][ii].lower() == "true"
+                if j > 0 and str(fit_par['tied'][ii]) == "-1":
+                    parinfo[i * nvisit + j]['tied'] = 'p[{0}]'.format(nvisit * i)
+                if fit_par['lo_lim'][ii].lower() == "true":
+                    parinfo[i * nvisit + j]['limited'][0] = True
+                    parinfo[i * nvisit + j]['limits'][0] = fit_par['lo_val'][ii]
+                if fit_par['hi_lim'][ii].lower() == "true":
+                    parinfo[i * nvisit + j]['limited'][1] = True
+                    parinfo[i * nvisit + j]['limits'][1] = fit_par['hi_val'][ii]
+                params_s.append(fit_par['value'][ii])
+                ii = ii + 1
 
 
     params_s = np.array(params_s)
@@ -91,14 +74,16 @@ def lsq_fit(fit_par, data, meta, model, myfuncs, noclip=False):
             #data.dof += 2
 #		print "subtracting 2 from dof for divide-white"
 
-
+    print('Runs MPFIT... ')
     m = mpfit.mpfit(residuals, params_s, functkw=fa, parinfo = parinfo, quiet=True)
 
     if noclip == False:
+        #if user wants to sigma clip but there is nothing to clip:
         if sum(np.ma.getmask(sigma_clip(model.resid, sigma=meta.run_clipsigma, maxiters=1))) == 0:
             clip_idx = []
             if meta.run_show_plot: plot_fit_lc2(data, model, meta)
         else:
+            #if user wants to sigma clip and there are outliers:
             clip_idx = np.where(np.ma.getmask(sigma_clip(model.resid, sigma=meta.run_clipsigma, maxiters=1))==True)[0]
             print('Outlier Identified: ', len(clip_idx))
             print('Outlier idx: ', clip_idx)

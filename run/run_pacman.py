@@ -7,19 +7,22 @@ import pacman.reduction.s02_barycorr as s02
 import pacman.reduction.s03_refspectra as s03
 import pacman.reduction.s10_direct_images as s10
 import pacman.reduction.s20_extract as s20
+import pacman.reduction.s21_bin_spectroscopic_lc as s21
 import pacman.reduction.s30_run as s30
 from pacman.lib.update_meta import update_meta
 from pacman.lib import sort_nicely as sn
 
-run_s00 = True     # read in fits files and create filelist.txt
-run_s01 = True     # download positions of HST during observations
-run_s02 = True     # correct the MJD to BJD using the positions of HST
-run_s03 = True      # download the stellar spectrum and create a reference spectrum with the bandpass of the grism
-run_s10 = True     # determine the position of the source by looking at the direct image
+run_s00 = False     # read in fits files and create filelist.txt
+run_s01 = False     # download positions of HST during observations
+run_s02 = False     # correct the MJD to BJD using the positions of HST
+run_s03 = False      # download the stellar spectrum and create a reference spectrum with the bandpass of the grism
+run_s10 = False     # determine the position of the source by looking at the direct image
 run_s20 = False     # extract the spectra
-run_s30 = False     # fit models to the extracted light curve(s)
+run_s21 = False     # bin light curves
+run_s30 = True     # fit models to the extracted light curve(s)
 
-eventlabel = 'KELT11_Hubble15926'
+#eventlabel = 'KELT11_Hubble15926'
+eventlabel = 'GJ1214_Hubble13021'
 #workdir = '/home/zieba/Desktop/Projects/Open_source/PACMAN/run/run_2022-01-13_00-13-00_KELT11_Hubble15926/'
 
 if run_s00:
@@ -52,6 +55,10 @@ if run_s10:
 if run_s20:
     update_meta(eventlabel, workdir)
     meta = s20.run20(eventlabel, workdir)
+
+if run_s21:
+    update_meta(eventlabel, workdir)
+    meta = s21.run21(eventlabel, workdir)
 
 if run_s30:
     update_meta(eventlabel, workdir)

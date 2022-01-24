@@ -431,8 +431,57 @@ The user can decide if they want to use `optimal extraction <https://ui.adsabs.h
 .. image:: media/stage20/sp1d_0.png
 
 
+Successfully reloaded meta file
+Starting s20
+in total #visits, #orbits: (2, 8)
+
+*************** Looping over files:   0%|                                                                                                                                                  | 0/150 [00:00<?, ?it/s]
+Filename: /home/zieba/Desktop/Data/GJ1214_Hubble13021/ibxy15c3q_ima.fits
+current visit, orbit:  (0, 0)
+--- Looping over up-the-ramp-samples: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 14/14 [00:38<00:00,  2.74s/it]
+# nans 0
+1 2456516.756414722 232045819.64877105 231996293.51657677 0 /home/zieba/Desktop/Data/GJ1214_Hubble13021/ibxy15c3q_ima.fits 0.0
+
+
+*************** Looping over files:   1%|▉                                                                                                                                       | 1/150 [00:40<1:40:50, 40.61s/it]
+Filename: /home/zieba/Desktop/Data/GJ1214_Hubble13021/ibxy15c4q_ima.fits
+current visit, orbit:  (0, 0)
+--- Looping over up-the-ramp-samples: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 14/14 [00:36<00:00,  2.59s/it]
+# nans 0
+2 2456516.758058145 232194941.24419373 232160860.22628593 0 /home/zieba/Desktop/Data/GJ1214_Hubble13021/ibxy15c4q_ima.fits 0.0
+
+
+*************** Looping over files:   1%|█▊                                                                                                                                      | 2/150 [01:18<1:38:25, 39.90s/it]
+Filename: /home/zieba/Desktop/Data/GJ1214_Hubble13021/ibxy15c5q_ima.fits
+current visit, orbit:  (0, 0)
+--- Looping over up-the-ramp-samples: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 14/14 [00:35<00:00,  2.57s/it]
+# nans 0
+3 2456516.7597015635 233477484.9567572 233412007.6492405 0 /home/zieba/Desktop/Data/GJ1214_Hubble13021/ibxy15c5q_ima.fits 0.0
+
+
+*************** Looping over files:   2%|██▋                                                                                                                                     | 3/150 [01:56<1:36:22, 39.34s/it]
+Filename: /home/zieba/Desktop/Data/GJ1214_Hubble13021/ibxy15c6q_ima.fits
+current visit, orbit:  (0, 0)
+--- Looping over up-the-ramp-samples: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 14/14 [00:35<00:00,  2.55s/it]
+# nans 0
+4 2456516.761344972 233197991.74042583 233164082.77163315 0 /home/zieba/Desktop/Data/GJ1214_Hubble13021/ibxy15c6q_ima.fits 0.0
 
 
 
 
 
+Stage 20
+:::::::::::::::::::::::::::::::::::::::::
+
+
+.. code-block:: console
+
+	    Successfully reloaded meta file
+	    Starting s21
+
+	    Number of bin edges: 12
+	    Chosen directory with the spectroscopic flux file: 2022-01-23_17-50-56
+	    ***************** Looping over Bins: 100%|██████████████████████████| 11/11 [00:02<00:00,  3.71it/s]
+	    Finished s21
+
+.. image:: media/spec_bins12.png

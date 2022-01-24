@@ -49,6 +49,21 @@ reduction.s20_extract
     :undoc-members:
     :show-inheritance:
 
+reduction.s21_bin_spectroscopic_lc
+-------------------------------------------
+.. automodule:: pacman.reduction.s21_bin_spectroscopic_lc
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+reduction.s30_run
+-------------------------------------------
+.. automodule:: pacman.reduction.s30_run
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 lib
 """""""""""""""""""""""""""
 
@@ -115,15 +130,14 @@ lib.gaussfitter
     :undoc-members:
     :show-inheritance:
 
-
-
-
-lib.geometry
+lib.mpfit
 ----------------------------------------
-.. automodule:: pacman.lib.geometry
+.. automodule:: pacman.lib.mpfit
     :members:
     :undoc-members:
     :show-inheritance:
+
+
 
 lib.geometry102
 ----------------------------------------
@@ -132,6 +146,12 @@ lib.geometry102
     :undoc-members:
     :show-inheritance:
 
+lib.geometry141
+----------------------------------------
+.. automodule:: pacman.lib.geometry141
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 lib.optextr
 ----------------------------------------
@@ -143,6 +163,36 @@ lib.optextr
 
 
 
+lib.sort_nicely
+----------------------------------------
+.. automodule:: pacman.lib.sort_nicely
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
+
+
+
+
+lib.read_data
+----------------------------------------
+.. automodule:: pacman.lib.read_data
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+lib.model
+----------------------------------------
+.. automodule:: pacman.lib.model
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+lib.least_squares
+----------------------------------------
+.. automodule:: pacman.lib.least_squares
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 

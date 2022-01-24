@@ -17,22 +17,10 @@ class Data:
                 nvisit = int(meta.nvisit)
                 prior = []
 
-                if meta.fit_par_new == False:
-                    #OLD fit_par.txt
-                    for i in range(len(fit_par)):
-                        if fit_par['fixed'][i].lower() == "false":
-                            if fit_par['tied'][i].lower() == "true":
-                                prior.append([fit_par['prior'][i], float(fit_par['p1'][i]),
-                                    float(fit_par['p2'][i])])
-                            else:
-                                for j in range(nvisit):
-                                    prior.append([fit_par['prior'][i], float(fit_par['p1'][i]),
-                                        float(fit_par['p2'][i])])
-                else:
-                    for i in range(len(fit_par)):
-                        if fit_par['fixed'][i].lower() == "false":
-                            prior.append([fit_par['prior'][i], float(fit_par['p1'][i]),
-                                float(fit_par['p2'][i])])
+                for i in range(len(fit_par)):
+                    if fit_par['fixed'][i].lower() == "false":
+                        prior.append([fit_par['prior'][i], float(fit_par['p1'][i]),
+                            float(fit_par['p2'][i])])
 
                 print('prior, read_data', prior)
                 return prior
@@ -67,6 +55,7 @@ class Data:
         t_orb = t_orb - t_orb_starts
         t_vis = t_vis - min(t_vis)
 
+        #t_delay will =1 if it's the first orbit in a visit. Otherwise =0
         t_delay = np.zeros(n)
 
         nvisit = int(meta.nvisit)
@@ -81,6 +70,9 @@ class Data:
         #####################################
         #remove first orbit of each visit
         #norbit -= 4
+        #TODO: THIS HAS TO BE FIXED!!!
+        #TODO: Easiest solution: Do not only save comulative orbit number but also orbit number in visit.
+        #TODO: OR EASIER: Save the number of orbits per visit!!
         ind = (orb_num%4 == 0)
         #ind = (orb_num%10 == 0)
         orb_num = orb_num[~ind]
@@ -91,13 +83,14 @@ class Data:
         t_delay = t_delay[~ind]
         d = d[~ind]
 
-        #FIXME SZ IMPORTANT! WONT WORK IF VISIT HASNT 4 ORBITS!!
+        #TODO: NEEDS FIX!! WONT WORK IF VISIT HASNT 4 ORBITS!!
         ind = (orb_num%4 == 1)
         #ind = (orb_num%10 == 1)
         t_delay[ind] = 1.
         """ind = (orb_num==0)|(orb_num == 6)|(orb_num == 12)|(orb_num == 18)
         t_delay[ind] = 1."""
 
+        #TODO: Will break when user did not use optimal extraction!
         err = np.sqrt(d['var_opt'])
         flux = d['spec_opt']
         time  = d['t_bjd']
@@ -128,19 +121,13 @@ class Data:
 
         nfree_param = 0
 
-        if meta.fit_par_new == False:
-        # OLD fit_par.txt
-            for i in range(len(fit_par)):
-                if fit_par['fixed'][i].lower() == "false":
-                    if fit_par['tied'][i].lower() == "true": nfree_param += 1
-                    else: nfree_param += nvisit
-            # print('nfree_param, read_data', nfree_param)
-        else:
-            for i in range(len(fit_par)):
-                if fit_par['fixed'][i].lower() == "false":
-                    nfree_param += 1
+        for i in range(len(fit_par)):
+            if fit_par['fixed'][i].lower() == "false":
+                nfree_param += 1
 
-
+        # The following is for removal of sigma clipped data in the light curve
+        # Running this part the first time; clip_idx will always be emtpy
+        # After performing the least sq it will decide to clip or not and then possible run this here again
         idx_array = np.arange(len(time), dtype=int)
         print('readdata:', clip_idx)
         if len(clip_idx) == 0: clip_mask = idx_array
@@ -156,25 +143,21 @@ class Data:
         self.toffset = float(meta.toffset)
         self.nvisit = nvisit
         self.vis_num = vis_num[clip_mask]
+        #print(self.vis_num)
         self.orb_num = orb_num[clip_mask]
         self.scan_direction = scan_direction[clip_mask]
         self.t_vis = t_vis[clip_mask]
         self.t_orb = t_orb[clip_mask]
         self.t_delay = t_delay[clip_mask]
-        if meta.fit_par_new == False:
-            self.parnames = fit_par['parameter'] # OLD fit_par.txt
-        else:
-            self.parnames = remove_dupl(fit_par['parameter'])
+        self.parnames = remove_dupl(fit_par['parameter'])
         #print('self.parnames ', self.parnames )
-        if meta.fit_par_new == False:
-            par_order = {line['parameter']: i for i, line in enumerate(fit_par)} # OLD fit_par.txt
-        else:
-            par_order = {line: i for i, line in enumerate(self.parnames)}
+        par_order = {line: i for i, line in enumerate(self.parnames)}
         #print('par_order', par_order)
         self.par_order = par_order
         self.nfree_param = nfree_param
         self.npoints = len(self.time)
         self.dof = self.npoints  - nfree_param
+        #TODO: Q: Any need for lc_type?
         self.lc_type = meta.lc_type
         self.all_sys = None
         self.u1 = 0.
@@ -183,12 +166,11 @@ class Data:
         #plt.plot(self.t_vis, self.flux, '.k')
         #plt.show()
 
-
         self.prior = format_prior_for_mcmc(self, meta, fit_par)
 
         self.vis_idx = []
         for i in range(nvisit): self.vis_idx.append(self.vis_num == i)
-
+        #print(self.vis_idx)
         #FIXME
         #self.white_systematics = np.genfromtxt("white_systematics.txt")
 
