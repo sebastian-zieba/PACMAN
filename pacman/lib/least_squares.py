@@ -74,7 +74,7 @@ def lsq_fit(fit_par, data, meta, model, myfuncs, noclip=False):
             #data.dof += 2
 #		print "subtracting 2 from dof for divide-white"
 
-    print('Runs MPFIT... ')
+    print('\nRuns MPFIT... ')
     m = mpfit.mpfit(residuals, params_s, functkw=fa, parinfo = parinfo, quiet=True)
 
     if noclip == False:

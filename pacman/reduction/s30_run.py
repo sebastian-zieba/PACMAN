@@ -16,6 +16,7 @@ from ..lib.mcmc import mcmc_fit
 from ..lib.nested import nested_sample
 from ..lib.formatter import ReturnParams
 from ..lib import sort_nicely as sn
+from ..lib import nice_fit_par
 #sys.path.append('../..')
 #sys.path.append('/home/zieba/Desktop/Projects/Open_source/wfc-pipeline/')
 #sys.path.insert(0, '../lib')
@@ -35,6 +36,9 @@ def run30(eventlabel, workdir, meta=None):
     meta.fitdir = '/fit_' + datetime + '_' + meta.eventlabel
     if not os.path.exists(meta.workdir + meta.fitdir):
         os.makedirs(meta.workdir + meta.fitdir)
+
+    #Make fit_par nice...
+    nice_fit_par.nice_fit_par(meta.workdir + "/fit_par.txt")
 
     # Copy pcf and fit_par files
     shutil.copy(meta.workdir + "/obs_par.pcf", meta.workdir + meta.fitdir)
@@ -84,7 +88,7 @@ def run30(eventlabel, workdir, meta=None):
     idxs = []
 
     for counter, f in enumerate(files):
-        print('\n File: {0}/{1}'.format(counter+1, len(files)))
+        print('\n****** File: {0}/{1}'.format(counter+1, len(files)))
         time.sleep(1.1) #sleep to prevent overwriting of data if saved in the same second
         meta.run_file = f
         meta.fittime = time.strftime('%Y-%m-%d_%H-%M-%S')
@@ -183,7 +187,7 @@ def run30(eventlabel, workdir, meta=None):
         return labels
 
 
-    print(vals)
+    #print(vals)
     labels = labels_gen(params, meta, fit_par)
     print(labels)
     fig, ax = plt.subplots(len(idxs[0]), 1, figsize=(6.4,30), sharex=True)
@@ -195,7 +199,7 @@ def run30(eventlabel, workdir, meta=None):
     plt.subplots_adjust(hspace=0.01)
     plt.savefig(meta.workdir + meta.fitdir + '/ls_{0}.png'.format(datetime), dpi=700, tight_layout=True)
 
-    print(idxs)
+    #print(idxs)
     if not meta.run_fit_white:
         f_lsq =  open(meta.workdir + meta.fitdir + "/lsq_res_{0}.txt".format(meta.fittime), 'w')
         files_name_ending = [float(files[ii].split('speclc')[-1].split('.txt')[0]) for ii in range(len(files))]

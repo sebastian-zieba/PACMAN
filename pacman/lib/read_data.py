@@ -129,12 +129,12 @@ class Data:
         # Running this part the first time; clip_idx will always be emtpy
         # After performing the least sq it will decide to clip or not and then possible run this here again
         idx_array = np.arange(len(time), dtype=int)
-        print('readdata:', clip_idx)
+        #print('readdata:', clip_idx)
         if len(clip_idx) == 0: clip_mask = idx_array
         else:clip_mask = np.bitwise_and.reduce([idx_array!=i for i in clip_idx])
 
         self.time = time[clip_mask]
-        print(len(time[clip_mask]))
+        #print(len(time[clip_mask]))
         self.flux = flux[clip_mask]
         print('median log10 raw flux:', np.log10(np.median(flux[clip_mask])))
         self.err = err[clip_mask]
