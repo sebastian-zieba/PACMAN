@@ -54,14 +54,12 @@ def run02(eventlabel, workdir, meta=None):
     meta = util.ancil(meta)
 
     # Converting mjd to bjd
-    for i in tqdm(range(max(ivisit) + 1), desc='Converting MJD to BJD'):
+    for i in tqdm(range(max(ivisit) + 1), desc='Converting MJD to BJD', ascii=True):
         iivisit = ivisit == i
         t_jd = t_mjd[iivisit] + 2400000.5  # converts time to BJD_TDB; see Eastman et al. 2010 equation 4
         t_jd = t_jd + (32.184) / (24.0 * 60.0 * 60.0)
         t_bjd[iivisit] = t_jd + (suntimecorr.suntimecorr(meta, t_jd, meta.coordtable[i], verbose=False)) / (
                 60.0 * 60.0 * 24.0)
-    # phase = (time - ancil.t0) / ancil.period - math.floor((time - ancil.t0) / ancil.period)
-    # if phase > 0.5: phase = phase - 1.0
 
     print('Writing t_bjd into filelist.txt')
     if not any(np.array(filelist.keys()) == 't_bjd'):

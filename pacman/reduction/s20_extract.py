@@ -77,7 +77,7 @@ def run20(eventlabel, workdir, meta=None):
         if meta.save_trace_plot or meta.show_trace_plot:
             plots.trace(d, meta, visnum, orbnum, i)
 
-        #TODO: Q: What is the offset used for?
+        #TODO: Q: What is the offset used for? #delete
         offset = meta.offset
         #TODO: SPEED UP: calculation of the start and end of the trace could be moved to util.py. It's also used in plots.plot_trace. Also in plots.utr
         #TODO: Q: There's also cmin and cmax in the pcf file. Keep?
@@ -88,7 +88,7 @@ def run20(eventlabel, workdir, meta=None):
         #TODO: Q: Why are the dimensions 266x266?
         rmin, rmax = int(meta.rmin), int(meta.rmax)                     #top and bottom row for extraction (specified in obs_par.txt)
 
-        #TODO: Q: Should we keep a way for the user to decide on a background box?
+        #TODO: Q: Should we keep a way for the user to decide on a background box? remove
         #skycmin, skycmax, skyrmin, skyrmax = meta.skycmin, meta.skycmax, meta.skyrmin, meta.skyrmax
 
         #D = np.zeros_like(d[1].data[rmin:rmax,cmin:cmax])                        #array to store the background-subtracted data
@@ -118,7 +118,7 @@ def run20(eventlabel, workdir, meta=None):
 
         spec_box = np.zeros(cmax - cmin)                                #box extracted standard spectrum
         spec_opt = np.zeros(cmax - cmin)                                #optimally extracted spectrum
-        var_box = np.zeros(cmax - cmin)                                #box spectrum variance
+        var_box = np.zeros(cmax - cmin)                              #box spectrum variance
         var_opt = np.zeros(cmax - cmin)                                #optimal spectrum variance
 
         #########################################################################################################################################################
@@ -164,7 +164,7 @@ def run20(eventlabel, workdir, meta=None):
                 plots.bkg_hist(fullframe_diff, skymedian, meta, i, ii)
             diff = diff - skymedian                                    #subtracts the background
 
-            #TODO: Q: ?
+            #TODO: Q: Delete!!
             #interpolation to correct for bad pixels and the fact that the wavelength solution changes row by row
             """for jj in range(rmax):
                 goodidx = M[jj,:] == 1.0                            #selects good pixels
@@ -182,7 +182,8 @@ def run20(eventlabel, workdir, meta=None):
             var = abs(spectrum) + float(meta.rdnoise)**2 + skyvar                #variance estimate: Poisson noise from photon counts (first term)  + readnoise (factor of 2 for differencing) + skyvar
             spec_box_0 = spectrum.sum(axis = 0)                            #initial box-extracted spectrum
             var_box_0 = var.sum(axis = 0)                                #initial variance guess
-            newM = np.ones_like(spectrum)  # not masking any pixels because we interpolated over them
+            newM = np.ones_like(spectrum)  # not masking any pixels because we interpolated over them #TODO: NEW: use M instead
+            #
             #print(M.shape)
             #print(newM.shape)
             #TODO: Just use meta to reduce the number of parameters which are given to optextr
@@ -314,6 +315,7 @@ def run20(eventlabel, workdir, meta=None):
 
         #wavelengthsolutionoffset = 105.
 
+        #TODO: remove
         #plots wavelength solution compared to a stellar template
         """plt.plot(template_waves - wavelengthsolutionoffset, best_spec/np.max(best_spec), label = 'LK spectrum')
         np.save("temp_spectrum", [template_waves, best_spec])
@@ -334,7 +336,7 @@ def run20(eventlabel, workdir, meta=None):
         #print(phase, sum(spec_opt), sum(var_opt),  sum(spec_box), sum(var_box), time, visnum, orbnum, scan)
 
        # print(phase[0], sum(spec_opt), sum(var_opt),  sum(spec_box), sum(var_box), time[0], visnum, orbnum, scan)
-        # TODO: Q: Keep asking if user wants output?
+        # TODO: Q: Keep asking if user wants output? NO
         if meta.output == True:
             table_white.add_row([meta.t_mjd_sp[i], meta.t_bjd_sp[i], meta.t_visit_sp[i], meta.t_orbit_sp[i], visnum, orbnum, scan, sum(spec_opt), sum(var_opt),  sum(spec_box), sum(var_box)])
             n = len(spec_opt)
@@ -378,6 +380,7 @@ def run20(eventlabel, workdir, meta=None):
         plots.utr_aper_evo(peaks_all, meta)
 
 
+    #TODO: delete
     print("I made a change to how the wavelength interpolation is being done")
     print("it's commented as LK 8/18")
     print("Should check at some point to see if it's right")

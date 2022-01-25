@@ -107,12 +107,13 @@ After running Stage 00 you should get an output like this:
 
 	    Starting s00
 	    Found 1145 data file(s) ending in ima.fits
-	    Reading in files and their header information: 100%|██████████| 1145/1145 [00:03<00:00, 368.21it/s]
-	    Determining Orbit and Visit: 100%|██████████| 1145/1145 [00:00<00:00, 311606.42it/s]
+	    Reading in files and their headers: 100%|############| 1145/1145 [00:03<00:00, 325.43it/s]
+	    Determining orbit(s) and visit(s): 100%|##########| 1145/1145 [00:00<00:00, 254922.13it/s]
 	    The user does not want to analyse every visit (which_visits != everything). The amount of files analyzed therefore reduced from 1145 to 158.
 	    Writing table into filelist.txt
 	    Saving Metadata
 	    Finished s00
+
 
 You will also end up with a new file called ``filelist.txt``. It should look like this:
 
@@ -164,7 +165,7 @@ After running Stage 01 you should get an output like this:
 
 	    Successfully reloaded meta file
 	    Starting s01
-	    Retrieving Horizons file for every visit: 100%|██████████| 2/2 [00:02<00:00,  1.03s/it]
+	    Retrieving Horizons file for every visit: 100%|#############| 2/2 [00:02<00:00,  1.03s/it]
 	    Saving Metadata
 	    Finished s01
 
@@ -189,10 +190,11 @@ This Stage has to perform a barycentric correction because the header only conta
 
 	    Successfully reloaded meta file
 	    Starting s02
-	    Converting MJD to BJD: 100%|██████████| 2/2 [00:01<00:00,  1.27it/s]
+	    Converting MJD to BJD: 100%|################################| 2/2 [00:01<00:00,  1.54it/s]
 	    Writing t_bjd into filelist.txt
 	    Saving Metadata
 	    Finished s02
+
 
 After the calculation has been performed, the user can check a newly generated plot also saved into "ancil/horizons".
 Here we show the plot generated for the second of the two visits:
@@ -239,58 +241,43 @@ We use the stellar parameters published in `Cloutier et al. 2021 <https://ui.ads
 
 	    Successfully reloaded meta file
 	    Starting s03
-	    Using g141 grism.
-	    Using phoenix model.
+	    Using k93models model.
 
-	    Possible metallicities: [ 0.  -0.5 -1.  -1.5 -2.  -2.5 -3.  -3.5 -4.   0.5  0.3]
-	    Using input metallicity of -0.5.
+	    Possible metallicities: [ 1.   0.5  0.3  0.2  0.1  0.  -0.1 -0.2 -0.3 -0.5 -1.  -1.5 -2.  -2.5
+	     -3.  -3.5 -4.  -4.5 -5. ]
+	    For input metallicity 0.29, closest metallicity is 0.3.
 
-	    Possible effective temperatures: [10000. 10200. 10400. 10600. 10800. 11000. 11200. 11400. 11600. 11800.
-	     12000. 12500. 13000. 13500. 14000. 14500. 15000. 15500. 16000. 16500.
-	     17000. 17500. 18000. 18500. 19000. 19500.  2000. 20000.  2100. 21000.
-	      2200. 22000.  2300. 23000.  2400. 24000.  2500. 25000.  2600. 26000.
-	      2700. 27000.  2800. 28000.  2900. 29000.  3000. 30000.  3100. 31000.
-	      3200. 32000.  3300. 33000.  3400. 34000.  3500. 35000.  3600. 36000.
-	      3700. 37000.  3800. 38000.  3900. 39000.  4000. 40000.  4100. 41000.
-	      4200. 42000.  4300. 43000.  4400. 44000.  4500. 45000.  4600. 46000.
-	      4700. 47000.  4800. 48000.  4900. 49000.  5000. 50000.  5100. 51000.
-	      5200. 52000.  5300. 53000.  5400. 54000.  5500. 55000.  5600. 56000.
-	      5700. 57000.  5800. 58000.  5900. 59000.  6000. 60000.  6100. 61000.
-	      6200. 62000.  6300. 63000.  6400. 64000.  6500. 65000.  6600. 66000.
-	      6700. 67000.  6800. 68000.  6900. 69000.  7000. 70000.  7200.  7400.
-	      7600.  7800.  8000.  8200.  8400.  8600.  8800.  9000.  9200.  9400.
-	      9600.  9800.]
-	    For input effective temperature 3412, closest temperature is 3400.0.
+	    Possible effective temperatures: [10000. 10500. 11000. 11500. 12000. 12500. 13000. 14000. 15000. 16000.
+	     17000. 18000. 19000. 20000. 21000. 22000. 23000. 24000. 25000. 26000.
+	     27000. 28000. 29000. 30000. 31000. 32000. 33000. 34000.  3500. 35000.
+	      3750. 37500.  4000. 40000.  4250. 42500.  4500. 45000.  4750. 47500.
+	      5000. 50000.  5250.  5500.  5750.  6000.  6250.  6500.  6750.  7000.
+	      7250.  7500.  7750.  8000.  8250.  8500.  8750.  9000.  9250.  9500.
+	      9750.]
+	    For input effective temperature 3250, closest temperature is 3500.0.
 
 	    Was the stellar model fits file already downloaded?: False
 
-		          + Downloading file phoenixm05_3400.fits from https://archive.stsci.edu/hlsps/reference-atlases/cdbs/grid/phoenix/phoenixm05/phoenixm05_3400.fits.
-	    --2022-01-20 02:23:51--  https://archive.stsci.edu/hlsps/reference-atlases/cdbs/grid/phoenix/phoenixm05/phoenixm05_3400.fits
+		          + Downloading file kp03_3500.fits from https://archive.stsci.edu/hlsps/reference-atlases/cdbs/grid/k93models/kp03/kp03_3500.fits.
+	    --2022-01-25 19:13:30--  https://archive.stsci.edu/hlsps/reference-atlases/cdbs/grid/k93models/kp03/kp03_3500.fits
 	    Resolving archive.stsci.edu (archive.stsci.edu)... 130.167.201.60
 	    Connecting to archive.stsci.edu (archive.stsci.edu)|130.167.201.60|:443... connected.
 	    HTTP request sent, awaiting response... 200 OK
-	    Length: 532800 (520K) [image/fits]
-	    Saving to: ‘phoenixm05_3400.fits’
+	    Length: 69120 (68K) [image/fits]
+	    Saving to: ‘kp03_3500.fits’
 
-	         0K .......... .......... .......... .......... ..........  9%  170K 3s
-	        50K .......... .......... .......... .......... .......... 19%  374K 2s
-	       100K .......... .......... .......... .......... .......... 28% 1.27M 1s
-	       150K .......... .......... .......... .......... .......... 38% 1.51M 1s
-	       200K .......... .......... .......... .......... .......... 48%  376K 1s
-	       250K .......... .......... .......... .......... .......... 57% 5.90M 0s
-	       300K .......... .......... .......... .......... .......... 67% 1.86M 0s
-	       350K .......... .......... .......... .......... .......... 76%  344K 0s
-	       400K .......... .......... .......... .......... .......... 86% 1.25M 0s
-	       450K .......... .......... .......... .......... .......... 96% 1003K 0s
-	       500K .......... ..........                                 100% 16.8M=0.9s
+	    kp03_3500.fits         100%[=========================>]  67.50K   323KB/s    in 0.2s
 
-	    2022-01-20 02:23:53 (577 KB/s) - ‘phoenixm05_3400.fits’ saved [532800/532800]
+	    2022-01-25 19:13:30 (323 KB/s) - ‘kp03_3500.fits’ saved [69120/69120]
 
-	    Possible logg: [0.  0.5 1.  1.5 2.  2.5 3.  3.5 4.  4.5 5.  5.5]
-	    For input logg 4.94, closest logg is 5.0.
+	    Possible logg: [0.  0.5 1.  1.5 2.  2.5 3.  3.5 4.  4.5 5. ]
+	    For input logg 5.026, closest logg is 5.0.
 
+	    Using g141 grism.
 	    Saving Metadata
 	    Finished s03
+
+
 
 .. note::
 

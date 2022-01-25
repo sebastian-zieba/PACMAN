@@ -4,68 +4,7 @@ from scipy.interpolate import interp1d
 from ..lib import plots
 from ..lib import stellar_spectrum
 from ..lib import manageevent as me
-
-def binning(x_input, y_input, x_ref):
-    """
-    A binning function which bins x_input and y_input values and uses x_ref to determine boarders.
-
-    TODO improve the function
-    TODO check if oversampling is necessary
-    """
-    #print(x_input)
-    n = 4
-    x_input_mids = []
-    y_input_mids = []
-    for i in range(len(x_input)-1):
-        x = x_input[i]
-        y = x_input[i+1]
-        step = (y - x) / (n - 1)
-        x_input_mid = [x + step * i for i in np.arange(1,n-1)]
-        x_input_mids.append(x_input_mid)
-
-        x = y_input[i]
-        y = y_input[i+1]
-        step = (y - x) / (n - 1)
-        y_input_mid = [x + step * i for i in np.arange(1,n-1)]
-        y_input_mids.append(y_input_mid)
-
-    def flatten(t):
-        return np.array([item for sublist in t for item in sublist])
-
-    x_input_mids = flatten(x_input_mids)
-    y_input_mids = flatten(y_input_mids)
-
-    x_input = np.concatenate((x_input, x_input_mids))
-    y_input = np.concatenate((y_input, y_input_mids))
-    x_input_sort = np.argsort(x_input)
-    x_input = x_input[x_input_sort]
-    y_input = y_input[x_input_sort]
-
-    x_ref0 = np.array([x_ref[0] - (x_ref[1] - x_ref[0])])
-    x_ref1 = np.array([x_ref[-1] - (x_ref[-2] - x_ref[-1])])
-    x_ref_new = np.concatenate((x_ref0, x_ref, x_ref1))
-    x_ref_edges = (x_ref_new[:-1] + x_ref_new[1:]) / 2
-    x_input_cuts = []
-    y_input_cuts = []
-    for i in range(len(x_ref_edges) - 1):
-        x_input_cut = []
-        y_input_cut = []
-        for j in range(len(x_input)):
-            if x_ref_edges[i] <= x_input[j] < x_ref_edges[i + 1]:
-                #print(x_ref_edges[i], x_ref_edges[i+1])
-                x_input_cut.append(x_input[j])
-                y_input_cut.append(y_input[j])
-        x_input_cuts.append(np.array(x_input_cut))
-        y_input_cuts.append(np.array(y_input_cut))
-    x_input_cuts = np.array(x_input_cuts, dtype=object)
-    y_input_cuts = np.array(y_input_cuts, dtype=object)
-    #print([len(ii) for ii in x_input_cuts])
-    #for ii in range(len(x_input_cuts)):
-        #if len(x_input_cuts[ii]) == 0:
-            #print(ii, x_input_cuts[ii])
-    x_input_means = np.array([np.mean(ii) for ii in x_input_cuts])
-    y_input_means = np.array([np.mean(ii) for ii in y_input_cuts])
-    return x_input_means, y_input_means
+from ..lib import util
 
 
 def run03(eventlabel, workdir, meta=None):
@@ -105,17 +44,6 @@ def run03(eventlabel, workdir, meta=None):
     if meta == None:
         meta = me.loadevent(workdir + '/WFC3_' + eventlabel + "_Meta_Save")
 
-    if meta.grism == 'G141':
-        grism = 'g141'
-    elif meta.grism == 'G102':
-        grism = 'g102'
-
-    print('Using {0} grism.'.format(grism))
-
-    bp_wvl, bp_val = np.loadtxt(meta.pacmandir + '/ancil/bandpass/bandpass_{0}.txt'.format(grism)).T
-
-    # if meta.save_bandpass_plot or meta.show_bandpass_plot:
-    #    plots.bandpass(bp_wvl, bp_val, grism, 0, meta)
 
     ### Stellar Spectrum
     Teff, logg, MH = meta.Teff, meta.logg, meta.MH
@@ -131,40 +59,48 @@ def run03(eventlabel, workdir, meta=None):
               'We proceed with the bb')
         sm_wvl, sm_flux = stellar_spectrum.get_bb(Teff)
 
+    #only store the spectrum between 0.1 microns and 10 microns
+    sm_wvl_mask = np.bitwise_and(0.1e-6 < sm_wvl, sm_wvl < 10e-6)
+    sm_wvl = sm_wvl[sm_wvl_mask]
+    sm_flux = sm_flux[sm_wvl_mask]
+
+    if meta.smooth:
+        sm_wvl, sm_flux = util.gaussian_kernel(meta, sm_wvl, sm_flux)
+
+
+    ### Bandpass
+    if meta.grism == 'G141':
+        grism = 'g141'
+    elif meta.grism == 'G102':
+        grism = 'g102'
+    print('Using {0} grism.'.format(grism))
+
+    #Read in bandpass for the used grism
+    bp_wvl, bp_val = np.loadtxt(meta.pacmandir + '/ancil/bandpass/bandpass_{0}.txt'.format(grism)).T
+
+
+    ### Creating the reference spectrum
     bp_wvl = bp_wvl * 1e-10
     bp_val = bp_val / max(bp_val)
-    sm_flux = sm_flux #* sm_wvl  # in order to convert from W/m^3/sr units to W/m^2/sr
-    sm_flux = sm_flux / max(sm_flux)
+    #sm_flux = sm_flux #* sm_wvl  # in order to convert from W/m^3/sr units to W/m^2/sr
+    #sm_flux = sm_flux / max(sm_flux)
 
     meta.refspecdir = meta.workdir + '/ancil/refspec/'
     if not os.path.exists(meta.refspecdir):
         os.mkdir(meta.refspecdir)
 
-    sm_wvl_binned, sm_flux_binned = binning(sm_wvl, sm_flux, bp_wvl)
+    #Interpolate stellar model so that we can multiply it with the bandpass
+    f = interp1d(sm_wvl, sm_flux, kind='linear')
 
-    # sm_wvl_cut = []
-    # sm_flux_cut = []
-    # for i, sm_wvl_i in enumerate(sm_wvl_binned):
-    #     if bp_wvl[0] <= sm_wvl_i <= bp_wvl[-1]:
-    #         sm_wvl_cut.append(sm_wvl_binned[i])
-    #         sm_flux_cut.append(sm_flux_binned[i])
+    ref_wvl = bp_wvl
+    ref_flux = f(bp_wvl) * bp_val
+    ref_flux = ref_flux / max(ref_flux)
 
-    sm_wvl_cut = np.array(sm_wvl_binned)
-    sm_flux_cut = np.array(sm_flux_binned)
-
-    f = interp1d(sm_wvl_cut, sm_flux_cut, kind='linear')
-
-    #print(sm_wvl_cut[0], sm_wvl_cut[-1])
-    #print(bp_wvl[0], bp_wvl[-1])
-
-    wvl_ref = bp_wvl[1:-1]
-    flux_ref = f(bp_wvl[1:-1]) * bp_val[1:-1]
-    flux_ref = flux_ref / max(flux_ref)
-
-    np.savetxt(meta.refspecdir + '/refspec.txt', list(zip(wvl_ref, flux_ref)))
+    # Save reference spectrum
+    np.savetxt(meta.refspecdir + '/refspec.txt', list(zip(ref_wvl, ref_flux)))
 
     if meta.save_refspec_plot or meta.show_refspec_plot:
-        plots.refspec(bp_wvl, bp_val, sm_wvl, sm_flux, wvl_ref, flux_ref, meta)
+        plots.refspec(bp_wvl, bp_val, sm_wvl, sm_flux, ref_wvl, ref_flux, meta)
 
     # Save results
     print('Saving Metadata')

@@ -8,6 +8,7 @@ import os
 from tqdm import tqdm
 import numpy.ma as ma
 from scipy.interpolate import interp1d
+from ..lib import plots
 
 
 #s00
@@ -170,6 +171,29 @@ def ancil(meta, s10=False, s20=False):
         #meta.refpix = refpix[idx]  # reference pixels from direct image
 
     return meta
+
+#03
+def gaussian_kernel(meta, x, y):
+    """
+    https://matthew-brett.github.io/teaching/smoothing_intro.html
+    """
+
+    sigma = meta.smooth_sigma * 1e-10
+
+    y = y / max(y)
+    y_smoothed = np.zeros(y.shape)
+
+    for x_idx, x_val in enumerate(x):
+        kernel = np.exp(-(x - x_val) ** 2 / (2 * sigma ** 2))
+        kernel = kernel / sum(kernel)
+        y_smoothed[x_idx] = sum(y * kernel)
+    y_smoothed = y_smoothed / max(y_smoothed)
+
+    if meta.save_smooth_plot:
+        plots.smooth(meta, x, y, y_smoothed)
+
+    return (x, y_smoothed)
+
 
 
 #s20

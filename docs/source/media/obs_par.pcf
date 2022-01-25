@@ -142,13 +142,13 @@ run_verbose         True
 save_allan_plot     True
 
 run_lsq             True
-run_mcmc            False
+run_mcmc            True
 run_nested          False
 
 #emcee
-run_nsteps          10000
-run_nwalkers	     70
-run_nburn           5000
+run_nsteps          4000
+run_nwalkers	     25
+run_nburn           1000
 
 #dynesty
 run_dlogz           25000

@@ -1,7 +1,3 @@
-# This step creates a table of all available _ima.fits files
-# The contents of this filelist.txt are:
-# Filename / Filter or Grism / nvisit / norbit / Time since first exposure in orbit / Time since first exposure in visit
-
 import numpy as np
 import os, time
 import shutil
@@ -12,6 +8,7 @@ from tqdm import tqdm
 from ..lib import read_pcf as rd
 from ..lib import util
 from ..lib import manageevent as me
+from ..lib import plots
 
 
 class MetaClass:
@@ -24,7 +21,9 @@ class MetaClass:
 
 def run00(eventlabel):
     """
-    This function does the initial setup of the analysis, including creating a table with information on the observations.
+    This function does the initial setup of the analysis, including creating a table with information on the observations. This table will be saved into 'filelist.txt'.
+
+    Steps:
 
     - 1. Creates a MetaData object
     - 2. Creates a new run directory with the following form, e.g.: ./run/run_2021-01-01_12-34-56_eventname/
@@ -86,11 +85,13 @@ def run00(eventlabel):
     #topdir is just the path of the directory /pacman/
     meta.pacmandir = '/'.join(os.path.realpath(__file__).split('/')[:-2]) + '/'
 
-    # Create directories for Stage 3 processing
+    # Create directories for this run = Work Directory
     datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
     meta.workdir = 'run_' + datetime + '_' + meta.eventlabel
     if not os.path.exists(meta.workdir):
         os.makedirs(meta.workdir)
+
+    #Create a figure directory
     if not os.path.exists(meta.workdir + "/figs"):
         os.makedirs(meta.workdir + "/figs")
 
@@ -99,7 +100,7 @@ def run00(eventlabel):
     pcf = rd.read_pcf(pcffile)
     rd.store_pcf(meta, pcf)
 
-    # Copy pcf
+    # Copy pcf and fit_par.txt
     shutil.copy(pcffile, meta.workdir)
     shutil.copy('fit_par.txt', meta.workdir)
 
@@ -116,12 +117,12 @@ def run00(eventlabel):
     scans = np.zeros(len(files), dtype=int) #stores scan directions
 
     # Will create a table with the properties of all _ima.fits files at the first run
-    for i, file in enumerate(tqdm(files, desc='Reading in files and their header information')):
+    for i, file in enumerate(tqdm(files, desc='Reading in files and their headers', ascii=True)):
         ima = fits.open(file)
         #the header "instr" tells us if the observation used a Filter (-> Direct Image) or a Grism (-> Spectrum)
         instr[i] = ima[0].header['filter']
         exp[i] = ima[0].header['exptime']
-        times[i] = (ima[0].header['expstart'] + ima[0].header['expend'])/(2.0)#ima[0].header['expstart']
+        times[i] = (ima[0].header['expstart'] + ima[0].header['expend'])/(2.0) # mid exposure time
         #scan direction
         # scan: (0: forward - lower flux, 1: reverse - higher flux, -1: Filter)
         scans[i] = 0  # sets scan direction
@@ -149,8 +150,7 @@ def run00(eventlabel):
     ivisit_begin = 0 #index of first exposure in visit
     times_diff = np.insert(np.diff(times), 0, 0)
 
-    #TODO: Q: Are there visits with a break of an orbit in between?
-    for i, itime in enumerate(tqdm(times, desc='Determining Orbit and Visit')):
+    for i, itime in enumerate(tqdm(times, desc='Determining orbit(s) and visit(s)', ascii=True)):
         # if two exposures arent in the same orbit and more than an orbital period apart -> not subsequent orbits but a new visit
         if times_diff[i] * 24 * 60 > 100:
             iorbit_begin = i
@@ -167,10 +167,11 @@ def run00(eventlabel):
         tos[i] = (itime - times[iorbit_begin]) * 24 * 60  # time since first exposure in orbit
         tvs[i] = (itime - times[ivisit_begin]) * 24 * 60  # time since first exposure in visit
 
+    # Saves a plot showing when was observered
+    if meta.save_obs_times_plot or meta.show_obs_times_plot:
+        plots.obs_times(meta, times, ivisits, iorbits)
 
-    # TODO: Q: Keep this functionality?
     # Only save information of the visits of interest
-
     if meta.which_visits != 'everything':
         mask_visit = [any(tup) for tup in zip(*[ivisits == i for i in meta.which_visits])]
         files = files[mask_visit]
@@ -185,16 +186,21 @@ def run00(eventlabel):
         print('The user does not want to analyse every visit (which_visits != everything). '
               'The amount of files analyzed therefore reduced from {0} to {1}.'.format(num_data_files, sum(mask_visit)))
 
-
-    # changing the numberation of the visits:
-    # eg: which_visits = [0,2,5,6]
-    # convert ivisits = [0,0,0,0,2,2,2,5,5,5,6,6,6] into [0,0,0,1,1,1,2,2,2,3,3,3]
+    # changing the numeration of the visits:
+    # eg: when which_visits = [0,2,5,6]
+    # then the ivisits list will look something like this:
+    # ivisits = [0,0,0,0,2,2,2,5,5,5,6,6,6]
+    # the following will then reindex ivisit into [0,0,0,1,1,1,2,2,2,3,3,3]
     ivisits = rankdata(ivisits, method='dense')-1
+
+    # Saves a plot showing when was observed with the new indexing of ivisits if which_visits was set by the user
+    if meta.which_visits  != 'everything' and (meta.save_obs_times_plot or meta.show_obs_times_plot):
+        plots.obs_times(meta, times, ivisits, iorbits, updated=True)
 
     print('Writing table into filelist.txt')
     table = QTable([files, instr, ivisits, iorbits, times, tvs, tos, scans, exp],
                names=('filenames', 'instr', 'ivisit', 'iorbit', 't_mjd', 't_visit', 't_orbit',
-                      'scan', 'exp'))# scan: (0: forward - lower flux, 1: reverse - higher flux, -1: postarg2=0)
+                      'scan', 'exp'))# scan: (0: forward - lower flux, 1: reverse - higher flux, -1: Direct Image)
     ascii.write(table, meta.workdir + '/filelist.txt', format='rst', overwrite=True)
 
     # Save results

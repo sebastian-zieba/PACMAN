@@ -32,11 +32,10 @@ def run10(eventlabel, workdir, meta=None):
 	ivisit_di = meta.ivisit_di
 
 	#iterate over the direct images
-	for i, file in enumerate(tqdm(meta.files_di, desc='Determining Source Positions for Direct Images')):
+	for i, file in enumerate(tqdm(meta.files_di, desc='Determining Source Positions for Direct Images', ascii=True)):
 
 		ima = fits.open(file)
 
-		# TODO: Q: POSTARG are not important to calculate the physical postion right?
 		LTV1 = ima[1].header['LTV1']					#X offset to get into physical pixels
 		LTV2 = ima[1].header['LTV2']					#Y offset to get to physical pixels
 

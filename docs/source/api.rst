@@ -195,4 +195,10 @@ lib.least_squares
     :undoc-members:
     :show-inheritance:
 
+lib.mcmc
+----------------------------------------
+.. automodule:: pacman.lib.mcmc
+    :members:
+    :undoc-members:
+    :show-inheritance:
 

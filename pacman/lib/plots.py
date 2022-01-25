@@ -3,8 +3,97 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from mpl_toolkits.mplot3d import Axes3D
 import os
+from astropy.time import Time
 from mpl_toolkits.axes_grid1 import make_axes_locatable, axes_size
 from ..lib import util
+from matplotlib.gridspec import GridSpec
+from matplotlib.ticker import MaxNLocator
+
+
+##00
+def mjd_to_utc(time):
+    """
+    Converts a list of MJDs to a list of dates in years.
+    """
+    res = []
+    for i in time:
+        res.append(Time(i, format='mjd').jyear)
+    return np.array(res)
+
+
+def utc_to_mjd(time):
+    """
+    Converts a list of dates in years to a list of MJDs.
+    """
+    res = []
+    for i in time:
+        res.append(Time(i, format='jyear').mjd,)
+    return np.array(res)
+
+
+def obs_times(meta, times, ivisits, iorbits, updated=False):
+    """
+    Plot of the visit index as a function of observed time for the observations. Includes a table with the number of orbits in each visit and a zoom into each visit.
+
+    Parameters
+    ---------------
+    updated:bool
+        If the user decided to not use all visits but set some "which_visits" in the pcf, this bool is need to save a plot for all files in the data directory and a plot for the onces defined with "which_visits". It prevents that when the function is being called again, the previous plot isnt overwritten.
+
+    """
+    fig = plt.figure(figsize=(12,5))
+
+    Nvisits = np.max(ivisits)+1 #Number of visits
+
+    gs = GridSpec(nrows=Nvisits, ncols=2)
+
+    ax1 = fig.add_subplot(gs[:, 0])
+
+    for i in range(Nvisits):
+        axn = fig.add_subplot(gs[i, 1])
+        if i == 0:
+            axn.set_title('each visit')
+        axn.text(0.95, 0.41, 'v{0}'.format(i), horizontalalignment='center', verticalalignment='center', transform=axn.transAxes)
+        visit_mask = ivisits == i
+        times_i = times[visit_mask]
+        axn.scatter(times_i, np.ones(len(times_i)), marker='s', c='r', s=5, alpha=0.5)
+        axn.get_xaxis().set_ticks([])
+        axn.get_yaxis().set_ticks([])
+        axn.axes.xaxis.set_visible(False)
+        axn.axes.yaxis.set_visible(False)
+
+    ax1.scatter(times, ivisits, marker='s', c='r', s=5, alpha=0.5)
+    ax1.yaxis.set_major_locator(MaxNLocator(integer=True))
+    ax1.set_ylabel('visit number')
+    ax1.set_xlabel('time (MJD)')
+    ax1.set_ylim(np.max(ivisits)+0.9, np.min(ivisits)-0.9) #turn around y axis
+    ax1sec = ax1.secondary_xaxis('top', functions=(mjd_to_utc, utc_to_mjd))
+    ax1sec.set_xlabel('time (year)')
+
+    #It checks the orbit index right before it goes back to 0 (because a new visit stars).
+    #We also have to append the very last orbit number
+    norbits = iorbits[np.where(np.diff(iorbits) < 0)]
+    norbits = np.append(norbits, iorbits[-1:])+1
+    table_data = np.array([np.arange(len(norbits), dtype=int), norbits])
+    col_names = ['ivisit', '#orbits']
+    table = ax1.table(cellText=table_data.T,cellLoc='center',
+              colLabels=col_names,
+              loc='right',bbox=[-0.45, 0., 0.3, 1])
+    table.scale(0.3, 3.0)
+
+    plt.subplots_adjust(wspace=0.04)
+
+    if meta.save_obs_times_plot:
+        if not os.path.isdir(meta.workdir + '/figs/s00_obs_dates/'):
+            os.makedirs(meta.workdir + '/figs/s00_obs_dates/')
+        if updated==False:
+            plt.savefig(meta.workdir + '/figs/s00_obs_dates/obs_dates_all.png', bbox_inches='tight', pad_inches=0.05, dpi=120)
+        else:
+            plt.savefig(meta.workdir + '/figs/s00_obs_dates/obs_dates.png', bbox_inches='tight', pad_inches=0.05, dpi=120)
+        plt.close('all')
+    else:
+        plt.show()
+        plt.close('all')
 
 
 ## 02
@@ -60,7 +149,9 @@ def barycorr(x,y,z,time, obsx, obsy, obsz, coordtable, meta):
     plt.legend()
     plt.tight_layout()
     if meta.save_barycorr_plot:
-        plt.savefig(meta.workdir + '/ancil/horizons/bjdcorr_{0}.png'.format(coordtable.split('/')[-1].split('.')[0]))
+        if not os.path.isdir(meta.workdir + '/figs/s02_barycorr/'):
+            os.makedirs(meta.workdir + '/figs/s02_barycorr/')
+        plt.savefig(meta.workdir + '/figs/s02_barycorr/bjdcorr_{0}.png'.format(coordtable.split('/')[-1].split('.')[0]), bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
     else:
         plt.show()
@@ -68,25 +159,26 @@ def barycorr(x,y,z,time, obsx, obsy, obsz, coordtable, meta):
 
 
 ## 03
-# def bandpass(wvl, bp_val, grism, i, meta):
-#     plt.rcParams["figure.figsize"] = (9, 6)
-#     plt.figure(1002)
-#     plt.clf()
-#     plt.plot(wvl, bp_val, c='C0')
-#     plt.xlabel('Angstrom')
-#     plt.ylabel('Throughput')
-#     plt.title('{0}_v{1}'.format(grism, i))
-#     plt.tight_layout()
-#     if meta.save_bandpass_plot:
-#         plt.savefig(meta.workdir + '/ancil/bandpass/bandpass_v{0}.png'.format(i))
-#         plt.close('all')
-#     else:
-#         plt.show()
-#         plt.close('all')
+def smooth(meta, x, y, y_smoothed):
+    plt.plot(x, y, label='raw spectrum')
+    plt.plot(x, y_smoothed, label='smoothed spectrum')
+    plt.legend(loc=1)
+    plt.xscale('log')
+    plt.xlabel('wavelength (m)')
+    plt.ylabel('normalized intensity')
+    if meta.save_smooth_plot:
+        if not os.path.isdir(meta.workdir + '/figs/s03_smooth/'):
+            os.makedirs(meta.workdir + '/figs/s03_smooth/')
+        plt.savefig(meta.workdir + '/figs/s03_smooth/smooth.png', bbox_inches='tight',
+                    pad_inches=0.05,
+                    dpi=120)
+        plt.close('all')
+    else:
+        plt.show()
+        plt.close('all')
 
 
-## 03
-def refspec(bp_wvl, bp_val, sm_wvl, sm_flux, wvl_ref, flux_ref, meta):
+def refspec(bp_wvl, bp_val, sm_wvl, sm_flux, ref_wvl, ref_flux, meta):
     """
     Plots the bandpass, the stellar spectrum and the product of the both
     """
@@ -95,15 +187,20 @@ def refspec(bp_wvl, bp_val, sm_wvl, sm_flux, wvl_ref, flux_ref, meta):
     plt.clf()
     plt.plot(bp_wvl, bp_val, label='bandpass')
     plt.plot(sm_wvl, sm_flux, label='stellar spectrum ({0})'.format(meta.sm))
-    plt.plot(wvl_ref, flux_ref, label='stellar spectrum * bandpass')
+    plt.plot(ref_wvl, ref_flux, label='stellar spectrum * bandpass')
     plt.xscale('log')
-    plt.xlim(0.7*1e-6, 2*1e-6)
+    if meta.grism == 'G102': plt.xlim(0.6e-6, 1.4e-6)
+    elif meta.grism == 'G141': plt.xlim(0.8e-6, 2e-6)
     plt.xlabel('wavelength (m)')
     plt.ylabel('norm. intensity')
     plt.legend(loc=4)
     plt.tight_layout()
     if meta.save_refspec_plot:
-        plt.savefig(meta.refspecdir + '/refspec.png', dpi=200)
+        if not os.path.isdir(meta.workdir + '/figs/s03_refspec/'):
+            os.makedirs(meta.workdir + '/figs/s03_refspec/')
+        plt.savefig(meta.workdir + '/figs/s03_refspec/refspec.png', bbox_inches='tight',
+                    pad_inches=0.05,
+                    dpi=120)
         plt.close('all')
     else:
         plt.show()
@@ -149,9 +246,9 @@ def image_quick(ima, i, meta):
 
     plt.tight_layout()
     if meta.save_image_plot:
-        if not os.path.isdir(meta.workdir + '/figs/images/'):
-            os.makedirs(meta.workdir + '/figs/images/')
-        plt.savefig(meta.workdir + '/figs/images/quick_di{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=180)
+        if not os.path.isdir(meta.workdir + '/figs/s10_images/'):
+            os.makedirs(meta.workdir + '/figs/s10_images/')
+        plt.savefig(meta.workdir + '/figs/s10_images/quick_di{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=180)
         plt.close('all')
     else:
         plt.show()
@@ -203,9 +300,9 @@ def image(dat, ima, results, i, meta):
 
     plt.tight_layout()
     if meta.save_image_plot:
-        if not os.path.isdir(meta.workdir + '/figs/images/'):
-            os.makedirs(meta.workdir + '/figs/images/')
-        plt.savefig(meta.workdir + '/figs/images/di_{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
+        if not os.path.isdir(meta.workdir + '/figs/s10_images/'):
+            os.makedirs(meta.workdir + '/figs/s10_images/')
+        plt.savefig(meta.workdir + '/figs/s10_images/di_{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
     else:
         plt.show()

@@ -1,7 +1,3 @@
-# Based on a perl script found on https://renenyffenegger.ch/notes/Wissenschaft/Astronomie/Ephemeriden/JPL-Horizons
-# Retrieves vector data of Hubble from JPL's HORIZONS system on https://ssd.jpl.nasa.gov/horizons_batch.cgi (see Web interface on https://ssd.jpl.nasa.gov/horizons.cgi)
-# Also helpful: https://github.com/kevin218/POET/blob/master/code/doc/spitzer_Horizons_README.txt
-
 import os
 import numpy as np
 from astropy.io import ascii
@@ -9,6 +5,7 @@ from tqdm import tqdm
 from urllib.request import urlopen
 from shutil import copyfileobj
 from ..lib import manageevent as me
+
 
 def run01(eventlabel, workdir, meta=None):
     """
@@ -90,19 +87,23 @@ def run01(eventlabel, workdir, meta=None):
         os.makedirs(meta.workdir + '/ancil/horizons/')
 
     # retrieve positions for every individual visit
-    for i in tqdm(range(max(ivisit) + 1), desc='Retrieving Horizons file for every visit'):
+    for i in tqdm(range(max(ivisit) + 1), desc='Retrieving Horizons file for every visit', ascii=True):
         t_mjd_visit = t_mjd[np.where(ivisit == i)]
         t_start = min(
             t_mjd_visit) + 2400000.5 - 1 / 24  # Start of Horizons file one hour before first exposure in visit
         t_end = max(t_mjd_visit) + 2400000.5 + 1 / 24  # End of Horizons file one hour after last exposure in visit
 
+        # Complete the settings by also adding information on the start and end of the times of interest.
         set_start = "START_TIME=JD{0}".format(t_start)
         set_end = "STOP_TIME=JD{0}".format(t_end)
 
+        # Full link
         settings_new = settings + '&' + set_start + '&' + set_end
 
+        # Location where to save the data
         filename = meta.workdir + '/ancil/horizons' + '/horizons_results_v{0}.txt'.format(i)
 
+        # Download data
         with urlopen(settings_new) as in_stream, open(filename, 'wb') as out_file:
             copyfileobj(in_stream, out_file)
 
