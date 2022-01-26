@@ -8,7 +8,7 @@ ALERT: Project PACMAN is currently under heavy development. Use at your own risk
 
 ## Installation
 
-TODO: Add short installation guide
+[comment]: <> (TODO: Add short installation guide)
 
 ### With Git/GitHub
 

@@ -48,6 +48,8 @@ def run20(eventlabel, workdir, meta=None):
     else:
         meta.nexp = len(files_sp)    # number of exposures
 
+    #TODO: add pcf flag to only save the plots for the very first file
+
     # the following lists are used for diagnostic plots
     if meta.save_utr_aper_evo_plot or meta.show_utr_aper_evo_plot:
         peaks_all = []

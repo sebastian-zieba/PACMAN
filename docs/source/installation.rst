@@ -7,19 +7,19 @@ Installation
 From source
 ---------------------------------
 
-You can install ``PACMAN`` directly from source on `GitHub <https://github.com/lkreidberg/wfc3-pipeline>`_.
+You can install ``PACMAN`` directly from source on `GitHub <https://github.com/sebastian-zieba/PACMAN>`_.
 
 On GitHub, you can either click on **Code** and **Download ZIP** followed by unpacking the distribution by opening up a terminal and typing:
 
-``unzip PACMAN-master.zip``
+.. code-block:: console
+
+	unzip PACMAN-master.zip
 
 OR
 
 Clone the repository using ``git`` by typing:
 
-``git clone https://github.com/lkreidberg/wfc3-pipeline``.
+.. code-block:: console
 
-To install ``PACMAN``, run the setup script:
-
-``sudo python setup.py install``
+	git clone https://github.com/sebastian-zieba/PACMAN
 
