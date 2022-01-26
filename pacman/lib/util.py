@@ -226,7 +226,7 @@ def get_flatfield(meta):                    #function that flatfields a data arr
     flat = fits.open(meta.flat)                #reads in flatfield cube
     WMIN = flat[0].header['WMIN']                #constants for computing flatfield coefficients
     WMAX = flat[0].header['WMAX']
-
+    print('flatfield:', WMIN, WMAX)
     a0 = flat[0].data[-meta.LTV1:-meta.LTV1+meta.subarray_size, -meta.LTV2:-meta.LTV2+meta.subarray_size]
     a1 = flat[1].data[-meta.LTV1:-meta.LTV1+meta.subarray_size, -meta.LTV2:-meta.LTV2+meta.subarray_size]
     a2 = flat[2].data[-meta.LTV1:-meta.LTV1+meta.subarray_size, -meta.LTV2:-meta.LTV2+meta.subarray_size]
@@ -248,33 +248,10 @@ def median_abs_dev(vec):
     return ma.median(abs(vec - med))
 
 
-def read_refspec(meta, i, smooth=False, sigma=40):
+def read_refspec(meta):
     #https://matthew-brett.github.io/teaching/smoothing_intro.html
     refspec = np.loadtxt(meta.workdir + '/ancil/refspec/refspec.txt').T
-    x_refspec, y_refspec_raw = refspec[0]*1e10, refspec[1]/max(refspec[1])
-
-    if smooth == True:
-        sigma = sigma#1*46.17#0.004*10000
-        y_refspec_kernel = np.zeros(y_refspec_raw.shape)
-
-        for x_position, x_position_val in enumerate(x_refspec):
-            kernel = np.exp(-(x_refspec - x_position_val) ** 2 / (2 * sigma ** 2))
-            kernel = kernel / sum(kernel)
-            y_refspec_kernel[x_position] = sum(y_refspec_raw * kernel)
-        y_refspec_kernel = y_refspec_kernel/max(y_refspec_kernel)
-        y_refspec = y_refspec_kernel
-        if meta.save_refspec_smooth_plot:
-            plt.plot(x_refspec, y_refspec_raw, label='refspec')
-            plt.plot(x_refspec, y_refspec_kernel, label='refspec smoothed')
-            plt.legend()
-            plt.title('refspec smoothing, visit {0}, orbit {1}'.format(meta.ivisit_sp[i], meta.iorbit_sp[i]))
-            if not os.path.isdir(meta.workdir + '/figs/refspec_smooth/'):
-                os.makedirs(meta.workdir + '/figs/refspec_smooth/')
-            plt.savefig(meta.workdir + '/figs/refspec_smooth/refspec_smooth_{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05,
-                        dpi=120)
-            plt.close('all')
-    else:
-        y_refspec = y_refspec_raw
+    x_refspec, y_refspec = refspec[0]*1e10, refspec[1]/max(refspec[1])
 
     return (x_refspec, y_refspec)
 

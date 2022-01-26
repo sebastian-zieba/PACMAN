@@ -40,8 +40,12 @@ def run20(eventlabel, workdir, meta=None):
         table_diagnostics = QTable(names=('nspectra', 't_mjd', 'numoutliers', 'skymedian', "# nans"))
 
     files_sp = meta.files_sp     # spectra files
-    meta.nexp = len(files_sp)    # number of exposures
     nspectra = 0                 # iterator variable to track number of spectra reduced
+    if meta.s20_testing:
+        meta.nexp = meta.n_testing
+        print('Running s20 in testing mode...')
+    else:
+        meta.nexp = len(files_sp)    # number of exposures
 
     # the following lists are used for diagnostic plots
     if meta.save_utr_aper_evo_plot or meta.show_utr_aper_evo_plot:
@@ -59,7 +63,7 @@ def run20(eventlabel, workdir, meta=None):
 
     # in order to have the correct order of print() with tqdm, i added file=sys.stdout
     # source: https://stackoverflow.com/questions/36986929/redirect-print-command-in-python-script-through-tqdm-write
-    for i in tqdm(np.arange(len(files_sp), dtype=int), desc='***************** Looping over files', file=sys.stdout):#tqdm(np.arange(len(files_sp), dtype=int)):
+    for i in tqdm(np.arange(meta.nexp, dtype=int), desc='***************** Looping over files', file=sys.stdout):#tqdm(np.arange(len(files_sp), dtype=int)):
         f = files_sp[i]                     # current file
         print("\nFilename: {0}".format(f))
         d = fits.open(f)                    # opens the file
@@ -148,9 +152,9 @@ def run20(eventlabel, workdir, meta=None):
             var = abs(spectrum) + float(meta.rdnoise)**2 + skyvar                #variance estimate: Poisson noise from photon counts (first term)  + readnoise (factor of 2 for differencing) + skyvar
             spec_box_0 = spectrum.sum(axis = 0)                            #initial box-extracted spectrum
             var_box_0 = var.sum(axis = 0)                                #initial variance guess
-
+            Mnew = M[max(min(peaks) - meta.window, 0):min(max(peaks) + meta.window, rmax),:]
             #TODO: Just use meta to reduce the number of parameters which are given to optextr
-            if meta.opt_extract==True: [f_opt_0, var_opt_0, numoutliers] = optextr.optextr(spectrum, err, spec_box_0, var_box_0, M, meta.nsmooth, meta.sig_cut, meta.save_optextr_plot, i, ii, meta)
+            if meta.opt_extract==True: [f_opt_0, var_opt_0, numoutliers] = optextr.optextr(spectrum, err, spec_box_0, var_box_0, Mnew, meta.nsmooth, meta.sig_cut, meta.save_optextr_plot, i, ii, meta)
             else: [f_opt, var_opt] = [spec_box_0,var_box_0]
 
             #sums up spectra and variance for all the differenced images
@@ -169,8 +173,6 @@ def run20(eventlabel, workdir, meta=None):
 
         #corrects for wavelength drift over time
         if meta.correct_wave_shift == True:
-            #TODO: Q: Use refspec if first exposure in visit
-            #TODO: Q: Otherwise just do wavelength calibration relative to prior exposure
             if i in meta.new_visit_idx_sp:
                 print(i)
                 #if nspectra == 0:
@@ -179,7 +181,7 @@ def run20(eventlabel, workdir, meta=None):
 
                 #TODO: Add smooth_bool and smooth_sigma to pcf
                 #TODO: SMOOTHING SHOULD BE IN s03_refspectra!! OTHERWISE I'M ALSO SMOOTHING THE BANDPASS!!
-                x_refspec, y_refspec = util.read_refspec(meta, i, smooth=True, sigma=60)
+                x_refspec, y_refspec = util.read_refspec(meta)
 
                 #TODO: This is so bad
                 #np.savetxt('testing_refspex_smoothed.txt', list(zip(x_refspec, y_refspec)))
@@ -224,8 +226,6 @@ def run20(eventlabel, workdir, meta=None):
                 leastsq_res = leastsq(util.residuals2, p0, args=(x_model, y_model, x_data, y_data))[0]
                 #print('leastsq_res', leastsq_res)
 
-               # if meta.save_refspec_comp_plot or meta.show_refspec_comp_plot:
-               #     plots.refspec_comp(x_vals, y_vals, modelx, modely, p0, datax, datay, leastsq_res, meta, i)
                 plots.refspec_comp(x_model, y_model, p0, x_data, y_data, leastsq_res, meta, i)
 
                 wvls = leastsq_res[0] + x_data * leastsq_res[1]
@@ -248,7 +248,7 @@ def run20(eventlabel, workdir, meta=None):
             else:
                 plots.sp1d(wvls, spec_box, meta, i)
 
-
+        # Adds rows to the astropy tables
         table_white.add_row([meta.t_mjd_sp[i], meta.t_bjd_sp[i], meta.t_visit_sp[i], meta.t_orbit_sp[i], visnum, orbnum, scan, sum(spec_opt), sum(var_opt),  sum(spec_box), sum(var_box)])
         n = len(spec_opt)
         for ii in np.arange(n):
@@ -258,11 +258,11 @@ def run20(eventlabel, workdir, meta=None):
 
         print('\n')
 
-    # Save results
+    # Save results in the astropy tables
     if meta.output == True:
-        ascii.write(table_white, dirname+'/lc_white.txt', format='ecsv', overwrite=True)
-        ascii.write(table_spec, dirname+'/lc_spec.txt', format='ecsv', overwrite=True)
-        ascii.write(table_diagnostics, dirname+'/diagnostics.txt', format='ecsv', overwrite=True)
+        ascii.write(table_white, dirname + '/lc_white.txt', format='ecsv', overwrite=True)
+        ascii.write(table_spec, dirname + '/lc_spec.txt', format='ecsv', overwrite=True)
+        ascii.write(table_diagnostics, dirname + '/diagnostics.txt', format='ecsv', overwrite=True)
     print('Saving Metadata')
     me.saveevent(meta, meta.workdir + '/WFC3_' + meta.eventlabel + "_Meta_Save", save=[])
 

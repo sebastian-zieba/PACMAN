@@ -320,9 +320,9 @@ def sp2d(d, meta, i):
     plt.tight_layout()
     plt.title('Spectrum w/ low vmax, visit {0}, orbit {1}'.format(meta.ivisit_sp[i], meta.iorbit_sp[i]))
     if meta.save_sp2d_plot:
-        if not os.path.isdir(meta.workdir + '/figs/sp2d'):
-            os.makedirs(meta.workdir + '/figs/sp2d')
-        plt.savefig(meta.workdir + '/figs/sp2d/sp2d_{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
+        if not os.path.isdir(meta.workdir + '/figs/s20_sp2d'):
+            os.makedirs(meta.workdir + '/figs/s20_sp2d')
+        plt.savefig(meta.workdir + '/figs/s20_sp2d/sp2d_{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
     else:
         plt.show()
@@ -350,9 +350,9 @@ def trace(d, meta, visnum, orbnum, i):
     plt.plot(tracex, tracey, color='yellow', linewidth=2)                #plots trace on raw image frame
     plt.title('Spectrum w/ trace (line), visit {0}, orbit {1}'.format(meta.ivisit_sp[i], meta.iorbit_sp[i]))
     if meta.save_trace_plot:
-        if not os.path.isdir(meta.workdir + '/figs/trace/'):
-            os.makedirs(meta.workdir + '/figs/trace/')
-        plt.savefig(meta.workdir + '/figs/trace/trace_{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
+        if not os.path.isdir(meta.workdir + '/figs/s20_trace/'):
+            os.makedirs(meta.workdir + '/figs/s20_trace/')
+        plt.savefig(meta.workdir + '/figs/s20_trace/trace_{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close()
     else:
         plt.show()
@@ -393,9 +393,9 @@ def bkg_hist(fullframe_diff, skymedian, meta, i, ii):
     #ax[1].axvline(x_new[np.argmax(p)], lw=2, ls='--', c='g', label='gaussian {0:.3g}'.format(x_new[np.argmax(p)]))
 
     if meta.save_bkg_hist_plot:
-        if not os.path.isdir(meta.workdir + '/figs/bkg_hist/'):
-            os.makedirs(meta.workdir + '/figs/bkg_hist/')
-        plt.savefig(meta.workdir + '/figs/bkg_hist/bkg_hist{0}-{1}.png'.format(i,ii), bbox_inches='tight', pad_inches=0.05, dpi=120)
+        if not os.path.isdir(meta.workdir + '/figs/s20_bkg_hist/'):
+            os.makedirs(meta.workdir + '/figs/s20_bkg_hist/')
+        plt.savefig(meta.workdir + '/figs/s20_bkg_hist/bkg_hist{0}-{1}.png'.format(i,ii), bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
     else:
         plt.show()
@@ -447,9 +447,9 @@ def utr(diff, meta, i, ii, orbnum, rowsum, rowsum_absder, peaks):
     plt.tight_layout()
     plt.suptitle('UpTheRamp {0}-{1}, visit {2}, orbit {3}'.format(i, ii, meta.ivisit_sp[i], meta.iorbit_sp[i]))
     if meta.save_utr_plot:
-        if not os.path.isdir(meta.workdir + '/figs/utr/'):
-            os.makedirs(meta.workdir + '/figs/utr/')
-        plt.savefig(meta.workdir + '/figs/utr/utr{0}-{1}.png'.format(i, ii), bbox_inches='tight', pad_inches=0.05, dpi=100)
+        if not os.path.isdir(meta.workdir + '/figs/s20_utr/'):
+            os.makedirs(meta.workdir + '/figs/s20_utr/')
+        plt.savefig(meta.workdir + '/figs/s20_utr/utr{0}-{1}.png'.format(i, ii), bbox_inches='tight', pad_inches=0.05, dpi=100)
         plt.close('all')
     else:
         plt.show()
@@ -469,9 +469,9 @@ def sp1d(template_waves, spec_box, meta, i, spec_opt=False):
     plt.title('sp1d, visit {0}, orbit {1}'.format(meta.ivisit_sp[i], meta.iorbit_sp[i]))
     plt.tight_layout()
     if meta.save_sp1d_plot:
-        if not os.path.isdir(meta.workdir + '/figs/sp1d/'):
-            os.makedirs(meta.workdir + '/figs/sp1d/')
-        plt.savefig(meta.workdir + '/figs/sp1d/sp1d_{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
+        if not os.path.isdir(meta.workdir + '/figs/s20_sp1d/'):
+            os.makedirs(meta.workdir + '/figs/s20_sp1d/')
+        plt.savefig(meta.workdir + '/figs/s20_sp1d/sp1d_{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
     else:
         plt.show()
@@ -490,9 +490,9 @@ def bkg_evo(bkg_evo, meta):
     #plt.legend()
     plt.tight_layout()
     if meta.save_bkg_evo_plot:
-        if not os.path.isdir(meta.workdir + '/figs/bkg_evo/'):
-            os.makedirs(meta.workdir + '/figs/bkg_evo/')
-        plt.savefig(meta.workdir + '/figs/bkg_evo/bkg_evo.png', bbox_inches='tight', pad_inches=0.05, dpi=120)
+        if not os.path.isdir(meta.workdir + '/figs/s20_bkg_evo/'):
+            os.makedirs(meta.workdir + '/figs/s20_bkg_evo/')
+        plt.savefig(meta.workdir + '/figs/s20_bkg_evo/bkg_evo.png', bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
     else:
         plt.show()
@@ -503,8 +503,8 @@ def sp1d_diff(sp1d_all_diff, meta, wvl_hires):
     """
     Difference of 1D spectrum between two consecutive exposures
     """
-    if not os.path.isdir(meta.workdir + '/figs/sp1d_diff/'):
-        os.makedirs(meta.workdir + '/figs/sp1d_diff/')
+    if not os.path.isdir(meta.workdir + '/figs/s20_sp1d_diff/'):
+        os.makedirs(meta.workdir + '/figs/s20_sp1d_diff/')
     ylimmin = np.min(sp1d_all_diff)
     ylimmax = np.max(sp1d_all_diff)
     for iiii in range(len(sp1d_all_diff)):
@@ -519,7 +519,7 @@ def sp1d_diff(sp1d_all_diff, meta, wvl_hires):
         fig.suptitle('Background Diff, from v{0} o{1} to v{2} o{3}'.format(meta.ivisit_sp[iiii], meta.iorbit_sp[iiii],meta.ivisit_sp[iiii+1], meta.iorbit_sp[iiii+1]),fontsize=12, y=0.99)
         plt.tight_layout()
         if meta.save_sp1d_diff_plot:
-            plt.savefig(meta.workdir + '/figs/sp1d_diff/sp1d_diff_{0}.png'.format(iiii), bbox_inches='tight', pad_inches=0.05, dpi=120)
+            plt.savefig(meta.workdir + '/figs/s20_sp1d_diff/sp1d_diff_{0}.png'.format(iiii), bbox_inches='tight', pad_inches=0.05, dpi=120)
             plt.close('all')
         else:
             plt.show()
@@ -558,9 +558,9 @@ def utr_aper_evo(peaks_all, meta):
     #plt.legend()
     plt.tight_layout()
     if meta.save_utr_aper_evo_plot:
-        if not os.path.isdir(meta.workdir + '/figs/utr_aper_evo/'):
-            os.makedirs(meta.workdir + '/figs/utr_aper_evo/')
-        plt.savefig(meta.workdir + '/figs/utr_aper_evo/utr_aper_evo.png', bbox_inches='tight', pad_inches=0.05, dpi=120)
+        if not os.path.isdir(meta.workdir + '/figs/s20_utr_aper_evo/'):
+            os.makedirs(meta.workdir + '/figs/s20_utr_aper_evo/')
+        plt.savefig(meta.workdir + '/figs/s20_utr_aper_evo/utr_aper_evo.png', bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
     else:
         plt.show()
@@ -584,9 +584,9 @@ def refspec_comp(modelx, modely, p0, datax, datay, leastsq_res, meta, i):
     plt.legend()
     plt.tight_layout()
     if meta.save_refspec_comp_plot:
-        if not os.path.isdir(meta.workdir + '/figs/drift/'):
-            os.makedirs(meta.workdir + '/figs/drift/')
-        plt.savefig(meta.workdir + '/figs/drift/drift{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
+        if not os.path.isdir(meta.workdir + '/figs/s20_drift/'):
+            os.makedirs(meta.workdir + '/figs/s20_drift/')
+        plt.savefig(meta.workdir + '/figs/s20_drift/drift{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
     else:
         plt.show()

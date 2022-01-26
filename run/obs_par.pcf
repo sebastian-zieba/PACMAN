@@ -41,12 +41,11 @@ show_image_plot              False
 
 
 ## 20
-offset                       0 #int
+s20_testing                  True
+n_testing                    4
 
-rmin                         0
-rmax                         256 #512
-cmin                         0
-cmax                         256 #512
+rmin                         5
+rmax                         261
 
 window                       1
 
@@ -64,16 +63,16 @@ output                       True
 save_sp2d_plot               True                                                     #save 2d spectrum
 show_sp2d_plot               False
 
-save_trace_plot              False                                                     #save trace
+save_trace_plot              True                                                     #save trace
 show_trace_plot              False
 
-save_bkg_hist_plot           False                                                     #save bkg_hist
+save_bkg_hist_plot           True                                                     #save bkg_hist
 show_bkg_hist_plot           False
 
-save_utr_plot                False                                                     #save 2d spectrum
+save_utr_plot                True                                                     #save 2d spectrum
 show_utr_plot                False
 
-save_sp1d_plot               False                                                     #save 2d spectrum
+save_sp1d_plot               True                                                     #save 2d spectrum
 show_sp1d_plot               False
 
 save_bkg_evo_plot            True                                                     #save 2d spectrum
@@ -90,11 +89,6 @@ show_refspec_comp_plot       False
 
 ###old params
 #one_di_per_visit        False
-#background_box   False #background count is being estimated by using a user-selected box. Need to set skyrmin etc
-#skyrmin  15
-#skyrmax  70
-#skycmin  20 #100 #400
-#skycmax 100 #200 #500
 
 
 ##21
