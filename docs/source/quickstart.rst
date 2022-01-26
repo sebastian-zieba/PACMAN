@@ -117,7 +117,7 @@ After running Stage 00 you should get an output like this:
 
 You will also end up with a new file called ``filelist.txt``. It should look like this:
 
-.. include:: media/filelist.txt
+.. include:: media/s00/filelist.txt
    :literal:
 
 It has the following columns:
@@ -176,7 +176,7 @@ Each file contains the X, Y and Z position of HST relative to the solar system b
 
 For example, the second file should look like this (due to its length, we just display the first 100 lines of it):
 
-.. include:: media/horizons_results_v1_short.txt
+.. include:: media/s01/horizons_results_v1_short.txt
    :literal:
 
 The next Stage uses the information in these files to convert from MJD to BJD.
@@ -199,7 +199,7 @@ This Stage has to perform a barycentric correction because the header only conta
 After the calculation has been performed, the user can check a newly generated plot also saved into "ancil/horizons".
 Here we show the plot generated for the second of the two visits:
 
-.. image:: media/bjdcorr_horizons_results_v1.png
+.. image:: media/s02/bjdcorr_horizons_results_v1.png
 
 The axis are the distance of HST to the Solar System Barycenter in kilometers.
 Horizons start and Horizons end show where our Horizon file starts and ends containing X,Y,Z information.
@@ -210,7 +210,7 @@ The colored curve consists out of a lot of points. Every one of them are a X,Y,Z
 The ``filetable.txt`` has be updated by the end of this stage and contains a new column called ``t_bjd`` with the time of observations in BJD.
 E.g. (only showing the first few lines):
 
-.. include:: media/filelist_updated.txt
+.. include:: media/s02/filelist_updated.txt
    :literal:
 
 Stage 03
@@ -289,7 +289,7 @@ After downloading or calculating the stellar spectrum, it gets multiplied with t
 The bandpass files are stored in the pipeline directory (e.g., ``/home/zieba/Desktop/Projects/Open_source/PACMAN/pacman/ancil/bandpass``).
 The final plot of this Stage shows the stellar spectrum, the bandpass and the product of these two. This product will be then used as the reference spectrum for wavelength calibration.
 
-.. image:: media/refspec.png
+.. image:: media/s03/refspec.png
 
 
 
@@ -346,7 +346,7 @@ In order to determine now where the star actually is, this run saved the images 
 
 You will end up with plots like this one:
 
-.. image:: media/quick_di0_wrong.png
+.. image:: media/s10/quick_di0_wrong.png
 
 You can see that our "initial guess" (the red box in the plot) was off by a lot from the star. Lets try again with a better guess, now that we know where the star is.
 
@@ -374,16 +374,16 @@ The terminal should give you something like this:
 
 You will end up with plots like this one:
 
-.. image:: media/quick_di0.png
+.. image:: media/s10/quick_di0.png
 
 This time we have the star in our cutout box!
 A second plot shows you the best fit to the star by using a 2D gaussian.
 
-.. image:: media/di_0.png
+.. image:: media/s10/di_0.png
 
 The positions of the star in physical pixels are then saved into a new file called ``xrefyref.txt``:
 
-.. include:: media/xrefyref.txt
+.. include:: media/s10/xrefyref.txt
    :literal:
 
 | First column is the time when the Direct Image was taken
@@ -409,13 +409,13 @@ We will save the flux information into there.
 The user can decide if they want to use `optimal extraction <https://ui.adsabs.harvard.edu/abs/1986PASP...98..609H>`_ to extract the spectra.
 
 
-.. image:: media/stage20/sp2d_0.png
+.. image:: media/s20/sp2d_0.png
 
-.. image:: media/stage20/utr0-0.png
+.. image:: media/s20/utr0-0.png
 
-.. image:: media/stage20/bkg_hist0-0.png
+.. image:: media/s20/bkg_hist0-0.png
 
-.. image:: media/stage20/sp1d_0.png
+.. image:: media/s20/sp1d_0.png
 
 
 Successfully reloaded meta file
@@ -462,4 +462,4 @@ Stage 21
 	    ***************** Looping over Bins: 100%|████████████| 11/11 [00:02<00:00,  3.71it/s]
 	    Finished s21
 
-.. image:: media/spec_bins12.png
+.. image:: media/s21/spec_bins12.png

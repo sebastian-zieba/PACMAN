@@ -59,6 +59,9 @@ If your ``datadir`` only contained these two visits (and not the previous 13 vis
 
 
 
+.. image:: media/s00/obs_dates_all.png
+
+
 Stage 02
 ---------------------------------------------------------
 
@@ -68,7 +71,7 @@ Example: ``True``
 
 Saves or shows a plot with the downloaded X,Y,Z positions of HST from the `HORIZONS system <https://ssd.jpl.nasa.gov/horizons/>`_ by JPL during the observations.
 
-.. image:: media/bjdcorr_horizons_results_v1.png
+.. image:: media/s02/bjdcorr_horizons_results_v1.png
 
 
 
@@ -105,7 +108,7 @@ save_refspec_plot/show_refspec_plot
 ''''''''''''''''''''''''''''''''''''''''''''
 Example: ``True``
 
-.. image:: media/refspec.png
+.. image:: media/s03/refspec.png
 
 
 
@@ -123,7 +126,7 @@ di_rmin, di_rmax, di_cmin, di_cmax
 These values have the goal of cutting out stamp around the target star.
 Below you will find an example:
 
-.. image:: media/quick_di0.png
+.. image:: media/s10/quick_di0.png
 
 You can see that the cutout (the red box in the plot) is well chosen which is needed to determine the star position.
 
@@ -136,8 +139,8 @@ Saves two plots for every direct image.
 The first one just shows the image with the location of the direct image cutout.
 The second plot shows the cutout on the left and the result of the 2D gaussian fit on the right. The gaussian fit only considers the cutout for the fit.
 
-.. image:: media/quick_di0.png
-.. image:: media/di_0.png
+.. image:: media/s10/quick_di0.png
+.. image:: media/s10/di_0.png
 
 
 Stage 20
@@ -170,37 +173,37 @@ smooth: created smoothed spatial profile, medial smoothing filter
 
 save_optextr_plot
 ''''''''''''''''''''''''''''''''''''''''''''
-.. image:: media/stage20/optextr0-0.png
+.. image:: media/s20/optextr0-0.png
 
 save_sp2d_plot/show_sp2d_plot
 ''''''''''''''''''''''''''''''''''''''''''''
-.. image:: media/stage20/sp2d_0.png
+.. image:: media/s20/sp2d_0.png
 
 save_trace_plot/show_trace_plot
 ''''''''''''''''''''''''''''''''''''''''''''
-.. image:: media/stage20/trace_0.png
+.. image:: media/s20/trace_0.png
 
 save_bkg_hist_plot/show_bkg_hist_plot
 ''''''''''''''''''''''''''''''''''''''''''''
-.. image:: media/stage20/bkg_hist0-0.png
+.. image:: media/s20/bkg_hist0-0.png
 
 save_utr_plot/show_utr_plot
 ''''''''''''''''''''''''''''''''''''''''''''
-.. image:: media/stage20/utr0-0.png
+.. image:: media/s20/utr0-0.png
 
 save_sp1d_plot/show_sp1d_plot
 ''''''''''''''''''''''''''''''''''''''''''''
-.. image:: media/stage20/sp1d_0.png
+.. image:: media/s20/sp1d_0.png
 
 save_bkg_evo_plot/show_bkg_evo_plot
 ''''''''''''''''''''''''''''''''''''''''''''
-.. image:: media/stage20/bkg_evo.png
+.. image:: media/s20/bkg_evo.png
 
 save_sp1d_diff_plot/show_sp1d_diff_plot
 ''''''''''''''''''''''''''''''''''''''''''''
-.. image:: media/stage20/sp1d_diff_0.png
+.. image:: media/s20/sp1d_diff_0.png
 
 save_utr_aper_evo_plot/show_utr_aper_evo_plot
 ''''''''''''''''''''''''''''''''''''''''''''
-.. image:: media/stage20/utr_aper_evo.png
+.. image:: media/s20/utr_aper_evo.png
 
