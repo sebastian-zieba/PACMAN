@@ -41,6 +41,7 @@ def run20(eventlabel, workdir, meta=None):
 
     files_sp = meta.files_sp     # spectra files
     nspectra = 0                 # iterator variable to track number of spectra reduced
+    # Only do the first N files, if wanted by the user
     if meta.s20_testing:
         meta.nexp = meta.n_testing
         print('Running s20 in testing mode...')
@@ -56,10 +57,7 @@ def run20(eventlabel, workdir, meta=None):
         sp1d_all = []
         wvl_hires = np.linspace(7000, 17800, 1000)
 
-
     print('in total #visits, #orbits:', (meta.nvisit, meta.norbit), '\n')
-
-    #TODO: Offer testing possibility: Just run the first N files
 
     # in order to have the correct order of print() with tqdm, i added file=sys.stdout
     # source: https://stackoverflow.com/questions/36986929/redirect-print-command-in-python-script-through-tqdm-write
@@ -99,7 +97,7 @@ def run20(eventlabel, workdir, meta=None):
         bpix = d[3].data[rmin:rmax,cmin:cmax]
         badpixind =  (bpix==4)|(bpix==512)|(flatfield[orbnum][rmin:rmax, cmin:cmax] == -1.)    #selects bad pixels
         M[badpixind] = 0.0                                        #initializes bad pixel mask
-
+        #store number of bad pixels
         spec_box = np.zeros(cmax - cmin)                                #box extracted standard spectrum
         spec_opt = np.zeros(cmax - cmin)                                #optimally extracted spectrum
         var_box = np.zeros(cmax - cmin)                              #box spectrum variance
@@ -115,13 +113,13 @@ def run20(eventlabel, workdir, meta=None):
             #diff = diff/flatfield[orbnum][rmin:rmax, cmin:cmax]                               #flatfields the differenced image
 
             # determine the aperture cutout
-            rowsum = np.sum(diff, axis=1)                   # sum of every row
-            rowsum_absder = abs(rowsum[1:] - rowsum[:-1])   # absolute derivative in order to determine where the spectrum is
+            rowmedian = np.median(diff, axis=1)                   # median of every row
+            rowmedian_absder = abs(rowmedian[1:] - rowmedian[:-1])   # absolute derivative in order to determine where the spectrum is
             #we use scipy.signal.find_peaks to determine in which rows the spectrum starts and ends
             #TODO: Think about better values for height and distance
             #TODO: Finding the row with the highest change in flux (compared to row above and below) isnt robust against outliers!
             #TODO: Maybe instead use the median flux in a row??
-            peaks, _ = find_peaks(rowsum_absder, height=max(rowsum_absder * 0.2), distance=5)
+            peaks, _ = find_peaks(rowmedian_absder, height=max(rowmedian_absder * 0.2), distance=5)
             peaks = peaks[:2] # only take the two biggest peaks (there should be only 2)
 
             #stores the locations of the peaks for every file and up-the-ramp-samples
@@ -146,7 +144,7 @@ def run20(eventlabel, workdir, meta=None):
             spectrum = diff[max(min(peaks) - meta.window, 0):min(max(peaks) + meta.window, rmax),:]
 
             if meta.save_utr_plot or meta.show_utr_plot:
-                plots.utr(diff, meta, i, ii, orbnum, rowsum, rowsum_absder, peaks)
+                plots.utr(diff, meta, i, ii, orbnum, rowmedian, rowmedian_absder, peaks)
 
             err = np.zeros_like(spectrum) + float(meta.rdnoise)**2 + skyvar
             var = abs(spectrum) + float(meta.rdnoise)**2 + skyvar                #variance estimate: Poisson noise from photon counts (first term)  + readnoise (factor of 2 for differencing) + skyvar
@@ -179,8 +177,6 @@ def run20(eventlabel, workdir, meta=None):
                 #template_waves = meta.wave_grid[0, int(meta.refpix[orbnum,1]) + meta.LTV1, cmin:cmax]             #LK interpolation 8/18 #use stellar model instead
                 g102mask = template_waves > 8200 # we dont use the spectrum below 8200 angstrom for the interpolation as the reference bandpass cuts out below this wavelength
 
-                #TODO: Add smooth_bool and smooth_sigma to pcf
-                #TODO: SMOOTHING SHOULD BE IN s03_refspectra!! OTHERWISE I'M ALSO SMOOTHING THE BANDPASS!!
                 x_refspec, y_refspec = util.read_refspec(meta)
 
                 #TODO: This is so bad
@@ -226,7 +222,8 @@ def run20(eventlabel, workdir, meta=None):
                 leastsq_res = leastsq(util.residuals2, p0, args=(x_model, y_model, x_data, y_data))[0]
                 #print('leastsq_res', leastsq_res)
 
-                plots.refspec_comp(x_model, y_model, p0, x_data, y_data, leastsq_res, meta, i)
+                if meta.save_refspec_comp_plot or meta.show_refspec_comp_plot:
+                    plots.refspec_comp(x_model, y_model, p0, x_data, y_data, leastsq_res, meta, i)
 
                 wvls = leastsq_res[0] + x_data * leastsq_res[1]
                 #

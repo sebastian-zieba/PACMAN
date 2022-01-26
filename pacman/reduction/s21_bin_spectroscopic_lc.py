@@ -30,36 +30,14 @@ def run21(eventlabel, workdir, meta=None):
 
 
     for wvl_bins in meta.wvl_bins:
-        #TODO: Q: Which ways should the user have to define bins? Bin edges; mid bin; custom list of edges?
-        #TODO: Rename wvl_bins because it's not the number bins but the number of edges; so #bins-1
-        print('Number of bin edges:', wvl_bins)
+
+        print('Number of bins:', wvl_bins)
         #what bins do you want?
         #wave_bins = np.linspace(1.125, 1.65, 22)*1e4
         wave_bins = np.linspace(meta.wvl_min, meta.wvl_max, wvl_bins)*1e4
         #print(wave_bins)
 
-        #file_mario = '/home/zieba/Documents/L98-59_bins_2.txt'
-        #wvl_mario0, wvl_mario1,_,_,_,_=np.loadtxt(file_mario).T
-        #wave_bins = np.concatenate((wvl_mario0, [wvl_mario1[-1]]))+154
-        #a = 8000
-        #b = 10809
-        #c = 10858
-        #d = 11400
-        #ab = np.linspace(a, b, 13)
-        #cd = np.linspace(c, d, 4)
-
-        #wave_bins = np.concatenate((ab,cd))
-        #print(wave_bins)
-
-        #wave_bins = np.linspace(1.139, 1.631, 12)*1e4
-        #wave_bins = np.array([11400, 11800, 12200,12600,13000, 13400, 13800, 14200, 14600, 15000, 15400, 15800, 16200])
-
-        #Tom Evan wave bins
-        #wave_bins = np.array([1.129595435219961752e+00, 1.180470435219961756e+00, 1.231345435219961759e+00, 1.282220435219961763e+00, 1.333095435219961766e+00, 1.383970435219961770e+00, 1.434845435219961773e+00, 1.485720435219961777e+00, 1.536595435219961781e+00, 1.587470435219961784e+00, 1.638345435219961788e+00])*1.e4
-
         #reads in spectra
-        #print(meta.most_recent_s20)
-        #print(meta.most_recent_s20==True)
         if meta.most_recent_s20:
             lst_dir = os.listdir(meta.workdir + "/extracted_lc/")
             lst_dir = sn.sort_nicely(lst_dir)

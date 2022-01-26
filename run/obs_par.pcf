@@ -41,13 +41,13 @@ show_image_plot              False
 
 
 ## 20
-s20_testing                  True
+s20_testing                  False
 n_testing                    4
 
 rmin                         5
 rmax                         261
 
-window                       1
+window                       2
 
 background_thld              1000                                                     #background threshold in counts
 
@@ -60,19 +60,19 @@ correct_wave_shift           True
 
 output                       True
 
-save_sp2d_plot               True                                                     #save 2d spectrum
+save_sp2d_plot               False                                                     #save 2d spectrum
 show_sp2d_plot               False
 
-save_trace_plot              True                                                     #save trace
+save_trace_plot              False                                                     #save trace
 show_trace_plot              False
 
-save_bkg_hist_plot           True                                                     #save bkg_hist
+save_bkg_hist_plot           False                                                     #save bkg_hist
 show_bkg_hist_plot           False
 
-save_utr_plot                True                                                     #save 2d spectrum
+save_utr_plot                False                                                     #save 2d spectrum
 show_utr_plot                False
 
-save_sp1d_plot               True                                                     #save 2d spectrum
+save_sp1d_plot               False                                                     #save 2d spectrum
 show_sp1d_plot               False
 
 save_bkg_evo_plot            True                                                     #save 2d spectrum
@@ -84,7 +84,7 @@ show_sp1d_diff_plot          False
 save_utr_aper_evo_plot       True                                                     #save 2d spectrum
 show_utr_aper_evo_plot       False
 
-save_refspec_comp_plot       True
+save_refspec_comp_plot       False
 show_refspec_comp_plot       False
 
 ###old params
@@ -100,12 +100,8 @@ wvl_min                      1.125
 wvl_max                      1.65
 wvl_bins                     [12]
 
-###old params
-### Wavelength bins
-#wave_bins = np.linspace(1.125, 1.65, 22)*1e4
-#wave_bins = np.linspace(1.125, 1.65, 12)*1e4
-#wave_bins = np.linspace(1.139, 1.631, 12)*1e4
-#wave_bins = np.array([11400, 11800, 12200,12600,13000, 13400, 13800, 14200, 14600, 15000, 15400, 15800, 16200])
+use_wvl_list                 False
+wvl_edge_list               [11400,12200,12600,13000,14600,15000,15400,15800,16200])
 
 
 ##30

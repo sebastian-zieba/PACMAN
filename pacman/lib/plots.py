@@ -402,7 +402,7 @@ def bkg_hist(fullframe_diff, skymedian, meta, i, ii):
         plt.close()
 
 
-def utr(diff, meta, i, ii, orbnum, rowsum, rowsum_absder, peaks):
+def utr(diff, meta, i, ii, orbnum, rowmedian, rowmedian_absder, peaks):
     """
     Saves a plot of up-the-ramp sample, the row by row sum and the derivate of the latter. It furthermore shows the aperture used for the analysis.
     """
@@ -429,7 +429,7 @@ def utr(diff, meta, i, ii, orbnum, rowsum, rowsum_absder, peaks):
     ax[1].axhline(max(peaks), c='r', ls='--', lw=2 )
     ax[1].axhline(min(peaks)-meta.window, c='r', ls='-', lw=3 )
     ax[1].axhline(max(peaks)+meta.window, c='r', ls='-', lw=3 )
-    ax[1].plot(rowsum, p1)
+    ax[1].plot(rowmedian, p1)
     ax[1].set_ylim(meta.rmin, meta.rmax)
     ax[1].set_xlabel('lin Flux')
     ax[1].title.set_text('sum row Flux')
@@ -437,8 +437,8 @@ def utr(diff, meta, i, ii, orbnum, rowsum, rowsum_absder, peaks):
     p2 = (p1[1:] + p1[:-1]) / 2
     ax[2].axhline(min(peaks)-meta.window, c='r', ls='-', lw=3 )
     ax[2].axhline(max(peaks)+meta.window, c='r', ls='-', lw=3 )
-    ax[2].scatter(rowsum_absder[peaks], peaks, marker = 'x', c='r')
-    ax[2].plot(rowsum_absder, p2)
+    ax[2].scatter(rowmedian_absder[peaks], peaks, marker = 'x', c='r')
+    ax[2].plot(rowmedian_absder, p2)
     ax[2].set_ylim(meta.rmin, meta.rmax)
     ax[2].set_xlabel('lin Flux')
     ax[2].title.set_text('Derivative')
