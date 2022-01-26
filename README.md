@@ -13,17 +13,18 @@ TODO: Add short installation guide
 ### With Git/GitHub
 
 You can install PACMAN directly from source on [GitHub](https://github.com/sebastian-zieba/PACMAN) in one of two ways:
-	- On the [GitHub website](https://github.com/sebastian-zieba/PACMAN), click on **Code** and **Download ZIP** followed by unpacking the distribution by opening up a terminal and typing:
 
-		```bash
-		unzip PACMAN-master.zip
-		```
+- On the [GitHub website](https://github.com/sebastian-zieba/PACMAN), click on **Code** and **Download ZIP** followed by unpacking the distribution by opening up a terminal and typing:
 
-OR, clone the repository using ``git`` by typing:
+```bash
+unzip PACMAN-master.zip
+```
 
-		```bash
-		git clone https://github.com/sebastian-zieba/PACMAN.git
-		```
+- OR, clone the repository using ``git`` by typing:
+
+```bash
+git clone https://github.com/sebastian-zieba/PACMAN.git
+```
 
 [comment]: <> (2. Navigate into the newly created directory and **install** PACMAN by running ``setup.py``:)
 
