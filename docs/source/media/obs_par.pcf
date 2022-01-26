@@ -7,6 +7,9 @@ datadir                      /home/zieba/Desktop/Data/GJ1214_Hubble13021        
 suffix                       ima                                                      #data suffix (only ima supported right now)
 which_visits                 [13,14]                                                  #which visits to use; Options: list (e.g., [0,1,3]) or everything
 
+save_obs_times_plot          True
+show_obs_times_plot          False
+
 
 ## 02 barycorr
 save_barycorr_plot           True                                                     #save a plot with locations of HST?
@@ -18,9 +21,15 @@ Teff                         3250                                               
 logg                         5.026                                                    #surface gravity of the star
 MH                           0.29                                                     #metallicity of the star
 sm                           k93models                                                #stellar model. Options: blackbody, k93models, ck04models or phoenix
+
+smooth                       True
+smooth_sigma                 50
+
+save_smooth_plot             True
+show_smooth_plot             False
+
 save_refspec_plot            True                                                     #save a plot showing the stellar model, bandpass and the product of them?
 show_refspec_plot            False
-
 
 ## 10
 di_rmin                      120                                                      #coordinates (row min max and column min max) where the star in the direct image is
@@ -32,15 +41,13 @@ show_image_plot              False
 
 
 ## 20
+s20_testing                  False
+n_testing                    4
 
-offset                       0 #int
+rmin                         5
+rmax                         261
 
-rmin                         0
-rmax                         256 #512
-cmin                         0
-cmax                         256 #512
-
-window                       1
+window                       2
 
 background_thld              1000                                                     #background threshold in counts
 
@@ -53,7 +60,7 @@ correct_wave_shift           True
 
 output                       True
 
-save_sp2d_plot               True                                                     #save 2d spectrum
+save_sp2d_plot               False                                                     #save 2d spectrum
 show_sp2d_plot               False
 
 save_trace_plot              False                                                     #save trace
@@ -77,21 +84,11 @@ show_sp1d_diff_plot          False
 save_utr_aper_evo_plot       True                                                     #save 2d spectrum
 show_utr_aper_evo_plot       False
 
-save_refspec_smooth_plot     True
-show_refspec_smooth_plot     False
-
-save_refspec_comp_plot       True
+save_refspec_comp_plot       False
 show_refspec_comp_plot       False
-
 
 ###old params
 #one_di_per_visit        False
-#background_box   False #background count is being estimated by using a user-selected box. Need to set skyrmin etc
-#skyrmin  15
-#skyrmax  70
-#skycmin  20 #100 #400
-#skycmax 100 #200 #500
-
 
 
 ##21
@@ -103,15 +100,8 @@ wvl_min                      1.125
 wvl_max                      1.65
 wvl_bins                     [12]
 
-
-###old params
-### Wavelength bins
-#wave_bins = np.linspace(1.125, 1.65, 22)*1e4
-#wave_bins = np.linspace(1.125, 1.65, 12)*1e4
-#wave_bins = np.linspace(1.139, 1.631, 12)*1e4
-#wave_bins = np.array([11400, 11800, 12200,12600,13000, 13400, 13800, 14200, 14600, 15000, 15400, 15800, 16200])
-
-
+use_wvl_list                 False
+wvl_edge_list               [11400,12200,12600,13000,14600,15000,15400,15800,16200])
 
 
 ##30
@@ -153,10 +143,6 @@ run_nburn           1000
 #dynesty
 run_dlogz           25000
 run_nlive          100
-
-
-
-
 
 #skip_orbs_phase_curve    0_
 #skip_orbs_eclipse    0_
