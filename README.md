@@ -1,3 +1,5 @@
+![](https://github.com/sebastian-zieba/PACMAN/blob/master/docs/source/media/Pacman_V1.gif)
+
 # PACMAN
 
 **Welcome to PACMAN**

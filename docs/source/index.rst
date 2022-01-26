@@ -6,6 +6,8 @@
 Welcome to PACMAN's documentation!
 ==================================
 
+.. image:: media/Pacman_V1.gif
+
 **Welcome to the documentation for PACMAN**
 
 PACMAN is a pipeline to reduce and analyse HST data (G102 or G141). 
