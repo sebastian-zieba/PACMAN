@@ -39,7 +39,7 @@ On GitHub
 
 *run_pacman.py*
 
-This python script runs PACMAN. As the installation with setup.py is not tested yet, the user has to modify one line inside of this file before being able to run the code:
+This python script runs PACMAN. As the installation with setup.py is not tested yet, the user has to modify ``line 2`` inside of this file before being able to run the code:
 
 .. code-block:: python
 
@@ -49,24 +49,58 @@ The path in ``sys.path.append`` has to be changed to the location of PACMAN on t
 
     .. note:: The path should point to ``/PACMAN/`` and not to ``/PACMAN/pacman/``.
 
+The user can now run any stage by adding it as an argument in the terminal. E.g., for running Stage 00:
+
+.. code-block:: console
+
+	python run_pacman.py --s00
+
+To get more information, type:
+
+.. code-block:: console
+
+	python run_pacman.py --help
+
 
 *fit_par.txt*
-The fit_par file which will be used in Stage 30 to fit the light curve. The user defines in here which fit parameters should be fixed, shared accross visits, and sets other information like priors.
+
+The fit_par file is used in Stage 30 to fit the light curve. The user defines in here which fit parameters should be fixed, shared accross visits, and sets other information like priors.
+
 
 *obs_par.pcf*
-The PACMAN control file (pcf). The user sets here which plots should be saved, the path to the data and many other parameters. A thorough explanation of all the parameters in the pcf can be found on Read The Docs: :ref:`pcf`.
 
+The PACMAN control file (pcf): the user sets here which plots should be saved, the path to the data and many other parameters. A thorough explanation of all the parameters in the pcf can be found on Read The Docs: :ref:`pcf`.
 
 
 
 * **PACMAN/pacman**
 
+All code PACMAN needs to run, is stored here.
+
  - **PACMAN/pacman/reduction**
+
+This directory contains the main scripts for the individual stages. The scripts here use many files which are saved in ``PACMAN/pacman/lib``.
 
  - **PACMAN/pacman/lib**
 
+This directory contains auxiliary scripts for the stages. E.g., ``PACMAN/pacman/lib/plots.py`` creates and saves plots.
+
  - **PACMAN/pacman/ancil**
 
+  + **PACMAN/pacman/ancil/bandpass**
+
+This directory contains the bandpass of the G102 and the G141 grisms. These files will be used in Stage 03 to create the reference spectrum.
+
+  + **PACMAN/pacman/ancil/flats**
+
+The flats (for G102 and G141) are used to find the locations of bad pixels.
+
+  + **PACMAN/pacman/ancil/stellar_models**
+
+This directory contains information for PACMAN which stellar models are available to download.
+PACMAN offers the user to download three different stellar models from the internet: Kurucz stellar models 1993, Castelli and Kurucz stellar models 2004 and Phoenix models by Allard and collaborators.
+These models will be used in Stage 03 to create the reference spectrum.
+More on this `further down <https://pacmandocs.readthedocs.io/en/latest/quickstart.html#stage-03>`_ at the walkthrough of Stage 03.
 
 When running PACMAN
 ''''''''''''''''''''''''''''''
@@ -87,7 +121,7 @@ Example: ``/home/zieba/Desktop/Projects/Open_source/PACMAN/run``.
 
 * **work directory**:
 
-This directory will be created after running Stage 00.
+This directory will be created when running Stage 00.
 All the results of the following stages will be stored here.
 
 Example: ``/home/zieba/Desktop/Projects/Open_source/PACMAN/run/run_2022-01-19_16-46-19_GJ1214_Hubble13021``.
@@ -102,6 +136,7 @@ It therefore has the following form:
 
 Example: ``/home/zieba/Desktop/Data/GJ1214_Hubble13021``.
 
+This directory should contain the .fits files which should be reduced and analyzed.
 
 * **pipeline directory**:
 
@@ -113,8 +148,8 @@ Example: ``/home/zieba/Desktop/Projects/Open_source/PACMAN/pacman``
 Example
 :::::::::::::::::::::::::::::::::::::::::
 
-Let's apply PACMAN on real observations of GJ1214. The planet was observed in HST GO13021 in 15 visits.
-Let's just look at the last two visits (so which_visits = [13,14]) for simplicity.
+Let's apply PACMAN on real observations of GJ 1214. The planet GJ 1214 b was observed in HST GO13021 in 15 visits.
+Let's just look at the last two visits (i.e., the two most recently taken visits) for simplicity.
 
 
 Download data
@@ -131,10 +166,14 @@ PACMAN can currently just work with files with an ``ima`` extension, so you want
 From the `WFC3 data handbook (Types of WFC3 Files) <https://hst-docs.stsci.edu/wfc3dhb/chapter-2-wfc3-data-structure/2-1-types-of-wfc3-files>`_: "For the IR detector, an intermediate MultiAccum (ima) file is the result after all calibrations are applied (dark subtraction, linearity correction, flat fielding, etc.) to all of the individual readouts of the IR exposure."
 Finally, move these fits files into a new directory. You will have to specify the location of this "data directory" then in the pcf file.
 
+If the user has all files of the 15 visits in the data directory, they can use ``which_visits = [13,14]`` in the pcf to only analyze the last two visits.
+
+
 Setup the PACMAN control file (.pcf)
 :::::::::::::::::::::::::::::::::::::::::
 
-See pcf.rst
+The PACMAN control file should be set up before running any stage. Please check out this website on Read The Docs: :ref:`pcf` to see what the different parameters mean.
+
 
 
 Stage 00
