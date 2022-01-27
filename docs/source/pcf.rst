@@ -31,6 +31,7 @@ It has to include three files:
 
 	Your path is not allowed to have any spaces in it. E.g., ``/home/USER/run 1`` is not a valid path.
 
+
 datadir
 ''''''''''''''''''''''''''''''''''''''''''''
 Example: ``/home/zieba/Desktop/Data/GJ1214_Hubble13021``
@@ -41,10 +42,12 @@ This path should be correspond to the location of your data.
 
 	Your path is not allowed to have any spaces in it. E.g., ``/home/USER/data GJ1214`` is not a valid path.
 
+
 suffix
 ''''''''''''''''''''''''''''''''''''''''''''
 Only possible extended supported currently: ``ima``
 From the `WFC3 data handbook (Types of WFC3 Files) <https://hst-docs.stsci.edu/wfc3dhb/chapter-2-wfc3-data-structure/2-1-types-of-wfc3-files>`_: "For the IR detector, an intermediate MultiAccum (ima) file is the result after all calibrations are applied (dark subtraction, linearity correction, flat fielding, etc.) to all of the individual readouts of the IR exposure."
+
 
 which_visits
 ''''''''''''''''''''''''''''''''''''''''''''
@@ -58,8 +61,19 @@ E.g., HST GO 13021 contains 15 visits. If you have all 15 visits in your ``datad
 If your ``datadir`` only contained these two visits (and not the previous 13 visits before it), you can either write ``everything`` or ``[0,1]``.
 
 
+save_obs_times_plot/show_obs_times_plot
+''''''''''''''''''''''''''''''''''''''''''''
+Example: ``True``
+This plot consists out of one table and two subplots.
+
+- The table lists the number of orbits in each individual visit.
+
+- The left subplot shows when the visit was observed.
+
+- The right subplot shows when observations where taken during an visit as a function of time elapsed since the first exposure in the visit.
 
 .. image:: media/s00/obs_dates_all.png
+
 
 
 Stage 02
@@ -75,7 +89,6 @@ Saves or shows a plot with the downloaded X,Y,Z positions of HST from the `HORIZ
 
 
 
-
 Stage 03
 ---------------------------------------------------------
 
@@ -86,6 +99,7 @@ Teff, logg, MH
 | Example: ``MH    0.29``
 
 effective Temperature (Teff), surface gravity (logg) and metallicity (MH) of the star.
+
 
 sm
 ''''''''''''''''''''''''''''''''''''''''''''
@@ -104,9 +118,39 @@ Options:
 The stellar models (exluding the blackbody one) are retrieved from https://archive.stsci.edu/hlsps/reference-atlases/cdbs/grid/
 
 
+smooth/smooth_sigma
+''''''''''''''''''''''''''''''''''''''''''''
+Example:
+| ``smooth        True``
+| ``smooth_sigma  50``
+
+Sets if the user wants to apply a gaussian kernel smoothing to the stellar spectrum. This is generally recommened as the Kurucz or Phoenix stellar models have a higher resolution as the resulting G102 or G141 spectra.
+
+TODO: Add information on smooth_sigma and double check the information here...
+
+G141 46.9 Angstrom/pixel dispersion
+
+G102 24.6 Angstrom/pixel dispersion
+
+More on gaussian smoothing for the reference spectrum: `Deming et al. 2013 <https://ui.adsabs.harvard.edu/abs/2013ApJ...774...95D/abstract>`_
+
+They 'we convolve each 1-D spectrum with a Gaussian kernel having FWHM = 4 pixels.'
+
+As FWHM = 2.35 * sigma, the recommended value for G141 is smooth_sigma = 2.35 * 4 * 46.9 = 441
+
+
+save_smooth_plot/show_smooth_plot
+''''''''''''''''''''''''''''''''''''''''''''
+Example: ``True``
+
+Shows how the stellar spectrum was smoothed.
+
+
 save_refspec_plot/show_refspec_plot
 ''''''''''''''''''''''''''''''''''''''''''''
 Example: ``True``
+
+Saves or shows a plot of the reference spectrum (stellar spectrum * bandpass).
 
 .. image:: media/s03/refspec.png
 

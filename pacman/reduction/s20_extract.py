@@ -1,6 +1,7 @@
 import os, glob, scipy, sys
 import numpy as np
 from astropy.io import ascii, fits
+import shutil
 #from numpy import *
 #from pylab import *
 from ..lib import optextr
@@ -33,6 +34,10 @@ def run20(eventlabel, workdir, meta=None):
     dirname = meta.workdir + "/extracted_lc/" + datetime.strftime(datetime.now(), '%Y-%m-%d_%H-%M-%S')
     if not os.path.exists(dirname): os.makedirs(dirname)
 
+    # Let's have a copy of the pcf in the extracted_lc directory
+    # This copy is just for the user to know what parameters they used when running s20
+    shutil.copy(meta.workdir + '/obs_par.pcf', dirname)
+
     # initialize the astropy tables where we will save the extracted spectra
     if meta.output == True:
         table_white = QTable(names=('t_mjd', 't_bjd', 't_visit','t_orbit', 'ivisit', 'iorbit', 'scan', 'spec_opt', 'var_opt', 'spec_box', 'var_box'))
@@ -58,6 +63,8 @@ def run20(eventlabel, workdir, meta=None):
     if meta.save_sp1d_diff_plot or meta.show_sp1d_diff_plot:
         sp1d_all = []
         wvl_hires = np.linspace(7000, 17800, 1000)
+    if meta.save_drift_plot or meta.show_drift_plot:
+        leastsq_res_all = []
 
     print('in total #visits, #orbits:', (meta.nvisit, meta.norbit), '\n')
 
@@ -91,10 +98,6 @@ def run20(eventlabel, workdir, meta=None):
         meta.wave_grid = util.get_wave_grid(meta)  # gets grid of wavelength solutions for each orbit and row
 
         M = np.ones_like(d[1].data[rmin:rmax, cmin:cmax])                        #mask for bad pixels
-        #TODO: The next line is often creating errors!! Example:
-        #/home/zieba/Desktop/Projects/Open_source/PACMAN/pacman/lib/util.py:213: RuntimeWarning: invalid value encountered in subtract x = (wave - WMIN)/(WMAX-WMIN)
-        #/home/zieba/Desktop/Projects/Open_source/PACMAN/pacman/lib/util.py:214: RuntimeWarning: overflow encountered in square flatfield.append(a0+a1*x+a2*x**2)
-        #/home/zieba/Desktop/Projects/Open_source/PACMAN/pacman/lib/util.py:214: RuntimeWarning: invalid value encountered in multiply flatfield.append(a0+a1*x+a2*x**2)
         flatfield = util.get_flatfield(meta)
         bpix = d[3].data[rmin:rmax,cmin:cmax]
         badpixind =  (bpix==4)|(bpix==512)|(flatfield[orbnum][rmin:rmax, cmin:cmax] == -1.)    #selects bad pixels
@@ -104,7 +107,7 @@ def run20(eventlabel, workdir, meta=None):
         spec_opt = np.zeros(cmax - cmin)                                #optimally extracted spectrum
         var_box = np.zeros(cmax - cmin)                              #box spectrum variance
         var_opt = np.zeros(cmax - cmin)                                #optimal spectrum variance
-
+        import matplotlib.pyplot as plt
         #########################################################################################################################################################
         # loops over up-the-ramp-samples (skipping first two very short exposures); gets all needed input for optextr routine                    #
         #########################################################################################################################################################
@@ -112,7 +115,6 @@ def run20(eventlabel, workdir, meta=None):
         # source: https://stackoverflow.com/questions/41707229/tqdm-printing-to-newline
         for ii in tqdm(np.arange(d[0].header['nsamp']-2, dtype=int), desc='--- Looping over up-the-ramp-samples', leave=True, position=0):
             diff = d[ii*5 + 1].data[rmin:rmax,cmin:cmax] - d[ii*5 + 6].data[rmin:rmax,cmin:cmax]    #creates image that is the difference between successive scans
-            #diff = diff/flatfield[orbnum][rmin:rmax, cmin:cmax]                               #flatfields the differenced image
 
             # determine the aperture cutout
             rowmedian = np.median(diff, axis=1)                   # median of every row
@@ -141,9 +143,12 @@ def run20(eventlabel, workdir, meta=None):
                 plots.bkg_hist(fullframe_diff, skymedian, meta, i, ii)
             diff = diff - skymedian                                    #subtracts the background
 
+            #peaks_mid = int((peaks[0]+peaks[1])/2)
+
             # selects postage stamp centered around spectrum
             # we use a bit more data by using the user defined window
             spectrum = diff[max(min(peaks) - meta.window, 0):min(max(peaks) + meta.window, rmax),:]
+            #spectrum = diff[max(peaks_mid - 4, 0):min(peaks_mid + 4, rmax),:]
 
             if meta.save_utr_plot or meta.show_utr_plot:
                 plots.utr(diff, meta, i, ii, orbnum, rowmedian, rowmedian_absder, peaks)
@@ -153,6 +158,7 @@ def run20(eventlabel, workdir, meta=None):
             spec_box_0 = spectrum.sum(axis = 0)                            #initial box-extracted spectrum
             var_box_0 = var.sum(axis = 0)                                #initial variance guess
             Mnew = M[max(min(peaks) - meta.window, 0):min(max(peaks) + meta.window, rmax),:]
+            #Mnew = M[max(peaks_mid - 4, 0):min(peaks_mid + 4, rmax),:]
             #TODO: Just use meta to reduce the number of parameters which are given to optextr
             if meta.opt_extract==True: [f_opt_0, var_opt_0, numoutliers] = optextr.optextr(spectrum, err, spec_box_0, var_box_0, Mnew, meta.nsmooth, meta.sig_cut, meta.save_optextr_plot, i, ii, meta)
             else: [f_opt, var_opt] = [spec_box_0,var_box_0]
@@ -170,6 +176,7 @@ def run20(eventlabel, workdir, meta=None):
         #TODO: Q: delx = 0.5 + np.arange(meta.subarray_size) - (meta.refpix[i,2] + meta.LTV1 + meta.POSTARG1/meta.platescale)
 
         template_waves = meta.wave_grid[0, int(meta.refpix[orbnum, 1]) + meta.LTV1, cmin:cmax]
+        #print(template_waves)
 
         #corrects for wavelength drift over time
         if meta.correct_wave_shift == True:
@@ -197,10 +204,11 @@ def run20(eventlabel, workdir, meta=None):
 
                 p0 = [0, 1, 1] # initial guess for least squares
                 leastsq_res = leastsq(util.residuals2, p0, args=(x_refspec_new, y_refspec_new, x_data, y_data))[0]
-                #print('leastsq_res', leastsq_res)
 
-                if meta.save_refspec_comp_plot or meta.show_refspec_comp_plot:
-                    plots.refspec_comp(x_refspec_new, y_refspec_new, p0, x_data, y_data, leastsq_res, meta, i)
+                if meta.save_drift_plot or meta.show_drift_plot:
+                    leastsq_res_all.append(leastsq_res)
+                if meta.save_refspec_fit_plot or meta.show_refspec_fit_plot:
+                    plots.refspec_fit(x_refspec_new, y_refspec_new, p0, x_data, y_data, leastsq_res, meta, i)
 
                 #for all other but first exposure in visit exposures
                 x_data_firstexpvisit = leastsq_res[0] + template_waves * leastsq_res[1]
@@ -222,15 +230,16 @@ def run20(eventlabel, workdir, meta=None):
 
                 p0 = [0, 1, 1]
                 leastsq_res = leastsq(util.residuals2, p0, args=(x_model, y_model, x_data, y_data))[0]
-                #print('leastsq_res', leastsq_res)
-
-                if meta.save_refspec_comp_plot or meta.show_refspec_comp_plot:
-                    plots.refspec_comp(x_model, y_model, p0, x_data, y_data, leastsq_res, meta, i)
+                if meta.save_drift_plot or meta.show_drift_plot:
+                    leastsq_res_all.append(leastsq_res)
+                if meta.save_refspec_fit_plot or meta.show_refspec_fit_plot:
+                    plots.refspec_fit(x_model, y_model, p0, x_data, y_data, leastsq_res, meta, i)
 
                 wvls = leastsq_res[0] + x_data * leastsq_res[1]
                 #
                 # x_data_priorexp = wvls
                 # y_data_priorexp = y_data
+
         else:
             wvls = template_waves
 
@@ -276,6 +285,9 @@ def run20(eventlabel, workdir, meta=None):
 
     if meta.save_utr_aper_evo_plot or meta.show_utr_aper_evo_plot:
         plots.utr_aper_evo(peaks_all, meta)
+
+    if meta.save_drift_plot or meta.show_drift_plot:
+        plots.drift(leastsq_res_all, meta)
 
     print('Finished s20 \n')
 

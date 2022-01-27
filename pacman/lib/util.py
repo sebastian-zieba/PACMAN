@@ -226,7 +226,7 @@ def get_flatfield(meta):                    #function that flatfields a data arr
     flat = fits.open(meta.flat)                #reads in flatfield cube
     WMIN = flat[0].header['WMIN']                #constants for computing flatfield coefficients
     WMAX = flat[0].header['WMAX']
-    print('flatfield:', WMIN, WMAX)
+    #print('flatfield:', WMIN, WMAX)
     a0 = flat[0].data[-meta.LTV1:-meta.LTV1+meta.subarray_size, -meta.LTV2:-meta.LTV2+meta.subarray_size]
     a1 = flat[1].data[-meta.LTV1:-meta.LTV1+meta.subarray_size, -meta.LTV2:-meta.LTV2+meta.subarray_size]
     a2 = flat[2].data[-meta.LTV1:-meta.LTV1+meta.subarray_size, -meta.LTV2:-meta.LTV2+meta.subarray_size]

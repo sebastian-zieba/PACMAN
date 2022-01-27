@@ -411,7 +411,7 @@ def utr(diff, meta, i, ii, orbnum, rowmedian, rowmedian_absder, peaks):
     cmax = min(int(meta.refpix[orbnum, 2] + meta.POSTARG1 / meta.platescale) + meta.BEAMA_f + meta.LTV1 - meta.offset,
                meta.subarray_size)  # right column (end of trace, or edge of detector)
 
-    fig, ax = plt.subplots(1,3, figsize=(10,6))
+    fig, ax = plt.subplots(1,3, figsize=(10,8), sharey=True)
 
     im = ax[0].imshow(diff, vmin=0, vmax=300, origin='lower')
     #ax[2].axhline(idx, c = 'b', ls='--')
@@ -428,28 +428,47 @@ def utr(diff, meta, i, ii, orbnum, rowmedian, rowmedian_absder, peaks):
     ax[1].axhline(min(peaks), c='r', ls='--', lw=2 )
     ax[1].axhline(max(peaks), c='r', ls='--', lw=2 )
     ax[1].axhline(min(peaks)-meta.window, c='r', ls='-', lw=3 )
-    ax[1].axhline(max(peaks)+meta.window, c='r', ls='-', lw=3 )
+    ax[1].axhline(max(peaks)+meta.window, c='r', ls='-', lw=3)
+    rowmm = np.median(rowmedian)
+    peaks_mid = int(np.mean(peaks))
+    print(peaks_mid)
     ax[1].plot(rowmedian, p1)
+
+
+    ax[1].axvline(rowmm, ls='-', c='k', alpha=0.4, lw=3)
+    def peak_to_median_ratio(peak_val, median_val, percentage):
+        return (peak_val-median_val)*(1-percentage)+median_val
+    ax[1].axvline(peak_to_median_ratio(rowmedian[peaks_mid], rowmm, 0.95), ls='--', c='k', alpha=0.4, lw=3)
+    ax[1].axvline(peak_to_median_ratio(rowmedian[peaks_mid], rowmm, 0.99), ls='--', c='k', alpha=0.4, lw=3)
+    ax[1].axvline(peak_to_median_ratio(rowmedian[peaks_mid], rowmm, 0.995), ls='--', c='k', alpha=0.4, lw=3)
+    ax[1].axvline(peak_to_median_ratio(rowmedian[peaks_mid], rowmm, 0.999), ls='--', c='k', alpha=0.4, lw=3)
+    axtf = ax[1].get_xaxis_transform()
+    ax[1].text(peak_to_median_ratio(rowmedian[peaks_mid], rowmm, 0.95), .20, '95%', transform=axtf)
+    ax[1].text(peak_to_median_ratio(rowmedian[peaks_mid], rowmm, 0.99), .15, '99%', transform=axtf)
+    ax[1].text(peak_to_median_ratio(rowmedian[peaks_mid], rowmm, 0.995), .1, '99.5%', transform=axtf)
+    ax[1].text(peak_to_median_ratio(rowmedian[peaks_mid], rowmm, 0.999), .05, '99.9%', transform=axtf)
+    ax[1].set_xscale('log')
     ax[1].set_ylim(meta.rmin, meta.rmax)
-    ax[1].set_xlabel('lin Flux')
-    ax[1].title.set_text('sum row Flux')
+    ax[1].set_xlabel('log Flux')
+    ax[1].title.set_text('median row Flux')
 
     p2 = (p1[1:] + p1[:-1]) / 2
     ax[2].axhline(min(peaks)-meta.window, c='r', ls='-', lw=3 )
     ax[2].axhline(max(peaks)+meta.window, c='r', ls='-', lw=3 )
     ax[2].scatter(rowmedian_absder[peaks], peaks, marker = 'x', c='r')
     ax[2].plot(rowmedian_absder, p2)
+    ax[2].set_xscale('log')
     ax[2].set_ylim(meta.rmin, meta.rmax)
-    ax[2].set_xlabel('lin Flux')
+    ax[2].set_xlabel('log Flux')
     ax[2].title.set_text('Derivative')
 
     plt.colorbar(im)
     plt.tight_layout()
-    plt.suptitle('UpTheRamp {0}-{1}, visit {2}, orbit {3}'.format(i, ii, meta.ivisit_sp[i], meta.iorbit_sp[i]))
+    plt.suptitle('UpTheRamp {0}-{1}, visit {2}, orbit {3}'.format(i, ii, meta.ivisit_sp[i], meta.iorbit_sp[i]), y=1)
     if meta.save_utr_plot:
         if not os.path.isdir(meta.workdir + '/figs/s20_utr/'):
             os.makedirs(meta.workdir + '/figs/s20_utr/')
-        plt.savefig(meta.workdir + '/figs/s20_utr/utr{0}-{1}.png'.format(i, ii), bbox_inches='tight', pad_inches=0.05, dpi=100)
+        plt.savefig(meta.workdir + '/figs/s20_utr/utr{0}-{1}.png'.format(i, ii), bbox_inches='tight', pad_inches=0.05, dpi=90)
         plt.close('all')
     else:
         plt.show()
@@ -567,9 +586,9 @@ def utr_aper_evo(peaks_all, meta):
         plt.close('all')
 
 
-def refspec_comp(modelx, modely, p0, datax, datay, leastsq_res, meta, i):
+def refspec_fit(modelx, modely, p0, datax, datay, leastsq_res, meta, i):
     fig, ax = plt.subplots(1,1, figsize=(9,6))
-    plt.suptitle('refspec_comp {0}, visit {1}, orbit {2}'.format(i, meta.ivisit_sp[i], meta.iorbit_sp[i]))
+    plt.suptitle('refspec_fit {0}, visit {1}, orbit {2}'.format(i, meta.ivisit_sp[i], meta.iorbit_sp[i]))
     ax.plot(modelx, modely, label='refspec')
     #ax.plot((p0[0] + p0[1] * datax), datay * p0[2], label='initial guess')
     ax.plot((leastsq_res[0] + datax * leastsq_res[1]), datay * leastsq_res[2],
@@ -583,15 +602,46 @@ def refspec_comp(modelx, modely, p0, datax, datay, leastsq_res, meta, i):
     ax.set_xlabel('rel. Flux')
     plt.legend()
     plt.tight_layout()
-    if meta.save_refspec_comp_plot:
-        if not os.path.isdir(meta.workdir + '/figs/s20_drift/'):
-            os.makedirs(meta.workdir + '/figs/s20_drift/')
-        plt.savefig(meta.workdir + '/figs/s20_drift/drift{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
+    if meta.save_refspec_fit_plot:
+        if not os.path.isdir(meta.workdir + '/figs/s20_refspec_fit/'):
+            os.makedirs(meta.workdir + '/figs/s20_refspec_fit/')
+        plt.savefig(meta.workdir + '/figs/s20_refspec_fit/refspec_fit_{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
     else:
         plt.show()
         plt.close('all')
 
+
+def drift(leastsq_res_all, meta):
+
+    a = np.array([i[0] for i in leastsq_res_all])
+    b = np.array([i[1] for i in leastsq_res_all])
+    c = np.array([i[2] for i in leastsq_res_all])
+
+    fig, ax = plt.subplots(3,1, figsize=(8,8), sharex=True)
+
+    ax[0].plot(range(len(a)), a, label='lin. wvl shift')
+    ax[1].plot(range(len(b)), b, label='wvl scaling')
+    ax[2].plot(range(len(c)), c, label='flux scaling')
+
+    [ax[0].axvline(i, ls='--', c='k', lw=2.2, alpha=0.55) for i in meta.new_visit_idx_sp]
+    [ax[1].axvline(i, ls='--', c='k', lw=2.2, alpha=0.55) for i in meta.new_visit_idx_sp]
+    [ax[2].axvline(i, ls='--', c='k', lw=2.2, alpha=0.55) for i in meta.new_visit_idx_sp]
+
+    [ax[0].axvline(i, ls='--', c='k', lw=2, alpha=0.35) for i in meta.new_orbit_idx_sp]
+    [ax[1].axvline(i, ls='--', c='k', lw=2, alpha=0.35) for i in meta.new_orbit_idx_sp]
+    [ax[2].axvline(i, ls='--', c='k', lw=2, alpha=0.35) for i in meta.new_orbit_idx_sp]
+
+    plt.subplots_adjust(hspace=0.05)
+
+    if meta.save_drift_plot:
+        if not os.path.isdir(meta.workdir + '/figs/s20_drift/'):
+            os.makedirs(meta.workdir + '/figs/s20_drift/')
+        plt.savefig(meta.workdir + '/figs/s20_drift/drift.png', bbox_inches='tight', pad_inches=0.05, dpi=120)
+        plt.close('all')
+    else:
+        plt.show()
+        plt.close('all')
 
 
 ##21
@@ -644,6 +694,9 @@ def plot_raw(data, meta):
                      markersize=3.0, linestyle="none", \
                      label="Visit {0}".format(i), color=palette[i])
             ax[i].set_xlim(((data.t_vis.min() - 0.02) * 24., (data.t_vis.max() + 0.05) * 24.))
+            print(data.flux.min())
+            print(data.flux.max())
+            print(data.flux)
             ax[i].set_ylim((0.998 * data.flux.min(), 1.002 * data.flux.max()))
             ax[i].legend(loc=1)
             ax[i].set_ylabel("Flux (e-)")
