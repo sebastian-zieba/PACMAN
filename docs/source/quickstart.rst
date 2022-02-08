@@ -182,7 +182,7 @@ Go to the `new HST MAST search tool <https://mast.stsci.edu/search/hst/ui/#/>`_.
 Enter 13021 for Proposal ID and click on search.
 All files associated with the program will be then shown in the following table.
 One of the columns is called Proposal ID.
-You can see that all of them say 13021 because that's what we wanted. click on any of the numbers saying ``13021``.
+You can see that all of them say 13021 because that's what we wanted. Click on any of the numbers saying ``13021``.
 You should get to `program site <https://archive.stsci.edu/proposal_search.php?mission=hst&id=13021>`_.
 It lists interesting information to the program like papers associated with the program and also (further down on the website) all files taken in this program.
 
@@ -193,14 +193,25 @@ A new page will load where you can finally download your data.
 
 .. image:: media/download/mast3.png
 
-1. Enter your email address or use your STSci log in.
+1. Enter your email address or use your STScI log in. (If the data you want to download is still proprietary, you will have to use the log-in)
 2. File type: Calibrated data (should be marked already)
 3. Extension (bottom right): ima
 4. Click Send retrieval request to ST-DADS
 
 You should then get more instructions per email.
 
-Finally, unpack everything and move these fits files into a new directory. This data directory should then just contain the downloaded .fits files. You will have to specify the location of this "data directory" then in the pcf file.
+You can find more information how to download the files with ftp here:
+`Retrieval Options <https://archive.stsci.edu/hst/help/retrieval_help.html>`_,
+`Retrieving IUE Data via FTP <https://archive.stsci.edu/iue/ftp_retrieve.html>`_ 
+and `MAST FTP Service <https://archive.stsci.edu/ftp.html>`_.
+
+You can access the data using the ``ftplib`` module in python. Here's an example script which you can also find on GitHub. It will save download the data into the current directory.
+
+.. literalinclude:: media/download/data_downloader_ftps.py
+   :language: python
+
+If necessary, unpack everything and move these fits files into a new directory.
+This data directory should then contain all the downloaded .fits files. You will have to specify the location of this "data directory" then in the pcf file.
 
 If the user has all files of the 15 visits in the data directory, they can use ``which_visits = [13,14]`` in the pcf to only analyze the last two visits.
 
