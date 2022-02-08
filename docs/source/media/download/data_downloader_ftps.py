@@ -8,7 +8,7 @@ ftps = ftplib.FTP_TLS('archive.stsci.edu')
 #then you can use an anonymous connection, with "anonymous" as the username and your email address as the password. 
 #(We don't do anything with the email address, so you can enter something else if you like.)
 
-user = getpass.getpass(prompt='Enter email address (if anonymous -> enter anonymous): ', stream=None) 
+user = getpass.getpass(prompt='Enter email address (if anonymous -> enter "anonymous"): ', stream=None) 
 passwd = getpass.getpass(prompt='Enter password (if anonymous -> enter email address): ', stream=None) 
 
 ftps.login(user=user, passwd=passwd)
