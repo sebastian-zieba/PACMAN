@@ -101,13 +101,14 @@ def run20(eventlabel, workdir, meta=None):
         flatfield = util.get_flatfield(meta)
         bpix = d[3].data[rmin:rmax,cmin:cmax]
         badpixind =  (bpix==4)|(bpix==512)|(flatfield[orbnum][rmin:rmax, cmin:cmax] == -1.)    #selects bad pixels
+        #print('bad pixels', sum(bpix==4), sum(bpix==512),sum(flatfield[orbnum][rmin:rmax, cmin:cmax] == -1.), sum(badpixind))
         M[badpixind] = 0.0                                        #initializes bad pixel mask
         #store number of bad pixels
         spec_box = np.zeros(cmax - cmin)                                #box extracted standard spectrum
         spec_opt = np.zeros(cmax - cmin)                                #optimally extracted spectrum
         var_box = np.zeros(cmax - cmin)                              #box spectrum variance
         var_opt = np.zeros(cmax - cmin)                                #optimal spectrum variance
-        import matplotlib.pyplot as plt
+
         #########################################################################################################################################################
         # loops over up-the-ramp-samples (skipping first two very short exposures); gets all needed input for optextr routine                    #
         #########################################################################################################################################################
@@ -122,10 +123,9 @@ def run20(eventlabel, workdir, meta=None):
             #we use scipy.signal.find_peaks to determine in which rows the spectrum starts and ends
             #TODO: Think about better values for height and distance
             #TODO: Finding the row with the highest change in flux (compared to row above and below) isnt robust against outliers!
-            #TODO: Maybe instead use the median flux in a row??
             peaks, _ = find_peaks(rowmedian_absder, height=max(rowmedian_absder * 0.2), distance=5)
-            peaks = peaks[:2] # only take the two biggest peaks (there should be only 2)
-
+            #peaks = peaks[:2] # only take the two biggest peaks (there should be only 2)
+            peaks = np.array([min(peaks[:2]), max(peaks[:2]) + 1])
             #stores the locations of the peaks for every file and up-the-ramp-samples
             if meta.save_utr_aper_evo_plot or meta.show_utr_aper_evo_plot:
                 peaks_all.append(peaks)
@@ -154,9 +154,10 @@ def run20(eventlabel, workdir, meta=None):
                 plots.utr(diff, meta, i, ii, orbnum, rowmedian, rowmedian_absder, peaks)
 
             err = np.zeros_like(spectrum) + float(meta.rdnoise)**2 + skyvar
-            var = abs(spectrum) + float(meta.rdnoise)**2 + skyvar                #variance estimate: Poisson noise from photon counts (first term)  + readnoise (factor of 2 for differencing) + skyvar
-            spec_box_0 = spectrum.sum(axis = 0)                            #initial box-extracted spectrum
-            var_box_0 = var.sum(axis = 0)                                #initial variance guess
+            var = abs(spectrum) + float(meta.rdnoise)**2 + skyvar          # variance estimate: Poisson noise from photon counts (first term)  + readnoise (factor of 2 for differencing) + skyvar
+            spec_box_0 = spectrum.sum(axis = 0)                            # initial box-extracted spectrum
+            var_box_0 = var.sum(axis = 0)                                  # initial variance guess
+            #Mnew = np.ones_like(M[max(min(peaks) - meta.window, 0):min(max(peaks) + meta.window, rmax),:])
             Mnew = M[max(min(peaks) - meta.window, 0):min(max(peaks) + meta.window, rmax),:]
             #Mnew = M[max(peaks_mid - 4, 0):min(peaks_mid + 4, rmax),:]
             #TODO: Just use meta to reduce the number of parameters which are given to optextr
@@ -181,65 +182,15 @@ def run20(eventlabel, workdir, meta=None):
         #corrects for wavelength drift over time
         if meta.correct_wave_shift == True:
             if i in meta.new_visit_idx_sp:
-                print(i)
-                #if nspectra == 0:
-                #template_waves = meta.wave_grid[0, int(meta.refpix[orbnum,1]) + meta.LTV1, cmin:cmax]             #LK interpolation 8/18 #use stellar model instead
-                g102mask = template_waves > 8200 # we dont use the spectrum below 8200 angstrom for the interpolation as the reference bandpass cuts out below this wavelength
-
-                x_refspec, y_refspec = util.read_refspec(meta)
-
-                #TODO: This is so bad
-                #np.savetxt('testing_refspex_smoothed.txt', list(zip(x_refspec, y_refspec)))
-                #np.savetxt('testing_firstexp.txt', list(zip(template_waves, spec_opt/max(spec_opt))))
-                x_refspec_new = np.concatenate((np.linspace(-5000, min(x_refspec), 10, endpoint=False),
-                                         x_refspec,
-                                         np.linspace(max(x_refspec) + 350, 30000, 10, endpoint=False)))
-                y_refspec_new = np.concatenate((np.zeros(10),
-                                         y_refspec,
-                                         np.zeros(10)))
-
-                #TODO: will break if optimal extractions isnt used!
-                x_data = template_waves[g102mask]
-                y_data = (spec_opt/max(spec_opt))[g102mask]
-
-                p0 = [0, 1, 1] # initial guess for least squares
-                leastsq_res = leastsq(util.residuals2, p0, args=(x_refspec_new, y_refspec_new, x_data, y_data))[0]
-
-                if meta.save_drift_plot or meta.show_drift_plot:
-                    leastsq_res_all.append(leastsq_res)
-                if meta.save_refspec_fit_plot or meta.show_refspec_fit_plot:
-                    plots.refspec_fit(x_refspec_new, y_refspec_new, p0, x_data, y_data, leastsq_res, meta, i)
-
-                #for all other but first exposure in visit exposures
-                x_data_firstexpvisit = leastsq_res[0] + template_waves * leastsq_res[1]
-                y_data_firstexpvisit = np.copy(y_data)
-
+                x_data_firstexpvisit, y_data_firstexpvisit, leastsq_res = util.correct_wave_shift_fct_0(meta, orbnum, cmin, cmax, spec_opt, i)
                 wvls = np.copy(x_data_firstexpvisit)
-
-            else:
-                #TODO: So bad too
-                x_model = np.concatenate((np.linspace(-5000, min(x_data_firstexpvisit), 10, endpoint=False),
-                                         x_data_firstexpvisit,
-                                         np.linspace(max(x_data_firstexpvisit) + 350, 30000, 10, endpoint=False)))
-                y_model = np.concatenate((np.zeros(10),
-                                         y_data_firstexpvisit,
-                                         np.zeros(10)))
-
-                x_data = meta.wave_grid[0, int(meta.refpix[orbnum,1]) + meta.LTV1, cmin:cmax]
-                y_data = spec_opt/max(spec_opt)
-
-                p0 = [0, 1, 1]
-                leastsq_res = leastsq(util.residuals2, p0, args=(x_model, y_model, x_data, y_data))[0]
                 if meta.save_drift_plot or meta.show_drift_plot:
                     leastsq_res_all.append(leastsq_res)
-                if meta.save_refspec_fit_plot or meta.show_refspec_fit_plot:
-                    plots.refspec_fit(x_model, y_model, p0, x_data, y_data, leastsq_res, meta, i)
-
-                wvls = leastsq_res[0] + x_data * leastsq_res[1]
-                #
-                # x_data_priorexp = wvls
-                # y_data_priorexp = y_data
-
+            else:
+                wvls, leastsq_res = util.correct_wave_shift_fct_1(meta, orbnum, cmin, cmax, spec_opt, x_data_firstexpvisit, y_data_firstexpvisit, i)
+                if meta.save_drift_plot or meta.show_drift_plot:
+                    leastsq_res_all.append(leastsq_res)
+        # If you dont want to correct it:
         else:
             wvls = template_waves
 
@@ -292,26 +243,3 @@ def run20(eventlabel, workdir, meta=None):
     print('Finished s20 \n')
 
     return meta
-
-    # - create new directory
-    # - create txt files in there to save data
-
-    # - start loop over spectra
-    # - save a picture of spectrum
-    # - save a plot of the trace
-    # - rmin:rmax,cmin:cmax:
-    # -- determines left column for extraction (beginning of the trace)
-    # -- right column (end of trace, or edge of detector)
-    # -- top and bottom row for extraction (specified in obs_par.txt)
-    # - mask for bad pixels
-    # - save picture of spectrum with extraction box and background box
-    # - new loop over scans and take differences
-    # - diff/flatfield
-    # - computes spatial index of peak counts in the difference image
-    # - calculate median background in fullframe difference image
-    # - diff = diff - skymedian
-    # - optimal extraction
-    # - sums up spectra and variance for all the differenced images
-    # - end of loop over scans
-    # - #corrects for wavelength drift over time using the template
-    # - save data

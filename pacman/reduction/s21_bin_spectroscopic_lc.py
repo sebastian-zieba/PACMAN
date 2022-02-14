@@ -41,7 +41,7 @@ def run21(eventlabel, workdir, meta=None):
         print('chosen bin edges:', wave_edges)
 
     #reads in spectra
-    if meta.most_recent_s20:
+    if meta.s21_most_recent_s20:
         lst_dir = os.listdir(meta.workdir + "/extracted_lc/")
         lst_dir = sn.sort_nicely(lst_dir)
         spec_dir = lst_dir[-1]

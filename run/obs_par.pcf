@@ -42,18 +42,19 @@ show_image_plot              False
 
 ## 20
 s20_testing                  False
-n_testing                    4
+n_testing                    1
 
 rmin                         5
 rmax                         261
 
-window                       2
+window                       12
 
 background_thld              1000                                                     #background threshold in counts
 
 opt_extract                  True
 sig_cut                      15                                                       # optimal extraction, for cosmic rays etc
 nsmooth                      9                                                        # optimal extraction, created smoothed spatial profile, medial smoothing filter
+
 save_optextr_plot            False
 
 correct_wave_shift           True
@@ -76,74 +77,80 @@ save_sp1d_plot               False                                              
 show_sp1d_plot               False
 
 save_bkg_evo_plot            True                                                     #save 2d spectrum
-show_bkg_evo_plot            False
+show_bkg_evo_plot            True
 
-save_sp1d_diff_plot          True                                                     #save 2d spectrum
+save_sp1d_diff_plot          False                                                     #save 2d spectrum
 show_sp1d_diff_plot          False
 
 save_utr_aper_evo_plot       True                                                     #save 2d spectrum
-show_utr_aper_evo_plot       False
+show_utr_aper_evo_plot       True
 
-save_refspec_comp_plot       False
-show_refspec_comp_plot       False
+save_refspec_fit_plot        False
+show_refspec_fit_plot        False
+
+save_drift_plot              True
+show_drift_plot              True
 
 ###old params
-#one_di_per_visit        False
+#one_di_per_visit            False
 
 
 ##21
 
-most_recent_s20              True
-s20_spec_dir_path            None
+s21_most_recent_s20          True
+s21_spec_dir_path_s20        None
 
 wvl_min                      1.125
 wvl_max                      1.65
-wvl_bins                     [12]
+wvl_bins                     6
 
 use_wvl_list                 False
-wvl_edge_list               [11400,12200,12600,13000,14600,15000,15400,15800,16200])
+wvl_edge_list                [11400,12200,12600,13000,14600,15000,15400,15800,16200]
 
 
 ##30
-s30_myfuncs         ['constant','upstream_downstream','model_ramp','polynomial1','transit']
+s30_myfuncs                  ['constant','upstream_downstream','model_ramp','polynomial1','transit']
 
-run_fit_white       True
-most_recent_s20     True
-run_white_file      None
+s30_fit_white                True
+s30_most_recent_s20          True
+s30_white_file_path          None
 
-run_fit_spec        False
-most_recent_s21     False
-run_spec_dir        None
+s30_fit_spec                 False
+s30_most_recent_s21          False
+s30_spec_dir_path            None
 
-run_clipiters       0
-run_clipsigma       0
+remove_first_exp             True
+remove_first_orb             True
 
-fix_ld              False
-ld_file             /home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/wfc3_reduction/limb-darkening/results/ld_outputfile.txt
+rescale_uncert               True
 
-toffset             2456500
-lc_type             transit
+run_clipiters                0
+run_clipsigma                0
 
-run_divide_white    False
-run_plot_raw_data   True
-run_show_plot       True
-run_output          False
-run_verbose         True
-save_allan_plot     True
+fix_ld                       False
+ld_file                      /home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/wfc3_reduction/limb-darkening/results/ld_outputfile.txt
 
-run_lsq             True
-run_mcmc            True
-run_nested          False
+toffset                      2456500
+
+run_divide_white             False
+run_verbose                  True
+
+save_allan_plot              True
+save_raw_lc_plot             True
+save_fit_lc_plot             True
+
+run_lsq                      True
+run_mcmc                     True
+run_nested                   False
 
 #emcee
-run_nsteps          4000
-run_nwalkers	     25
-run_nburn           1000
+run_nsteps                   2000
+run_nwalkers	              35
+run_nburn                    1000
 
 #dynesty
-run_dlogz           25000
-run_nlive          100
+run_dlogz                    25000
+run_nlive                    100
 
-#skip_orbs_phase_curve    0_
-#skip_orbs_eclipse    0_
-#skip_orbs_transit    0_7_
+
+lc_type                      transit

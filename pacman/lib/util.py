@@ -9,6 +9,7 @@ from tqdm import tqdm
 import numpy.ma as ma
 from scipy.interpolate import interp1d
 from ..lib import plots
+from scipy.optimize import leastsq
 
 
 #s00
@@ -271,6 +272,66 @@ def residuals2(params, x1, y1, x2, y2):
 
     return fit - y2
 
+
+
+
+def correct_wave_shift_fct_0(meta, orbnum, cmin, cmax, spec_opt, i):
+    template_waves = meta.wave_grid[0, int(meta.refpix[orbnum, 1]) + meta.LTV1, cmin:cmax]
+
+    g102mask = template_waves > 8200  # we dont use the spectrum below 8200 angstrom for the interpolation as the reference bandpass cuts out below this wavelength
+
+    x_refspec, y_refspec = read_refspec(meta)
+
+    # TODO: This is so bad
+    x_refspec_new = np.concatenate((np.linspace(-5000, min(x_refspec), 10, endpoint=False),
+                                    x_refspec,
+                                    np.linspace(max(x_refspec) + 350, 30000, 10, endpoint=False)))
+    y_refspec_new = np.concatenate((np.zeros(10),
+                                    y_refspec,
+                                    np.zeros(10)))
+
+    # TODO: will break if optimal extractions isnt used!
+    x_data = template_waves[g102mask]
+    y_data = (spec_opt / max(spec_opt))[g102mask]
+
+    p0 = [0, 1, 1]  # initial guess for least squares
+    leastsq_res = leastsq(residuals2, p0, args=(x_refspec_new, y_refspec_new, x_data, y_data))[0]
+
+    if meta.save_refspec_fit_plot or meta.show_refspec_fit_plot:
+        plots.refspec_fit(x_refspec_new, y_refspec_new, p0, x_data, y_data, leastsq_res, meta, i)
+
+    # for all other but first exposure in visit exposures
+    x_data_firstexpvisit = leastsq_res[0] + template_waves * leastsq_res[1]
+    y_data_firstexpvisit = np.copy(y_data)
+
+    # np.savetxt('testing_exp0.txt', list(zip(x_data_firstexpvisit, y_data_firstexpvisit)))
+    # np.savetxt('testing_firstexp.txt', list(zip(template_waves, spec_opt/max(spec_opt))))
+
+
+    return x_data_firstexpvisit, y_data_firstexpvisit, leastsq_res
+
+
+def correct_wave_shift_fct_1(meta, orbnum, cmin, cmax, spec_opt, x_data_firstexpvisit, y_data_firstexpvisit, i):
+    # TODO: So bad too
+    x_model = np.concatenate((np.linspace(-5000, min(x_data_firstexpvisit), 10, endpoint=False),
+                              x_data_firstexpvisit,
+                              np.linspace(max(x_data_firstexpvisit) + 350, 30000, 10, endpoint=False)))
+    y_model = np.concatenate((np.zeros(10),
+                              y_data_firstexpvisit,
+                              np.zeros(10)))
+
+    x_data = meta.wave_grid[0, int(meta.refpix[orbnum, 1]) + meta.LTV1, cmin:cmax]
+    y_data = spec_opt / max(spec_opt)
+
+    p0 = [0, 1, 1]
+    leastsq_res = leastsq(residuals2, p0, args=(x_model, y_model, x_data, y_data))[0]
+
+    if meta.save_refspec_fit_plot or meta.show_refspec_fit_plot:
+        plots.refspec_fit(x_model, y_model, p0, x_data, y_data, leastsq_res, meta, i)
+
+    wvls = leastsq_res[0] + x_data * leastsq_res[1]
+
+    return wvls, leastsq_res
 
 
 def computeRMS(data, maxnbins=None, binstep=1, isrmserr=False):

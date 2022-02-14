@@ -1,4 +1,5 @@
 import numpy as np
+import os
 from . import mpfit
 from . import plots
 from .plots import plot_raw, plot_fit_lc, plot_fit_lc2
@@ -59,10 +60,6 @@ def lsq_fit(fit_par, data, meta, model, myfuncs, noclip=False):
 
 
     params_s = np.array(params_s)
-    #print('\n\n')
-    #print('parinfo', [print('{0} \n'.format(i)) for i in str(parinfo).split('},')])
-    #print('params_s', params_s)
-    #print(parinfo)
     if meta.run_plot_raw_data: plot_raw(data, meta)
     fa = {'data':data, 'model':model}
 
@@ -104,37 +101,32 @@ def lsq_fit(fit_par, data, meta, model, myfuncs, noclip=False):
     
     if m.errmsg: print("MPFIT error message", m.errmsg)
 
-    if meta.run_output:
-        f = open(meta.run_out_name, "a")
-        print("{0:0.3f}".format(data.wavelength), \
-                  "{0:0.6f}".format(m.params[data.par_order['rp']*nvisit]), \
-                  "{0:0.6f}".format(m.perror[data.par_order['rp']*nvisit]),\
-                  "{0:0.6f}".format(m.params[data.par_order['rp']*nvisit + 1]), \
-                  "{0:0.6f}".format(m.perror[data.par_order['rp']*nvisit + 1]),\
-                  "{0:0.2f}".format(model.chi2red), file=f)
-                   
-        #pickle.dump([data, model], open("white_lc_fit.p", "wb"))
-        pickle.dump([data, model], open("lsq_fit_" + "{0:0.4f}".format(data.wavelength)+".p", "wb"))
-        f.close()
+    meta.chi2red_list.append(model.chi2red)
 
-                                                                                                                                                                                                      
+    # if meta.run_output:
+    #     f = open(meta.run_out_name, "a")
+    #     print("{0:0.3f}".format(data.wavelength), \
+    #               "{0:0.6f}".format(m.params[data.par_order['rp']*nvisit]), \
+    #               "{0:0.6f}".format(m.perror[data.par_order['rp']*nvisit]),\
+    #               "{0:0.6f}".format(m.params[data.par_order['rp']*nvisit + 1]), \
+    #               "{0:0.6f}".format(m.perror[data.par_order['rp']*nvisit + 1]),\
+    #               "{0:0.2f}".format(model.chi2red), file=f)
+    #     #pickle.dump([data, model], open("white_lc_fit.p", "wb"))
+    #     pickle.dump([data, model], open("lsq_fit_" + "{0:0.4f}".format(data.wavelength)+".p", "wb"))
+    #     f.close()
+
     if meta.run_verbose:
-        #print "{0:0.3f}".format(data.wavelength), "{0:0.2f}".format(bestfit.chi2red)
-        #print data.wavelength, "{0:0.3f}".format(m.params[data.par_order['A1']*nvisit])
-        f_lsq = open(meta.workdir + meta.fitdir + "/lsq_res_{0}_{1}.txt".format(meta.run_file.split('/')[-1], meta.fittime), 'w')
+        if not os.path.isdir(meta.workdir + meta.fitdir + '/lsq_res'):
+            os.makedirs(meta.workdir + meta.fitdir + '/lsq_res')
+        f_lsq = open(meta.workdir + meta.fitdir + '/lsq_res/' + "/lsq_res_bin{0}_wvl{1:0.3f}.txt".format(meta.s30_file_counter, meta.wavelength), 'w')
         PrintParams(m, data, savefile=f_lsq)
         PrintParams(m, data)
 
-    #if meta.run_show_plot: plot_fit_lc(data, model, meta)
     if meta.save_allan_plot:
         plots.rmsplot(model, data, meta)
-
-    #model = Model(data , myfuncs)
 
     if noclip == False:
         return data, model, m.params, clip_idx, m
 
     if noclip == True:
         return data, model, m.params, m
-
-

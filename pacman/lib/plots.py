@@ -8,6 +8,18 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable, axes_size
 from ..lib import util
 from matplotlib.gridspec import GridSpec
 from matplotlib.ticker import MaxNLocator
+from matplotlib import rc
+import matplotlib
+import seaborn as sns
+from .formatter import FormatParams
+from .model import Model, calc_sys, calc_astro
+sns.set_context("talk")
+sns.set_style("white")
+sns.set_style("ticks", {"xtick.direction": "in", "ytick.direction": "in"})
+matplotlib.rcParams.update({'lines.markeredgewidth': 0.3})
+matplotlib.rcParams.update({'axes.formatter.useoffset': False})
+from astropy.stats import sigma_clip
+import time
 
 
 ##00
@@ -431,10 +443,8 @@ def utr(diff, meta, i, ii, orbnum, rowmedian, rowmedian_absder, peaks):
     ax[1].axhline(max(peaks)+meta.window, c='r', ls='-', lw=3)
     rowmm = np.median(rowmedian)
     peaks_mid = int(np.mean(peaks))
-    print(peaks_mid)
+    #print(peaks_mid)
     ax[1].plot(rowmedian, p1)
-
-
     ax[1].axvline(rowmm, ls='-', c='k', alpha=0.4, lw=3)
     def peak_to_median_ratio(peak_val, median_val, percentage):
         return (peak_val-median_val)*(1-percentage)+median_val
@@ -619,7 +629,7 @@ def drift(leastsq_res_all, meta):
     c = np.array([i[2] for i in leastsq_res_all])
 
     fig, ax = plt.subplots(3,1, figsize=(8,8), sharex=True)
-
+    ax[0].set_title('Wavelength calibration: Function: c*(a+b*x)')
     ax[0].plot(range(len(a)), a, label='lin. wvl shift')
     ax[1].plot(range(len(b)), b, label='wvl scaling')
     ax[2].plot(range(len(c)), c, label='flux scaling')
@@ -631,6 +641,10 @@ def drift(leastsq_res_all, meta):
     [ax[0].axvline(i, ls='--', c='k', lw=2, alpha=0.35) for i in meta.new_orbit_idx_sp]
     [ax[1].axvline(i, ls='--', c='k', lw=2, alpha=0.35) for i in meta.new_orbit_idx_sp]
     [ax[2].axvline(i, ls='--', c='k', lw=2, alpha=0.35) for i in meta.new_orbit_idx_sp]
+
+    ax[0].set_ylabel('a')
+    ax[1].set_ylabel('b')
+    ax[2].set_ylabel('c')
 
     plt.subplots_adjust(hspace=0.05)
 
@@ -658,29 +672,7 @@ def plot_wvl_bins(w_hires, f_interp, wave_bins, wvl_bins, dirname):
     #plt.show()
 
 
-
-
-
-
-
-
-
-
 #30
-
-from matplotlib import rc
-import matplotlib
-import seaborn as sns
-from .formatter import FormatParams
-from .model import Model, calc_sys, calc_astro
-
-sns.set_context("talk")
-sns.set_style("white")
-sns.set_style("ticks", {"xtick.direction": "in", "ytick.direction": "in"})
-matplotlib.rcParams.update({'lines.markeredgewidth': 0.3})
-matplotlib.rcParams.update({'axes.formatter.useoffset': False})
-
-
 def plot_raw(data, meta):
     #palette = sns.color_palette("husl", data.nvisit)
     sns.set_palette("muted")
@@ -694,14 +686,10 @@ def plot_raw(data, meta):
                      markersize=3.0, linestyle="none", \
                      label="Visit {0}".format(i), color=palette[i])
             ax[i].set_xlim(((data.t_vis.min() - 0.02) * 24., (data.t_vis.max() + 0.05) * 24.))
-            print(data.flux.min())
-            print(data.flux.max())
-            print(data.flux)
             ax[i].set_ylim((0.998 * data.flux.min(), 1.002 * data.flux.max()))
             ax[i].legend(loc=1)
             ax[i].set_ylabel("Flux (e-)")
     else:
-
         #plt.subplot((data.nvisit) * 100 + 10 + i + 1)
         ax.plot(data.t_vis * 24., data.flux, marker='o', \
                  markersize=3.0, linestyle="none", \
@@ -711,14 +699,21 @@ def plot_raw(data, meta):
         ax.legend(loc=1)
         ax.set_ylabel("Flux (e-)")
     plt.xlabel("Time after visit start (hours)")
-    fig.suptitle('Filename: {0}'.format(meta.run_file.split('/')[-1]), fontsize=15, y=0.998)
+    fig.suptitle('Filename: {0}'.format(meta.run_file.split('/')[-1].split('.txt')[0]), fontsize=15, y=0.998)
     plt.tight_layout()
-    plt.savefig(meta.workdir + meta.fitdir + "/raw_lc_{0}_{1}.png".format(meta.run_file.split('/')[-1], meta.fittime))
+
+    if not os.path.isdir(meta.workdir + meta.fitdir + '/raw_lc'):
+        os.makedirs(meta.workdir + meta.fitdir + '/raw_lc')
+    plt.savefig(meta.workdir + meta.fitdir + '/raw_lc' + "/raw_lc_{0}.png".format(meta.s30_file_counter))
     plt.close()
 
 
-# COMPUTE ROOT-MEAN-SQUARE AND STANDARD ERROR OF DATA FOR VARIOUS BIN SIZES
+#
 def computeRMS(data, maxnbins=None, binstep=1, isrmserr=False):
+    """
+    COMPUTE ROOT-MEAN-SQUARE AND STANDARD ERROR OF DATA FOR VARIOUS BIN SIZES
+    Taken from POET: https://github.com/kevin218/POET/blob/master/code/lib/correlated_noise.py
+    """
     # data    = fit.normresiduals
     # maxnbin = maximum # of bins
     # binstep = Bin step size
@@ -750,10 +745,11 @@ def computeRMS(data, maxnbins=None, binstep=1, isrmserr=False):
 
 
 
-
-# Plot RMS vs. bin size looking for time-correlated noise
 def rmsplot(model, data, meta):
-
+    """
+    Plot RMS vs. bin size looking for time-correlated noise
+    Taken from POET: https://github.com/kevin218/POET/blob/master/code/lib/plots.py
+    """
     time = data.time
     residuals = model.norm_resid
     residuals = residuals[np.argsort(time)]
@@ -773,12 +769,10 @@ def rmsplot(model, data, meta):
     plt.xticks(size=12)
     plt.yticks(size=12)
     plt.legend()
-    #if savefile != None:
-    plt.savefig(meta.workdir + meta.fitdir + '/corr_lc_{0}_len{1}.png'.format(meta.fittime, len(time)))
+    if not os.path.isdir(meta.workdir + meta.fitdir + '/corr_plot'):
+        os.makedirs(meta.workdir + meta.fitdir + '/corr_plot')
+    plt.savefig(meta.workdir + meta.fitdir + '/corr_plot' + '/corr_plot_{0}.png'.format(meta.s30_file_counter))
     plt.close()
-
-from astropy.stats import sigma_clip
-import time
 
 
 def plot_fit_lc(data, fit, meta, mcmc=False):
@@ -848,10 +842,13 @@ def plot_fit_lc(data, fit, meta, mcmc=False):
     ax[1].set_xlabel("Orbital phase")
 
     plt.tight_layout()
+
+    if not os.path.isdir(meta.workdir + meta.fitdir + '/fit_lc'):
+        os.makedirs(meta.workdir + meta.fitdir + '/fit_lc')
     if mcmc:
-        plt.savefig(meta.workdir + meta.fitdir + "/mcmc_lc_{0}_len{1}_{2}.png".format(meta.fittime, len(fit.phase), datetime))
+        plt.savefig(meta.workdir + meta.fitdir + '/fit_lc' + "/mcmc_lc_{0}.png".format(meta.s30_file_counter))
     else:
-        plt.savefig(meta.workdir + meta.fitdir + "/white_lc_{0}_len{1}_{2}.png".format(meta.fittime, len(fit.phase), datetime))
+        plt.savefig(meta.workdir + meta.fitdir + '/fit_lc' + "/fit_lc_{0}.png".format(meta.s30_file_counter))
     # plt.waitforbuttonpress(0) # this will wait for indefinite time
     plt.close()
 
@@ -860,7 +857,7 @@ def plot_fit_lc2(data, fit, meta, mcmc=False):
     datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
     plt.clf()
     fig, ax = plt.subplots(2,1)
-    print(fit.params)
+    #print(fit.params)
     p = FormatParams(fit.params, data)  # FIXME
     sns.set_palette("muted")
     palette = sns.color_palette("muted", data.nvisit)
@@ -870,11 +867,11 @@ def plot_fit_lc2(data, fit, meta, mcmc=False):
     # calculate a range of times at higher resolution to make model look nice
     phase_hr = np.linspace(fit.phase.min() - 0.05, fit.phase.max() + 0.05, 1000)
     #print(phase_hr)
-    print(p.per)
-    print(p.per[0])
-    print(p.t0)
-    print(p.t0[0])
-    print(data.toffset)
+   # print(p.per)
+    #print(p.per[0])
+   # print(p.t0)
+    #print(p.t0[0])
+    #print(data.toffset)
     t_hr = phase_hr * p.per[0] + p.t0[0] + data.toffset
 
     # colors = ['blue', 'red', 'orange', 'gray']
@@ -920,11 +917,15 @@ def plot_fit_lc2(data, fit, meta, mcmc=False):
     ax[1].set_ylabel("Residuals (ppm)")
     ax[1].set_xlabel("Orbital phase")
 
+    fig.suptitle('Filename: {0}'.format(meta.run_file.split('/')[-1].split('.txt')[0]), fontsize=15, y=0.998)
+
     plt.tight_layout()
+    if not os.path.isdir(meta.workdir + meta.fitdir + '/fit_lc'):
+        os.makedirs(meta.workdir + meta.fitdir + '/fit_lc')
     if mcmc:
-        plt.savefig(meta.workdir + meta.fitdir + "/mcmc_lc_{0}_len{1}_{2}.png".format(meta.fittime, len(fit.phase), datetime))
+        plt.savefig(meta.workdir + meta.fitdir + '/fit_lc' + "/mcmc_lc_{0}.png".format(meta.s30_file_counter))
     else:
-        plt.savefig(meta.workdir + meta.fitdir + "/white_lc_{0}_len{1}_{2}.png".format(meta.fittime, len(fit.phase), datetime))
+        plt.savefig(meta.workdir + meta.fitdir + '/fit_lc' + "/fit_lc_{0}.png".format(meta.s30_file_counter))
     # plt.waitforbuttonpress(0) # this will wait for indefinite time
     plt.close()
 
@@ -943,4 +944,28 @@ def plot_chains(ndim, sampler, nburn, labels, meta):
         fig.savefig(meta.workdir + meta.fitdir + "/mcmc_chains_{0}_{1}.png".format(meta.run_file.split('/')[-1], meta.fittime))
     else:
         fig.savefig(meta.workdir + meta.fitdir + "/mcmc_chains_noburn_{0}_{1}.png".format(meta.run_file.split('/')[-1], meta.fittime))
+    plt.close()
+
+
+def params_vs_wvl(vals, errs, idxs, meta):
+    labels = meta.labels
+    fig, ax = plt.subplots(len(idxs[0]), 1, figsize=(6.4,30), sharex=True)
+    for i in range(len(idxs[0])):
+        ax[i].errorbar(range(len(idxs)), [vals[ii][idxs[0][i]] for ii in range(len(vals))], yerr=[errs[ii][idxs[0][i]] for ii in range(len(errs))], fmt='.')
+        ax[i].set_ylabel(labels[i])
+    plt.subplots_adjust(hspace=0.01)
+    plt.tight_layout()
+    plt.subplots_adjust(hspace=0.01)
+    plot_fit_lc2
+    plt.savefig(meta.workdir + meta.fitdir + '/lsq_res/' + '/lsq_params_vs_wvl.png', dpi=600, bbox_inches='tight', pad_inches=0.05)
+    plt.close()
+
+
+def lsq_rprs(rprs_vals_lsq, rprs_errs_lsq, meta):
+    plt.errorbar(meta.wavelength_list, rprs_vals_lsq, yerr=rprs_errs_lsq, fmt='.', c='darkblue')
+    plt.xlabel('Wavelength (micron)')
+    plt.ylabel('Transit Depth (ppm)')
+    if not os.path.isdir(meta.workdir + meta.fitdir + '/lsq_res'):
+        os.makedirs(meta.workdir + meta.fitdir + '/lsq_res')
+    plt.savefig(meta.workdir + meta.fitdir + '/lsq_res/' + 'lsq_rprs.png', dpi=300, bbox_inches='tight', pad_inches=0.05)
     plt.close()

@@ -22,95 +22,86 @@ class Data:
                         prior.append([fit_par['prior'][i], float(fit_par['p1'][i]),
                             float(fit_par['p2'][i])])
 
-                print('prior, read_data', prior)
+                #print('prior, read_data', prior)
                 return prior
 
-	#read in data and sort by time
-        # = np.genfromtxt(data_file)
+	    #read in data
         d = ascii.read(data_file)
-        #d = d[:104]
-        #d = d[np.argsort(d[:,5])]
 
+        iorbit_sp = meta.iorbit_sp
 
-        #removes first exposure from each orbit
-        ind = np.diff(d['t_bjd']) < 30./60./24.	# first exposure after 30 mins break
-        d = d[1:][ind]
+        #####################################
+        # Removes first exposure from each orbit
+        # The index where the orbit changes is saved in meta.new_orbit_idx_sp
+        if meta.remove_first_exp:
+            #removes first exposure from each orbit
+            leave_ind = np.ones(len(d), bool)
+            leave_ind[meta.new_orbit_idx_sp] = False
+            d = d[leave_ind]
+            # Remove first exposures from meta.iorbit_sp too
+            iorbit_sp = iorbit_sp[leave_ind]
+            print('Removed {0} exposures because they were the first exposures in the orbit.'.format(sum(~leave_ind)))
+        else:
+            print('Leaving the first exposures in every orbit.')
+
+        #####################################
+        # Remove first orbit of each visit
+        # The NOT cumulative orbit list is saved in meta.iorbit_sp
+        if meta.remove_first_orb:
+            #removes first exposure from each orbit
+            leave_ind = iorbit_sp != 0
+            d = d[leave_ind]
+            # Remove first orbit from meta.iorbit_sp too
+            iorbit_sp = iorbit_sp[leave_ind]
+            print('Removed {0} exposures because they were the first orbit in the visit.'.format(sum(~leave_ind)))
+        else:
+            print('Leaving the first orbit in every visit.')
+
+        n = len(d)
+
+        # t_delay will = 1 if it's the first orbit in a visit. Otherwise = 0
+        t_delay = np.zeros(n)
+        if meta.remove_first_orb:
+            ind = (iorbit_sp == 1)
+            t_delay[ind] = 1.
+        else:
+            ind = (iorbit_sp == 0)
+            t_delay[ind] = 1.
 
         orb_num = d['iorbit']
         vis_num = d['ivisit']
         t_vis = d['t_visit']
         t_orb = d['t_orbit']
-
-        n = len(d)
-
-        #correct t_obs so that t_obs for the first exposure in orbit = 0
-        t_orb_starts = np.zeros(n)
-        t_orb_starts[0] = t_orb[0]
-        for i, t_orb_diff in enumerate(np.diff(t_orb)):
-            if t_orb_diff >= 0: # as long as t_orb increases, use same t_orb_start
-                t_orb_starts[i+1] = t_orb_starts[i]
-            else:
-                t_orb_starts[i+1] = t_orb[i + 1]
-
-        t_orb = t_orb - t_orb_starts
-        t_vis = t_vis - min(t_vis)
-
-        #t_delay will =1 if it's the first orbit in a visit. Otherwise =0
-        t_delay = np.zeros(n)
-
-        nvisit = int(meta.nvisit)
-        norbit = int(meta.norbit)
-
-
-        
-        #orbs_per_visit = norbit/nvisit
-
-
-        
-        #####################################
-        #remove first orbit of each visit
-        #norbit -= 4
-        #TODO: THIS HAS TO BE FIXED!!!
-        #TODO: Easiest solution: Do not only save comulative orbit number but also orbit number in visit.
-        #TODO: OR EASIER: Save the number of orbits per visit!!
-        ind = (orb_num%4 == 0)
-        #ind = (orb_num%10 == 0)
-        orb_num = orb_num[~ind]
-        vis_num = vis_num[~ind]
-        t_vis = t_vis[~ind]
-        t_vis = t_vis - min(t_vis)
-        t_orb = t_orb[~ind]
-        t_delay = t_delay[~ind]
-        d = d[~ind]
-
-        #TODO: NEEDS FIX!! WONT WORK IF VISIT HASNT 4 ORBITS!!
-        ind = (orb_num%4 == 1)
-        #ind = (orb_num%10 == 1)
-        t_delay[ind] = 1.
-        """ind = (orb_num==0)|(orb_num == 6)|(orb_num == 12)|(orb_num == 18)
-        t_delay[ind] = 1."""
-
         #TODO: Will break when user did not use optimal extraction!
         err = np.sqrt(d['var_opt'])
         flux = d['spec_opt']
         time  = d['t_bjd']
         scan_direction = d['scan']
 
+        # Correct times so that visit and orbit times start at 0 at the beginning of a new visit or orbit
+        t_vis = new_time(t_vis)
+        t_orb = new_time(t_orb)
+
+        nvisit = int(meta.nvisit)
+        norbit = int(meta.norbit)
+
+
+
         #FIXME SZ If white it should take wavelength integrated limb darking from file not just at 1.4 micron
         #wavelength = d[0,3]
-        if meta.run_fit_white:
-            wavelength = 1.4
+        if meta.s30_fit_white:
+            meta.wavelength = 1.4
         else:
-            wavelength = d['wave'][0]
+            meta.wavelength = d['wave'][0]
+            meta.wavelength_list.append(d['wave'][0])
         #print "setting wavelength by hand to fix_ld for white lc"
-
 
         #fixes limb darkening if "fix_ld" parameter is set to True in obs_par.txt
         if meta.fix_ld == True:
             ld = np.genfromtxt(meta.ld_file)
             
             i = 0
-            while(wavelength > ld[i,1]): i += 1
+            while(meta.wavelength > ld[i,1]): i += 1
             
             u1 = ld[i, 3]
             u2 = ld[i, 4] 
@@ -138,13 +129,12 @@ class Data:
         self.flux = flux[clip_mask]
         print('median log10 raw flux:', np.log10(np.median(flux[clip_mask])))
         self.err = err[clip_mask]
-        self.wavelength = wavelength
+        self.wavelength = meta.wavelength
         self.exp_time = np.median(np.diff(time))*60*60*24 #for supersampling in batman.py
         self.toffset = float(meta.toffset)
-        self.nvisit = nvisit
-        self.vis_num = vis_num[clip_mask]
-        #print(self.vis_num)
-        self.orb_num = orb_num[clip_mask]
+        self.nvisit = nvisit ###
+        self.vis_num = vis_num[clip_mask] ###
+        self.orb_num = orb_num[clip_mask] ###
         self.scan_direction = scan_direction[clip_mask]
         self.t_vis = t_vis[clip_mask]
         self.t_orb = t_orb[clip_mask]
@@ -180,3 +170,23 @@ def remove_dupl(seq):
     seen = set()
     seen_add = seen.add
     return [x for x in seq if not (x in seen or seen_add(x))]
+
+
+def new_time(array):
+    """
+    This functions makes sure the time in a visit (orbit) starts with 0 when a new visit (orbit) starts.
+    """
+    time_offset = np.zeros(len(array))
+    diff_array = np.diff(array)
+    current_offset = 0
+    for idx, array_i in enumerate(array):
+        if idx == 0:
+            current_offset = array_i
+            time_offset[0] = current_offset
+        else:
+            if diff_array[idx - 1] > 0:
+                time_offset[idx] = current_offset
+            else:
+                current_offset = array_i
+                time_offset[idx] = current_offset
+    return array - time_offset

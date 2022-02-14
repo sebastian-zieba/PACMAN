@@ -30,6 +30,7 @@ class FormatParams:
         self.dTrap_s = params[data.par_order['dTrap_s']*data.nvisit:(1 + data.par_order['dTrap_s'])*data.nvisit]
         self.dTrap_f = params[data.par_order['dTrap_f']*data.nvisit:(1 + data.par_order['dTrap_f'])*data.nvisit]
 
+
 def PrintParams(m, data, savefile=False):
     for name in data.parnames:
         for vis in range(data.nvisit):
@@ -42,6 +43,8 @@ def PrintParams(m, data, savefile=False):
                     print(name+"_"+str(vis), \
                           "\t", "{0:0.4e}".format(m.params[data.par_order[name]*data.nvisit + vis]), \
                           "\t", "{0:0.4e}".format(m.perror[data.par_order[name]*data.nvisit + vis]), file=savefile)
+
+
 def ReturnParams(m, data):
     val = []
     err = []

@@ -23,39 +23,40 @@ def smooth(x, nsmooth):
 def diagnostics_plot(D, M, indmax, outlier_array, f_opt, profile, i, ii, meta):
 	indmax = np.argmax(outlier_array)			#finds biggest outlier
 	indmax = np.unravel_index(indmax, outlier_array.shape)	#converts it from flat to tuple
+	fig,ax = plt.subplots(2,2, figsize=(10,10))
 
-	plt.subplot(221)
-	plt.title("Raw Data")
-	plt.imshow(D,vmin=0, vmax=50)
-	plt.scatter(x = indmax[1], y = indmax[0], color='w', marker='x')
-	m = plt.cm.ScalarMappable(cmap=  plt.cm.jet)
-	m.set_array(D)
-	plt.colorbar(m)
-	plt.subplot(222)
-	plt.title("Outliers")
-	plt.imshow(M*outlier_array, vmin=0, vmax=20)
-	plt.scatter(x = indmax[1], y = indmax[0], color='w', marker='x')
-	m.set_array(M*outlier_array)
-	plt.colorbar(m)
-	plt.subplot(222)
-	plt.subplot(223)
-	plt.title("Cut in spatial direction")
-	plt.axvline(x = indmax[0], color="red")
-	plt.plot(D[:, indmax[1]], label = "data")
-	plt.plot((f_opt*profile)[:, indmax[1]], color="orange", label= "model")
-	plt.legend()
-	plt.xlabel('Wavelength [um]')
-	plt.ylabel('Counts')
-	plt.subplot(224)
-	plt.title("Outliers: cut in spatial direction")
-	plt.plot(outlier_array[:,indmax[1]])
-	plt.axvline(x = indmax[0], color="red")
-	plt.ylabel('Residuals')
-	plt.xlabel('Wavelength [um]')
+	ax[0,0].set_title("Raw Data")
+	im00 = ax[0,0].imshow(D,vmin=0, vmax=50)
+	ax[0,0].scatter(x = indmax[1], y = indmax[0], color='w', marker='x')
+	cbar00 = fig.colorbar(im00, ax=ax[0, 0], shrink=0.89, pad=0.02)
+	#m = plt.cm.ScalarMappable(cmap=  plt.cm.jet)
+	#m.set_array(D)
+	#ax[0,0].set_colorbar(m)
+
+	ax[0,1].set_title("Outliers")
+	im01 = ax[0,1].imshow(M*outlier_array,vmin=0, vmax=20)
+	ax[0,1].scatter(x = indmax[1], y = indmax[0], color='w', marker='x')
+	cbar01 = fig.colorbar(im01, ax=ax[0, 1], shrink=0.89, pad=0.02)
+	#plt.colorbar(m)
+
+	ax[1,0].set_title("Cut in spatial direction")
+	ax[1,0].axvline(x = indmax[0], color="red")
+	ax[1,0].plot(D[:, indmax[1]], label = "data")
+	ax[1,0].plot((f_opt*profile)[:, indmax[1]], color="orange", label= "model")
+	ax[1,0].legend()
+	ax[1,0].set_xlabel('Wavelength [um]')
+	ax[1,0].set_ylabel('Counts')
+
+	ax[1,1].set_title("Outliers: cut in spatial direction")
+	ax[1,1].plot(outlier_array[:,indmax[1]])
+	ax[1,1].axvline(x = indmax[0], color="red")
+	ax[1,1].set_ylabel('Residuals')
+	ax[1,1].set_xlabel('Wavelength [um]')
+
 	plt.tight_layout()
-	if not os.path.isdir(meta.workdir + '/figs/optextr/'):
-		os.makedirs(meta.workdir + '/figs/optextr/')
-	plt.savefig(meta.workdir + '/figs/optextr/optextr{0}-{1}.png'.format(i, ii))
+	if not os.path.isdir(meta.workdir + '/figs/s20_optextr/'):
+		os.makedirs(meta.workdir + '/figs/s20_optextr/')
+	plt.savefig(meta.workdir + '/figs/s20_optextr/optextr{0}-{1}.png'.format(i, ii), dpi=120, bbox_inches='tight', pad_inches=0.05)
 	plt.close('all')
 	plt.clf()
 
@@ -138,6 +139,12 @@ def optextr(D, err, f_std, var_std, M, nsmooth, sig_cut, save_optextr_plot, i_sp
 
 		#STEP 8:  extract optimal spectrum
 		f_opt = ((M*profile*D/var).sum(axis = 0))/(M*profile**2/var).sum(axis=0)
+		#(M*profile)[:,0] = 0 breaks everything!
+		#((M*profile)).sum(axis = 0)=[0,1,1,1,1,...,1,1,1,1]
+		#M[:,0]*profile[:,0] = [0,0,0,0,0]
+		#       M[:,0] = [1,0,1,1,1,1,....,1,1,1,1]
+		# profile[:,0] = [0,1,0,0,0,0,....,0,0,0,0]
+		# problem occurs if eg there is only one non zero value in profile and M is zero where profile is non zero
 
 	var_opt = (M*profile).sum(axis = 0)/(M*profile**2/var).sum(axis = 0)
 

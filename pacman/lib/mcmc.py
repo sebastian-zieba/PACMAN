@@ -21,24 +21,24 @@ def format_params_for_mcmc(params, meta, fit_par):	#FIXME: make sure this works 
     tied_array = np.array(fit_par['tied'])
     free_array = []
 
-    print(len(fixed_array))
+    #print(len(fixed_array))
 
     for i in range(len(fixed_array)):
         if fixed_array[i].lower() == 'true' and tied_array[i] == -1:
-            for i in range(nvisit):
+            for ii in range(nvisit):
                 free_array.append(False)
         if fixed_array[i].lower() == 'true' and not tied_array[i] == -1:
             free_array.append(False)
         if fixed_array[i].lower() == 'false' and tied_array[i] == -1:
             free_array.append(True)
-            for i in range(nvisit-1):
+            for ii in range(nvisit-1):
                 free_array.append(False)
         if fixed_array[i].lower() == 'false' and not tied_array[i] == -1:
             free_array.append(True)
     free_array = np.array(free_array)
 
-    print(len(params))
-    print(len(free_array))
+    #print(len(params))
+    #print(len(free_array))
 
     theta = params[free_array]
 
@@ -159,13 +159,13 @@ def format_params_for_Model(theta, params, meta, fit_par):
 
     for i in range(len(fixed_array)):
         if fixed_array[i].lower() == 'true' and tied_array[i] == -1:
-            for i in range(nvisit):
+            for ii in range(nvisit):
                 free_array.append(False)
         if fixed_array[i].lower() == 'true' and not tied_array[i] == -1:
             free_array.append(False)
         if fixed_array[i].lower() == 'false' and tied_array[i] == -1:
             free_array.append(True)
-            for i in range(nvisit-1):
+            for ii in range(nvisit-1):
                 free_array.append(False)
         if fixed_array[i].lower() == 'false' and not tied_array[i] == -1:
             free_array.append(True)
@@ -211,11 +211,10 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
     print('Run emcee...')
     sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args = (params, data, model, meta, fit_par))
 
-
     step_size = get_step_size(params, meta, fit_par)
-    print(step_size)
-    print(theta)
-    [print("({0},{1})".format(i, j)) for i, j in zip(theta,step_size)]
+    #print(step_size)
+    #print(theta)
+    #[print("({0},{1})".format(i, j)) for i, j in zip(theta,step_size)]
     pos = [theta + np.array(step_size)*np.random.randn(ndim) for i in range(nwalkers)]
 
 
