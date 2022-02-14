@@ -20,6 +20,7 @@ matplotlib.rcParams.update({'lines.markeredgewidth': 0.3})
 matplotlib.rcParams.update({'axes.formatter.useoffset': False})
 from astropy.stats import sigma_clip
 import time
+import corner
 
 
 ##00
@@ -744,7 +745,6 @@ def computeRMS(data, maxnbins=None, binstep=1, isrmserr=False):
         return rms, stderr, binsz
 
 
-
 def rmsplot(model, data, meta):
     """
     Plot RMS vs. bin size looking for time-correlated noise
@@ -930,24 +930,10 @@ def plot_fit_lc2(data, fit, meta, mcmc=False):
     plt.close()
 
 
-def plot_chains(ndim, sampler, nburn, labels, meta):
-    plt.clf()
-    print(ndim)
-    fig, axes = plt.subplots(ndim, 1, sharex=True, figsize=(8, ndim))
-    for i in range(0, ndim):
-        axes[i].plot(sampler.chain[:, nburn:, i].T, alpha=0.4)
-        # axes[i].yaxis.set_major_locator(MaxNLocator(5))
-        axes[i].set_ylabel(labels[i])
-    fig.tight_layout()
-    fig.subplots_adjust(wspace=0, hspace=0)
-    if nburn == 0:
-        fig.savefig(meta.workdir + meta.fitdir + "/mcmc_chains_{0}_{1}.png".format(meta.run_file.split('/')[-1], meta.fittime))
-    else:
-        fig.savefig(meta.workdir + meta.fitdir + "/mcmc_chains_noburn_{0}_{1}.png".format(meta.run_file.split('/')[-1], meta.fittime))
-    plt.close()
-
-
 def params_vs_wvl(vals, errs, idxs, meta):
+    """
+    Plots every fitted parameter as a function of bin. It is able to show how astrophysical & systematical parameters change over wavelength.
+    """
     labels = meta.labels
     fig, ax = plt.subplots(len(idxs[0]), 1, figsize=(6.4,30), sharex=True)
     for i in range(len(idxs[0])):
@@ -962,6 +948,9 @@ def params_vs_wvl(vals, errs, idxs, meta):
 
 
 def lsq_rprs(rprs_vals_lsq, rprs_errs_lsq, meta):
+    """
+    Plots the spectrum (rprs vs wvl) as fitted by the least square routine.
+    """
     plt.errorbar(meta.wavelength_list, rprs_vals_lsq, yerr=rprs_errs_lsq, fmt='.', c='darkblue')
     plt.xlabel('Wavelength (micron)')
     plt.ylabel('Transit Depth (ppm)')
@@ -969,3 +958,34 @@ def lsq_rprs(rprs_vals_lsq, rprs_errs_lsq, meta):
         os.makedirs(meta.workdir + meta.fitdir + '/lsq_res')
     plt.savefig(meta.workdir + meta.fitdir + '/lsq_res/' + 'lsq_rprs.png', dpi=300, bbox_inches='tight', pad_inches=0.05)
     plt.close()
+
+
+def mcmc_chains(ndim, sampler, nburn, labels, meta):
+    """
+    Plots the temporal evolution of the MCMC chain.
+    """
+    plt.clf()
+    print(ndim)
+    fig, axes = plt.subplots(ndim, 1, sharex=True, figsize=(8, ndim))
+    for i in range(0, ndim):
+        axes[i].plot(sampler.chain[:, nburn:, i].T, alpha=0.4)
+        # axes[i].yaxis.set_major_locator(MaxNLocator(5))
+        axes[i].set_ylabel(labels[i])
+    fig.tight_layout()
+    fig.subplots_adjust(wspace=0, hspace=0)
+    if nburn == 0:
+        fig.savefig(meta.workdir + meta.fitdir + '/mcmc_res/' + "/mcmc_chains_bin{0}_wvl{1:0.3f}.png".format(meta.s30_file_counter, meta.wavelength))
+    else:
+        fig.savefig(meta.workdir + meta.fitdir + '/mcmc_res/' + "/mcmc_chains_noburn_bin{0}_wvl{1:0.3f}.png".format(meta.s30_file_counter, meta.wavelength))
+    plt.close()
+
+
+def mcmc_pairs(samples, params, meta, fit_par, data):	#FIXME: make sure this works for cases when nvisit>1
+    """
+    Plots a pairs plot of the MCMC.
+    """
+    labels = meta.labels
+    print(labels)
+    fig = corner.corner(samples, labels=labels, show_titles=True,quantiles=[0.16, 0.5, 0.84],title_fmt='.4')
+    figname = meta.workdir + meta.fitdir + '/mcmc_res/' + "/mcmc_pairs_bin{0}_wvl{1:0.3f}.png".format(meta.s30_file_counter, meta.wavelength)
+    fig.savefig(figname)

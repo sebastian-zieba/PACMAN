@@ -136,7 +136,9 @@ def run30(eventlabel, workdir, meta=None):
         """outfile = open("white_systematics.txt", "w")
         for i in range(len(model.all_sys)): print(model.all_sys[i], file = outfile)
         outfile.close()"""
-                            
+
+        meta.labels = labels_gen(params, meta, fit_par)
+
         if meta.run_mcmc:
             if meta.rescale_uncert:
                 ##rescale error bars so reduced chi-squared is one
@@ -158,8 +160,6 @@ def run30(eventlabel, workdir, meta=None):
             vals.append(val)
             errs.append(err)
             idxs.append(idx)
-
-    meta.labels = labels_gen(params, meta, fit_par)
 
     if meta.run_verbose:
         plots.params_vs_wvl(vals, errs, idxs, meta)
