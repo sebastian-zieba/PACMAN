@@ -260,13 +260,17 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
     #     print('{:13.3u}'.format(xu), file=f_mcmc)
     # f_mcmc.close()
 
+    medians = []
+    for i in range(len(theta)):
+            q = quantile(samples[:, i], [0.16, 0.5, 0.84])
+            medians.append(q[1])
+
     updated_params = format_params_for_Model(medians, params, meta, fit_par)
     fit = model.fit(data, updated_params)
-    print(fit.rms)
-
+    #print(fit.rms)
     plots.plot_fit_lc2(data, fit, meta, mcmc=True)
 
-    return data.wavelength, medians[0], errors_mean,samples
+    #return data.wavelength, medians[0], errors_mean, samples
 
 
 def lnprior(theta, data):

@@ -140,6 +140,7 @@ def run30(eventlabel, workdir, meta=None):
         meta.labels = labels_gen(params, meta, fit_par)
 
         if meta.run_mcmc:
+            time.sleep(1.1)
             if meta.rescale_uncert:
                 ##rescale error bars so reduced chi-squared is one
                 data.err *= np.sqrt(model.chi2red)
@@ -148,6 +149,7 @@ def run30(eventlabel, workdir, meta=None):
             mcmc_fit(data, model, params, f, meta, fit_par)
 
         if meta.run_nested:
+            time.sleep(1.1)
             if meta.rescale_uncert:
                 ##rescale error bars so reduced chi-squared is one
                 data.err *= np.sqrt(model.chi2red)

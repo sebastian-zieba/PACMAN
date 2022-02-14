@@ -923,9 +923,9 @@ def plot_fit_lc2(data, fit, meta, mcmc=False):
     if not os.path.isdir(meta.workdir + meta.fitdir + '/fit_lc'):
         os.makedirs(meta.workdir + meta.fitdir + '/fit_lc')
     if mcmc:
-        plt.savefig(meta.workdir + meta.fitdir + '/fit_lc' + "/mcmc_lc_{0}.png".format(meta.s30_file_counter))
+        plt.savefig(meta.workdir + meta.fitdir + '/fit_lc' + "/mcmc_lc_{0}_{1}.png".format(meta.s30_file_counter, datetime))
     else:
-        plt.savefig(meta.workdir + meta.fitdir + '/fit_lc' + "/fit_lc_{0}.png".format(meta.s30_file_counter))
+        plt.savefig(meta.workdir + meta.fitdir + '/fit_lc' + "/fit_lc_{0}_{1}.png".format(meta.s30_file_counter, datetime))
     # plt.waitforbuttonpress(0) # this will wait for indefinite time
     plt.close()
 
@@ -942,7 +942,6 @@ def params_vs_wvl(vals, errs, idxs, meta):
     plt.subplots_adjust(hspace=0.01)
     plt.tight_layout()
     plt.subplots_adjust(hspace=0.01)
-    plot_fit_lc2
     plt.savefig(meta.workdir + meta.fitdir + '/lsq_res/' + '/lsq_params_vs_wvl.png', dpi=600, bbox_inches='tight', pad_inches=0.05)
     plt.close()
 
@@ -965,7 +964,6 @@ def mcmc_chains(ndim, sampler, nburn, labels, meta):
     Plots the temporal evolution of the MCMC chain.
     """
     plt.clf()
-    print(ndim)
     fig, axes = plt.subplots(ndim, 1, sharex=True, figsize=(8, ndim))
     for i in range(0, ndim):
         axes[i].plot(sampler.chain[:, nburn:, i].T, alpha=0.4)
@@ -985,7 +983,7 @@ def mcmc_pairs(samples, params, meta, fit_par, data):	#FIXME: make sure this wor
     Plots a pairs plot of the MCMC.
     """
     labels = meta.labels
-    print(labels)
     fig = corner.corner(samples, labels=labels, show_titles=True,quantiles=[0.16, 0.5, 0.84],title_fmt='.4')
     figname = meta.workdir + meta.fitdir + '/mcmc_res/' + "/mcmc_pairs_bin{0}_wvl{1:0.3f}.png".format(meta.s30_file_counter, meta.wavelength)
     fig.savefig(figname)
+    plt.close()
