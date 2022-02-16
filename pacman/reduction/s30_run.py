@@ -18,6 +18,7 @@ from ..lib.formatter import ReturnParams
 from ..lib import sort_nicely as sn
 from ..lib import nice_fit_par
 from ..lib import plots
+from ..lib import util
 
 
 def run30(eventlabel, workdir, meta=None):
