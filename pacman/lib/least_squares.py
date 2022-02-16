@@ -101,7 +101,6 @@ def lsq_fit(fit_par, data, meta, model, myfuncs, noclip=False):
     
     if m.errmsg: print("MPFIT error message", m.errmsg)
 
-    meta.chi2red_list.append(model.chi2red)
 
     # if meta.run_output:
     #     f = open(meta.run_out_name, "a")

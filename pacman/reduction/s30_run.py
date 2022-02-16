@@ -97,6 +97,7 @@ def run30(eventlabel, workdir, meta=None):
             data = Data(f, meta, fit_par)
             model = Model(data, myfuncs)
             data, model, params, m = lsq_fit(fit_par, data, meta, model, myfuncs, noclip=True) #not clipping
+            meta.chi2red_list.append(model.chi2red)
         else:
             clip_idxs = []
             for iii in range(meta.run_clipiters+1):
@@ -167,22 +168,14 @@ def run30(eventlabel, workdir, meta=None):
         plots.params_vs_wvl(vals, errs, idxs, meta)
 
         if not meta.s30_fit_white:
-            # Save the rprs vs wvl as a plot and txt file
-            if not os.path.isdir(meta.workdir + meta.fitdir + '/lsq_res'):
-                os.makedirs(meta.workdir + meta.fitdir + '/lsq_res')
-            f_lsq =  open(meta.workdir + meta.fitdir + '/lsq_res' + "/lsq_rprs.txt", 'w')
-            rprs_vals_lsq = [vals[ii][idxs[0][1]] for ii in range(len(vals))]
-            rprs_errs_lsq = [errs[ii][idxs[0][1]] for ii in range(len(errs))]
-            file_header = ['wavelength (micron)', 'rprs', 'rprs_err', 'chi2red']
-            print("#{: <24} {: <25} {: <25} {: <25}".format(*file_header), file=f_lsq)
-            for row in zip(meta.wavelength_list, rprs_vals_lsq, rprs_errs_lsq, meta.chi2red_list):
-                print("{: <25} {: <25} {: <25} {: <25}".format(*row), file=f_lsq)
-            f_lsq.close()
-
+            #Saves rprs and wvl as a txt file
+            util.make_lsq_rprs_txt(vals, errs, idxs, meta)
+            # Saves rprs vs wvl as a plot
             plots.lsq_rprs(rprs_vals_lsq, rprs_errs_lsq, meta)
 
         if not meta.s30_fit_white and meta.run_mcmc:
             plots.mcmc_rprs(meta)
+            util.make_mcmc_rprs_txt(meta)
 
     print('Finished s30')
 

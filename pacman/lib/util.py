@@ -273,8 +273,6 @@ def residuals2(params, x1, y1, x2, y2):
     return fit - y2
 
 
-
-
 def correct_wave_shift_fct_0(meta, orbnum, cmin, cmax, spec_opt, i):
     template_waves = meta.wave_grid[0, int(meta.refpix[orbnum, 1]) + meta.LTV1, cmin:cmax]
 
@@ -334,35 +332,61 @@ def correct_wave_shift_fct_1(meta, orbnum, cmin, cmax, spec_opt, x_data_firstexp
     return wvls, leastsq_res
 
 
-def computeRMS(data, maxnbins=None, binstep=1, isrmserr=False):
-    # bin data into multiple bin sizes
-    npts    = data.size
-    if maxnbins == None:
-            maxnbins = npts/10.
-    binsz   = np.arange(1, maxnbins+binstep, step=binstep)
-    nbins   = np.zeros(binsz.size)
-    rms     = np.zeros(binsz.size)
-    rmserr  = np.zeros(binsz.size)
-    for i in range(binsz.size):
-            nbins[i] = int(np.floor(data.size/binsz[i]))
-            bindata   = np.zeros(nbins[i], dtype=float)
-# bin data
-# ADDED INTEGER CONVERSION, mh 01/21/12
-            for j in range(int(nbins[i])):
-                    bindata[j] = data[j*binsz[i]:(j+1)*binsz[i]].mean()
-            # get rms
-            rms[i]    = np.sqrt(np.mean(bindata**2))
-            rmserr[i] = rms[i]/np.sqrt(2.*int(nbins[i]))
-    # expected for white noise (WINN 2008, PONT 2006)
-    stderr = (data.std()/np.sqrt(binsz))*np.sqrt(nbins/(nbins - 1.))
-    if isrmserr == True:
-            return rms, stderr, binsz, rmserr
-    else:
-            return rms, stderr, binsz
+def make_lsq_rprs_txt(vals, errs, idxs, meta):
+    """
+    Saves the rprs vs wvl as a txt file as resulting from the lsq.
+    """
+    if not os.path.isdir(meta.workdir + meta.fitdir + '/lsq_res'):
+        os.makedirs(meta.workdir + meta.fitdir + '/lsq_res')
+    f_lsq = open(meta.workdir + meta.fitdir + '/lsq_res' + "/lsq_rprs.txt", 'w')
+    rprs_vals_lsq = [vals[ii][idxs[0][1]] for ii in range(len(vals))]
+    rprs_errs_lsq = [errs[ii][idxs[0][1]] for ii in range(len(errs))]
+    file_header = ['wavelength (micron)', 'rprs', 'rprs_err', 'chi2red']
+    print("#{: <24} {: <25} {: <25} {: <25}".format(*file_header), file=f_lsq)
+    for row in zip(meta.wavelength_list, rprs_vals_lsq, rprs_errs_lsq, meta.chi2red_list):
+        print("{: <25} {: <25} {: <25} {: <25}".format(*row), file=f_lsq)
+    f_lsq.close()
+
+
+def make_mcmc_rprs_txt(meta):
+    """
+    Saves the rprs vs wvl as a txt file as resulting from the MCMC.
+    """
+    files_mcmc_res = glob.glob(os.path.join(meta.workdir + meta.fitdir + '/mcmc_res', "mcmc_out_*.p"))
+    files_mcmc_res = sort_nicely(files_mcmc_res)
+
+    medians = []
+    errors_lower = []
+    errors_upper = []
+
+    for f in files_mcmc_res:
+        handle = open(f, 'rb')
+        data, params, chain = pickle.load(handle)
+        ndim = chain.shape[-1]
+        samples = chain[:, meta.run_nburn:, :].reshape((-1, ndim))
+        # TODO samples[:, 1] has to be fixeD!!!!!
+        q = quantile(samples[:, 1], [0.16, 0.5, 0.84])
+        medians.append(q[1])
+        errors_lower.append(abs(q[1] - q[0]))
+        errors_upper.append(abs(q[2] - q[1]))
+
+    medians = np.array(medians)
+    errors_lower = np.array(errors_lower)
+    errors_upper = np.array(errors_upper)
+
+    if not os.path.isdir(meta.workdir + meta.fitdir + '/mcmc_res'):
+        os.makedirs(meta.workdir + meta.fitdir + '/mcmc_res')
+    f_mcmc = open(meta.workdir + meta.fitdir + '/mcmc_res' + "/mcmc_rprs.txt", 'w')
+    file_header = ['wavelength (micron)', 'rprs', 'rprs_err_lower', 'rprs_err_upper']
+    print("#{: <24} {: <25} {: <25} {: <25}".format(*file_header), file=f_lsq)
+    for row in zip(meta.wavelength_list, medians, errors_lower, errors_upper):
+        print("{: <25} {: <25} {: <25} {: <25}".format(*row), file=f_lsq)
+    f_lsq.close()
 
 
 def quantile(x, q):
     return np.percentile(x, [100. * qi for qi in q])
+
 
 def weighted_mean(data, err):            #calculates the weighted mean for data points data with std devs. err
     ind = err != 0.0
