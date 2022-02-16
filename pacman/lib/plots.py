@@ -40,7 +40,17 @@ def utc_to_mjd(time):
     """
     res = []
     for i in time:
-        res.append(Time(i, format='jyear').mjd,)
+        res.append(Time(i, format='jyear').mjd)
+    return np.array(res)
+
+
+def mjd_to_isot(time):
+    """
+    Converts a list of MJDs to a list of dates in YYYY-MM-DD.
+    """
+    res = []
+    for i in time:
+        res.append(str(Time(i, format='mjd').isot).split('T')[0])
     return np.array(res)
 
 
@@ -62,6 +72,7 @@ def obs_times(meta, times, ivisits, iorbits, updated=False):
 
     ax1 = fig.add_subplot(gs[:, 0])
 
+    visit_start = []
     for i in range(Nvisits):
         axn = fig.add_subplot(gs[i, 1])
         if i == 0:
@@ -69,6 +80,7 @@ def obs_times(meta, times, ivisits, iorbits, updated=False):
         axn.text(0.95, 0.41, 'v{0}'.format(i), horizontalalignment='center', verticalalignment='center', transform=axn.transAxes)
         visit_mask = ivisits == i
         times_i = times[visit_mask]
+        visit_start.append(times_i[0])
         axn.scatter(times_i, np.ones(len(times_i)), marker='s', c='r', s=5, alpha=0.5)
         axn.get_xaxis().set_ticks([])
         axn.get_yaxis().set_ticks([])
@@ -83,16 +95,16 @@ def obs_times(meta, times, ivisits, iorbits, updated=False):
     ax1sec = ax1.secondary_xaxis('top', functions=(mjd_to_utc, utc_to_mjd))
     ax1sec.set_xlabel('time (year)')
 
-    #It checks the orbit index right before it goes back to 0 (because a new visit stars).
+    #It checks the orbit index right before it goes back to 0 (because a new visit starts).
     #We also have to append the very last orbit number
     norbits = iorbits[np.where(np.diff(iorbits) < 0)]
     norbits = np.append(norbits, iorbits[-1:])+1
-    table_data = np.array([np.arange(len(norbits), dtype=int), norbits])
-    col_names = ['ivisit', '#orbits']
+    table_data = np.array([np.arange(len(norbits), dtype=int), norbits, mjd_to_isot(visit_start)])
+    col_names = ['ivisit', '#orbits', 'start times']
     table = ax1.table(cellText=table_data.T,cellLoc='center',
               colLabels=col_names,
-              loc='right',bbox=[-0.45, 0., 0.3, 1])
-    table.scale(0.3, 3.0)
+              loc='right',bbox=[-0.7, 0., 0.55, 1])
+    table.scale(0.5, 3.0)
 
     plt.subplots_adjust(wspace=0.04)
 

@@ -5,7 +5,7 @@
 rundir                       /home/zieba/Desktop/Projects/Open_source/PACMAN/run      #location of run dir
 datadir                      /home/zieba/Desktop/Data/GJ1214_Hubble13021              #location of data dir
 suffix                       ima                                                      #data suffix (only ima supported right now)
-which_visits                 [13,14]                                                  #which visits to use; Options: list (e.g., [0,1,3]) or everything
+which_visits                 [5,6,7]                                                  #which visits to use; Options: list (e.g., [0,1,3]) or everything
 
 save_obs_times_plot          True
 show_obs_times_plot          False
@@ -102,7 +102,7 @@ s21_spec_dir_path_s20        None
 
 wvl_min                      1.125
 wvl_max                      1.65
-wvl_bins                     6
+wvl_bins                     12
 
 use_wvl_list                 False
 wvl_edge_list                [11400,12200,12600,13000,14600,15000,15400,15800,16200]
@@ -144,9 +144,9 @@ run_mcmc                     True
 run_nested                   False
 
 #emcee
-run_nsteps                   2000
-run_nwalkers	              35
-run_nburn                    1000
+run_nsteps                   3000
+run_nwalkers	             45
+run_nburn                    1500
 
 #dynesty
 run_dlogz                    25000

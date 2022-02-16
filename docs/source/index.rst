@@ -17,15 +17,32 @@ It takes 'ima' dataproducts created by STSci and outputs as a product a light cu
 THIS PIPELINE IS STILL UNDER HEAVY DEVELOPMENT!!! Use at your own risk.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Contents:
 
-
    installation
-   quickstart
+   stages
    pcf
+   directories
    api
    contact
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Example GJ1214 b
+
+   example_introduction
+   download_data
+   stage00
+   stage01
+   stage02
+   stage03
+   stage10
+   stage20
+   stage21
+   stage30
+
+
 
 Indices and tables
 ==================

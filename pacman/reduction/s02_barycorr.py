@@ -64,7 +64,7 @@ def run02(eventlabel, workdir, meta=None):
     print('Writing t_bjd into filelist.txt')
     if not any(np.array(filelist.keys()) == 't_bjd'):
         filelist.add_column(Column(data=t_bjd, name='t_bjd'))
-        ascii.write(filelist, filelist_path, format='ecsv', overwrite=True)
+        ascii.write(filelist, filelist_path, format='rst', overwrite=True)
     else:
         filelist.replace_column(name='t_bjd', col=Column(data=t_bjd, name='t_bjd'))
         ascii.write(filelist, filelist_path, format='rst', overwrite=True)

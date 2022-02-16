@@ -60,7 +60,7 @@ def lsq_fit(fit_par, data, meta, model, myfuncs, noclip=False):
 
 
     params_s = np.array(params_s)
-    if meta.run_plot_raw_data: plot_raw(data, meta)
+    if meta.save_raw_lc_plot: plot_raw(data, meta)
     fa = {'data':data, 'model':model}
 
     # FIXME SZ: NO FILE "white_systematics.txt"
@@ -78,16 +78,16 @@ def lsq_fit(fit_par, data, meta, model, myfuncs, noclip=False):
         #if user wants to sigma clip but there is nothing to clip:
         if sum(np.ma.getmask(sigma_clip(model.resid, sigma=meta.run_clipsigma, maxiters=1))) == 0:
             clip_idx = []
-            if meta.run_show_plot: plot_fit_lc2(data, model, meta)
+            if meta.save_fit_lc_plot: plot_fit_lc2(data, model, meta)
         else:
             #if user wants to sigma clip and there are outliers:
             clip_idx = np.where(np.ma.getmask(sigma_clip(model.resid, sigma=meta.run_clipsigma, maxiters=1))==True)[0]
             print('Outlier Identified: ', len(clip_idx))
             print('Outlier idx: ', clip_idx)
-            if meta.run_show_plot: plot_fit_lc(data, model, meta)
+            if meta.save_fit_lc_plot: plot_fit_lc(data, model, meta)
 
     if noclip == True:
-        if meta.run_show_plot: plot_fit_lc2(data, model, meta)
+        if meta.save_fit_lc_plot: plot_fit_lc2(data, model, meta)
 
     #print(m.params)
 

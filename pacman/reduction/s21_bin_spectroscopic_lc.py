@@ -82,7 +82,7 @@ def run21(eventlabel, workdir, meta=None):
     dirname = meta.workdir + "/extracted_sp/" + 'bins{0}_'.format(meta.wvl_bins) + datetime
     if not os.path.exists(dirname): os.makedirs(dirname)
 
-    for i in tqdm(range(len(wave_edges) - 1), desc='***************** Looping over Bins'):
+    for i in tqdm(range(len(wave_edges) - 1), desc='***************** Looping over Bins', ascii=True):
 
         wave = (wave_edges[i] + wave_edges[i+1])/2./1.e4
         outname = dirname + "/speclc" + "{0:.3f}".format(wave)+".txt"

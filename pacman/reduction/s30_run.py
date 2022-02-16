@@ -181,6 +181,8 @@ def run30(eventlabel, workdir, meta=None):
 
             plots.lsq_rprs(rprs_vals_lsq, rprs_errs_lsq, meta)
 
+    print('Finished s30')
+
     return meta
 
 def update_clips(clips_array):

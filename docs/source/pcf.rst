@@ -161,7 +161,6 @@ Stage 10
 
 di_rmin, di_rmax, di_cmin, di_cmax
 ''''''''''''''''''''''''''''''''''''''''''''
-
 | Example: ``di_rmin  120``
 | Example: ``di_rmax  160``
 | Example: ``di_cmin  5``
@@ -191,25 +190,51 @@ Stage 20
 ---------------------------------------------------------
 
 
+s20_testing/n_testing
+''''''''''''''''''''''''''''''''''''''''''''
+| Example: ``s20_testing  True``
+| Example: ``n_testing    1``
+
+Runs s20 in testing mode. Only the first n_testing files will be analysed then.
+E.g. if n_testing = 1, only the first file will be analysed
+
+
+rmin/rmax
+''''''''''''''''''''''''''''''''''''''''''''
+| Example: ``rmin  5``
+| Example: ``rmax  261``
+
+Can be set to remove rows from the top and bottom of the 2D array.
+E.g. If the frame have the size of 266x266 and the user wants to cut off the upper and lower 5 pixels they can use the same settings as in the example above.
+
+
 window
 ''''''''''''''''''''''''''''''''''''''''''''
+| Example: ``window  12``
 
+Increase the size of the aperture by 12 pixels relative to the rows which show the highest change in flux compared to rows above and below.
 
 
 background_thld
 ''''''''''''''''''''''''''''''''''''''''''''
+| Example: ``background_thld  1000``
 
-
+Sets a threshold to the background calculation. Pixels with a flux lower than background_thld electrons/second will be considered as background.
+The background flux is then determined by taking the median flux of the pixels below this threshold.
 
 
 opt_extract
 ''''''''''''''''''''''''''''''''''''''''''''
-`optimal extraction <https://ui.adsabs.harvard.edu/abs/1986PASP...98..609H>`_
+| Example: ``background_thld  True``
 
+Uses Optimal extraction as descibed in `Horne et al. 1986 <https://ui.adsabs.harvard.edu/abs/1986PASP...98..609H>`_.
 
 
 sig_cut, nsmooth
 ''''''''''''''''''''''''''''''''''''''''''''
+| Example: ``sig_cut  15 ``
+| Example: ``nsmooth  9``
+
 sig_cut: for cosmic rays etc
 
 smooth: created smoothed spatial profile, medial smoothing filter
@@ -219,35 +244,209 @@ save_optextr_plot
 ''''''''''''''''''''''''''''''''''''''''''''
 .. image:: media/s20/optextr0-0.png
 
+
+correct_wave_shift
+''''''''''''''''''''''''''''''''''''''''''''
+| Example: ``correct_wave_shift  True``
+Corrects the wavelength by using the reference spectrum.
+
+
+output
+''''''''''''''''''''''''''''''''''''''''''''
+| Example: ``output  True``
+Saves the flux as a function of time and wavelength into files.
+
+
 save_sp2d_plot/show_sp2d_plot
 ''''''''''''''''''''''''''''''''''''''''''''
 .. image:: media/s20/sp2d_0.png
+
 
 save_trace_plot/show_trace_plot
 ''''''''''''''''''''''''''''''''''''''''''''
 .. image:: media/s20/trace_0.png
 
+
 save_bkg_hist_plot/show_bkg_hist_plot
 ''''''''''''''''''''''''''''''''''''''''''''
 .. image:: media/s20/bkg_hist0-0.png
+
 
 save_utr_plot/show_utr_plot
 ''''''''''''''''''''''''''''''''''''''''''''
 .. image:: media/s20/utr0-0.png
 
+
 save_sp1d_plot/show_sp1d_plot
 ''''''''''''''''''''''''''''''''''''''''''''
 .. image:: media/s20/sp1d_0.png
+
 
 save_bkg_evo_plot/show_bkg_evo_plot
 ''''''''''''''''''''''''''''''''''''''''''''
 .. image:: media/s20/bkg_evo.png
 
+
 save_sp1d_diff_plot/show_sp1d_diff_plot
 ''''''''''''''''''''''''''''''''''''''''''''
 .. image:: media/s20/sp1d_diff_0.png
 
+
 save_utr_aper_evo_plot/show_utr_aper_evo_plot
 ''''''''''''''''''''''''''''''''''''''''''''
 .. image:: media/s20/utr_aper_evo.png
+
+
+save_refspec_fit_plot/show_refspec_fit_plot
+''''''''''''''''''''''''''''''''''''''''''''
+.. image:: media/s20/refspec_fit_0.png
+.. image:: media/s20/refspec_fit_1.png
+
+
+save_drift_plot/show_drift_plot
+''''''''''''''''''''''''''''''''''''''''''''
+.. image:: media/s20/drift.png
+
+
+
+Stage 21
+---------------------------------------------------------
+
+s21_most_recent_s20/s21_spec_dir_path_s20
+''''''''''''''''''''''''''''''''''''''''''''
+| Example: ``s21_most_recent_s20    True``
+| Example: ``s21_spec_dir_path_s20  None``
+If s21_most_recent_s20 is set to True the most recent s20 run will be used.
+If s21_most_recent_s20 is set to False, the user can set a path with the extracted data after s20:
+| Example: ``s21_most_recent_s20    False ``
+| Example: ``s21_spec_dir_path_s20  /home/zieba/Desktop/Projects/Open_source/PACMAN/run/run_2022-01-25_19-12-59_GJ1214_Hubble13021/extracted_lc/2022-02-11_17-44-56``
+
+
+wvl_min/wvl_max/wvl_bins
+''''''''''''''''''''''''''''''''''''''''''''
+| Example: ``wvl_min   1.125``
+| Example: ``wvl_max   1.65``
+| Example: ``wvl_bins  12``
+
+
+
+use_wvl_list/wvl_edge_list
+''''''''''''''''''''''''''''''''''''''''''''
+| Example: ``use_wvl_list   True``
+| Example: ``wvl_edge_list  [1.1, 1.3, 1.5, 1.7]``
+
+
+Stage 30
+---------------------------------------------------------
+
+s30_myfuncs
+''''''''''''''''''''''''''''''''''''''''''''
+Choose the functions to fit the data.
+
+
+s30_fit_white
+''''''''''''''''''''''''''''''''''''''''''''
+Fit the white light curve which was created after Stage 20.
+
+
+s30_most_recent_s20
+''''''''''''''''''''''''''''''''''''''''''''
+Use the most recent Stage 20 run for the white light curve fit.
+
+
+s30_fit_spec
+''''''''''''''''''''''''''''''''''''''''''''
+Fit the spectroscopic light curves which was created after Stage 21.
+
+
+s30_most_recent_s21
+''''''''''''''''''''''''''''''''''''''''''''
+Use the most recent Stage 21 run for the spectroscopic light curve fit.
+
+
+s30_spec_dir_path
+''''''''''''''''''''''''''''''''''''''''''''
+If s30_most_recent_s21 was set to False, the user can put a path here.
+
+
+remove_first_exp
+''''''''''''''''''''''''''''''''''''''''''''
+Removes the first exposure from every orbit.
+
+
+remove_first_orb
+''''''''''''''''''''''''''''''''''''''''''''
+Removes the first orbit from every visit.
+
+rescale_uncert
+''''''''''''''''''''''''''''''''''''''''''''
+Rescales the uncertaincies for the sampler (MCMC or nested sampling), so that the reduced chi2 = 1.
+
+run_clipiters
+''''''''''''''''''''''''''''''''''''''''''''
+NOT TESTED
+
+run_clipsigma
+''''''''''''''''''''''''''''''''''''''''''''
+NOT TESTED
+
+fix_ld
+''''''''''''''''''''''''''''''''''''''''''''
+NOT TESTED
+
+ld_file
+''''''''''''''''''''''''''''''''''''''''''''
+NOT TESTED
+
+toffset
+''''''''''''''''''''''''''''''''''''''''''''
+Removes a time offset from the time stamps so that there is no problem with floating precision due to the size of dates in BJD.
+
+
+run_divide_white
+''''''''''''''''''''''''''''''''''''''''''''
+NOT TESTED
+
+
+run_verbose
+''''''''''''''''''''''''''''''''''''''''''''
+
+
+save_allan_plot
+''''''''''''''''''''''''''''''''''''''''''''
+.. image:: media/s30/white/corr_plot_0.png
+
+
+save_raw_lc_plot
+''''''''''''''''''''''''''''''''''''''''''''
+.. image:: media/s30/white/raw_lc_0.png
+
+
+save_fit_lc_plot
+''''''''''''''''''''''''''''''''''''''''''''
+.. image:: media/s30/white/fit_lc_0_2022-02-15_22-20-09.png
+
+
+run_lsq
+''''''''''''''''''''''''''''''''''''''''''''
+
+
+run_mcmc
+''''''''''''''''''''''''''''''''''''''''''''
+Runs an MCMC using the emcee package.
+
+
+run_nested
+''''''''''''''''''''''''''''''''''''''''''''
+Runs Nested Sampling using the dynesty package.
+
+
+run_nsteps/run_nwalkers/run_nburn
+''''''''''''''''''''''''''''''''''''''''''''
+Parameters for emcee.
+
+
+run_dlogz/run_nlive
+''''''''''''''''''''''''''''''''''''''''''''
+Parameters for dynesty.
 
