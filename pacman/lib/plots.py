@@ -433,8 +433,8 @@ def utr(diff, meta, i, ii, orbnum, rowmedian, rowmedian_absder, peaks):
     Saves a plot of up-the-ramp sample, the row by row sum and the derivate of the latter. It furthermore shows the aperture used for the analysis.
     """
     cmin = int(meta.refpix[
-                   orbnum, 2] + meta.POSTARG1 / meta.platescale) + meta.BEAMA_i + meta.LTV1 + meta.offset  # determines left column for extraction (beginning of the trace)
-    cmax = min(int(meta.refpix[orbnum, 2] + meta.POSTARG1 / meta.platescale) + meta.BEAMA_f + meta.LTV1 - meta.offset,
+                   orbnum, 2] + meta.POSTARG1 / meta.platescale) + meta.BEAMA_i + meta.LTV1  # determines left column for extraction (beginning of the trace)
+    cmax = min(int(meta.refpix[orbnum, 2] + meta.POSTARG1 / meta.platescale) + meta.BEAMA_f + meta.LTV1,
                meta.subarray_size)  # right column (end of trace, or edge of detector)
 
     fig, ax = plt.subplots(1,3, figsize=(10,8), sharey=True)

@@ -168,7 +168,7 @@ def run30(eventlabel, workdir, meta=None):
         plots.params_vs_wvl(vals, errs, idxs, meta)
 
         if not meta.s30_fit_white:
-            #Saves rprs and wvl as a txt file
+            # Saves rprs and wvl as a txt file
             util.make_lsq_rprs_txt(vals, errs, idxs, meta)
             # Saves rprs vs wvl as a plot
             plots.lsq_rprs(rprs_vals_lsq, rprs_errs_lsq, meta)
