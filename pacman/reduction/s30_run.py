@@ -172,7 +172,7 @@ def run30(eventlabel, workdir, meta=None):
             # Saves rprs and wvl as a txt file
             util.make_lsq_rprs_txt(vals, errs, idxs, meta)
             # Saves rprs vs wvl as a plot
-            plots.lsq_rprs(rprs_vals_lsq, rprs_errs_lsq, meta)
+            plots.lsq_rprs(vals, errs, idxs, meta)
 
         if not meta.s30_fit_white and meta.run_mcmc:
             plots.mcmc_rprs(meta)

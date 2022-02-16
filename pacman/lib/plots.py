@@ -959,10 +959,12 @@ def params_vs_wvl(vals, errs, idxs, meta):
     plt.close()
 
 
-def lsq_rprs(rprs_vals_lsq, rprs_errs_lsq, meta):
+def lsq_rprs(vals, errs, idxs, meta):
     """
     Plots the spectrum (rprs vs wvl) as fitted by the least square routine.
     """
+    rprs_vals_lsq = [vals[ii][idxs[0][1]] for ii in range(len(vals))]
+    rprs_errs_lsq = [errs[ii][idxs[0][1]] for ii in range(len(errs))]
     plt.errorbar(meta.wavelength_list, rprs_vals_lsq, yerr=rprs_errs_lsq, fmt='.', c='red')
     plt.xlabel('Wavelength (micron)')
     plt.ylabel('Transit Depth (ppm)')
