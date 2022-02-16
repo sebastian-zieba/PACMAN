@@ -181,6 +181,9 @@ def run30(eventlabel, workdir, meta=None):
 
             plots.lsq_rprs(rprs_vals_lsq, rprs_errs_lsq, meta)
 
+        if not meta.s30_fit_white and meta.run_mcmc:
+            plots.mcmc_rprs(meta)
+
     print('Finished s30')
 
     return meta

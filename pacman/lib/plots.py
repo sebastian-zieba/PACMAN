@@ -21,6 +21,7 @@ matplotlib.rcParams.update({'axes.formatter.useoffset': False})
 from astropy.stats import sigma_clip
 import time
 import corner
+import pickle
 
 
 ##00
@@ -962,7 +963,7 @@ def lsq_rprs(rprs_vals_lsq, rprs_errs_lsq, meta):
     """
     Plots the spectrum (rprs vs wvl) as fitted by the least square routine.
     """
-    plt.errorbar(meta.wavelength_list, rprs_vals_lsq, yerr=rprs_errs_lsq, fmt='.', c='darkblue')
+    plt.errorbar(meta.wavelength_list, rprs_vals_lsq, yerr=rprs_errs_lsq, fmt='.', c='red')
     plt.xlabel('Wavelength (micron)')
     plt.ylabel('Transit Depth (ppm)')
     if not os.path.isdir(meta.workdir + meta.fitdir + '/lsq_res'):
@@ -999,3 +1000,39 @@ def mcmc_pairs(samples, params, meta, fit_par, data):	#FIXME: make sure this wor
     figname = meta.workdir + meta.fitdir + '/mcmc_res/' + "/mcmc_pairs_bin{0}_wvl{1:0.3f}.png".format(meta.s30_file_counter, meta.wavelength)
     fig.savefig(figname)
     plt.close()
+
+
+def mcmc_rprs(meta):
+    """
+    Plots the spectrum (rprs vs wvl) as resulting from the MCMC.
+    """
+
+    files_mcmc_res = glob.glob(os.path.join(meta.workdir + meta.fitdir + '/mcmc_res', "mcmc_out_*.p"))
+    files_mcmc_res = sort_nicely(files_mcmc_res)
+
+    medians = []
+    errors_lower = []
+    errors_upper = []
+
+    for f in files_mcmc_res:
+        handle = open(f, 'rb')
+        data, params, chain = pickle.load(handle)
+        ndim = chain.shape[-1]
+        samples = chain[:, meta.run_nburn:, :].reshape((-1, ndim))
+        # TODO samples[:, 1] has to be fixeD!!!!!
+        q = quantile(samples[:, 1], [0.16, 0.5, 0.84])
+        medians.append(q[1])
+        errors_lower.append(abs(q[1] - q[0]))
+        errors_upper.append(abs(q[2] - q[1]))
+
+    medians = np.array(medians)
+    errors_lower = np.array(errors_lower)
+    errors_upper = np.array(errors_upper)
+
+    plt.errorbar(meta.wavelength_list, medians, yerr=(errors_lower, errors_upper), fmt='.', c='darkblue', alpha=0.9)
+
+    plt.xlabel('Wavelength (micron)')
+    plt.ylabel('Transit Depth (ppm)')
+    plt.savefig(meta.workdir + meta.fitdir + '/mcmc_res/' + 'mcmc_rprs.png', dpi=300, bbox_inches='tight', pad_inches=0.05)
+    plt.close()
+

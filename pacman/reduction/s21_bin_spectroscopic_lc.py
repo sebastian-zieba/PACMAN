@@ -48,7 +48,10 @@ def run21(eventlabel, workdir, meta=None):
     else:
         spec_dir = s20_spec_dir_path
 
-    print("Chosen directory with the spectroscopic flux file:", spec_dir)
+    print("Chosen directory with the spectroscopic flux files:", spec_dir)
+
+    # save the mid bin wavelengths into meta
+    meta.wavelength_list = np.array([(wave_edges[i] + wave_edges[i]) / 2. / 1.e4 for i in range(len(wave_edges) - 1)])
 
     d = ascii.read(meta.workdir + "/extracted_lc/" + spec_dir + "/lc_spec.txt")
     d = np.array([d[i].data for i in d.colnames])
@@ -122,7 +125,8 @@ def run21(eventlabel, workdir, meta=None):
 
     plots.plot_wvl_bins(w_hires, f_interp, wave_edges, meta.wvl_bins, dirname)
 
-    #outfile.close()
+    print('Saving Metadata')
+    me.saveevent(meta, meta.workdir + '/WFC3_' + meta.eventlabel + "_Meta_Save", save=[])
 
     print('Finished s21 \n')
 

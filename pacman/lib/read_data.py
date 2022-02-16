@@ -86,14 +86,13 @@ class Data:
         norbit = int(meta.norbit)
 
 
-
         #FIXME SZ If white it should take wavelength integrated limb darking from file not just at 1.4 micron
         #wavelength = d[0,3]
         if meta.s30_fit_white:
             meta.wavelength = 1.4
         else:
             meta.wavelength = d['wave'][0]
-            meta.wavelength_list.append(d['wave'][0])
+
         #print "setting wavelength by hand to fix_ld for white lc"
 
         #fixes limb darkening if "fix_ld" parameter is set to True in obs_par.txt

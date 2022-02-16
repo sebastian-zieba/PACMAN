@@ -102,7 +102,7 @@ s21_spec_dir_path_s20        None
 
 wvl_min                      1.125
 wvl_max                      1.65
-wvl_bins                     6
+wvl_bins                     12
 
 use_wvl_list                 False
 wvl_edge_list                [11400,12200,12600,13000,14600,15000,15400,15800,16200]
@@ -111,12 +111,12 @@ wvl_edge_list                [11400,12200,12600,13000,14600,15000,15400,15800,16
 ##30
 s30_myfuncs                  ['constant','upstream_downstream','model_ramp','polynomial1','transit']
 
-s30_fit_white                True
-s30_most_recent_s20          True
+s30_fit_white                False
+s30_most_recent_s20          False
 s30_white_file_path          None
 
-s30_fit_spec                 False
-s30_most_recent_s21          False
+s30_fit_spec                 True
+s30_most_recent_s21          True
 s30_spec_dir_path            None
 
 remove_first_exp             True
@@ -144,9 +144,9 @@ run_mcmc                     True
 run_nested                   False
 
 #emcee
-run_nsteps                   4000
-run_nwalkers	              35
-run_nburn                    2000
+run_nsteps                   3000
+run_nwalkers	             45
+run_nburn                    1500
 
 #dynesty
 run_dlogz                    25000
