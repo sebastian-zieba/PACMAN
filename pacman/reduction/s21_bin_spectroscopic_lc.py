@@ -11,6 +11,7 @@ from tqdm import tqdm
 from ..lib import plots
 from ..lib import sort_nicely as sn
 from ..lib import manageevent as me
+from astropy.table import QTable
 
 
 def run21(eventlabel, workdir, meta=None):
@@ -50,8 +51,9 @@ def run21(eventlabel, workdir, meta=None):
 
     print("Chosen directory with the spectroscopic flux files:", spec_dir)
 
-    # save the mid bin wavelengths into meta
-    meta.wavelength_list = np.array([(wave_edges[i] + wave_edges[i]) / 2. / 1.e4 for i in range(len(wave_edges) - 1)])
+    # save the mid bin wavelengths into a new file
+    table_wvl = QTable(names=('bin', 'wavelengths'))
+    wavelengths = np.array([(wave_edges[i] + wave_edges[i+1]) / 2. / 1.e4 for i in range(len(wave_edges) - 1)])
 
     d = ascii.read(meta.workdir + "/extracted_lc/" + spec_dir + "/lc_spec.txt")
     d = np.array([d[i].data for i in d.colnames])
@@ -121,9 +123,14 @@ def run21(eventlabel, workdir, meta=None):
     #print wave, 1.0*sum(wave_inds)/len(w_hires), meanflux, meanerr
         ascii.write(table, outname, format='ecsv', overwrite=True)
 
-    print('saved light curve(s) in {0}'.format(dirname))
+    print('Saved light curve(s) in {0}'.format(dirname))
 
     plots.plot_wvl_bins(w_hires, f_interp, wave_edges, meta.wvl_bins, dirname)
+
+    print('Saving Wavelength bin file')
+    for idx, wavelengths_i in enumerate(wavelengths):
+        table_wvl.add_row([idx, wavelengths_i])
+    ascii.write(table_wvl, dirname + '/wvl_table.dat', format='rst', overwrite=True)
 
     print('Saving Metadata')
     me.saveevent(meta, meta.workdir + '/WFC3_' + meta.eventlabel + "_Meta_Save", save=[])

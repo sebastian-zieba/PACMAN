@@ -63,17 +63,22 @@ def run30(eventlabel, workdir, meta=None):
             files.append(meta.s30_white_file)
     elif meta.s30_fit_spec:
         print('Spectroscopic light curve fit(s) will be performed')
-        meta.wavelength_list = []
         if meta.s30_most_recent_s21:
             #TODO: This also includes the "bins12" when sorting. But i only want to sort by the time in the dir names. So just use the end of the dir names instead
             lst_dir = os.listdir(meta.workdir + "/extracted_sp/")
             lst_dir = sn.sort_nicely(lst_dir)
             spec_dir = lst_dir[-1]
-            files = glob.glob(os.path.join(meta.workdir + "/extracted_sp/" + spec_dir, "*.txt"))  #
+            spec_dir_full = meta.workdir + "/extracted_sp/" + spec_dir
+            files = glob.glob(os.path.join(spec_dir_full, "*.txt"))
             files = sn.sort_nicely(files)
         else:
-            files = glob.glob(os.path.join(meta.s30_spec_dir, "*.txt"))  #
+            spec_dir_full = meta.s30_spec_dir
+            files = glob.glob(os.path.join(spec_dir_full, "*.txt"))  #
             files = sn.sort_nicely(files)
+        spec_dir_wvl_file = spec_dir_full + '/wvl_table.dat'
+        meta.wavelength_list = ascii.read(spec_dir_wvl_file)['wavelengths']
+
+
     else:
         print('Neither s30_fit_white nor s30_fit_spec are True!')
 
@@ -115,7 +120,6 @@ def run30(eventlabel, workdir, meta=None):
                     data, model, params, clip_idx, m = lsq_fit(fit_par, data, meta, model, myfuncs)
                     print("rms, chi2red = ", model.rms, model.chi2red)
                     print(clip_idx == [])
-
                     if clip_idx == []: break
                     clip_idxs.append(clip_idx)
                     print(clip_idxs)
