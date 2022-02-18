@@ -198,7 +198,7 @@ def di_reformat(meta):
     """
     This function was introduced because some observations have several DIs per orbit. The user can set in the pcf how they want to determine the DI target position in this case.
     """
-    iorbit_max = max(meta.iorbit_sp)
+    iorbit_max = max(meta.iorbit_sp_cumulative)
     control_array = np.arange(iorbit_max + 1)
 
     reffile = ascii.read(meta.workdir + '/xrefyref.txt')
