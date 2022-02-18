@@ -213,9 +213,8 @@ def di_reformat(meta):
             meta.refpix[i] = [reffile['t_bjd'][i], reffile['pos1'][i], reffile['pos2'][i]]
             #print(reffile['t_bjd'][i], reffile['pos1'][i], reffile['pos2'][i], file=f)
         #f.close()
-
     # Second case: Every orbit contains at least one DI. But there is at least one orbit with more than one DI.
-    if set(control_array) == set(reffile['iorbit_cumul']):
+    elif set(control_array) == set(reffile['iorbit_cumul']):
         print('There is at least one orbit with at least more than one DI 1')
         for i in range(iorbit_max + 1):
             mask_i = reffile['iorbit'] == i
