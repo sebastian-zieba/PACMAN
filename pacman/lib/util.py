@@ -109,10 +109,6 @@ def ancil(meta, s10=False, s20=False):
     meta.iorbit_sp = filelist['iorbit'][meta.mask_sp].data
     meta.ivisit_sp = filelist['ivisit'][meta.mask_sp].data
 
-    # the following lists store the indices of spectral files where the orbit/visit increases
-    meta.new_orbit_idx_sp = np.concatenate(([0], np.where(np.diff(meta.iorbit_sp)!=0)[0]+1))
-    meta.new_visit_idx_sp = np.concatenate(([0], np.where(np.diff(meta.ivisit_sp)!=0)[0]+1))
-
     # the following list stores the cumulative orbit number
     meta.iorbit_sp_cumulative = np.zeros(len(meta.iorbit_sp), dtype=int)
     c = 0
@@ -121,8 +117,21 @@ def ancil(meta, s10=False, s20=False):
             c = c + 1
         meta.iorbit_sp_cumulative[i + 1] = c
 
+    # the following lists store the indices of spectral files where the orbit/visit increases
+    meta.new_orbit_idx_sp = np.concatenate(([0], np.where(np.diff(meta.iorbit_sp)!=0)[0]+1))
+    meta.new_visit_idx_sp = np.concatenate(([0], np.where(np.diff(meta.ivisit_sp)!=0)[0]+1))
+
     meta.iorbit_di = filelist['iorbit'][meta.mask_di].data
     meta.ivisit_di = filelist['ivisit'][meta.mask_di].data
+
+    # the following list stores the cumulative orbit number for the direct images
+    meta.iorbit_di_cumulative = np.zeros(len(meta.iorbit_di), dtype=int)
+    c = 0
+    for i in range(len(meta.iorbit_di) - 1):
+        if meta.iorbit_di[i + 1] != meta.iorbit_di[i]:
+            c = c + 1
+        meta.iorbit_di_cumulative[i + 1] = c
+
     meta.t_mjd_sp = filelist['t_mjd'][meta.mask_sp].data
 
     meta.t_orbit_sp = filelist['t_orbit'][meta.mask_sp].data
@@ -157,19 +166,6 @@ def ancil(meta, s10=False, s20=False):
             meta.flat = meta.pacmandir + '/ancil/flats/WFC3.IR.G102.flat.2.fits'
         elif meta.grism == 'G141':
             meta.flat = meta.pacmandir + '/ancil/flats/WFC3.IR.G141.flat.2.fits'
-        meta.refpix = np.genfromtxt(meta.workdir + "/xrefyref.txt")
-        # meta.refpix = ascii.read(meta.workdir + "/xrefyref.txt") # reads in reference pixels
-        # # TODO Fix the possibility of two DIs in an orbit or only one DI per visit
-        # meta.refpix = ascii.read(meta.workdir + "/xrefyref.txt")
-        # refpix_orbit_rows = np.zeros(meta.norbit)
-        # refpix_orbit_cols = np.zeros(meta.norbit)
-        # for i in range(meta.norbit):
-        #     refpix_orbit_rows[i] = meta.refpix['x_pos'][i]
-        #     refpix_orbit_cols[i] = meta.refpix['y_pos'][i]
-
-
-        #idx = np.argsort(refpix[:, 0])  # sort by time
-        #meta.refpix = refpix[idx]  # reference pixels from direct image
 
     return meta
 
@@ -196,6 +192,47 @@ def gaussian_kernel(meta, x, y):
     return (x, y_smoothed)
 
 
+#s10
+
+def di_reformat(meta):
+    """
+    This function was introduced because some observations have several DIs per orbit. The user can set in the pcf how they want to determine the DI target position in this case.
+    """
+    iorbit_max = max(meta.iorbit_sp)
+    control_array = np.arange(iorbit_max + 1)
+
+    reffile = ascii.read(meta.workdir + '/xrefyref.txt')
+    #f = open(meta.workdir + "/xrefyref.txt", 'w')
+
+    meta.refpix = np.zeros((iorbit_max+1, 3))
+
+    # First case: Every orbit has just one DI
+    if np.array_equal(reffile['iorbit_cumul'], control_array):
+        print('There is one DI per orbit.')
+        for i in range(iorbit_max + 1):
+            meta.refpix[i] = [reffile['t_bjd'][i], reffile['pos1'][i], reffile['pos2'][i]]
+            #print(reffile['t_bjd'][i], reffile['pos1'][i], reffile['pos2'][i], file=f)
+        #f.close()
+
+    # Second case: Every orbit contains at least one DI. But there is at least one orbit with more than one DI.
+    if set(control_array) == set(reffile['iorbit_cumul']):
+        print('There is at least one orbit with at least more than one DI 1')
+        for i in range(iorbit_max + 1):
+            mask_i = reffile['iorbit'] == i
+            if meta.di_multi == 'median':
+                meta.refpix[i] = [np.median(reffile['t_bjd'][mask_i]), np.median(reffile['pos1'][mask_i]), np.median(reffile['pos2'][mask_i])]
+                #print(np.median(reffile['t_bjd'][mask_i]), np.median(reffile['pos1'][mask_i]), np.median(reffile['pos2'][mask_i]), file=f)
+            elif meta.di_multi == 'latest':
+                meta.refpix[i] = [reffile['t_bjd'][mask_i][-1], reffile['pos1'][mask_i][-1], reffile['pos2'][mask_i][-1]]
+                #print(reffile['t_bjd'][mask_i][-1], reffile['pos1'][mask_i][-1], reffile['pos2'][mask_i][-1], file=f)
+        #f.close()
+
+    # TODO this here
+    # Third case. Not every orbit has a DI.
+    if set(control_array) != set(reffile['iorbit_cumul']) and len(set(control_array)) < len(
+            set(reffile['iorbit_cumul'])):
+        print('There is at least one orbit with at least more than one DI 2')
+        #f.close()
 
 #s20
 

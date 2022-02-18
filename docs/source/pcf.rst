@@ -186,6 +186,13 @@ The second plot shows the cutout on the left and the result of the 2D gaussian f
 .. image:: media/s10/di_0.png
 
 
+di_multi
+''''''''''''''''''''''''''''''''''''''''''''
+Some observations have more than one direct image per orbit which were taken at the start of the orbit.
+In these cases the user can decide if they want to only use the most recent DI or a median of the DI positions in the orbit.
+
+
+
 Stage 20
 ---------------------------------------------------------
 

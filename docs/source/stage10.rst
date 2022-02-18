@@ -101,12 +101,16 @@ The positions of the star in physical pixels are then saved into a new file call
 .. include:: media/s10/xrefyref.txt
    :literal:
 
-| First column is the time when the Direct Image was taken
-| Second column is the row position of the star in physical pixels
-| Third column is the column position of the star in physical pixels
+| 1. column is the time when the Direct Image was taken in BJD
+| 2. column is the visit number
+| 3. column is the orbit number
+| 4. column is the cumulative orbit number
+| 5. column is the row position of the star in physical pixels
+| 6. column is the column position of the star in physical pixels
 
 You might notice that the fit resulted to a target location of approximately row = 513 and col = 403 but in the plots the target is closer to being at approximately row = 140 and col = 30 (by estimating by eye).
 This is because the table accounted for the offset in X and Y to subsection start. This information can be found in the header:
 
 | LTV1    =  -374.0 / offset in X to subsection start
 | LTV2    =  -374.0 / offset in Y to subsection start
+

@@ -2,7 +2,7 @@ import numpy as np
 import os
 from . import mpfit
 from . import plots
-from .plots import plot_raw, plot_fit_lc, plot_fit_lc2
+from .plots import plot_raw, plot_fit_lc, plot_fit_lc2, plot_fit_lc3, plot_fit_lc4
 from .formatter import PrintParams
 import pickle
 from astropy.stats import sigma_clip
@@ -88,7 +88,8 @@ def lsq_fit(fit_par, data, meta, model, myfuncs, noclip=False):
 
     if noclip == True:
         if meta.save_fit_lc_plot: plot_fit_lc2(data, model, meta)
-
+        if meta.save_fit_lc_plot: plot_fit_lc3(data, model, meta)
+        if meta.save_fit_lc_plot: plot_fit_lc4(data, model, meta)
     #print(m.params)
 
     #rescale error bars based on chi2

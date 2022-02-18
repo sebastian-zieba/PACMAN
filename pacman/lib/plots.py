@@ -22,6 +22,7 @@ from astropy.stats import sigma_clip
 import time
 import corner
 import pickle
+import glob
 
 
 ##00
@@ -879,12 +880,12 @@ def plot_fit_lc2(data, fit, meta, mcmc=False):
     # model.phase[ind] -= 1.
     # calculate a range of times at higher resolution to make model look nice
     phase_hr = np.linspace(fit.phase.min() - 0.05, fit.phase.max() + 0.05, 1000)
-    #print(phase_hr)
-   # print(p.per)
-    #print(p.per[0])
-   # print(p.t0)
-    #print(p.t0[0])
-    #print(data.toffset)
+    # print(phase_hr)
+    # print(p.per)
+    # print(p.per[0])
+    # print(p.t0)
+    # print(p.t0[0])
+    # print(data.toffset)
     t_hr = phase_hr * p.per[0] + p.t0[0] + data.toffset
 
     # colors = ['blue', 'red', 'orange', 'gray']
@@ -939,6 +940,140 @@ def plot_fit_lc2(data, fit, meta, mcmc=False):
         plt.savefig(meta.workdir + meta.fitdir + '/fit_lc' + "/mcmc_lc_{0}_{1}.png".format(meta.s30_file_counter, datetime))
     else:
         plt.savefig(meta.workdir + meta.fitdir + '/fit_lc' + "/fit_lc_{0}_{1}.png".format(meta.s30_file_counter, datetime))
+    # plt.waitforbuttonpress(0) # this will wait for indefinite time
+    plt.close()
+
+
+def plot_fit_lc3(data, fit, meta, mcmc=False):
+    #datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
+    plt.clf()
+    fig, ax = plt.subplots(2,1)
+    #print(fit.params)
+    p = FormatParams(fit.params, data)  # FIXME
+    sns.set_palette("muted")
+    palette = sns.color_palette("muted", data.nvisit)
+
+    time_days = np.linspace(data.time.min() - 0.05, data.time.max() + 0.05, 1000)
+
+
+    # colors = ['blue', 'red', 'orange', 'gray']
+
+    # plot data
+    # plot best fit model from first visit
+
+    ax[0].plot(time_days, calc_astro(time_days, fit.params, data, fit.myfuncs, 0))
+
+
+    # plot systematics removed data
+    ax[0].plot(data.time, fit.data_nosys, marker='o', markersize=3, linestyle="none")
+
+
+    # add labels/set axes
+    # xlo, xhi = np.min(model.phase)*0.9, np.max(model.phase)*1.1
+    #xlo, xhi = -0.1, 0.1
+    #ax[0].set_xlim(xlo, xhi)
+    ax[0].set_ylabel("Relative Flux")
+
+    # annotate plot with fit diagnostics
+    #ax = plt.gca()
+    ax[0].text(0.85, 0.29,
+            '$\chi^2_\\nu$:    ' + '{0:0.2f}'.format(fit.chi2red) + '\n'
+            + 'obs. rms:  ' + '{0:0d}'.format(int(fit.rms)) + '\n'
+            + 'exp. rms:  ' + '{0:0d}'.format(int(fit.rms_predicted)),
+            verticalalignment='top', horizontalalignment='left',
+            transform=ax[0].transAxes, fontsize=12
+            )
+
+    # plot fit residuals
+    ax[1].axhline(0, zorder=1, color='0.2', linestyle='dashed')
+
+    # for i in range(data.nvisit):
+    #     ind = data.vis_num == i
+    #     ax[1].plot(fit.phase[ind], 1.0e6 * fit.norm_resid[ind], color=palette[i], marker='o', markersize=3,
+    #              linestyle="none")
+
+    # add labels/set axes
+    #ax[1].set_xlim(xlo, xhi)
+    ax[1].set_ylabel("Residuals (ppm)")
+    ax[1].set_xlabel("Time")
+
+    fig.suptitle('Filename: {0}'.format(meta.run_file.split('/')[-1].split('.txt')[0]), fontsize=15, y=0.998)
+
+    plt.tight_layout()
+    #plt.show()
+    if not os.path.isdir(meta.workdir + meta.fitdir + '/fit_lc'):
+        os.makedirs(meta.workdir + meta.fitdir + '/fit_lc')
+    if mcmc:
+        plt.savefig(meta.workdir + meta.fitdir + '/fit_lc' + "/newmcmc_lc_{0}.png".format(meta.s30_file_counter))
+    else:
+        plt.savefig(meta.workdir + meta.fitdir + '/fit_lc' + "/newfit_lc_{0}.png".format(meta.s30_file_counter))
+    # plt.waitforbuttonpress(0) # this will wait for indefinite time
+    plt.close()
+
+
+def plot_fit_lc4(data, fit, meta, mcmc=False):
+    #datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
+    plt.clf()
+    fig, ax = plt.subplots(2,1)
+    #print(fit.params)
+    p = FormatParams(fit.params, data)  # FIXME
+    sns.set_palette("muted")
+    palette = sns.color_palette("muted", data.nvisit)
+
+    time_days = np.linspace(data.time.min() - 0.05, data.time.max() + 0.05, 1000)
+
+
+    # colors = ['blue', 'red', 'orange', 'gray']
+
+    # plot data
+    # plot best fit model from first visit
+
+    ax[0].plot(data.time, calc_sys(data.time, fit.params, data, fit.myfuncs, 0))
+    ax[0].set_xlim(data.time[0], data.time[29])
+
+    # plot systematics removed data
+    #ax[0].plot(data.time, fit.data_nosys, marker='o', markersize=3, linestyle="none")
+
+
+    # add labels/set axes
+    # xlo, xhi = np.min(model.phase)*0.9, np.max(model.phase)*1.1
+    #xlo, xhi = -0.1, 0.1
+    #ax[0].set_xlim(xlo, xhi)
+    ax[0].set_ylabel("Relative Flux")
+
+    # annotate plot with fit diagnostics
+    #ax = plt.gca()
+    ax[0].text(0.85, 0.29,
+            '$\chi^2_\\nu$:    ' + '{0:0.2f}'.format(fit.chi2red) + '\n'
+            + 'obs. rms:  ' + '{0:0d}'.format(int(fit.rms)) + '\n'
+            + 'exp. rms:  ' + '{0:0d}'.format(int(fit.rms_predicted)),
+            verticalalignment='top', horizontalalignment='left',
+            transform=ax[0].transAxes, fontsize=12
+            )
+
+    # plot fit residuals
+    ax[1].axhline(0, zorder=1, color='0.2', linestyle='dashed')
+
+    # for i in range(data.nvisit):
+    #     ind = data.vis_num == i
+    #     ax[1].plot(fit.phase[ind], 1.0e6 * fit.norm_resid[ind], color=palette[i], marker='o', markersize=3,
+    #              linestyle="none")
+
+    # add labels/set axes
+    #ax[1].set_xlim(xlo, xhi)
+    ax[1].set_ylabel("Residuals (ppm)")
+    ax[1].set_xlabel("Time")
+
+    fig.suptitle('Filename: {0}'.format(meta.run_file.split('/')[-1].split('.txt')[0]), fontsize=15, y=0.998)
+
+    plt.tight_layout()
+    #plt.show()
+    if not os.path.isdir(meta.workdir + meta.fitdir + '/fit_lc'):
+        os.makedirs(meta.workdir + meta.fitdir + '/fit_lc')
+    if mcmc:
+        plt.savefig(meta.workdir + meta.fitdir + '/fit_lc' + "/new2mcmc_lc_{0}.png".format(meta.s30_file_counter))
+    else:
+        plt.savefig(meta.workdir + meta.fitdir + '/fit_lc' + "/new2fit_lc_{0}.png".format(meta.s30_file_counter))
     # plt.waitforbuttonpress(0) # this will wait for indefinite time
     plt.close()
 

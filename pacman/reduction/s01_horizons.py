@@ -82,6 +82,10 @@ def run01(eventlabel, workdir, meta=None):
     settings = '&'.join(settings)
     settings = 'https://ssd.jpl.nasa.gov/horizons_batch.cgi?batch=1&' + settings
 
+    print(meta.workdir)
+    if not os.path.exists(meta.workdir + '/ancil'):
+        os.makedirs(meta.workdir + '/ancil')
+
     # save it in ./ancil/bjd_conversion/
     if not os.path.exists(meta.workdir + '/ancil/horizons/'):
         os.makedirs(meta.workdir + '/ancil/horizons/')

@@ -81,24 +81,24 @@ def run00(eventlabel):
     meta = MetaClass()
     meta.eventlabel = eventlabel
 
+    # Load PACMAN control file (which is in the same directory as run_pacman) and store values in Event object
+    pcffile = 'obs_par.pcf'
+    pcf = rd.read_pcf(pcffile)
+    rd.store_pcf(meta, pcf)
+
     #this file is saved in /pacman/reduction/s00_table.py
     #topdir is just the path of the directory /pacman/
     meta.pacmandir = '/'.join(os.path.realpath(__file__).split('/')[:-2]) + '/'
 
     # Create directories for this run = Work Directory
     datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
-    meta.workdir = 'run_' + datetime + '_' + meta.eventlabel
+    meta.workdir = meta.rundir + '/run_' + datetime + '_' + meta.eventlabel
     if not os.path.exists(meta.workdir):
         os.makedirs(meta.workdir)
 
     #Create a figure directory
     if not os.path.exists(meta.workdir + "/figs"):
         os.makedirs(meta.workdir + "/figs")
-
-    # Load PACMAN control file and store values in Event object
-    pcffile = 'obs_par.pcf'
-    pcf = rd.read_pcf(pcffile)
-    rd.store_pcf(meta, pcf)
 
     # Copy pcf and fit_par.txt
     shutil.copy(pcffile, meta.workdir)
@@ -116,10 +116,17 @@ def run00(eventlabel):
     instr = np.zeros(len(files), object)
     scans = np.zeros(len(files), dtype=int) #stores scan directions
 
+  #  file0 = str(meta.datadir) + '/' + 'ieqo01ceq_ima.fits'
+   # file1 = str(meta.datadir) + '/' + 'ieqo01cfq_ima.fits'
+   # file2 = str(meta.datadir) + '/' + 'ieqo01cgq_ima.fits'
+
+    #files = [file0,file1, file2]
+
     # Will create a table with the properties of all _ima.fits files at the first run
     for i, file in enumerate(tqdm(files, desc='Reading in files and their headers', ascii=True)):
         ima = fits.open(file)
         #the header "instr" tells us if the observation used a Filter (-> Direct Image) or a Grism (-> Spectrum)
+      #  print(repr(ima[0].header))
         instr[i] = ima[0].header['filter']
         exp[i] = ima[0].header['exptime']
         times[i] = (ima[0].header['expstart'] + ima[0].header['expend'])/(2.0) # mid exposure time
@@ -133,11 +140,21 @@ def run00(eventlabel):
     # files are chronologically sorted
     tsort = np.argsort(times)
     files = np.array([i.split('/')[-1] for i in files])[tsort]
+    #files = np.array(files)
+    #files = files[tsort]
     times = times[tsort]
     exp = exp[tsort]
     instr = instr[tsort]
     instr = np.array([str(iii) for iii in instr])
     scans = scans[tsort]
+    #
+    # for i, file in enumerate(tqdm(files, desc='Reading in files and their headers', ascii=True)):
+    #     f = open(meta.workdir + '/{0}header_{1}.txt'.format(i, str(file).split('/')[-1]), 'w')
+    #     #print(file)
+    #     ima = fits.open(file)
+    #     print(repr(ima[0].header), file=f)
+    #     ima.close()
+    #     f.close
 
     # Identify orbits and visits
     iorbits = np.zeros(len(times), dtype=int)

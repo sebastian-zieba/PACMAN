@@ -12,11 +12,8 @@ import pacman.reduction.s30_run as s30
 from pacman.lib.update_meta import update_meta
 from pacman.lib import sort_nicely as sn
 
-
-
-#eventlabel = 'KELT11_Hubble15926'
 eventlabel = 'GJ1214_Hubble13021'
-#workdir = '/home/zieba/Desktop/Projects/Open_source/PACMAN/run/run_2022-01-13_00-13-00_KELT11_Hubble15926/'
+
 
 def usage():
     cmd = sys.argv[0]
@@ -31,6 +28,7 @@ def usage():
         '  --s20       extracts the spectra\n' 
         '  --s21       bins light curves\n'
         '  --s30       fits models to the extracted light curve(s)\n'
+        '  --workdir   sets the work directory\n'
         '  -h, --help  lists instructions for usage\n'
         '\n')
     sys.exit(1)
@@ -40,7 +38,7 @@ def main():
     #parses command line input
     try: opts, args = \
             getopt.getopt(sys.argv[1:],
-                "hov", ["help", "s00", "s01", "s02", "s03", "s10", "s20", "s21", "s30"]
+                "hov", ["help", "s00", "s01", "s02", "s03", "s10", "s20", "s21", "s30", "workdir="]
             )
     except getopt.GetoptError: usage()
 
@@ -65,18 +63,14 @@ def main():
         elif o == "--s20": run_s20 = True
         elif o == "--s21": run_s21 = True
         elif o == "--s30": run_s30 = True
+        elif o == "--workdir": workdir = a
         else: assert False, "unhandled option. Please seek --help"
 
     if run_s00:
         meta = s00.run00(eventlabel)
-        runs = [i for i in os.listdir('.') if os.path.isdir(i)]
-        runs = sn.sort_nicely(runs)
-        workdir = runs[-1] + '/'
+        workdir = meta.workdir
 
-    if not run_s00:
-        runs = [i for i in os.listdir('.') if os.path.isdir(i)]
-        runs = sn.sort_nicely(runs)
-        workdir = runs[-1] + '/'
+    workdir = workdir + '/'
 
     if run_s01:
         update_meta(eventlabel, workdir)
