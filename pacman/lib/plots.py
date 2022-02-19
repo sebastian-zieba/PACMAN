@@ -1173,3 +1173,6 @@ def mcmc_rprs(meta):
     plt.savefig(meta.workdir + meta.fitdir + '/mcmc_res/' + 'mcmc_rprs.png', dpi=300, bbox_inches='tight', pad_inches=0.05)
     plt.close()
 
+
+def quantile(x, q):
+    return np.percentile(x, [100. * qi for qi in q])
