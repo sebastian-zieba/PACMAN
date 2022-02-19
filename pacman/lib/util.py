@@ -10,6 +10,7 @@ import numpy.ma as ma
 from scipy.interpolate import interp1d
 from ..lib import plots
 from scipy.optimize import leastsq
+from .sort_nicely import sort_nicely as sn
 
 
 #s00
@@ -389,7 +390,7 @@ def make_mcmc_rprs_txt(meta):
     Saves the rprs vs wvl as a txt file as resulting from the MCMC.
     """
     files_mcmc_res = glob.glob(os.path.join(meta.workdir + meta.fitdir + '/mcmc_res', "mcmc_out_*.p"))
-    files_mcmc_res = sort_nicely(files_mcmc_res)
+    files_mcmc_res = sn(files_mcmc_res)
 
     medians = []
     errors_lower = []

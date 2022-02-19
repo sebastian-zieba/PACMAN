@@ -23,7 +23,7 @@ import time
 import corner
 import pickle
 import glob
-
+from .sort_nicely import sort_nicely as sn
 
 ##00
 def mjd_to_utc(time):
@@ -1145,7 +1145,7 @@ def mcmc_rprs(meta):
     """
 
     files_mcmc_res = glob.glob(os.path.join(meta.workdir + meta.fitdir + '/mcmc_res', "mcmc_out_*.p"))
-    files_mcmc_res = sort_nicely(files_mcmc_res)
+    files_mcmc_res = sn(files_mcmc_res)
 
     medians = []
     errors_lower = []
