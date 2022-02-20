@@ -11,6 +11,7 @@ from scipy.interpolate import interp1d
 from ..lib import plots
 from scipy.optimize import leastsq
 from .sort_nicely import sort_nicely as sn
+import glob
 
 
 #s00
