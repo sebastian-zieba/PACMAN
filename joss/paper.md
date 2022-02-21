@@ -84,6 +84,12 @@ Figure sizes can be customized by adding an optional second parameter: \autoref{
 ![Caption for example figure.\label{fig:example}](figures/joss-logo.png)
 
 
+![](figures/trace_61.png "title-2"){ width=43% } ![alt-text-3](figures/spec_bins12.png "title-1"){ width=50% } 
+
+![alt-text-4](figures/raw_lc_0.png "title-2"){ width=40% } ![alt-text-5](figures/fit_lc_0_2022-02-15_22-34-53.png "title-2"){ width=55% }
+
+
+
 # Acknowledgements
 
 We acknowledge contributions from ....
