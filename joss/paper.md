@@ -75,13 +75,14 @@ and refer to \autoref{eq:fourier} from text.
 
 # Figures
 
-Figure sizes can be customized by adding an optional second parameter:
-![Caption for example figure.\label{fig:example}](figures/joss-logo.png){ width=20% }
-and referenced from text using \autoref{fig:example}.
+Figure sizes can be customized by adding an optional second parameter: \autoref{fig:example} h
 
-![alt-text-1](figures/di_0.png "title-1"){ width=20% } ![alt-text-2](figures/trace_61.png "title-2"){ width=20% }
+![alt-text-1](figures/di_0.png "title-1"){ width=30% } ![alt-text-2](figures/trace_61.png "title-2"){ width=40% }
 
-![alt-text-3](figures/spec_bins12.png "title-1"){ width=20% } ![alt-text-4](figures/raw_lc_0.png "title-2"){ width=20% } ![alt-text-5](figures/fit_lc_0_2022-02-15_22-34-53.png "title-2"){ width=20% }
+![alt-text-3](figures/spec_bins12.png "title-1"){ width=30% } ![alt-text-4](figures/raw_lc_0.png "title-2"){ width=30% } ![alt-text-5](figures/fit_lc_0_2022-02-15_22-34-53.png "title-2"){ width=30% }
+
+![Caption for example figure.\label{fig:example}](figures/joss-logo.png)
+
 
 # Acknowledgements
 
