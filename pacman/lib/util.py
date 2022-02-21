@@ -12,6 +12,7 @@ from ..lib import plots
 from scipy.optimize import leastsq
 from .sort_nicely import sort_nicely as sn
 import glob
+import pickle
 
 
 #s00
