@@ -48,7 +48,7 @@ Even after then, HST is expected to produce more impactful science results due t
 
 # Statement of need
 
-pipeline explained: @Kreidberg2014 @Kreidberg2018 
+pipeline explained: @Kreidberg2014a @Kreidberg2018 
 
 complicated... 
 scanning @McCullough2012
