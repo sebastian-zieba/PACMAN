@@ -37,32 +37,48 @@ For exoplanet characterization, WFC3 is used for transit and secondary eclipse s
 The instrument has two different grisms: G102 with a useful spectral range from 800 nm to up to 1150 nm and G141 encompassing 1075 nm to about 1700 nm.
 The spectral range of WFC3/G141 contains several molecular species with the strongest being water (H2O) at approximately 1.4 microns leading to the successful detection of H2O in the atmosphere of over a dozen of exoplanets [@Deming2013; @Huitson2013; @Birkby2013; @Fraine2014; @Kreidberg2014b; @Evans2016].
 
-The bluer part of WFC3, the G102 grism, can be for example used to detect Helium in the atmosphere of exoplanets (xxx)
+The bluer part of WFC3, the G102 grism, has been used less often in observing programs but most notably led to the detection of Helium in the atmosphere of an exoplanet [@Spake2018].
 
 HST will stay the most powerful space based tool for the characterization of exoplanets until the first data of the recently launched James Webb Space Telescope (JWST) reaches the machines of the observers.
-Even after then, HST is expected to produce more impactful science results due to its exquisite data.
+Even after then, HST is expected to produce even more impactful science results due to its exquisite data.
 
 (Maybe discuss advantage of space based data? no systematics because no atmosphere, no atmosphere so no absorption in uv and water bands and no strong IR background)
 
+Here we present PACMAN, a pipeline capable of reducing and analysing HST/WFC3 data. 
+The foundation of the pipeline has been already used in numerous publications [e.g.,; @Kreidberg2014a; @Kreidberg2018] and these papers have already accumulated hundreds of citations.
 
 
 # Statement of need
 
-pipeline explained: @Kreidberg2014a @Kreidberg2018 
+Hubble data reduction aint ez clap
+
+In the following we want to highlight several steps in the reduction and fitting stages of the code which are typical for HST/WFC3 observations:
+
+Reduction:
+
+- Wavelength calibration: stellar and bandpass template
+
+- Outlier removal (caused for example by cosmic rays) is done by using flags already existent in the ima fits files and optimal extraction [@Horne1986].
+
+- scanning [@McCullough2012]
+
+Fitting:
+
+- Charge trapping: Fit exponential [@Zhou2017] NIR detectors like HST/WFC3 can trap photoelectrons (Smith et al. 2008) which will cause the the number of
+recorded photoelectrons that will increase exponentially creating typical hook like features.
+
+- scanning [@McCullough2012]: constant offset
+
+- divide white vs xxx (the other one)
 
 
 
-
-complicated... 
-scanning @McCullough2012
-optimal extraction @Horne1986
-charge trapping @Zhou2017
 
 \autoref{fig:example}
 
-![\label{fig:example}](figures/trace_61.png "title-2"){ width=43% } ![alt-text-3](figures/spec_bins12.png "title-1"){ width=52% } 
+![Left panel: raw 2D spectrum. Right panel: 1D spectrum after the use of optimal extraction.\label{fig:figure1}](figures/figure1.png "title-2"){ width=99% }
 
-![alt-text-4](figures/raw_lc_0.png "title-2"){ width=42% } ![alt-text-5](figures/fit_lc_0_2022-02-15_22-34-53.png "title-2"){ width=56% }
+![Left panel: raw spectroscopic light curve. Right panel: light curve with the best astrophysical model fit.\label{fig:figure2}](figures/figure2.png "title-2"){ width=99% }
 
 
 
@@ -70,17 +86,14 @@ charge trapping @Zhou2017
 
 # Dependencies
 
-`numpy` [@numpy2020]
-`matplotlib` [@matplotlib2007]
-`scipy` [@scipy2020]
-`astropy` [@astropy2013; @astropy2018]
+PACMAN uses typical dependencies of astrophysical python codes: `numpy` [@numpy2020], `matplotlib` [@matplotlib2007], `scipy` [@scipy2020] and `astropy` [@astropy2013; @astropy2018].
 
+Other dependencies which might be required for the fitting stage depening on the model and sampler being run are: `batman` [@Kreidberg2015], `emcee` [@Foreman-Mackey2013], `dynesty` [@Speagle2020] and `corner` [@corner2016].
 
-optional:
-`batman` [@Kreidberg2015]
-`emcee` [@Foreman-Mackey2013]
-`dynesty` [@Speagle2020]
-`corner` [@corner2016]
+For the barycentric correction, PACMAN will access the [API to JPL's Horizons system](https://ssd-api.jpl.nasa.gov/obsolete/horizons_batch_cgi.html).
+
+If the user decides to use a stellar spectrum for the wavelength calibration, PACMAN will download the needed fits file from the [REFERENCE-ATLASES HLSP](https://archive.stsci.edu/hlsps/reference-atlases/cdbs/grid/) hosted on the MAST archive.[@STScI2013]
+
 
 # Documentation
 
