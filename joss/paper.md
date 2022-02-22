@@ -44,13 +44,19 @@ Even after then, HST is expected to produce even more impactful science results 
 
 (Maybe discuss advantage of space based data? no systematics because no atmosphere, no atmosphere so no absorption in uv and water bands and no strong IR background)
 
-Here we present PACMAN, a pipeline capable of reducing and analysing HST/WFC3 data. 
+Here we present PACMAN, an end-to-end pipeline developed to reduce and analyze HST/WFC3 data.  
+The pipeline starts with the _ima_ data products provided by the Space Telescope Science Institute which can be easily accessed from [MAST](https://mast.stsci.edu/search/hst).
+These files already have calibrations applied (dark subtraction, and linearity correction, flat-fielding) to each readout of the IR exposure.
+
 The foundation of the pipeline has been already used in numerous publications [e.g.,; @Kreidberg2014a; @Kreidberg2018] and these papers have already accumulated hundreds of citations.
 
 
 # Statement of need
 
-Hubble data reduction aint ez clap
+Validating your result with an independent pipeline is always a good idea..
+
+
+
 
 In the following we want to highlight several steps in the reduction and fitting stages of the code which are typical for HST/WFC3 observations:
 
@@ -102,14 +108,22 @@ It includes most notably, a full explanation of every parameter in the pacman co
 
 # Similar tools
 
-`Iraclis` [@Tsiaras2016]
+The only other end-to-end open source pipeline\footnote{gg} specifically developed for the reduction and analysis of HST/WFC3 data is [`Iraclis`](https://github.com/ucl-exoplanets/Iraclis)
+For a full explanation of the different steps in this pipeline we refer to @Tsiaras2016.
+
+Another open-source pipeline which has been used as an independent check of recent results presented in @Mugnai2021 and @Carone2021 is [`CASCADe`](https://jbouwman.gitlab.io/CASCADe/) (Calibration of trAnsit Spectroscopy using CAusal Data).
+The pipeline has been already applied to Hubble and Spitzer datasets and uses causal connections within a dataset to model both transit signal and systematics.
+For a more detailed discussion of `CASCADe` see Appendix 1 in @Carone2021.
+
 
 # Future work
 
+Additional fitting models are planned to be added in the future like phase curves using the SPIDERMAN package. 
 
 
 # Acknowledgements
 
 We acknowledge contributions from ....
+
 
 # References
