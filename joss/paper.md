@@ -43,7 +43,7 @@ Even after then, HST is expected to produce even more impactful science results 
 
 (Maybe discuss advantage of space based data? no systematics because no atmosphere, no atmosphere so no absorption in uv and water bands and no strong IR background)
 
-Here we present PACMAN, an end-to-end pipeline developed to reduce and analyze HST/WFC3 data.  
+Here we present `PACMAN`, an end-to-end pipeline developed to reduce and analyze HST/WFC3 data.
 The foundation of the pipeline has been already used in numerous publications [e.g.,; @Kreidberg2014a; @Kreidberg2018] and these papers have already accumulated hundreds of citations.
 
 
@@ -66,19 +66,25 @@ We also determine the position of the star in the direct images which are often 
 Using the reference spectrum as a template, we determine a shift and scaling in wavelength-space that minimizes the difference between it and the first spectrum in the visit.
 This first exposure in the visit in then used as the template for the following exposures in the visit.
 
-- **Optimal extraction and outlier removal**: PACMAN uses an optimal extraction algorithm as presented in @Horne1986 which iteratively masks bad pixels in the image. 
+- **Optimal extraction and outlier removal**: `PACMAN` uses an optimal extraction algorithm as presented in @Horne1986 which iteratively masks bad pixels in the image. 
 We also mask bad pixels that have been flagged by `calwf3` with data quality DQ = 4 or 512\footnote{for a list of DQ flags see [https://wfc3tools.readthedocs.io/en/latest/wfc3tools/calwf3.html#data-quality-initialization-dqicorr](https://wfc3tools.readthedocs.io/en/latest/wfc3tools/calwf3.html#data-quality-initialization-dqicorr).
-- 
-- **Scanning of the detector**: The introduction of the spatial scanning technique for WFC3 [@McCullough2012] 
 
-Fitting:
+- **Scanning of the detector**: The majority of exoplanetary HST/WFC3 observations use the spatial scanning technique [@McCullough2012] which spreads the light perpendicular to the dispersion direction during the exposure enabled longer integration times before saturation.
+The _ima_ files taken in this observation mode consist out of a number of nondestructive reads, also known as up-the-ramp samples, each of which we treat as an independent subexposure.
 
-- Charge trapping: Fit exponential [@Zhou2017] NIR detectors like HST/WFC3 can trap photoelectrons (Smith et al. 2008) which will cause the the number of
+- **Fitting models**:
+
+Here an example for a fitting function:
+
+\begin{equation}
+F (t) = (c\,S(t) + k\,t_{\rm{v}}) \, (1 - \exp(-r_1\,t_{\rm{orb}} - r_2 )),
+\end{equation}
+
+  - Charge trapping: Fit exponential [@Zhou2017] NIR detectors like HST/WFC3 can trap photoelectrons (Smith et al. 2008) which will cause the the number of
 recorded photoelectrons that will increase exponentially creating typical hook like features.
 
-- scanning [@McCullough2012]: constant offset
+  - scanning [@McCullough2012]: constant offset
 
-- divide white vs xxx (the other one)
 
 
 
@@ -95,19 +101,19 @@ recorded photoelectrons that will increase exponentially creating typical hook l
 
 # Dependencies
 
-PACMAN uses typical dependencies of astrophysical python codes: `numpy` [@numpy2020], `matplotlib` [@matplotlib2007], `scipy` [@scipy2020] and `astropy` [@astropy2013; @astropy2018].
+`PACMAN` uses typical dependencies of astrophysical python codes: `numpy` [@numpy2020], `matplotlib` [@matplotlib2007], `scipy` [@scipy2020] and `astropy` [@astropy2013; @astropy2018].
 
-Other dependencies which might be required for the fitting stage depening on the model and sampler being run are: `batman` [@Kreidberg2015], `emcee` [@Foreman-Mackey2013], `dynesty` [@Speagle2020] and `corner` [@corner2016].
+Other dependencies which might be required for the fitting stage depending on the model and sampler being run are: `batman` [@Kreidberg2015], `emcee` [@Foreman-Mackey2013], `dynesty` [@Speagle2020] and `corner` [@corner2016].
 
-For the barycentric correction, PACMAN accesses the [API to JPL's Horizons system](https://ssd-api.jpl.nasa.gov/obsolete/horizons_batch_cgi.html).
+For the barycentric correction, `PACMAN` accesses the [API to JPL's Horizons system](https://ssd-api.jpl.nasa.gov/obsolete/horizons_batch_cgi.html).
 
-If the user decides to use a stellar spectrum for the wavelength calibration, PACMAN will download the needed fits file from the [REFERENCE-ATLASES HLSP](https://archive.stsci.edu/hlsps/reference-atlases/cdbs/grid/) hosted on the MAST archive.[@STScI2013]
+If the user decides to use a stellar spectrum for the wavelength calibration, `PACMAN` will download the needed fits file from the [REFERENCE-ATLASES HLSP](https://archive.stsci.edu/hlsps/reference-atlases/cdbs/grid/) hosted on the MAST archive.[@STScI2013]
 
 
 # Documentation
 
-The documentation for PACMAN can be found at [pacmandocs.readthedocs.io](https://pacmandocs.readthedocs.io/en/latest/) hosted on [ReadTheDocs](https://readthedocs.org/).
-It includes most notably, a full explanation of every parameter in the pacman control file (pcf), the API and an example on how to download, reduce and analyse observations of GJ 1214 b taken with HST/WFC3/G141.
+The documentation for `PACMAN` can be found at [pacmandocs.readthedocs.io](https://pacmandocs.readthedocs.io/en/latest/) hosted on [ReadTheDocs](https://readthedocs.org/).
+It includes most notably, a full explanation of every parameter in the _pacman control file_ (pcf), the API and an example on how to download, reduce and analyse observations of GJ 1214 b taken with HST/WFC3/G141.
 
 # Similar tools
 
@@ -123,10 +129,11 @@ For a more detailed discussion of `CASCADe` see Appendix 1 in @Carone2021.
 
 Additional fitting models are planned to be added in the future like phase curves using the SPIDERMAN package. 
 
+(Could it do old data sets in staring mode?)
 
 # Acknowledgements
 
 We acknowledge contributions from ....
-
+BZ for gif
 
 # References
