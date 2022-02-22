@@ -67,8 +67,8 @@ Using the reference spectrum as a template, we determine a shift and scaling in 
 This first exposure in the visit in then used as the template for the following exposures in the visit.
 
 - **Optimal extraction and outlier removal**: PACMAN uses an optimal extraction algorithm as presented in @Horne1986 which iteratively masks bad pixels in the image. 
-We also mask bad pixels that have been flagged by `calwf3` with data quality DQ = 4 or 512\footnote{for a list of DQ flags see \url{https://wfc3tools.readthedocs.io/en/latest/wfc3tools/calwf3.html#data-quality-initialization-dqicorr}}.
-
+We also mask bad pixels that have been flagged by `calwf3` with data quality DQ = 4 or 512\footnote{for a list of DQ flags see [https://wfc3tools.readthedocs.io/en/latest/wfc3tools/calwf3.html#data-quality-initialization-dqicorr](https://wfc3tools.readthedocs.io/en/latest/wfc3tools/calwf3.html#data-quality-initialization-dqicorr).
+- 
 - **Scanning of the detector**: The introduction of the spatial scanning technique for WFC3 [@McCullough2012] 
 
 Fitting:
