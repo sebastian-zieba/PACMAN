@@ -202,3 +202,15 @@ lib.mcmc
     :undoc-members:
     :show-inheritance:
 
+lib.models
+"""""""""""""""""""""""""""
+
+lib.models.constant
+----------------------------------------
+.. automodule:: pacman.lib.models.constant
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+

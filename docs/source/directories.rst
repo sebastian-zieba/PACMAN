@@ -1,7 +1,9 @@
 .. _directories:
 
-Important Directories
+Main Directories
 ========================
+
+.. image:: media/20220223_124456.jpg
 
 PACMAN consists out of these important parts:
 
@@ -24,7 +26,6 @@ a subdirectory of the run directory.
 It has the following form: eg, ``run_2022-01-19_16-46-19_GJ1214_Hubble13021``.
 It therefore contains the date and time Stage 00 has been run and the eventlabel.
 
-.. image:: media/20220223_124456.jpg
 
 On GitHub
 ''''''''''''''''''''''''''''''
