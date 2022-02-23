@@ -25,6 +25,16 @@ bibliography: paper.bib
 
 ---
 
+TODOs left:
+
+TODO: fix some of the references in text; would be nice if they were sorted chronologially when several are listed at once.
+
+TODO: Statement of need
+
+TODO: Maybe discuss advantage of space based data and why HST is so great? no systematics because no atmosphere, no atmosphere so no absorption in uv and water bands and no strong IR background.
+
+TODO: Future work: maybe add staring mode reduction? idk if that's even implemented rn.
+
 # Summary
 
 The Hubble Space Telescope (HST) has become the preeminent workhorse facility for the characterization of extrasolar planets.
@@ -40,8 +50,6 @@ The bluer part of WFC3, the G102 grism, has been used less often in observing pr
 
 HST will stay the most powerful space based tool for the characterization of exoplanets until the first data of the recently launched James Webb Space Telescope (JWST) reaches the machines of the observers.
 Even after then, HST is expected to produce even more impactful science results due to its exquisite data.
-
-(Maybe discuss advantage of space based data? no systematics because no atmosphere, no atmosphere so no absorption in uv and water bands and no strong IR background)
 
 Here we present `PACMAN`, an end-to-end pipeline developed to reduce and analyze HST/WFC3 data.
 The foundation of the pipeline has been already used in numerous publications [e.g.,; @Kreidberg2014a; @Kreidberg2018] and these papers have already accumulated hundreds of citations.
@@ -133,7 +141,6 @@ For a more detailed discussion of `CASCADe` see Appendix 1 in @Carone2021.
 
 Additional fitting models are planned to be added in the future like phase curves using the SPIDERMAN package. 
 
-(Could it do old data sets in staring mode?)
 
 # Acknowledgements
 
