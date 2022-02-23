@@ -71,26 +71,30 @@ We also mask bad pixels that have been flagged by `calwf3` with data quality DQ 
 
 - **Scanning of the detector**: The majority of exoplanetary HST/WFC3 observations use the spatial scanning technique [@McCullough2012] which spreads the light perpendicular to the dispersion direction during the exposure enabled longer integration times before saturation.
 The _ima_ files taken in this observation mode consist out of a number of nondestructive reads, also known as up-the-ramp samples, each of which we treat as an independent subexposure.
+\autoref{fig:figure1} (left panel) shows an example for the last subexposure when using the spatial scanning together with the theoretical position of the trace.
 
-- **Fitting models**: `PACMAN` contains several functions to fit models to the data. 
-They contain systematic models (e.g., visit-long polynomials, orbit-long exponential ramps) astrophysical models (e.g., transit and eclipse curves as implemented in batman, sinusoids for fit phase curve fits, upstream-downstream effect caused by forward and reverse scanning).
+  - **Fitting models**: `PACMAN` contains several functions to fit models which are commently used with HST data. Here some examples for the currently implemented systematic and astrophysical models.
+    - systematic models:
+      - visit-long polynomials
+      - orbit-long exponential ramps due to charge trapping: NIR detectors like HST/WFC3 can trap photoelectrons (Smith et al. 2008) which will cause the the number of
+  recorded photoelectrons that will increase exponentially creating typical hook like features
+    - systematic models:
+      - transit and secondary eclipse curves as implemented in `batman`
+      - sinusoids for phase curve fits
+      - a constant offset which accounts for the upstream-downstream effect caused by forward and reverse scanning
 
-Here an example for a fitting function:
+  The user can fit models like these to the white light curve or to spectroscopic light curves. For the latter, the user can freely set the amount and locations of the bins. 
+  \autoref{fig:figure1} (left panel) shows the resulting 1D spectrum and a user defined binning.
 
-\begin{equation}
-F (t) = (c\,S(t) + k\,t_{\rm{v}}) \, (1 - \exp(-r_1\,t_{\rm{orb}} - r_2 )),
-\end{equation}
-
-  - Charge trapping: Fit exponential [@Zhou2017] NIR detectors like HST/WFC3 can trap photoelectrons (Smith et al. 2008) which will cause the the number of
-recorded photoelectrons that will increase exponentially creating typical hook like features.
-
-  - scanning [@McCullough2012]: constant offset
   
-
-
-\autoref{fig:example}
+  \begin{equation}  
+  F(t) = T(t) \, (c\,S(t) + k\,t_{\rm{v}}) \, (1 - \exp(-r_1\,t_{\rm{orb}} - r_2 )),
+  \end{equation}
 
 ![Left panel: raw 2D spectrum. Right panel: 1D spectrum after the use of optimal extraction.\label{fig:figure1}](figures/figure1.png "title-2"){ width=99% }
+
+
+
 
 ![Left panel: raw spectroscopic light curve. Right panel: light curve with the best astrophysical model fit.\label{fig:figure2}](figures/figure2.png "title-2"){ width=99% }
 
@@ -133,6 +137,15 @@ Additional fitting models are planned to be added in the future like phase curve
 # Acknowledgements
 
 We acknowledge contributions from ....
-BZ for gif
+
+BZ for PACMAN gif
+
+XXX 
+
+unused stuff:
+
+
+
+
 
 # References
