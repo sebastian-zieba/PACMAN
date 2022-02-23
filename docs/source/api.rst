@@ -202,6 +202,7 @@ lib.mcmc
     :undoc-members:
     :show-inheritance:
 
+
 lib.models
 """""""""""""""""""""""""""
 
@@ -212,5 +213,74 @@ lib.models.constant
     :undoc-members:
     :show-inheritance:
 
+lib.models.model_ramp
+----------------------------------------
+.. automodule:: pacman.lib.models.model_ramp
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+lib.models.polynomial1
+----------------------------------------
+.. automodule:: pacman.lib.models.polynomial1
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+lib.models.polynomial2
+----------------------------------------
+.. automodule:: pacman.lib.models.polynomial2
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+lib.models.upstream_downstream
+----------------------------------------
+.. automodule:: pacman.lib.models.upstream_downstream
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+lib.models.divide_white
+----------------------------------------
+.. automodule:: pacman.lib.models.divide_white
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+lib.models.transit
+----------------------------------------
+.. automodule:: pacman.lib.models.transit
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+lib.models.eclipse
+----------------------------------------
+.. automodule:: pacman.lib.models.eclipse
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+lib.models.sine1
+----------------------------------------
+.. automodule:: pacman.lib.models.sine1
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+lib.models.sine2
+----------------------------------------
+.. automodule:: pacman.lib.models.sine2
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+lib.models.sine_curve
+----------------------------------------
+.. automodule:: pacman.lib.models.sine_curve
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 
