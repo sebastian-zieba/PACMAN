@@ -75,7 +75,7 @@ Using the reference spectrum as a template, we determine a shift and scaling in 
 This first exposure in the visit in then used as the template for the following exposures in the visit.
 
 - **Optimal extraction and outlier removal**: `PACMAN` uses an optimal extraction algorithm as presented in @Horne1986 which iteratively masks bad pixels in the image. 
-We also mask bad pixels that have been flagged by `calwf3` with data quality DQ = 4 or 512\footnote{for a list of DQ flags see \href{https://wfc3tools.readthedocs.io/en/latest/wfc3tools/calwf3.html}}.
+We also mask bad pixels that have been flagged by `calwf3` with data quality DQ = 4 or 512\footnote{for a list of DQ flags see}... \url{https://wfc3tools.readthedocs.io/en/latest/wfc3tools/calwf3.html}...\href{https://wfc3tools.readthedocs.io/en/latest/wfc3tools/calwf3.html}...\footnote{\url{https://wfc3tools.readthedocs.io}}
 
 - **Scanning of the detector**: The majority of exoplanetary HST/WFC3 observations use the spatial scanning technique [@McCullough2012] which spreads the light perpendicular to the dispersion direction during the exposure enabled longer integration times before saturation.
 The _ima_ files taken in this observation mode consist out of a number of nondestructive reads, also known as up-the-ramp samples, each of which we treat as an independent subexposure.
@@ -91,7 +91,7 @@ The _ima_ files taken in this observation mode consist out of a number of nondes
       - sinusoids for phase curve fits
       - a constant offset which accounts for the upstream-downstream effect caused by forward and reverse scanning
 
-  The user can fit models like in autoref{eq:equation1} to the white light curve or to spectroscopic light curves. For the latter, the user can freely set the amount and locations of the bins. 
+  The user can fit models like in \autoref{eq:equation1} to the white light curve or to spectroscopic light curves. For the latter, the user can freely set the amount and locations of the bins. 
   \autoref{fig:figure1} (right panel) shows the resulting 1D spectrum and an user defined binning.
   
   \begin{equation}
