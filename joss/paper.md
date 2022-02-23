@@ -83,13 +83,14 @@ The _ima_ files taken in this observation mode consist out of a number of nondes
       - sinusoids for phase curve fits
       - a constant offset which accounts for the upstream-downstream effect caused by forward and reverse scanning
 
-  The user can fit models like these to the white light curve or to spectroscopic light curves. For the latter, the user can freely set the amount and locations of the bins. 
+  The user can fit models like in autoref{eq:equation1} to the white light curve or to spectroscopic light curves. For the latter, the user can freely set the amount and locations of the bins. 
   \autoref{fig:figure1} (left panel) shows the resulting 1D spectrum and a user defined binning.
-
   
-  \begin{equation}  
+  \begin{equation}
+  \label{eq:equation1}
   F(t) = T(t) \, (c\,S(t) + k\,t_{\rm{v}}) \, (1 - \exp(-r_1\,t_{\rm{orb}} - r_2 )),
   \end{equation}
+  with T(t) being the transit model, ...
 
 ![Left panel: raw 2D spectrum. Right panel: 1D spectrum after the use of optimal extraction.\label{fig:figure1}](figures/figure1.png "title-2"){ width=99% }
 
@@ -136,15 +137,7 @@ Additional fitting models are planned to be added in the future like phase curve
 
 # Acknowledgements
 
-We acknowledge contributions from ....
-
-BZ for PACMAN gif
-
-XXX 
-
-unused stuff:
-
-
+We acknowledge B. Zawadzki for the creation of the PACMAN logo.
 
 
 
