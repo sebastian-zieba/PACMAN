@@ -417,10 +417,10 @@ def make_mcmc_rprs_txt(meta):
         os.makedirs(meta.workdir + meta.fitdir + '/mcmc_res')
     f_mcmc = open(meta.workdir + meta.fitdir + '/mcmc_res' + "/mcmc_rprs.txt", 'w')
     file_header = ['wavelength (micron)', 'rprs', 'rprs_err_lower', 'rprs_err_upper']
-    print("#{: <24} {: <25} {: <25} {: <25}".format(*file_header), file=f_lsq)
+    print("#{: <24} {: <25} {: <25} {: <25}".format(*file_header), file=f_mcmc)
     for row in zip(meta.wavelength_list, medians, errors_lower, errors_upper):
-        print("{: <25} {: <25} {: <25} {: <25}".format(*row), file=f_lsq)
-    f_lsq.close()
+        print("{: <25} {: <25} {: <25} {: <25}".format(*row), file=f_mcmc)
+    f_mcmc.close()
 
 
 def quantile(x, q):
