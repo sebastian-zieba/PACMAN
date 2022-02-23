@@ -3,7 +3,6 @@ import numpy as np
 from astropy.io import ascii, fits
 from tqdm import tqdm
 import os
-from astropy.io import ascii
 from astropy.table import Table
 from ..lib import util
 from ..lib import gaussfitter

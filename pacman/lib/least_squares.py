@@ -89,7 +89,11 @@ def lsq_fit(fit_par, data, meta, model, myfuncs, noclip=False):
     if noclip == True:
         if meta.save_fit_lc_plot: plot_fit_lc2(data, model, meta)
         if meta.save_fit_lc_plot: plot_fit_lc3(data, model, meta)
-        if meta.save_fit_lc_plot: plot_fit_lc4(data, model, meta)
+        if meta.save_fit_lc_plot: plots.save_plot_raw_data(data, model, meta)
+        if meta.save_fit_lc_plot: plots.save_astrolc_data(data, model, meta)
+
+
+        #if meta.save_fit_lc_plot: plot_fit_lc4(data, model, meta)
     #print(m.params)
 
     #rescale error bars based on chi2

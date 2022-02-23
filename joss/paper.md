@@ -72,7 +72,8 @@ We also mask bad pixels that have been flagged by `calwf3` with data quality DQ 
 - **Scanning of the detector**: The majority of exoplanetary HST/WFC3 observations use the spatial scanning technique [@McCullough2012] which spreads the light perpendicular to the dispersion direction during the exposure enabled longer integration times before saturation.
 The _ima_ files taken in this observation mode consist out of a number of nondestructive reads, also known as up-the-ramp samples, each of which we treat as an independent subexposure.
 
-- **Fitting models**:
+- **Fitting models**: `PACMAN` contains several functions to fit models to the data. 
+They contain systematic models (e.g., visit-long polynomials, orbit-long exponential ramps) astrophysical models (e.g., transit and eclipse curves as implemented in batman, sinusoids for fit phase curve fits, upstream-downstream effect caused by forward and reverse scanning).
 
 Here an example for a fitting function:
 
@@ -84,9 +85,7 @@ F (t) = (c\,S(t) + k\,t_{\rm{v}}) \, (1 - \exp(-r_1\,t_{\rm{orb}} - r_2 )),
 recorded photoelectrons that will increase exponentially creating typical hook like features.
 
   - scanning [@McCullough2012]: constant offset
-
-
-
+  
 
 
 \autoref{fig:example}

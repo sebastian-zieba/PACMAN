@@ -24,6 +24,9 @@ import corner
 import pickle
 import glob
 from .sort_nicely import sort_nicely as sn
+from astropy.io import ascii
+from astropy.table import Table
+
 
 ##00
 def mjd_to_utc(time):
@@ -689,6 +692,9 @@ def plot_wvl_bins(w_hires, f_interp, wave_bins, wvl_bins, dirname):
 
 #30
 def plot_raw(data, meta):
+    """
+    Saves a plot with the raw light curve (which includes the systematics).
+    """
     #palette = sns.color_palette("husl", data.nvisit)
     sns.set_palette("muted")
     palette = sns.color_palette("muted", data.nvisit)
@@ -723,7 +729,26 @@ def plot_raw(data, meta):
     plt.close()
 
 
-#
+def save_plot_raw_data(data, meta):
+    """
+    Savest the data used for the raw light curve plot.
+    """
+    datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
+
+    table = Table()
+    if data.nvisit>1:
+        for i in range(data.nvisit):
+            ind = data.vis_num == i
+            table['t_vis_v{0}'.format(i)] = np.array(data.t_vis[ind], dtype=np.float64)
+            table['flux_v{0}'.format(i)] = np.array(data.flux[ind], dtype=np.float64)
+    else:
+        table['t_vis'] = np.array(data.t_vis, dtype=np.float64)
+        table['flux'] = np.array(data.flux, dtype=np.float64)
+    if not os.path.isdir(meta.workdir + meta.fitdir + '/raw_lc'):
+        os.makedirs(meta.workdir + meta.fitdir + '/raw_lc')
+    ascii.write(table, meta.workdir + meta.fitdir +  '/raw_lc/raw_lc_data_{0}_{1}.txt'.format(meta.s30_file_counter, datetime), format='rst', overwrite=True)
+
+
 def computeRMS(data, maxnbins=None, binstep=1, isrmserr=False):
     """
     COMPUTE ROOT-MEAN-SQUARE AND STANDARD ERROR OF DATA FOR VARIOUS BIN SIZES
@@ -953,15 +978,9 @@ def plot_fit_lc3(data, fit, meta, mcmc=False):
     sns.set_palette("muted")
     palette = sns.color_palette("muted", data.nvisit)
 
-    time_days = np.linspace(data.time.min() - 0.05, data.time.max() + 0.05, 1000)
-
-
-    # colors = ['blue', 'red', 'orange', 'gray']
-
-    # plot data
-    # plot best fit model from first visit
-
-    ax[0].plot(time_days, calc_astro(time_days, fit.params, data, fit.myfuncs, 0))
+    time_model = np.linspace(data.time.min() - 0.05, data.time.max() + 0.05, 1000)
+    flux_model = calc_astro(time_model, fit.params, data, fit.myfuncs, 0)
+    ax[0].plot(time_model, flux_model)
 
 
     # plot systematics removed data
@@ -1009,6 +1028,31 @@ def plot_fit_lc3(data, fit, meta, mcmc=False):
         plt.savefig(meta.workdir + meta.fitdir + '/fit_lc' + "/newfit_lc_{0}.png".format(meta.s30_file_counter))
     # plt.waitforbuttonpress(0) # this will wait for indefinite time
     plt.close()
+
+
+def save_astrolc_data(data, fit, meta):
+    """
+    Saves the data used to plot the astrophysical model (without the systematics) and the data (without the systematics).
+    """
+
+    datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
+
+    table_model = Table()
+    table_nosys = Table()
+
+    time_model = np.linspace(data.time.min() - 0.05, data.time.max() + 0.05, 1000)
+    flux_model = calc_astro(time_model, fit.params, data, fit.myfuncs, 0)
+
+    table_model['time_model'] = np.array(time_model, dtype=np.float64)
+    table_model['flux_model'] = np.array(flux_model, dtype=np.float64)
+
+    table_nosys['time_nosys'] = np.array(data.time, dtype=np.float64)
+    table_nosys['flux_nosys'] = np.array(fit.data_nosys, dtype=np.float64)
+
+    if not os.path.isdir(meta.workdir + meta.fitdir + '/fit_lc'):
+        os.makedirs(meta.workdir + meta.fitdir + '/fit_lc')
+    ascii.write(table_model, meta.workdir + meta.fitdir +  '/fit_lc/fit_lc_data_model_{0}_{1}.txt'.format(meta.s30_file_counter, datetime), format='rst', overwrite=True)
+    ascii.write(table_nosys, meta.workdir + meta.fitdir +  '/fit_lc/fit_lc_data_nosys_{0}_{1}.txt'.format(meta.s30_file_counter, datetime), format='rst', overwrite=True)
 
 
 def plot_fit_lc4(data, fit, meta, mcmc=False):
