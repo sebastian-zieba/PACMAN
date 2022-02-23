@@ -3,6 +3,29 @@
 Important Directories
 ========================
 
+PACMAN consists out of these important parts:
+
+* pacman
+Contains the heart of pacman with all python scipts needed to reduce and analyse HST data.
+
+* run
+Contains the pcf the fit_par file and the run_pacman.py script.
+Before running the very first stage of PACMAN using the command ``python run_pacman.py --s00``, the pcf has to be set up.
+
+* data directory
+a local directory which contains all the ima fits files (has to be set in pcf before running Stage 00).
+
+* run directory
+a local directory where the run will be saved (has to be set in pcf before running Stage 00).
+This directory will ultimately get an additional work directory every time Stage 00 is being run.
+
+* work directory
+a subdirectory of the run directory.
+It has the following form: eg, ``run_2022-01-19_16-46-19_GJ1214_Hubble13021``.
+It therefore contains the date and time Stage 00 has been run and the eventlabel.
+
+.. image:: media/20220223_124456.jpg
+
 On GitHub
 ''''''''''''''''''''''''''''''
 
