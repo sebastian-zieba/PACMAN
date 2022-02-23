@@ -25,6 +25,9 @@ bibliography: paper.bib
 
 ---
 
+# Summary
+
+
 TODOs left:
 
 TODO: fix some of the references in text; would be nice if they were sorted chronologially when several are listed at once.
@@ -35,12 +38,10 @@ TODO: Maybe discuss advantage of space based data and why HST is so great? no sy
 
 TODO: Future work: maybe add staring mode reduction? idk if that's even implemented rn.
 
-# Summary
-
 The Hubble Space Telescope (HST) has become the preeminent workhorse facility for the characterization of extrasolar planets.
 Launched in 1990 and never designed for the observations of exoplanets, the STIS spectrograph on HST was in fact used in 2002 to detect the first atmosphere ever discovered on a planet outside of our solar system [@Charbonneau2002].
 With the deactivation of the Spitzer Space Telescope in 2020, HST has the two most powerful tools in space to characterize exoplanets over a broad spectral range:
-(1) The Space Telescope Imaging Spectrograph (STIS; installed in 1997) in the UV and the Wide Field Camera 3 (WFC3; installed in 2009) in the Near Infrared (NIR).
+The Space Telescope Imaging Spectrograph (STIS; installed in 1997) in the UV and the Wide Field Camera 3 (WFC3; installed in 2009) in the Near Infrared (NIR).
 With the introduction of a spatial scan mode on WFC3 [@McCullough2012] where the star is being moved perpendicular to the dispersion direction during an exposure, WFC3 observations have become very efficient due to the reduction of overhead time and the possibility of longer exposures without saturation.
 
 For exoplanet characterization, WFC3 is used for transit and secondary eclipse spectroscopy and phase curves observations.
@@ -48,8 +49,7 @@ The instrument has two different grisms: G102 with a useful spectral range from 
 The spectral range of WFC3/G141 contains several molecular species with the strongest being water (H2O) at approximately 1.4 microns leading to the successful detection of H2O in the atmosphere of over a dozen of exoplanets [@Deming2013; @Huitson2013; @Birkby2013; @Fraine2014; @Kreidberg2014b; @Evans2016].
 The bluer part of WFC3, the G102 grism, has been used less often in observing programs but most notably led to the detection of Helium in the atmosphere of an exoplanet [@Spake2018].
 
-HST will stay the most powerful space based tool for the characterization of exoplanets until the first data of the recently launched James Webb Space Telescope (JWST) reaches the machines of the observers.
-Even after then, HST is expected to produce even more impactful science results due to its exquisite data.
+HST will stay the most powerful space based tool for the characterization of exoplanets until the first data of the recently launched James Webb Space Telescope (JWST) reaches the machines of the observers. Even after then, HST is expected to produce even more impactful science results due to its exquisite data.
 
 Here we present `PACMAN`, an end-to-end pipeline developed to reduce and analyze HST/WFC3 data.
 The foundation of the pipeline has been already used in numerous publications [e.g.,; @Kreidberg2014a; @Kreidberg2018] and these papers have already accumulated hundreds of citations.
@@ -75,7 +75,7 @@ Using the reference spectrum as a template, we determine a shift and scaling in 
 This first exposure in the visit in then used as the template for the following exposures in the visit.
 
 - **Optimal extraction and outlier removal**: `PACMAN` uses an optimal extraction algorithm as presented in @Horne1986 which iteratively masks bad pixels in the image. 
-We also mask bad pixels that have been flagged by `calwf3` with data quality DQ = 4 or 512\footnote{for a list of DQ flags see [https://wfc3tools.readthedocs.io/en/latest/wfc3tools/calwf3.html#data-quality-initialization-dqicorr](https://wfc3tools.readthedocs.io/en/latest/wfc3tools/calwf3.html#data-quality-initialization-dqicorr).
+We also mask bad pixels that have been flagged by `calwf3` with data quality DQ = 4 or 512\footnote{for a list of DQ flags see [https://wfc3tools.readthedocs.io/en/latest/wfc3tools/calwf3.html#data-quality-initialization-dqicorr](https://wfc3tools.readthedocs.io/en/latest/wfc3tools/calwf3.html#data-quality-initialization-dqicorr)}.
 
 - **Scanning of the detector**: The majority of exoplanetary HST/WFC3 observations use the spatial scanning technique [@McCullough2012] which spreads the light perpendicular to the dispersion direction during the exposure enabled longer integration times before saturation.
 The _ima_ files taken in this observation mode consist out of a number of nondestructive reads, also known as up-the-ramp samples, each of which we treat as an independent subexposure.
@@ -92,7 +92,7 @@ The _ima_ files taken in this observation mode consist out of a number of nondes
       - a constant offset which accounts for the upstream-downstream effect caused by forward and reverse scanning
 
   The user can fit models like in autoref{eq:equation1} to the white light curve or to spectroscopic light curves. For the latter, the user can freely set the amount and locations of the bins. 
-  \autoref{fig:figure1} (left panel) shows the resulting 1D spectrum and a user defined binning.
+  \autoref{fig:figure1} (right panel) shows the resulting 1D spectrum and an user defined binning.
   
   \begin{equation}
   \label{eq:equation1}
@@ -119,7 +119,7 @@ Other dependencies which might be required for the fitting stage depending on th
 
 For the barycentric correction, `PACMAN` accesses the [API to JPL's Horizons system](https://ssd-api.jpl.nasa.gov/obsolete/horizons_batch_cgi.html).
 
-If the user decides to use a stellar spectrum for the wavelength calibration, `PACMAN` will download the needed fits file from the [REFERENCE-ATLASES HLSP](https://archive.stsci.edu/hlsps/reference-atlases/cdbs/grid/) hosted on the MAST archive.[@STScI2013]
+If the user decides to use a stellar spectrum for the wavelength calibration, `PACMAN` will download the needed fits file from the [REFERENCE-ATLASES HLSP](https://archive.stsci.edu/hlsps/reference-atlases/cdbs/grid/) hosted on the MAST archive [@STScI2013].
 
 
 # Documentation
@@ -139,7 +139,7 @@ For a more detailed discussion of `CASCADe` see Appendix 1 in @Carone2021.
 
 # Future work
 
-Additional fitting models are planned to be added in the future like phase curves using the SPIDERMAN package. 
+Additional fitting models are planned to be added to `PACMAN` in the future like phase curves using the open-source python package `SPIDERMAN`. 
 
 
 # Acknowledgements
