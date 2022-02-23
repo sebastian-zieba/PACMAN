@@ -46,13 +46,13 @@ With the introduction of a spatial scan mode on WFC3 [@McCullough2012] where the
 
 For exoplanet characterization, WFC3 is used for transit and secondary eclipse spectroscopy and phase curves observations.
 The instrument has two different grisms: G102 with a useful spectral range from 800 nm to up to 1150 nm and G141 encompassing 1075 nm to about 1700 nm.
-The spectral range of WFC3/G141 contains several molecular species with the strongest being water (H2O) at approximately 1.4 microns leading to the successful detection of H2O in the atmosphere of over a dozen of exoplanets [@Deming2013; @Huitson2013; @Birkby2013; @Fraine2014; @Kreidberg2014b; @Evans2016].
+The spectral range of WFC3/G141 contains several molecular species with the strongest being water (H2O) at approximately 1.4 microns leading to the successful detection of H2O in the atmosphere of over a dozen of exoplanets [e.g., @Deming2013; @Huitson2013; @Birkby2013; @Fraine2014; @Kreidberg2014b; @Evans2016].
 The bluer part of WFC3, the G102 grism, has been used less often in observing programs but most notably led to the detection of Helium in the atmosphere of an exoplanet [@Spake2018].
 
 HST will stay the most powerful space based tool for the characterization of exoplanets until the first data of the recently launched James Webb Space Telescope (JWST) reaches the machines of the observers. Even after then, HST is expected to produce even more impactful science results due to its exquisite data.
 
 Here we present `PACMAN`, an end-to-end pipeline developed to reduce and analyze HST/WFC3 data.
-The foundation of the pipeline has been already used in numerous publications [e.g.,; @Kreidberg2014a; @Kreidberg2018] and these papers have already accumulated hundreds of citations.
+The foundation of the pipeline has been already used in numerous publications [e.g., @Kreidberg2014a; @Kreidberg2018] and these papers have already accumulated hundreds of citations.
 
 
 # Statement of need
