@@ -814,6 +814,8 @@ def rmsplot(model, data, meta):
     plt.close()
 
 
+
+
 def plot_fit_lc(data, fit, meta, mcmc=False):
     datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
     plt.clf()
@@ -1040,7 +1042,9 @@ def save_astrolc_data(data, fit, meta):
     table_model = Table()
     table_nosys = Table()
 
-    time_model = np.linspace(data.time.min() - 0.05, data.time.max() + 0.05, 1000)
+    p = FormatParams(fit.params, data)
+
+    time_model = np.linspace(data.time.min() - p.per[0]/2, data.time.max() + p.per[0]/2, 1000)
     flux_model = calc_astro(time_model, fit.params, data, fit.myfuncs, 0)
 
     table_model['time_model'] = np.array(time_model, dtype=np.float64)
