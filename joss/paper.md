@@ -81,15 +81,15 @@ We also mask bad pixels that have been flagged by `calwf3` with data quality DQ 
 The _ima_ files taken in this observation mode consist out of a number of nondestructive reads, also known as up-the-ramp samples, each of which we treat as an independent subexposure.
 \autoref{fig:figure1} (left panel) shows an example for the last subexposure when using the spatial scanning together with the theoretical position of the trace.
 
-  - **Fitting models**: `PACMAN` contains several functions to fit models which are commently used with HST data. Here some examples for the currently implemented systematic and astrophysical models.
-    - systematic models:
-      - visit-long polynomials
-      - orbit-long exponential ramps due to charge trapping: NIR detectors like HST/WFC3 can trap photoelectrons (Smith et al. 2008) which will cause the the number of
+- **Fitting models**: `PACMAN` contains several functions to fit models which are commently used with HST data. Here some examples for the currently implemented systematic and astrophysical models.
+  - systematic models:
+    - visit-long polynomials
+    - orbit-long exponential ramps due to charge trapping: NIR detectors like HST/WFC3 can trap photoelectrons (Smith et al. 2008) which will cause the the number of
   recorded photoelectrons that will increase exponentially creating typical hook like features
-    - systematic models:
-      - transit and secondary eclipse curves as implemented in `batman`
-      - sinusoids for phase curve fits
-      - a constant offset which accounts for the upstream-downstream effect caused by forward and reverse scanning
+  - systematic models:
+    - transit and secondary eclipse curves as implemented in `batman`
+    - sinusoids for phase curve fits
+    - a constant offset which accounts for the upstream-downstream effect caused by forward and reverse scanning
 
   The user can fit models like in \autoref{eq:equation1} to the white light curve or to spectroscopic light curves. For the latter, the user can freely set the amount and locations of the bins. 
   \autoref{fig:figure1} (right panel) shows the resulting 1D spectrum and an user defined binning.
@@ -147,5 +147,6 @@ Additional fitting models are planned to be added to `PACMAN` in the future like
 We acknowledge B. Zawadzki for the creation of the PACMAN logo.
 
 
-
 # References
+
+
