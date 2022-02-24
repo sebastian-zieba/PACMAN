@@ -39,8 +39,8 @@ TODO: Maybe discuss advantage of space based data and why HST is so great? no sy
 TODO: Future work: maybe add staring mode reduction? idk if that's even implemented rn.
 
 The Hubble Space Telescope (HST) has become the preeminent workhorse facility for the characterization of extrasolar planets.
-Launched in 1990 and never designed for the observations of exoplanets, the STIS spectrograph on HST was in fact used in 2002 to detect the first atmosphere ever discovered on a planet outside of our solar system [@Charbonneau2002].
-With the deactivation of the Spitzer Space Telescope in 2020, HST has the two most powerful tools in space to characterize exoplanets over a broad spectral range:
+Launched in 1990 and never designed for the observations of exoplanets, the STIS spectrograph on HST was used in 2002 to detect the first atmosphere ever discovered on a planet outside of our solar system [@Charbonneau2002].
+With the deactivation of the Spitzer Space Telescope in 2020, HST has currently the two most powerful operating tools in space to characterize exoplanets over a broad spectral range:
 The Space Telescope Imaging Spectrograph (STIS; installed in 1997) in the UV and the Wide Field Camera 3 (WFC3; installed in 2009) in the Near Infrared (NIR).
 With the introduction of a spatial scan mode on WFC3 [@McCullough2012] where the star is being moved perpendicular to the dispersion direction during an exposure, WFC3 observations have become very efficient due to the reduction of overhead time and the possibility of longer exposures without saturation.
 
@@ -69,8 +69,8 @@ In the following we want to highlight several steps in the reduction and fitting
 
 - **Wavelength calibration**: We create a reference spectrum out of the throughput of the respective grism (G102 or G141) and a stellar model.
 The user can decide if they want to download a stellar spectrum from MAST for that or just use a black body spectrum.
-This template will be then used for the wavelength calibration. 
-We also determine the position of the star in the direct images which are often taken at the start of HST orbits to create an initial guess for the wavelength solution using the know dispersion of the grism.
+This template will be then used for the wavelength calibration of the WFC3 spectra. 
+We also determine the position of the star in the direct images which are commonly taken at the start of HST orbits to create an initial guess for the wavelength solution using the know dispersion of the grism.
 Using the reference spectrum as a template, we determine a shift and scaling in wavelength-space that minimizes the difference between it and the first spectrum in the visit.
 This first exposure in the visit in then used as the template for the following exposures in the visit.
 
@@ -85,7 +85,7 @@ The _ima_ files taken in this observation mode consist out of a number of nondes
   - systematic models:
     - visit-long polynomials
     - orbit-long exponential ramps due to charge trapping: NIR detectors like HST/WFC3 can trap photoelectrons (Smith et al. 2008) which will cause the the number of
-  recorded photoelectrons that will increase exponentially creating typical hook like features
+  recorded photoelectrons that will increase exponentially creating typical hook like features.
   - systematic models:
     - transit and secondary eclipse curves as implemented in `batman`
     - sinusoids for phase curve fits
@@ -98,7 +98,10 @@ The _ima_ files taken in this observation mode consist out of a number of nondes
   \label{eq:equation1}
   F(t) = T(t) \, (c\,S(t) + k\,t_{\rm{v}}) \, (1 - \exp(-r_1\,t_{\rm{orb}} - r_2 )),
   \end{equation}
-  with T(t) being the transit model, ...
+  with T(t) being the transit model, ... XXX
+
+
+TODO update plots and add a bit more text..
 
 ![Left panel: raw 2D spectrum. Right panel: 1D spectrum after the use of optimal extraction.\label{fig:figure1}](figures/figure1.png "title-2"){ width=99% }
 
