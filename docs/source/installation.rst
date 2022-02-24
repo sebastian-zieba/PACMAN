@@ -4,22 +4,41 @@ Installation
 =============================
 
 
-From source
+With pip & GitHub
 ---------------------------------
 
-You can install ``PACMAN`` directly from source on `GitHub <https://github.com/sebastian-zieba/PACMAN>`_.
+You can install ``PACMAN`` using ``pip`` by entering the following line into a terminal:
 
-On GitHub, you can either click on **Code** and **Download ZIP** followed by unpacking the distribution by opening up a terminal and typing:
+.. code-block:: console
+
+	pip install git+git://github.com/sebastian-zieba/PACMAN
+
+
+Directly on GitHub
+---------------------------------
+
+1. You can also download from source on `GitHub <https://github.com/sebastian-zieba/PACMAN>`_.
+
+1.1. On GitHub, you can either click on **Code** and **Download ZIP** followed by unpacking the distribution by opening up a terminal and typing:
 
 .. code-block:: console
 
 	unzip PACMAN-master.zip
 
-OR
-
-Clone the repository using ``git`` by typing:
+1.2. Or Clone the repository using ``git`` by typing:
 
 .. code-block:: console
 
 	git clone https://github.com/sebastian-zieba/PACMAN
 
+2. To install ``PACMAN`` as a package, go into the downloaded PACMAN directory (where setup.py is located) and type:
+
+.. code-block:: console
+
+	pip install .
+
+
+Using pip (PyPI)
+---------------------------------
+
+Will be added ...
