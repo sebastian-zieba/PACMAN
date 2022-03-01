@@ -27,16 +27,8 @@ bibliography: paper.bib
 
 # Summary
 
-[comment]: <> (TODO: fix some of the references in text; would be nice if they were sorted chronologially when several are listed at once.)
-
-[comment]: <> (TODO: Maybe discuss advantage of space based data and why HST is so great? no systematics because no atmosphere, no atmosphere so no absorption in uv and water bands and no strong IR background.)
-
-[comment]: <> (TODO: Future work: maybe add staring mode reduction? idk if that's even implemented rn.)
-
 The Hubble Space Telescope (HST) has become the preeminent workhorse facility for the characterization of extrasolar planets.
 Launched in 1990 and never designed for the observations of exoplanets, the STIS spectrograph on HST was used in 2002 to detect the first atmosphere ever discovered on a planet outside of our solar system [@Charbonneau2002].
-
-[comment]: <> (With the deactivation of the Spitzer Space Telescope in 2020, )
 
 HST has currently the two most powerful operating tools in space to characterize exoplanets over a broad spectral range:
 The Space Telescope Imaging Spectrograph (STIS; installed in 1997) in the UV and the Wide Field Camera 3 (WFC3; installed in 2009) in the Near Infrared (NIR).
@@ -47,8 +39,6 @@ The instrument has two different grisms: G102 with a spectral range from 800 nm 
 The spectral range of WFC3/G141 is primarily sensitive to molecular absorption from water at approximately 1.4 microns.
 This lead to the successful detection of water in the atmosphere of over a dozen of exoplanets [e.g., @Deming2013; @Huitson2013; @Fraine2014; @Kreidberg2014b; @Evans2016].
 The bluer part of WFC3, the G102 grism, is also sensitive to water and most notably led to the first detection of a helium exosphere [@Spake2018].
-
-[comment]: <> (HST will stay the most powerful space based tool for the characterization of exoplanets until the first data of the recently launched James Webb Space Telescope &#40;JWST&#41; reaches the machines of the observers. Even after then, HST is expected to produce even more impactful science results due to its exquisite data.)
 
 Here we present `PACMAN`, an end-to-end pipeline developed to reduce and analyze HST/WFC3 data.
 The pipeline includes both spectral extraction and light curve fitting.
