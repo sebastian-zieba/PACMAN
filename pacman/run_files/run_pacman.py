@@ -12,8 +12,6 @@ import pacman.reduction.s30_run as s30
 from pacman.lib.update_meta import update_meta
 from pacman.lib import sort_nicely as sn
 
-eventlabel = 'GJ1214_Hubble13021'
-
 
 def usage():
     cmd = sys.argv[0]
@@ -65,6 +63,9 @@ def main():
         elif o == "--s30": run_s30 = True
         elif o == "--workdir": workdir = a
         else: assert False, "unhandled option. Please seek --help"
+
+    # Set an eventlabel
+    eventlabel = 'GJ1214_Hubble13021'
 
     if run_s00:
         meta = s00.run00(eventlabel)

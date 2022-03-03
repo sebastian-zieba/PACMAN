@@ -2,10 +2,10 @@
 # NOTE: DO NOT USE SPACES IN LISTS!
 
 # 00
-rundir                       /home/zieba/Desktop/Projects/Observations/Hubble/KELT11_15255      #location of run dir
-datadir                      /home/zieba/Desktop/Data/KELT11_Hubble15255             #location of data dir
+rundir                       /home/zieba/Desktop/Projects/Observations/Hubble/GJ1214_13021      #location of run dir
+datadir                      /home/zieba/Desktop/Data/GJ1214_Hubble13021            #location of data dir
 suffix                       ima                                                      #data suffix (only ima supported right now)
-which_visits                 everything                                                 #which visits to use; Options: list (e.g., [0,1,3]) or everything
+which_visits                 [5,6,7]                                                 #which visits to use; Options: list (e.g., [0,1,3]) or everything
 
 save_obs_times_plot          True
 show_obs_times_plot          False
@@ -17,9 +17,9 @@ show_barycorr_plot           False
 
 
 ## 03
-Teff                         4079                                                     #effective temperature of the star
-logg                         4.58376                                                 #surface gravity of the star
-MH                           0.                                                     #metallicity of the star
+Teff                         3250                                                     #effective temperature of the star
+logg                         5.026                                                    #surface gravity of the star
+MH                           0.29                                                     #metallicity of the star
 sm                           k93models                                                #stellar model. Options: blackbody, k93models, ck04models or phoenix
 
 smooth                       True
@@ -32,10 +32,10 @@ save_refspec_plot            True                                               
 show_refspec_plot            False
 
 ## 10
-di_rmin                      150                                                      #coordinates (row min max and column min max) where the star in the direct image is
-di_rmax                      250
-di_cmin                      200
-di_cmax                      300
+di_rmin                      120                                                      #coordinates (row min max and column min max) where the star in the direct image is
+di_rmax                      160
+di_cmin                      5
+di_cmax                      50
 
 save_image_plot              True                                                     #save plot with direct image and best fit?
 show_image_plot              False
@@ -45,7 +45,7 @@ di_multi                     median
 
 ## 20
 s20_testing                  False
-n_testing                    1
+n_testing                    4
 
 rmin                         5
 rmax                         261
@@ -100,9 +100,9 @@ show_drift_plot              False
 s21_most_recent_s20          True
 s21_spec_dir_path_s20        None
 
-wvl_min                      1.125
-wvl_max                      1.65
-wvl_bins                     12
+wvl_min                      1.135
+wvl_max                      1.642
+wvl_bins                     11
 
 use_wvl_list                 False
 wvl_edge_list                [11400,12200,12600,13000,14600,15000,15400,15800,16200]
@@ -130,7 +130,7 @@ run_clipsigma                0
 fix_ld                       False
 ld_file                      /home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/wfc3_reduction/limb-darkening/results/ld_outputfile.txt
 
-toffset                      2456500
+toffset                      2456365
 
 run_divide_white             False
 run_verbose                  True
@@ -144,9 +144,9 @@ run_mcmc                     True
 run_nested                   False
 
 #emcee
-run_nsteps                   3000
-run_nwalkers	             45
-run_nburn                    1500
+run_nsteps                   10000
+run_nwalkers	             50
+run_nburn                    5000
 
 #dynesty
 run_dlogz                    25000

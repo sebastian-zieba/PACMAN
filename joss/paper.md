@@ -91,9 +91,10 @@ The user can fit models like in \autoref{eq:equation1} to the white light curve 
 \label{eq:equation1}
 F(t) = T(t) \, (c\,S(t) + k\,t_{\rm{v}}) \, (1 - \exp(-r_1\,t_{\rm{orb}} - r_2 )),
 \end{equation}
-with T(t) being the transit model, ... XXX
+with _T(t)_ being the transit model, _c_ (_k_) a constant (slope), _S(t)_ a scale factor equal to 1 for exposures with spatial scanning in the forward direction and _s_ for reverse
+scans, _r<sub>1</sub>_ and _r<sub>2</sub>_ are parameters to account for the exponential ramps.  _t<sub>v</sub>_ and _t<sub>orb</sub>_ are the times from the first exposure in the visit and in the orbit, respectively.
 
-- **parameter estimation**: 
+- **parameter estimation**: The user has different options to estimate best fitting parameters and their uncertainies:
   - least square: `scipy.optimize`
   - MCMC: `emcee`
   - nested sampling: `dynesty`
