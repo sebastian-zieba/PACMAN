@@ -3,6 +3,12 @@
 Stage 00
 ============
 
+TLDR;
+
+- Copy the contents of run_files into your run directory.
+`Download Link <https://downgit.github.io/#/home?url=https://github.com/sebastian-zieba/PACMAN/tree/master/pacman/run_files>`_.
+
+
 Let's start the analysis.
 We are going to analyse just three visits taken in the middle of the program for simplicity.
 Dates (YYYY-MM-DD): 2013-03-13,  2013-03-15,  2013-03-27

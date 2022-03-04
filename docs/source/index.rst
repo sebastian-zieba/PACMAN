@@ -34,6 +34,7 @@ The pipeline is still under development! Use at your own risk.
 
    example_introduction
    download_data
+   before_running
    stage00
    stage01
    stage02

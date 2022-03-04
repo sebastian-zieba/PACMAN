@@ -81,20 +81,23 @@ def run00(eventlabel):
     meta = MetaClass()
     meta.eventlabel = eventlabel
 
-    # Load PACMAN control file (which is in the same directory as run_pacman) and store values in Event object
+    # Load PACMAN control file (which is in the run directory) and store values in Event object
     pcffile = 'obs_par.pcf'
     pcf = rd.read_pcf(pcffile)
     rd.store_pcf(meta, pcf)
 
-    #this file is saved in /pacman/reduction/s00_table.py
-    #topdir is just the path of the directory /pacman/
+    #this file here is saved in /pacman/reduction/s00_table.py
+    #pacmandir is just the path of the directory /pacman/
     meta.pacmandir = '/'.join(os.path.realpath(__file__).split('/')[:-2]) + '/'
+    print('Location of PACMAN:', meta.pacmandir)
+    print('Location of the run directory:', meta.rundir)
 
     # Create directories for this run = Work Directory
     datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
     meta.workdir = meta.rundir + '/run_' + datetime + '_' + meta.eventlabel
     if not os.path.exists(meta.workdir):
         os.makedirs(meta.workdir)
+    print('Location of the new work directory:', meta.workdir)
 
     #Create a figure directory
     if not os.path.exists(meta.workdir + "/figs"):
@@ -103,6 +106,7 @@ def run00(eventlabel):
     # Copy pcf and fit_par.txt
     shutil.copy(pcffile, meta.workdir)
     shutil.copy('fit_par.txt', meta.workdir)
+    print('pcf and fit_par files moved to the new work directory', meta.workdir)
 
     # Create list of file segments
     meta = util.readfiles(meta)
