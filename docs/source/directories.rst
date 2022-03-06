@@ -10,10 +10,6 @@ PACMAN consists out of these important parts:
 * pacman
 Contains the heart of pacman with all python scipts needed to reduce and analyse HST data.
 
-* run
-Contains the pcf the fit_par file and the run_pacman.py script.
-Before running the very first stage of PACMAN using the command ``python run_pacman.py --s00``, the pcf has to be set up.
-
 * data directory
 a local directory which contains all the ima fits files (has to be set in pcf before running Stage 00).
 
@@ -29,44 +25,6 @@ It therefore contains the date and time Stage 00 has been run and the eventlabel
 
 On GitHub
 ''''''''''''''''''''''''''''''
-
-* **PACMAN/run**
-
- - **PACMAN/run/run_pacman.py**
-
-This python script runs PACMAN. As the installation with setup.py is not tested yet, the user has to modify ``line 2`` inside of this file before being able to run the code:
-
-.. code-block:: python
-
-	sys.path.append('/home/zieba/Desktop/Projects/Open_source/PACMAN/')
-
-The path in ``sys.path.append`` has to be changed to the location of PACMAN on the user's device.
-
-    .. note:: The path should point to ``/PACMAN/`` and not to ``/PACMAN/pacman/``.
-
-The user can now run any stage by adding it as an argument in the terminal. E.g., for running Stage 00:
-
-.. code-block:: console
-
-	python run_pacman.py --s00
-
-To get more information, type:
-
-.. code-block:: console
-
-	python run_pacman.py --help
-
-
- - **PACMAN/run/fit_par.txt**
-
-The fit_par file is used in Stage 30 to fit the light curve. The user defines in here which fit parameters should be fixed, shared accross visits, and sets other information like priors.
-
-
- - **PACMAN/run/obs_par.pcf**
-
-The PACMAN control file (pcf): the user sets here which plots should be saved, the path to the data and many other parameters. A thorough explanation of all the parameters in the pcf can be found on Read The Docs: :ref:`pcf`.
-
-
 
 * **PACMAN/pacman**
 
@@ -103,6 +61,43 @@ PACMAN offers the user to download three different stellar models from the inter
 These models will be used in Stage 03 to create the reference spectrum.
 More on this `further down <https://pacmandocs.readthedocs.io/en/latest/quickstart.html#stage-03>`_ at the walkthrough of Stage 03.
 
+ - **PACMAN/pacman/run_files**
+
+  + **PACMAN/pacman/run_files/run_pacman.py**
+
+This python script runs PACMAN. If the user did not install pacman properly like explained in :ref:`the installation walkthrough <installation>` (not recommended) the might have to add a path to the sys.path.append
+
+.. code-block:: python
+
+	sys.path.append('/home/zieba/Desktop/Projects/Open_source/PACMAN/')
+
+The path in ``sys.path.append`` has to be changed to the location of PACMAN on the user's device.
+
+    .. note:: The path should point to ``/PACMAN/`` and not to ``/PACMAN/pacman/``.
+
+The user can now run any stage by adding it as an argument in the terminal. E.g., for running Stage 00:
+
+.. code-block:: console
+
+	python pacman_script.py --s00
+
+To get more information, type:
+
+.. code-block:: console
+
+	python pacman_script.py --help
+
+  + **PACMAN/pacman/run_files/fit_par.txt**
+
+
+The fit_par file is used in Stage 30 to fit the light curve. The user defines in here which fit parameters should be fixed, shared across visits, and sets other information like priors.
+
+
+  + **PACMAN/pacman/run_files/obs_par.pcf**
+
+The PACMAN control file (pcf): the user sets here which plots should be saved, the path to the data and many other parameters. A thorough explanation of all the parameters in the pcf can be found on Read The Docs: :ref:`pcf`.
+
+
 
 When running PACMAN
 ''''''''''''''''''''''''''''''
@@ -111,13 +106,13 @@ When running PACMAN
 
 Contents:
 
- - run_pacman.py
+ - pacman_script.py
 
  - obs_par.pcf
 
  - fit_par
 
-Example: ``/home/zieba/Desktop/Projects/Open_source/PACMAN/run``.
+Example: ``/home/zieba/Desktop/Projects/Observations/Hubble/GJ1214_13021``.
 
     .. note:: | The pcf file in the run directory is ONLY used in Stage 00. It will be copied over to the work directory. The copied pcf file in the work directory will then be the pcf file for all following stages. The same is true for the fit_par.txt file. So, after running Stage 00, PACMAN does not care anymore about the changes made to the pcf file and the fit_par file in the run directory.
 
@@ -127,7 +122,7 @@ Example: ``/home/zieba/Desktop/Projects/Open_source/PACMAN/run``.
 This directory will be created when running Stage 00.
 All the results of the following stages will be stored here.
 
-Example: ``/home/zieba/Desktop/Projects/Open_source/PACMAN/run/run_2022-01-19_16-46-19_GJ1214_Hubble13021``.
+Example: ``/home/zieba/Desktop/Projects/Observations/Hubble/GJ1214_13021/run_2022-03-04_15-10-29_GJ1214_Hubble13021``.
 It therefore has the following form:
 
 .. code-block:: python

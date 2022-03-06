@@ -3,24 +3,46 @@
 Stage 00
 ============
 
-TLDR;
+1) **Set up pcf**
 
-- Copy the contents of run_files into your run directory.
-`Download Link <https://downgit.github.io/#/home?url=https://github.com/sebastian-zieba/PACMAN/tree/master/pacman/run_files>`_.
+Firstly, set up the location of your datadir and rundir.
 
-
-Let's start the analysis.
-We are going to analyse just three visits taken in the middle of the program for simplicity.
+If your datadir contains a lot of visits, but you only want to analyse a subset you can use ``which_visits``.
+In this example, we downloaded all 15 visits in GO13021 bur we are going to analyse just three visits taken in the middle of the program for simplicity.
 Dates (YYYY-MM-DD): 2013-03-13,  2013-03-15,  2013-03-27
 If the user has all 15 visits of the program in the data directory you can choose: ``which_visits = [5,6,7]`` in the pcf.
 
-This step first creates a new directory for the analysis which will be used as the work directory ('workdir').
+Now navigate to your rundir in your terminal and type:
+
+.. code-block:: console
+	python pacman_script.py --s00 --eventlabel='GJ1214_Hubble13021'
+
+Here, --s00 mean we run Stage00 and --eventlabel will be used in the naming of files and directories.
+
+When running s00, the first step creates a new directory for the analysis which will be used as the work directory ('workdir').
 It will be saved in the rundir and have a form like:
-``/home/zieba/Desktop/Projects/Open_source/PACMAN/run/run_2022-02-15_21-43-12_GJ1214_Hubble13021``
+``/home/zieba/Desktop/Projects/Observations/Hubble/GJ1214_13021/run_2022-03-04_15-10-29_GJ1214_Hubble13021``
 
-The fit_par.txt and obs_par.pcf files will be copied there.
-After running Stage 00 you should get an output like this:
+The fit_par.txt and obs_par.pcf files which are in the run directory will be copied there.
 
+You have the following data structure now:
+
+| user
+| └── Desktop
+|     └── Projects
+|         └── Observations
+|             └── Hubble
+|	   └── GJ1214_13021
+|                     ├── run_pacman.py
+|                     ├── fit_par.txt
+|   	       ├── obs_par.pcf
+|                     └── run_2022-03-04_15-10-29_GJ1214_Hubble13021
+|                         ├── fit_par.txt
+|   	           └── obs_par.pcf
+
+    .. note:: | All next steps are going to use the pcf and fit_par which is located in the workdir (run_2022-03-04_15-10-29_GJ1214_Hubble13021) and not the pcf and fit_par in the rundir (GJ1214_13021)!
+
+After running Stage 00 you should get an output in our terminal similar to this one:
 
 .. code-block:: console
 

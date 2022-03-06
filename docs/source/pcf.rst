@@ -18,10 +18,12 @@ Stage 00
 
 rundir
 ''''''''''''''''''''''''''''''''''''''''''''
-Example: ``/home/zieba/Desktop/Projects/Open_source/PACMAN/run``
+Example: ``/home/zieba/Desktop/Projects/Observations/Hubble/GJ1214_13021``
 
 The directory where you want PACMAN to run and save data to.
-If you downloaded or cloned the GitHub repository it includes a run directory you can use for the runs.
+If you downloaded or cloned the GitHub repository it includes a run_files directory.
+These three files can also be downloaded under this link: `Download here <https://downgit.github.io/#/home?url=https://github.com/sebastian-zieba/PACMAN/tree/master/pacman/run_files>`_.
+You have to copy these files into your run directory.
 It has to include three files:
  - run_pacman.py: The run script
  - obs_par.pcf: The pcf file
