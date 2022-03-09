@@ -74,25 +74,18 @@ We also mask bad pixels that have been flagged by `calwf3` with data quality DQ 
 The _ima_ files taken in this observation mode consist of a number of nondestructive reads, also known as up-the-ramp samples, each of which we treat as an independent subexposure.
 \autoref{fig:figure1} (left panel) shows an example for the last subexposure when using the spatial scanning together with the expected position of the trace based on the direct image.
 
-- **Fitting models**: `PACMAN` contains several functions to fit models which are commently used with HST data. Here some examples for the currently implemented models for the instrument systematics and the astrophysical signal.
+- **Fitting models**: `PACMAN` contains several functions to fit models which are commently used with HST data. 
+The user can fit models like in \autoref{eq:equation1} to the white light curve or to spectroscopic light curves. 
+An example for a raw spectroscopic light curve and fitting \autoref{eq:equation1} to it, can be found in \autoref{fig:figure2}.
+Here some examples for the currently implemented models for the instrument systematics and the astrophysical signal.
   - systematic models:
     - visit-long polynomials
     - orbit-long exponential ramps due to charge trapping: NIR detectors like HST/WFC3 can trap photoelectrons [@Smith2008], which will cause the number of recorded photoelectrons to increase exponentially, creating typical hook-like features in each orbit
-    - _divide-white_ (see @Kreidberg2014a)
+    - _divide-white_ [seee @Kreidberg2014a]
   - astrophysical models:
     - transit and secondary eclipse curves as implemented in `batman`
     - sinusoids for phase curve fits
     - a constant offset which accounts for the upstream-downstream effect [@McCullough2012] caused by forward and reverse scanning
-
-The user can fit models like in \autoref{eq:equation1} to the white light curve or to spectroscopic light curves. For the latter, the user can freely set the amount and locations of the bins. 
-\autoref{fig:figure1} (right panel) shows the resulting 1D spectrum and a user-defined binning.
-
-\begin{equation}
-\label{eq:equation1}
-F(t) = T(t) \, (c\,S(t) + k\,t_{\rm{v}}) \, (1 - \exp(-r_1\,t_{\rm{orb}} - r_2 )),
-\end{equation}
-with _T(t)_ being the transit model, _c_ (_k_) a constant (slope), _S(t)_ a scale factor equal to 1 for exposures with spatial scanning in the forward direction and _s_ for reverse
-scans, _r<sub>1</sub>_ and _r<sub>2</sub>_ are parameters to account for the exponential ramps.  _t<sub>v</sub>_ and _t<sub>orb</sub>_ are the times from the first exposure in the visit and in the orbit, respectively.
 
 - **parameter estimation**: The user has different options to estimate best fitting parameters and their uncertainies:
   - least square: `scipy.optimize`
@@ -102,17 +95,20 @@ scans, _r<sub>1</sub>_ and _r<sub>2</sub>_ are parameters to account for the exp
 - **multi-visit observations**
   - `PACMAN` has also an option to share parameters across visits.
 
+- **binning of the light spectrum**: The user can freely set the amount and locations of the bins. 
+\autoref{fig:figure1} (right panel) shows the resulting 1D spectrum and a user-defined binning.
 
 
+\begin{equation}
+\label{eq:equation1}
+F(t) = T(t) \, (c\,S(t) + k\,t_{\rm{v}}) \, (1 - \exp(-r_1\,t_{\rm{orb}} - r_2 )),
+\end{equation}
+with _T(t)_ being the transit model, _c_ (_k_) a constant (slope), _S(t)_ a scale factor equal to 1 for exposures with spatial scanning in the forward direction and _s_ for reverse
+scans, _r<sub>1</sub>_ and _r<sub>2</sub>_ are parameters to account for the exponential ramps.  _t<sub>v</sub>_ and _t<sub>orb</sub>_ are the times from the first exposure in the visit and in the orbit, respectively.
 
-TODO update plots and add a bit more text..
+![_Left panel_: Raw 2D spectrum with the expected position of the trace based on the direct image. _Right panel_: 1D spectrum after the use of optimal extraction including vertical lines showing the user-set binning to generate spectroscopic light curves.\label{fig:figure1}](figures/figure1.png "title-2"){ width=99% }
 
-![Left panel: raw 2D spectrum. Right panel: 1D spectrum after the use of optimal extraction.\label{fig:figure1}](figures/figure1.png "title-2"){ width=99% }
-
-
-
-![Left panel: raw spectroscopic light curve. Right panel: light curve with the best astrophysical model fit.\label{fig:figure2}](figures/joss5.jpeg "title-2"){ width=99% }
-
+![_Left panel_: Raw spectroscopic light curve. One can clearly see the constant offset between two adjacent exposured due to the spatial scanning mode. _Right panel_: Light curve with the best astrophysical model fit using \autoref{eq:equation1}.\label{fig:figure2}](figures/joss5.jpeg "title-2"){ width=99% }
 
 
 # Dependencies
@@ -136,16 +132,20 @@ It includes most notably, a full explanation of every parameter in the _pacman c
 The only other end-to-end open source pipeline\footnote{as far as we are aware of} specifically developed for the reduction and analysis of HST/WFC3 data is [`Iraclis`](https://github.com/ucl-exoplanets/Iraclis) [@Tsiaras2016].
 
 Another open-source pipeline which has been used as an independent check of recent results presented in @Mugnai2021 and @Carone2021 is [`CASCADe`](https://jbouwman.gitlab.io/CASCADe/) (Calibration of trAnsit Spectroscopy using CAusal Data).
-The pipeline has been applied to both Hubble and Spitzer datasets and uses causal connections within a dataset to model both transit signal and systematics.
+[//]: # (The pipeline has been applied to both Hubble and Spitzer datasets and uses causal connections within a dataset to model both transit signal and systematics.)
 For a more detailed discussion of `CASCADe` see Appendix 1 in @Carone2021.
 
 
 # Future work
 
 Additional fitting models are planned to be added to `PACMAN` in the future like phase curves using the open-source python package `SPIDERMAN`. 
-- could add WFC3/UVIS data reduction in the future
-- calculate model limb darkening
-- could add RECTE systematic model: https://recte.readthedocs.io/en/latest/
+
+Another model which can be added to fit the orbit-long ramps is the [RECTE systematic model](https://recte.readthedocs.io/en/latest/).
+
+It is planned to add a limb darkening calculation if the user wants to fix limb darkening parameters to theoretical models in the fitting stage.
+
+PACMAN could also be expanded by adding a WFC3/UVIS data reduction in the future.
+
 
 # Acknowledgements
 
