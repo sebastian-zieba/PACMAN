@@ -87,6 +87,14 @@ Here some examples for the currently implemented models for the instrument syste
     - sinusoids for phase curve fits
     - a constant offset which accounts for the upstream-downstream effect [@McCullough2012] caused by forward and reverse scanning
 
+
+    \begin{equation}
+    \label{eq:equation1}
+    F(t) = T(t) \, (c\,S(t) + k\,t_{\rm{v}}) \, (1 - \exp(-r_1\,t_{\rm{orb}} - r_2 )),
+    \end{equation}
+    with _T(t)_ being the transit model, _c_ (_k_) a constant (slope), _S(t)_ a scale factor equal to 1 for exposures with spatial scanning in the forward direction and _s_ for reverse
+    scans, _r<sub>1</sub>_ and _r<sub>2</sub>_ are parameters to account for the exponential ramps.  _t<sub>v</sub>_ and _t<sub>orb</sub>_ are the times from the first exposure in the visit and in the orbit, respectively.
+
 - **parameter estimation**: The user has different options to estimate best fitting parameters and their uncertainies:
   - least square: `scipy.optimize`
   - MCMC: `emcee`
@@ -99,12 +107,6 @@ Here some examples for the currently implemented models for the instrument syste
 \autoref{fig:figure1} (right panel) shows the resulting 1D spectrum and a user-defined binning.
 
 
-    \begin{equation}
-    \label{eq:equation1}
-    F(t) = T(t) \, (c\,S(t) + k\,t_{\rm{v}}) \, (1 - \exp(-r_1\,t_{\rm{orb}} - r_2 )),
-    \end{equation}
-    with _T(t)_ being the transit model, _c_ (_k_) a constant (slope), _S(t)_ a scale factor equal to 1 for exposures with spatial scanning in the forward direction and _s_ for reverse
-    scans, _r<sub>1</sub>_ and _r<sub>2</sub>_ are parameters to account for the exponential ramps.  _t<sub>v</sub>_ and _t<sub>orb</sub>_ are the times from the first exposure in the visit and in the orbit, respectively.
 
 ![_Left panel_: Raw 2D spectrum with the expected position of the trace based on the direct image. _Right panel_: 1D spectrum after the use of optimal extraction including vertical lines showing the user-set binning to generate spectroscopic light curves.\label{fig:figure1}](figures/figure1.png "title-2"){ width=99% }
 
