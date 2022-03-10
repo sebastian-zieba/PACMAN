@@ -32,13 +32,13 @@ You have the following data structure now:
 |     └── Projects
 |         └── Observations
 |             └── Hubble
-|	   └── GJ1214_13021
+|	                └── GJ1214_13021
 |                     ├── run_pacman.py
 |                     ├── fit_par.txt
-|   	       ├── obs_par.pcf
+|   	                ├── obs_par.pcf
 |                     └── run_2022-03-04_15-10-29_GJ1214_Hubble13021
 |                         ├── fit_par.txt
-|   	           └── obs_par.pcf
+|   	                    └── obs_par.pcf
 
     .. note:: | All next steps are going to use the pcf and fit_par which is located in the workdir (run_2022-03-04_15-10-29_GJ1214_Hubble13021) and not the pcf and fit_par in the rundir (GJ1214_13021)!
 

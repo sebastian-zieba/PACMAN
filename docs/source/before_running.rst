@@ -14,7 +14,7 @@ All runs will be saved in a run directory. For the analysis of the GJ1214 data I
 |     └── Projects
 |         └── Observations
 |             └── Hubble
-|	   └── GJ1214_13021
+|	                └── GJ1214_13021
 |                     ├── run_pacman.py
 |                     ├── fit_par.txt
 |                     └── obs_par.pcf
@@ -42,6 +42,3 @@ Most importantly, the user has to set the datadir and rundir in the pcf.
 4) Run Stage 00
 
 You run PACMAN by using the pacman_scipt.py file. For more information see :ref:`Stage 00 <stage00>`.
-
-
-
