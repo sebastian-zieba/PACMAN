@@ -3,7 +3,7 @@
 Main Directories
 ========================
 
-.. image:: media/20220310_113742.jpg
+.. image:: media/20220310_113633.jpg
 
 In the package
 ''''''''''''''''''''''''''''''
