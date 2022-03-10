@@ -42,24 +42,21 @@ You have the following data structure now:
 |   	                    └── obs_par.pcf
 
 
-.
-+-- _config.yml
-+-- _drafts
-|   +-- begin-with-the-crazy-ideas.textile
-|   +-- on-simplicity-in-technology.markdown
-+-- _includes
-|   +-- footer.html
-|   +-- header.html
-+-- _layouts
-|   +-- default.html
-|   +-- post.html
-+-- _posts
-|   +-- 2007-10-29-why-every-programmer-should-play-nethack.textile
-|   +-- 2009-04-26-barcamp-boston-4-roundup.textile
-+-- _data
-|   +-- members.yml
-+-- _site
-+-- index.html
+::
+
+    project
+    ├── demo.py
+    ├── LICENCE.txt
+    ├── processes
+    │   ├── area.py
+    │   └── bboxinout.py
+    ├── pywps.cfg
+    ├── requirements.txt
+    ├── server.py
+    ├── setup.py
+    ├── static
+    ├── templates
+    └── tests
 
 
     .. note:: | All next steps are going to use the pcf and fit_par which is located in the workdir (run_2022-03-04_15-10-29_GJ1214_Hubble13021) and not the pcf and fit_par in the rundir (GJ1214_13021)!
