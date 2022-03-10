@@ -73,43 +73,69 @@ Here's an example:
 Let's have a look at each column:
 
 - parameter
+
   A list of the different parameters in each model is above.
 
+
 - fixed
+
   If set to False, the parameter will be a free parameter.
 
+
 - tied
+
   If the user wants to tie a parameter over all visits, set -1.
+
   If the user does not want to tie a certain parameter, he or she has to duplicate the line as often as they have visits.
+
   Example: c in the template above. The code assumes that the user sorted the rows in the correct order.
 
+
 - value
+
   If fixed was set to True, this will be the used value for the parameter.
+
   If fixed was set to False, this is the initial guess for the parameter.
 
+
 - lo_lim
+
   Use lower bounds for the least squares routine?
 
+
 - lo_val
+
   lower bound value for the least squares routine.
 
+
 - hi_lim
+
   Use upper bounds for the least squares routine?
 
+
 - hi_val
+
   upper bound value for the least squares routine.
 
+
 - prior
+
   Prior for the sampling?
+
   * X: No prior
+
   * U: uniform prior
+
   * N: Gaussian prior
 
+
 - p1 & p2
+
   If prior = U -> lower and upper bounds for the uniform prior
+
   if prior = N -> mean and 1 sigma for the gaussian prior
 
-- step_size
-  Sets a step_size for the least squares and sampling.
 
-  
+- step_size
+
+  Sets a step_size for the least squares and sampling.
