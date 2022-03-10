@@ -27,70 +27,20 @@ The fit_par.txt and obs_par.pcf files which are in the run directory will be cop
 
 You have the following data structure now:
 
+::
 
-| user
-| └── Desktop
-|     └── Projects
-|         └── Observations
-|             └── Hubble
-|	                └── GJ1214_13021
-|                     ├── run_pacman.py
-|                     ├── fit_par.txt
-|   	                ├── obs_par.pcf
-|                     └── run_2022-03-04_15-10-29_GJ1214_Hubble13021
-|                         ├── fit_par.txt
-|   	                    └── obs_par.pcf
-
-
-
-themes/
-├-parent-theme/
-│ └-framework-customizations/
-│   ├-extensions/
-│   │ ├─extension-name/
-│   │ └─...
-│   └-theme/
-│     ├-manifest.php   # Theme details: title, description, version, dependencies, etc.
-│     ├-config.php     # Theme specific configuration
-│     └─options/
-│       ├─settings.php # Theme settings options
-│       ├─customizer.php # Customizer options
-│       ├─posts/       # Post types options
-│       │ ├─post.php
-│       │ ├─testimonial.php
-│       │ ├─{post-type}.php
-│       │ └─...
-│       └─taxonomies/  # Taxonomy terms options
-│         ├─category.php
-│         ├─post_tag.php
-│         ├─{taxonomy}.php
-│         └─...
-└-child-theme/
-
-
-| project
-| ├── demo.py
-| ├── LICENCE.txt
-| ├── processes
-| │   ├── area.py
-| │   └── bboxinout.py
-| ├── pywps.cfg
-| ├── requirements.txt
-| ├── server.py
-| ├── setup.py
-| ├── static
-| ├── templates
-| └── tests
-
-
-		crawler
-		├── src
-		└── docs
-				├── index.rst
-				├── support.rst
-				├── install.rst
-				├── Makefile
-				├── conf.py
+	user
+	└── Desktop
+		└── Projects
+			└── Observations
+				└── Hubble
+					└── GJ1214_13021
+						├── pacman_script.py
+						├── fit_par.txt
+						├── obs_par.pcf
+						└── run_2022-03-04_15-10-29_GJ1214_Hubble13021
+							├── fit_par.txt
+							└── obs_par.pcf
 
 
 

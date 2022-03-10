@@ -9,15 +9,17 @@ Before we can run we have set up some stuff:
 
 All runs will be saved in a run directory. For the analysis of the GJ1214 data I have the following directory setup:
 
-| user
-| └── Desktop
-|     └── Projects
-|         └── Observations
-|             └── Hubble
-|	                └── GJ1214_13021
-                    | ├── run_pacman.py
-                    | ├── fit_par.txt
-                    | └── obs_par.pcf
+::
+
+	user
+	└── Desktop
+		└── Projects
+			└── Observations
+				└── Hubble
+					└── GJ1214_13021
+						├── pacman_script.py
+						├── fit_par.txt
+						└── obs_par.pcf
 
 In this case `GJ1214_13021` is my run directory
 
