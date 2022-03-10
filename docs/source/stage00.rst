@@ -27,20 +27,39 @@ The fit_par.txt and obs_par.pcf files which are in the run directory will be cop
 
 You have the following data structure now:
 
-```
- user
- └── Desktop
-     └── Projects
-         └── Observations
-             └── Hubble
-	                └── GJ1214_13021
-                     ├── run_pacman.py
-                     ├── fit_par.txt
-   	                 ├── obs_par.pcf
-                     └── run_2022-03-04_15-10-29_GJ1214_Hubble13021
-                         ├── fit_par.txt
-   	                     └── obs_par.pcf
-```
+
+| user
+| └── Desktop
+|     └── Projects
+|         └── Observations
+|             └── Hubble
+|	                └── GJ1214_13021
+|                     ├── run_pacman.py
+|                     ├── fit_par.txt
+|   	                ├── obs_par.pcf
+|                     └── run_2022-03-04_15-10-29_GJ1214_Hubble13021
+|                         ├── fit_par.txt
+|   	                    └── obs_par.pcf
+
+
++-- _config.yml
++-- _drafts
+|   +-- begin-with-the-crazy-ideas.textile
+|   +-- on-simplicity-in-technology.markdown
++-- _includes
+|   +-- footer.html
+|   +-- header.html
++-- _layouts
+|   +-- default.html
+|   +-- post.html
++-- _posts
+|   +-- 2007-10-29-why-every-programmer-should-play-nethack.textile
+|   +-- 2009-04-26-barcamp-boston-4-roundup.textile
++-- _data
+|   +-- members.yml
++-- _site
++-- index.html
+
 
     .. note:: | All next steps are going to use the pcf and fit_par which is located in the workdir (run_2022-03-04_15-10-29_GJ1214_Hubble13021) and not the pcf and fit_par in the rundir (GJ1214_13021)!
 
