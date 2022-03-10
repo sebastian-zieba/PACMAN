@@ -3,11 +3,11 @@
 PACMAN Control File (.pcf)
 ============================
 
-To run the different Stages of ``PACMAN``, the pipeline requires control files (.pcf) where Stage-specific parameters are defined (e.g. aperture size, path of the data, etc.).
+To run the different Stages of ``PACMAN``,
+the pipeline requires a so-called PACMAN control file (.pcf)
+where Stage-specific parameters are defined (e.g. aperture size, path of the data, etc.).
 
 In the following, we look at the contents of the pcf.
-
-
 
 .. include:: media/obs_par.pcf
    :literal:
@@ -458,4 +458,3 @@ Parameters for emcee.
 run_dlogz/run_nlive
 ''''''''''''''''''''''''''''''''''''''''''''
 Parameters for dynesty.
-

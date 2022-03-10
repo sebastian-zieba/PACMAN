@@ -1,9 +1,9 @@
 .. _models:
 
-Fitting models
-========================
+fit_par.txt and Fitting models
+================================
 
-Systematics
+Instrument Systematics
 ''''''''''''''''''''''''''''''
 
 * `constant.py <https://pacmandocs.readthedocs.io/en/latest/_modules/pacman/lib/models/constant.html#constant>`_
@@ -54,5 +54,3 @@ free parameters: a1, omega1, phi1, a2, omega2, phi2, a3, omega3, phi3, a12, omeg
 * `sine_curve.py <https://pacmandocs.readthedocs.io/en/latest/_modules/pacman/lib/models/sine_curve.html#sine_curve>`_
 
 free parameters: amp1, theta1, per, amp2, theta2
-
-
