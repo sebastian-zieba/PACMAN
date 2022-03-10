@@ -119,7 +119,7 @@ Nomenclature
   This directory will be created when running Stage 00.
   All the results of the following stages will be stored here.
 
-  It therefore has the following form:
+  It has the following form:
 
   .. code-block:: python
 
@@ -139,31 +139,3 @@ Nomenclature
   Example: ``/home/zieba/Desktop/Projects/Open_source/PACMAN/pacman``
 
   This is the heart of PACMAN containing all the code to run the different Stages.
-
-
-
-
-
-
-
-
-
-
-
-
-PACMAN consists out of these important parts:
-
-* pacman
-Contains the heart of pacman with all python scipts needed to reduce and analyse HST data.
-
-* data directory
-a local directory which contains all the ima fits files (has to be set in pcf before running Stage 00).
-
-* run directory
-a local directory where the run will be saved (has to be set in pcf before running Stage 00).
-This directory will ultimately get an additional work directory every time Stage 00 is being run.
-
-* work directory
-a subdirectory of the run directory.
-It has the following form: eg, ``run_2022-01-19_16-46-19_GJ1214_Hubble13021``.
-It therefore contains the date and time Stage 00 has been run and the eventlabel.
