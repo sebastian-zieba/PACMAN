@@ -42,24 +42,32 @@ You have the following data structure now:
 |   	                    └── obs_par.pcf
 
 
-::
+themes/
+├-parent-theme/
+│ └-framework-customizations/
+│   ├-extensions/
+│   │ ├─extension-name/
+│   │ └─...
+│   └-theme/
+│     ├-manifest.php   # Theme details: title, description, version, dependencies, etc.
+│     ├-config.php     # Theme specific configuration
+│     └─options/
+│       ├─settings.php # Theme settings options
+│       ├─customizer.php # Customizer options
+│       ├─posts/       # Post types options
+│       │ ├─post.php
+│       │ ├─testimonial.php
+│       │ ├─{post-type}.php
+│       │ └─...
+│       └─taxonomies/  # Taxonomy terms options
+│         ├─category.php
+│         ├─post_tag.php
+│         ├─{taxonomy}.php
+│         └─...
+└-child-theme/
 
-    project
-    ├── demo.py
-    ├── LICENCE.txt
-    ├── processes
-    │   ├── area.py
-    │   └── bboxinout.py
-    ├── pywps.cfg
-    ├── requirements.txt
-    ├── server.py
-    ├── setup.py
-    ├── static
-    ├── templates
-    └── tests
 
-
-    .. note:: | All next steps are going to use the pcf and fit_par which is located in the workdir (run_2022-03-04_15-10-29_GJ1214_Hubble13021) and not the pcf and fit_par in the rundir (GJ1214_13021)!
+.. note:: | All next steps are going to use the pcf and fit_par which is located in the workdir (run_2022-03-04_15-10-29_GJ1214_Hubble13021) and not the pcf and fit_par in the rundir (GJ1214_13021)!
 
 After running Stage 00 you should get an output in our terminal similar to this one:
 
