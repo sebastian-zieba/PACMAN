@@ -24,8 +24,8 @@ The pipeline is still under development! Use at your own risk.
 
    installation
    stages
-   pcf
    directories
+   pcf
    models
    api
    contact
