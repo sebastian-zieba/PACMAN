@@ -42,6 +42,7 @@ You have the following data structure now:
 |   	                    └── obs_par.pcf
 
 
+.
 +-- _config.yml
 +-- _drafts
 |   +-- begin-with-the-crazy-ideas.textile
