@@ -42,6 +42,7 @@ You have the following data structure now:
 |   	                    └── obs_par.pcf
 
 
+
 themes/
 ├-parent-theme/
 │ └-framework-customizations/
@@ -65,6 +66,32 @@ themes/
 │         ├─{taxonomy}.php
 │         └─...
 └-child-theme/
+
+
+| project
+| ├── demo.py
+| ├── LICENCE.txt
+| ├── processes
+| │   ├── area.py
+| │   └── bboxinout.py
+| ├── pywps.cfg
+| ├── requirements.txt
+| ├── server.py
+| ├── setup.py
+| ├── static
+| ├── templates
+| └── tests
+
+
+		crawler
+		├── src
+		└── docs
+				├── index.rst
+				├── support.rst
+				├── install.rst
+				├── Makefile
+				├── conf.py
+
 
 
 .. note:: | All next steps are going to use the pcf and fit_par which is located in the workdir (run_2022-03-04_15-10-29_GJ1214_Hubble13021) and not the pcf and fit_par in the rundir (GJ1214_13021)!
