@@ -10,6 +10,7 @@ You can click on the Stage to inspect the main python script for it.
 
 
 .. class:: bold
+
 - `**Stage 00:** <https://pacmandocs.readthedocs.io/en/latest/_modules/pacman/reduction/s00_table.html>`_
 
   Every _ima_ fits file in the data directory is being read in and
