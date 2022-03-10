@@ -98,7 +98,9 @@ Nomenclature
 
    - fit_par
 
-
+   If you downloaded or cloned the GitHub repository it includes the run_files directory with templates for these three files.
+   They can also be downloaded under this link: `Download here <https://downgit.github.io/#/home?url=https://github.com/sebastian-zieba/PACMAN/tree/master/pacman/run_files>`_.
+   You have to copy these files into your run directory.
 
     .. note:: | The pcf file in the run directory is ONLY used in Stage 00.
               | It will be copied over to the work directory.
