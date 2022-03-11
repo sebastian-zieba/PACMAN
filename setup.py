@@ -10,8 +10,6 @@ for root, _, files in os.walk("PACMAN"):
     FILES += [os.path.join(root.replace("PACMAN/", ""), fname) \
         for fname in files if not fname.endswith(".py") and not fname.endswith(".pyc")]
 
-print(FILES)
-
 setup(name='PACMAN',
       version='0.0.1',
       description='Pipeline for reduction and analysis of HST/WFC3 G102 and G141 data',
