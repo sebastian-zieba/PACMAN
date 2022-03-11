@@ -5,21 +5,36 @@ Stage 00
 
 1) **Set up pcf**
 
-Firstly, set up the location of your datadir and rundir.
+Firstly, set up the location of your Data Directory (=datadir) and Run Directory (=rundir).
 
-If your datadir contains a lot of visits, but you only want to analyse a subset you can use ``which_visits``.
-In this example, we downloaded all 15 visits in GO13021 bur we are going to analyse just three visits taken in the middle of the program for simplicity.
-Dates (YYYY-MM-DD): 2013-03-13,  2013-03-15,  2013-03-27
-If the user has all 15 visits of the program in the data directory you can choose: ``which_visits = [5,6,7]`` in the pcf.
+The rundir should contain the following three files:
+
+- **run_pacman.py**
+
+- **fit_par.txt**
+
+- **obs_par.pcf**
+
+They can be either found in your package directory, on `GitHub <https://github.com/sebastian-zieba/PACMAN>`_
+or can be downloaded `here <https://downgit.github.io/#/home?url=https://github.com/sebastian-zieba/PACMAN/tree/master/pacman/run_files>`_.
+
+If your datadir contains a lot of visits, but you only want to analyze a subset you can use ``which_visits``.
+
+As mentioned in the Introduction, in this example going to analyze just three
+visits taken in the middle of the GO13021 program for simplicity (Dates (YYYY-MM-DD): 2013-03-13,  2013-03-15,  2013-03-27).
+
+If the user downloaded all 15 visits in GO13021, he or she can choose: ``which_visits = [5,6,7]`` in the pcf.
+
 
 Now navigate to your rundir in your terminal and type:
 
 .. code-block:: console
 	python pacman_script.py --s00 --eventlabel='GJ1214_Hubble13021'
 
-Here, --s00 mean we run Stage00 and --eventlabel will be used in the naming of files and directories.
+Here, --s00 means we are going to run Stage 00 and --eventlabel will be used in the naming of files and directories.
 
-When running s00, the first step creates a new directory for the analysis which will be used as the work directory ('workdir').
+When running s00, the first step creates a new subdirectory in rundir for the analysis which we will call the work directory (=workdir).
+
 It will be saved in the rundir and have a form like:
 ``/home/zieba/Desktop/Projects/Observations/Hubble/GJ1214_13021/run_2022-03-04_15-10-29_GJ1214_Hubble13021``
 
@@ -46,7 +61,7 @@ You have the following data structure now:
 
 .. note:: | All next steps are going to use the pcf and fit_par which is located in the workdir (run_2022-03-04_15-10-29_GJ1214_Hubble13021) and not the pcf and fit_par in the rundir (GJ1214_13021)!
 
-After running Stage 00 you should get an output in our terminal similar to this one:
+After running Stage 00 you should get an output in the terminal similar to this one:
 
 .. code-block:: console
 
