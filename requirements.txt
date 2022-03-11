@@ -1,3 +1,4 @@
+nbsphinx
 numpy
 scipy
 matplotlib
@@ -10,7 +11,6 @@ seaborn
 h5py
 pyyaml
 tqdm
-nbsphinx
 numpydoc
 myst_parser
 recommonmark
