@@ -5,42 +5,44 @@ Stage 00
 
 1) **Set up pcf**
 
-Firstly, set up the location of your Data Directory (=datadir) and Run Directory (=rundir).
+	Firstly, set up the location of your Data Directory (=datadir) and Run Directory (=rundir).
 
-The rundir should contain the following three files:
+	The rundir should contain the following three files:
 
-- **run_pacman.py**
+	- **run_pacman.py**
 
-- **fit_par.txt**
+	- **fit_par.txt**
 
-- **obs_par.pcf**
+	- **obs_par.pcf**
 
-They can be either found in your package directory, on `GitHub <https://github.com/sebastian-zieba/PACMAN>`_
-or can be downloaded `here <https://downgit.github.io/#/home?url=https://github.com/sebastian-zieba/PACMAN/tree/master/pacman/run_files>`_.
+	They can be either found in your package directory, on `GitHub <https://github.com/sebastian-zieba/PACMAN>`_
+	or can be downloaded `here <https://downgit.github.io/#/home?url=https://github.com/sebastian-zieba/PACMAN/tree/master/pacman/run_files>`_.
 
-If your datadir contains a lot of visits, but you only want to analyze a subset you can use ``which_visits``.
+	If your datadir contains a lot of visits, but you only want to analyze a subset you can use ``which_visits``.
 
-As mentioned in the Introduction, in this example going to analyze just three
-visits taken in the middle of the GO13021 program for simplicity (Dates (YYYY-MM-DD): 2013-03-13,  2013-03-15,  2013-03-27).
+	As mentioned in the Introduction, in this example going to analyze just three
+	visits taken in the middle of the GO13021 program for simplicity (Dates (YYYY-MM-DD): 2013-03-13,  2013-03-15,  2013-03-27).
 
-If the user downloaded all 15 visits in GO13021, he or she can choose: ``which_visits = [5,6,7]`` in the pcf.
+	If the user downloaded all 15 visits in GO13021, he or she can choose: ``which_visits = [5,6,7]`` in the pcf.
 
 
-Now navigate to your rundir in your terminal and type:
+2) **Run PACMAN**
 
-.. code-block:: console
-	python pacman_script.py --s00 --eventlabel='GJ1214_Hubble13021'
+	Now navigate to your rundir in your terminal and type:
 
-Here, --s00 means we are going to run Stage 00 and --eventlabel will be used in the naming of files and directories.
+	.. code-block:: console
+		python pacman_script.py --s00 --eventlabel='GJ1214_Hubble13021'
 
-When running s00, the first step creates a new subdirectory in rundir for the analysis which we will call the work directory (=workdir).
+	Here, --s00 means we are going to run Stage 00 and --eventlabel will be used in the naming of files and directories.
 
-It will be saved in the rundir and have a form like:
-``/home/zieba/Desktop/Projects/Observations/Hubble/GJ1214_13021/run_2022-03-04_15-10-29_GJ1214_Hubble13021``
+	When running s00, the first step creates a new subdirectory in rundir for the analysis which we will call the work directory (=workdir).
 
-The fit_par.txt and obs_par.pcf files which are in the run directory will be copied there.
+	It will be saved in the rundir and have a form like:
+	``/home/zieba/Desktop/Projects/Observations/Hubble/GJ1214_13021/run_2022-03-04_15-10-29_GJ1214_Hubble13021``
 
-You have the following data structure now:
+	The fit_par.txt and obs_par.pcf files which are in the run directory will be copied there.
+
+	You have the following data structure now:
 
 ::
 
@@ -61,47 +63,50 @@ You have the following data structure now:
 
 .. note:: | All next steps are going to use the pcf and fit_par which is located in the workdir (run_2022-03-04_15-10-29_GJ1214_Hubble13021) and not the pcf and fit_par in the rundir (GJ1214_13021)!
 
-After running Stage 00 you should get an output in the terminal similar to this one:
 
-.. code-block:: console
+3) Results
 
-	    Starting s00
-	    Found 1145 data file(s) ending in ima.fits
-	    Reading in files and their headers: 100%|##########| 1145/1145 [00:03<00:00, 303.42it/s]
-	    Determining orbit(s) and visit(s): 100%|##########| 1145/1145 [00:00<00:00, 261786.76it/s]
-	    The user does not want to analyse every visit (which_visits != everything). The amount of files analyzed therefore reduced from 1145 to 237.
-	    Writing table into filelist.txt
-	    Saving Metadata
-	    Finished s00
+	After running Stage 00 you should get an output in the terminal similar to this one:
+
+	.. code-block:: console
+
+		    Starting s00
+		    Found 1145 data file(s) ending in ima.fits
+		    Reading in files and their headers: 100%|##########| 1145/1145 [00:03<00:00, 303.42it/s]
+		    Determining orbit(s) and visit(s): 100%|##########| 1145/1145 [00:00<00:00, 261786.76it/s]
+		    The user does not want to analyse every visit (which_visits != everything). The amount of files analyzed therefore reduced from 1145 to 237.
+		    Writing table into filelist.txt
+		    Saving Metadata
+		    Finished s00
 
 
-You will also end up with a new file called ``filelist.txt``. It should look like this:
+	You will also end up with a new file called ``filelist.txt``. It should look like this:
 
-.. include:: media/s00/filelist.txt
-   :literal:
+	.. include:: media/s00/filelist.txt
+	   :literal:
 
-It has the following columns:
+	It has the following columns:
 
-* filenames
+	* filenames
 
-* instr: The specific filter or grism used in the obervation
+	* instr: The specific filter or grism used in the obervation
 
-* ivisit: Current visit of the observation
+	* ivisit: Current visit of the observation
 
-* iorbit: Current orbit of the observation
+	* iorbit: Current orbit of the observation
 
-* t_mjd: Time in Modified Julian Date (MJD)
+	* t_mjd: Time in Modified Julian Date (MJD)
 
-* t_visit: Time since the first exposure in the visit in minutes
+	* t_visit: Time since the first exposure in the visit in minutes
 
-* t_orbit: Time since the first exposure in the orbit in minutes
+	* t_orbit: Time since the first exposure in the orbit in minutes
 
-* scan: Scan direction:
+	* scan: Scan direction:
 
-  * 0: forward scan
+	  * 0: forward scan
 
-  * 1: reverse scan
+	  * 1: reverse scan
 
-  * -1: not a spectrum but a direct image
+	  * -1: not a spectrum but a direct image
 
-* exp: exposure time in seconds
+	* exp: exposure time in seconds
