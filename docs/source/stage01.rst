@@ -33,4 +33,4 @@ For example, the second file should look like this (due to its length, we just d
 
 The next Stage uses the information in these files to convert from MJD to BJD.
 
-    .. note:: You might have noticed the output "Successfully reloaded meta file" at the beginning of the stage. This means that the pcf is being read in again and any changes which have been made to the file between Stage 00 and Stage 01 will be considered. This reloading is being done before running every Stage but Stage 00.
+    .. note:: You might have noticed the output "Successfully reloaded meta file" at the beginning of the stage. This means that the pcf in the work directory is being read in again and any changes which have been made to the file between Stage 00 and Stage 01 will be considered. This reloading is being done before running every Stage but Stage 00.

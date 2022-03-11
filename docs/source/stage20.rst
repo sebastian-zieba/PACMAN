@@ -19,6 +19,22 @@ Into 1D spectra:
 .. image:: media/s20/sp1d_0.png
 
 
+The way PACMAN determines the rows which should be used in optimal extraction can be seen in the following plot:
+
+.. image:: media/s20/utr0-11.png
+
+The first panel (left) shows the 2D spectrum. The column limits are determined using the trace.
+
+The second panel (middle) shows the median flux in every column.
+
+The third panel (right) shows the absolute difference between the median flux in the adjeciant columns.
+We use this these two rows where the flux changes the most as reference rows.
+The pcf file contains a window parameter.
+If the two determined peaks are at row=155 & row = 162 and window was set to 12, the data between rows 155-12 and 162+12 will be used in the optimal extration.
+
+
+When running Stage 20 you will see an output similar to the following:
+
 .. code-block:: console
 
 	    Successfully reloaded meta file
@@ -54,3 +70,10 @@ Into 1D spectra:
 	    ***************** Looping over files: 100%|██████████| 225/225 [03:44<00:00,  1.00it/s]
 	    Saving Metadata
 	    Finished s20
+
+
+After Stage 20 we are set up to either:
+
+- Continue with Stage 21 if the user wants to fit spectroscopic light curves.
+
+- Continue with Stage 30 to fit the white light curve.

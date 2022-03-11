@@ -26,7 +26,7 @@ The black crosses in the plot show the times when HST actually observed. One can
 One can also see the colored curve is a bit wiggley. This is in fact the rotation of HST around the earth.
 The colored curve consists out of a lot of points. Every one of them are a X,Y,Z position of HST downloaded from HORIZONS. The color coding denotes the time direction.
 
-The ``filetable.txt`` has be updated by the end of this stage and contains a new column called ``t_bjd`` with the time of observations in BJD.
+The ``filetable.txt`` will be updated by the end of this stage and contains a new column called ``t_bjd`` with the time of observations in BJD.
 E.g. (only showing the first few lines):
 
 .. include:: media/s02/filelist_updated.txt

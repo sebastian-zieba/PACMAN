@@ -13,7 +13,7 @@ This will save a plot showing you the direct image which you can then use to ref
 First run
 ''''''''''''''''''''''''
 
-For demonstration purposures, in this first run I did not change the settings in the pcf file from a previous analysis of a different dataset:
+For demonstration purposes, in this first run I did not change the settings in the pcf file from a previous analysis of a different dataset:
 
 | di_rmin    | 320
 | di_rmax    | 360
@@ -113,4 +113,3 @@ This is because the table accounted for the offset in X and Y to subsection star
 
 | LTV1    =  -374.0 / offset in X to subsection start
 | LTV2    =  -374.0 / offset in Y to subsection start
-

@@ -68,7 +68,7 @@ We use the stellar parameters published in `Cloutier et al. 2021 <https://ui.ads
 
 .. note::
 
-	The stellar models will be saved into the run directory. E.g., ``/home/zieba/Desktop/Projects/Open_source/PACMAN/run/run_2022-02-15_21-52-46_GJ1214_Hubble13021/ancil/stellar_models/k93models/kp03_3500.fits``.
+	The stellar models will be saved into the run directory. E.g., ``/home/zieba/Desktop/Projects/Observations/Hubble/GJ1214_13021/run_2022-03-04_15-10-29_GJ1214_Hubble13021/ancil/stellar_models/k93models/kp03_3500.fits``.
 	If the file already exists then it will not be downloaded again.
 
 

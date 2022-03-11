@@ -24,7 +24,7 @@ For the MCMC, let's do a quick, small amount of samples with an amount of walker
 | run_nburn                    2000
 
 
-Let's use the following mdel:
+Let's use the following model:
 
 | s30_myfuncs                  ['constant','upstream_downstream','model_ramp','polynomial1','transit']
 
@@ -39,6 +39,9 @@ Let's have the following free parameters:
 t0_0, rp_0, u1_0, c_0, c_1, c_2, v_0, v_1, v_2, r1_0, r1_1, r1_2, r2_0, r2_1, r2_2, r3_0, r3_1, r3_2, scale_0, scale_1, scale_2
 
 While we fixed the other important parameters (per, a inc) to the literature values.
+
+The user can set in the pcf if the reduced chi2 which will be calculated from the least squared should be rescaled to be equal to unity or not.
+
 
 
 White light curve fit
@@ -113,13 +116,27 @@ Let's run the white light curve fit now:
 
 There are several plots created then:
 
+The raw light curve:
+
 .. image:: media/s30/white/raw_lc_0.png
+
+The fitted light curve without the systematics:
+
 .. image:: media/s30/white/fit_lc_0_2022-02-15_22-20-09.png
+
+The Allan deviation plot:
 
 .. image:: media/s30/white/corr_plot_0.png
 
+MCMC chains with burn-in:
+
 .. image:: media/s30/white/mcmc_chains_bin0_wvl1.400.png
+
+MCMC chains without burn-in
+
 .. image:: media/s30/white/mcmc_chains_noburn_bin0_wvl1.400.png
+
+Corner plot from the MCMC:
 
 .. image:: media/s30/white/mcmc_pairs_bin0_wvl1.400.png
 
@@ -195,6 +212,15 @@ Spectroscopic light curve fit
 
 	    Finished s30
 
+
+The fitted spectroscopic light curve without the systematics:
+
 .. image:: media/s30/spectroscopic/fit_lc_0_2022-02-15_22-34-53.png
+
+All fitted parameters as a function of wavelength:
+
 .. image:: media/s30/spectroscopic/lsq_params_vs_wvl.png
+
+The spectrum (rprs vs wavelength):
+
 .. image:: media/s30/spectroscopic/lsq_rprs.png
