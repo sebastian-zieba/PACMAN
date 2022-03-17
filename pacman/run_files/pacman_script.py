@@ -51,7 +51,7 @@ def main():
     run_s21 = False  # bins light curves
     run_s30 = False  # fits models to the extracted light curve(s)
 
-    print(opts)
+
     for o, a in opts:
         if o in ("-h", "--help"): usage()
         elif o == "--s00":

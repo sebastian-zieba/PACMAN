@@ -19,7 +19,7 @@ class MetaClass:
         return
 
 
-def run00(eventlabel):
+def run00(eventlabel, pcf_path='.'):
     """
     This function does the initial setup of the analysis, including creating a table with information on the observations. This table will be saved into 'filelist.txt'.
 
@@ -82,7 +82,7 @@ def run00(eventlabel):
     meta.eventlabel = eventlabel
 
     # Load PACMAN control file (which is in the run directory) and store values in Event object
-    pcffile = 'obs_par.pcf'
+    pcffile = pcf_path + '/obs_par.pcf'
     pcf = rd.read_pcf(pcffile)
     rd.store_pcf(meta, pcf)
 
@@ -105,7 +105,8 @@ def run00(eventlabel):
 
     # Copy pcf and fit_par.txt
     shutil.copy(pcffile, meta.workdir)
-    shutil.copy('fit_par.txt', meta.workdir)
+    fit_parfile = pcf_path + 'fit_par.txt'
+    shutil.copy(fit_parfile, meta.workdir)
     print('pcf and fit_par files moved to the new work directory', meta.workdir)
 
     # Create list of file segments

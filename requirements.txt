@@ -16,3 +16,5 @@ myst_parser
 recommonmark
 uncertainties
 ipython_genutils
+pytest
+
