@@ -24,39 +24,7 @@ from ..lib import sort_nicely as sn
 #@pytest.fixture(scope="session")
 
 
-def test_s00(capsys):
-    #print(os.system("pwd"))
-
-    with capsys.disabled():
-        print("PACMAN test:")
-
-    # explicitly define meta variables to be able to run pathdirectory fn locally
-    eventlabel='GJ1214_13021'
-    #meta.topdir='../tests'
-    pcf_path='./run_files/'
-
-    #run s00
-    meta = s00.run00(eventlabel, pcf_path)
-    workdir = meta.workdir + '/'
-    time.sleep(1.1)
-
-    # run assertions for s00
-    assert os.path.exists(workdir)
-    assert os.path.exists(workdir+'/figs')
-
-
-def test_s01(capsys):
-    #print(os.system("pwd"))
-
-    with capsys.disabled():
-        print("PACMAN test:")
-
-    # explicitly define meta variables to be able to run pathdirectory fn locally
-    eventlabel='GJ1214_13021'
-    #meta.topdir='../tests'
-    pcf_path='./run_files/'
-
-
+def workdir_finder():
     # list subdirectories in the run directory
     dirs = np.array([f.path for f in os.scandir('.') if f.is_dir()])
     # saves times when these subdirectories were created. 
@@ -80,7 +48,36 @@ def test_s01(capsys):
     workdir = workdir + '/'
     print('workdir: ', workdir)
     print('eventlabel: ', eventlabel)
+    return (workdir, eventlabel)
 
+
+
+def test_s00(capsys):
+    #print(os.system("pwd"))
+
+    with capsys.disabled():
+        print("PACMAN test:")
+
+    # explicitly define meta variables to be able to run pathdirectory fn locally
+    eventlabel='GJ1214_13021'
+    #meta.topdir='../tests'
+    pcf_path='./run_files/'
+
+    #run s00
+    meta = s00.run00(eventlabel, pcf_path)
+    workdir = meta.workdir + '/'
+    time.sleep(1.1)
+
+    # run assertions for s00
+    assert os.path.exists(workdir)
+    assert os.path.exists(workdir+'/figs')
+
+
+def test_s01(capsys):
+    with capsys.disabled():
+        print("PACMAN test:")
+
+    workdir, eventlabel = workdir_finder()
 
     #run s01
     meta = s01.run01(eventlabel, workdir)
@@ -90,9 +87,46 @@ def test_s01(capsys):
     assert os.path.exists(workdir+'/figs')
 
 
-    #
-    #meta = s02.run02(eventlabel, workdir)
-    #meta = s03.run03(eventlabel, workdir)
+def test_s02(capsys):
+    with capsys.disabled():
+        print("PACMAN test:")
+
+    workdir, eventlabel = workdir_finder()
+
+    #run s01
+    meta = s02.run02(eventlabel, workdir)
+
+    # run assertions for s01
+    assert os.path.exists(workdir)
+    assert os.path.exists(workdir+'/figs')
+
+
+def test_s03(capsys):
+    with capsys.disabled():
+        print("PACMAN test:")
+
+    workdir, eventlabel = workdir_finder()
+
+    #run s01
+    meta = s03.run03(eventlabel, workdir)
+
+    # run assertions for s01
+    assert os.path.exists(workdir)
+    assert os.path.exists(workdir+'/figs')
+
+    os.system("rm -r ./{0}".format(workdir))
+
+
+def test_allstages(capsys):
+    test_s00(capsys)
+    time.sleep(2)
+    test_s01(capsys)
+    time.sleep(2)
+    test_s02(capsys)    
+    time.sleep(2)
+    test_s03(capsys)
+
+
     #meta = s10.run10(eventlabel, workdir)
     #meta = s20.run20(eventlabel, workdir)
     #meta = s21.run21(eventlabel, workdir)
