@@ -19,7 +19,7 @@ class MetaClass:
         return
 
 
-def run00(eventlabel, pcf_path='.', run_dir=):
+def run00(eventlabel, pcf_path='.'):
     """
     This function does the initial setup of the analysis, including creating a table with information on the observations. This table will be saved into 'filelist.txt'.
 
