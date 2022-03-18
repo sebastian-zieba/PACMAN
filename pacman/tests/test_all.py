@@ -2,7 +2,7 @@ import numpy as np
 import sys, os, time
 import pytest
 
-sys.path.insert(0, '/home/zieba/Desktop/Projects/Open_source/PACMAN/')
+#sys.path.insert(0, '/home/zieba/Desktop/Projects/Open_source/PACMAN/')
 
 from importlib import reload
 
