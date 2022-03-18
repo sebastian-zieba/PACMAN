@@ -18,12 +18,14 @@ from ..lib import sort_nicely as sn
 
 test_path = '/'.join(os.path.realpath(__file__).split('/')[:-1]) + '/'
 
+
 def workdir_finder():
     # list subdirectories in the run directory
     dirs = np.array([f.path for f in os.scandir(test_path) if f.is_dir()])
+    print(dirs)
     # saves times when these subdirectories were created. 
     # They always have the following form: 'run_YYYY-MM-DD_HH-MM-SS_eventlabel'
-    dirs_bool = np.array([i[:7] == './run_2' for i in dirs])
+    dirs_bool = np.array(['/run_2' in i for i in dirs])
     dirs = dirs[dirs_bool]
     print(dirs)
     dirs_times = [i[6:25] for i in dirs]
@@ -46,6 +48,7 @@ def workdir_finder():
 
 
 def test_s00(capsys):
+    print('test_path', test_path)
     #print(os.system("pwd"))
 
     with capsys.disabled():
@@ -53,7 +56,7 @@ def test_s00(capsys):
 
     # explicitly define meta variables to be able to run pathdirectory fn locally
     eventlabel='GJ1214_13021'
-    pcf_path= test_path + '/run_files/'
+    pcf_path= test_path + '/run_files'
 
     #run s00
     meta = s00.run00(eventlabel, pcf_path)

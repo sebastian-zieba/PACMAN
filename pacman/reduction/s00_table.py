@@ -93,10 +93,12 @@ def run00(eventlabel, pcf_path='.'):
 
     #If the user runs the tests we have to set the rundir and datadir manually
     if meta.rundir == 'pacman/tests/':
+        print('True')
         meta.rundir = '/'.join(pcf_path.split('/')[:-1]) + '/'
     print('Location of the run directory:', meta.rundir)
 
     if meta.datadir == 'pacman/tests/data':
+        print('True')
         meta.datadir = '/'.join(pcf_path.split('/')[:-1]) + '/data/'
     print('Location of the data directory:', meta.datadir)
 
@@ -113,7 +115,7 @@ def run00(eventlabel, pcf_path='.'):
 
     # Copy pcf and fit_par.txt
     shutil.copy(pcffile, meta.workdir)
-    fit_parfile = pcf_path + 'fit_par.txt'
+    fit_parfile = pcf_path + '/fit_par.txt'
     shutil.copy(fit_parfile, meta.workdir)
     print('pcf and fit_par files moved to the new work directory', meta.workdir)
 
