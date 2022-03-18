@@ -19,7 +19,7 @@ class MetaClass:
         return
 
 
-def run00(eventlabel, pcf_path='.'):
+def run00(eventlabel, pcf_path='.', run_dir=):
     """
     This function does the initial setup of the analysis, including creating a table with information on the observations. This table will be saved into 'filelist.txt'.
 
@@ -90,7 +90,15 @@ def run00(eventlabel, pcf_path='.'):
     #pacmandir is just the path of the directory /pacman/
     meta.pacmandir = '/'.join(os.path.realpath(__file__).split('/')[:-2]) + '/'
     print('Location of PACMAN:', meta.pacmandir)
+
+    #If the user runs the tests we have to set the rundir and datadir manually
+    if meta.rundir == 'pacman/tests/':
+        meta.rundir = '/'.join(pcf_path.split('/')[:-1]) + '/'
     print('Location of the run directory:', meta.rundir)
+
+    if meta.datadir == 'pacman/tests/data':
+        meta.datadir = '/'.join(pcf_path.split('/')[:-1]) + '/data/'
+    print('Location of the data directory:', meta.datadir)
 
     # Create directories for this run = Work Directory
     datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
@@ -120,12 +128,6 @@ def run00(eventlabel, pcf_path='.'):
     exp = np.zeros(len(files))
     instr = np.zeros(len(files), object)
     scans = np.zeros(len(files), dtype=int) #stores scan directions
-
-  #  file0 = str(meta.datadir) + '/' + 'ieqo01ceq_ima.fits'
-   # file1 = str(meta.datadir) + '/' + 'ieqo01cfq_ima.fits'
-   # file2 = str(meta.datadir) + '/' + 'ieqo01cgq_ima.fits'
-
-    #files = [file0,file1, file2]
 
     # Will create a table with the properties of all _ima.fits files at the first run
     for i, file in enumerate(tqdm(files, desc='Reading in files and their headers', ascii=True)):

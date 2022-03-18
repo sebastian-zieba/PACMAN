@@ -2,10 +2,6 @@ import numpy as np
 import sys, os, time
 import pytest
 
-#sys.path.insert(0, '/home/zieba/Desktop/Projects/Open_source/PACMAN/')
-
-from importlib import reload
-
 from ..lib import util
 
 from ..reduction import s00_table as s00
@@ -19,14 +15,12 @@ from ..reduction import s30_run as s30
 
 from ..lib import sort_nicely as sn
 
-#from ..lib.util import pathdirectory
 
-#@pytest.fixture(scope="session")
-
+current_path = os.path.realpath(__file__) + '/'
 
 def workdir_finder():
     # list subdirectories in the run directory
-    dirs = np.array([f.path for f in os.scandir('.') if f.is_dir()])
+    dirs = np.array([f.path for f in os.scandir(current_path) if f.is_dir()])
     # saves times when these subdirectories were created. 
     # They always have the following form: 'run_YYYY-MM-DD_HH-MM-SS_eventlabel'
     dirs_bool = np.array([i[:7] == './run_2' for i in dirs])
@@ -51,7 +45,6 @@ def workdir_finder():
     return (workdir, eventlabel)
 
 
-
 def test_s00(capsys):
     #print(os.system("pwd"))
 
@@ -60,8 +53,7 @@ def test_s00(capsys):
 
     # explicitly define meta variables to be able to run pathdirectory fn locally
     eventlabel='GJ1214_13021'
-    #meta.topdir='../tests'
-    pcf_path='./run_files/'
+    pcf_path= current_path + '/run_files/'
 
     #run s00
     meta = s00.run00(eventlabel, pcf_path)
