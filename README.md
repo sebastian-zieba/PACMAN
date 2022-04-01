@@ -1,4 +1,4 @@
-![](https://github.com/sebastian-zieba/PACMAN/blob/master/docs/source/media/Pacman_V1.gif)
+![](https://github.com/sebastian-zieba/PACMAN/blob/master/docs/source/media/Pacman_V2.gif)
 
 # PACMAN
 

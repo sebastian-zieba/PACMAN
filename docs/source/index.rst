@@ -6,7 +6,7 @@
 Welcome to PACMAN's documentation!
 ==================================
 
-.. image:: media/Pacman_V1.gif
+.. image:: media/Pacman_V2.gif
 
 **Welcome to the documentation for PACMAN**
 
