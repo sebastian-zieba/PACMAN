@@ -1,2 +1,6 @@
 include pyproject.toml
-recursive-include data
+recursive-include data/LD_coefficients/*
+recursive-include data/bandpass/*
+recursive-include data/flats/*
+recursive-include data/run_files/*
+recursive-include data/stellar_models/*/*
