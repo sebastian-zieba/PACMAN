@@ -183,8 +183,21 @@ def test_s20(capsys):
     #run s10
     meta = s20.run20(eventlabel, workdir)
 
+    extracted_lc_dir_path = workdir + '/extracted_lc'
 
+    s20_dir = np.array([f.path for f in os.scandir(extracted_lc_dir_path) if f.is_dir()])[0]
 
+    s20_lc_spec_file = s20_dir + '/lc_spec.txt'
+    s20_lc_white_file = s20_dir + '/lc_white.txt'
+
+    assert os.path.exists(s20_lc_spec_file)
+    assert os.path.exists(s20_lc_white_file)
+
+    s20_lc_spec = ascii.read(s20_lc_spec_file)
+    s20_lc_white = ascii.read(s20_lc_white_file)
+
+    assert len(s20_lc_spec.colnames) == 10
+    assert len(s20_lc_white.colnames) == 11
 
     #os.system("rm -r ./{0}".format(workdir))
     #return 0
