@@ -173,8 +173,8 @@ def test_s03(capsys):
         xrefyref = ascii.read(xrefyref_file)
 
     # run assertions for s02
-    assert xrefyref['pos1'][0] == 513.57510
-    assert xrefyref['pos2'][0] == 400.90239
+    assert np.round(xrefyref['pos1'][0], 5) == 513.57510
+    assert np.round(xrefyref['pos2'][0], 5) == 400.90239
 
     #os.system("rm -r ./{0}".format(workdir))
     #return 0
