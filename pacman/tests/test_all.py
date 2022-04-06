@@ -72,7 +72,7 @@ def test_s00(capsys):
     workdir = meta.workdir + '/'
     time.sleep(1.1)
 
-    # run assertions for s00
+    # run assertions
     assert os.path.exists(workdir)
     assert os.path.exists(workdir+'/figs')
 
@@ -98,9 +98,9 @@ def test_s01(capsys):
     #run s01
     meta = s01.run01(eventlabel, workdir)
 
-    # run assertions for s01
     horizons_file = workdir+'/ancil/horizons/horizons_results_v0.txt' 
 
+    # run assertions
     assert os.path.exists(horizons_file)
 
 
@@ -118,7 +118,7 @@ def test_s02(capsys):
     if os.path.exists(filelist_path):
         filelist = ascii.read(filelist_path)
 
-    # run assertions for s02
+    # run assertions
     print(filelist.colnames)
     assert ('t_bjd' in filelist.colnames)
     assert filelist['t_bjd'][0] == 2456365.030605767
@@ -146,18 +146,14 @@ def test_s03(capsys):
     print(len(wvl_refspec))
 
 
-    # run assertions for s02
+    # run assertions
     assert len(wvl_refspec) == 162
     assert flux_refspec[0] == 0
 
-    #os.system("rm -r ./{0}".format(workdir))
-    #return 0
-
-
 
 @pytest.mark.dependency(depends=['test_s03'])
-def test_s03(capsys):
-    reload(s03)
+def test_s10(capsys):
+    reload(s10)
     time.sleep(2)
 
     workdir, eventlabel = workdir_finder()
@@ -172,9 +168,23 @@ def test_s03(capsys):
     if os.path.exists(xrefyref_file):
         xrefyref = ascii.read(xrefyref_file)
 
-    # run assertions for s02
+    # run assertions
     assert np.round(xrefyref['pos1'][0], 5) == 513.57510
     assert np.round(xrefyref['pos2'][0], 5) == 400.90239
+
+
+@pytest.mark.dependency(depends=['test_s10'])
+def test_s20(capsys):
+    reload(s20)
+    time.sleep(2)
+
+    workdir, eventlabel = workdir_finder()
+
+    #run s10
+    meta = s20.run20(eventlabel, workdir)
+
+
+
 
     #os.system("rm -r ./{0}".format(workdir))
     #return 0
