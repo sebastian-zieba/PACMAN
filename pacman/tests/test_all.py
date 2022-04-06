@@ -103,10 +103,27 @@ def test_s01(capsys):
     meta = s01.run01(eventlabel, workdir)
 
     # run assertions for s01
-    assert os.path.exists(workdir)
-    assert os.path.exists(workdir+'/figs')
+    assert os.path.exists(workdir+'/ancil/horizons/horizons_results_v0.txt')
    # return 0
 
+
+@pytest.mark.dependency(depends=['test_s01'])
+def test_s02(capsys):
+    reload(s02)
+    time.sleep(2)
+
+    workdir, eventlabel = workdir_finder()
+
+    #run s01
+    meta = s02.run02(eventlabel, workdir)
+
+    filelist_path = workdir + '/filelist.txt'
+    if os.path.exists(filelist_path):
+        filelist = ascii.read(filelist_path)
+
+    # run assertions for s02
+    assert ('t_bjd' in filelist.colnames)
+   # return 0
 
 
     #os.system("rm -r ./{0}".format(workdir))
