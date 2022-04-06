@@ -1,6 +1,6 @@
 import numpy as np
 import yaml
-from ..lib import manageevent as me
+from .lib import manageevent as me
 import os
 
 

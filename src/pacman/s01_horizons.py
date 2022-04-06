@@ -4,7 +4,7 @@ from astropy.io import ascii
 from tqdm import tqdm
 from urllib.request import urlopen
 from shutil import copyfileobj
-from ..lib import manageevent as me
+from .lib import manageevent as me
 
 
 def run01(eventlabel, workdir, meta=None):

@@ -8,17 +8,17 @@ import getopt
 import time
 import shutil
 import time as pythontime
-from ..lib import manageevent as me
-from ..lib.read_data import Data
-from ..lib.model import Model
-from ..lib.least_squares import lsq_fit
-from ..lib.mcmc import mcmc_fit
-from ..lib.nested import nested_sample
-from ..lib.formatter import ReturnParams
-from ..lib import sort_nicely as sn
-from ..lib import nice_fit_par
-from ..lib import plots
-from ..lib import util
+from .lib import manageevent as me
+from .lib.read_data import Data
+from .lib.model import Model
+from .lib.least_squares import lsq_fit
+from .lib.mcmc import mcmc_fit
+from .lib.nested import nested_sample
+from .lib.formatter import ReturnParams
+from .lib import sort_nicely as sn
+from .lib import nice_fit_par
+from .lib import plots
+from .lib import util
 
 
 def run30(eventlabel, workdir, meta=None):

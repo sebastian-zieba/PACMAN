@@ -1,10 +1,10 @@
 import numpy as np
 import os
 from scipy.interpolate import interp1d
-from ..lib import plots
-from ..lib import stellar_spectrum
-from ..lib import manageevent as me
-from ..lib import util
+from .lib import plots
+from .lib import stellar_spectrum
+from .lib import manageevent as me
+from .lib import util
 
 
 def run03(eventlabel, workdir, meta=None):
