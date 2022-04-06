@@ -230,7 +230,7 @@ def test_s21(capsys):
     assert meta.wvl_bins == len(extracted_sp_lcs_files)
 
     #There should be 10 columns as for the /lc_spec.txt file which was generated after running s20.
-    extracted_sp_lc_file_0 = sn.sort_nicely(extracted_sp_lcs_files)
+    extracted_sp_lc_file_0 = sn.sort_nicely(extracted_sp_lcs_files)[0]
     assert len(extracted_sp_lc_file_0.colnames) == 10
 
 
