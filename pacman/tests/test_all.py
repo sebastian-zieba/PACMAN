@@ -80,16 +80,12 @@ def test_s00(capsys):
     if os.path.exists(filelist_path):
         filelist = ascii.read(filelist_path)
 
-    t_mjd = filelist['t_mjd']
-
     #print(t_mjd)
     ncols = len(filelist[0])
     nrows = len(filelist['t_mjd'])
 
-    assert t_mjd[0] == 56364.52973075
+    assert filelist['t_mjd'][0] == 56364.52973075
     assert (nrows, ncols) == (3, 9) 
-
-   # return 0
 
 
 @pytest.mark.dependency(depends=['test_s00'])
@@ -103,8 +99,9 @@ def test_s01(capsys):
     meta = s01.run01(eventlabel, workdir)
 
     # run assertions for s01
-    assert os.path.exists(workdir+'/ancil/horizons/horizons_results_v0.txt')
-   # return 0
+    horizons_file = workdir+'/ancil/horizons/horizons_results_v0.txt' 
+
+    assert os.path.exists(horizons_file)
 
 
 @pytest.mark.dependency(depends=['test_s01'])
@@ -122,9 +119,36 @@ def test_s02(capsys):
         filelist = ascii.read(filelist_path)
 
     # run assertions for s02
+    print(filelist.colnames)
     assert ('t_bjd' in filelist.colnames)
-   # return 0
+    assert filelist['t_bjd'][0] == 2456265.030605767
 
+
+@pytest.mark.dependency(depends=['test_s02'])
+def test_s03(capsys):
+    reload(s03)
+    time.sleep(2)
+
+    workdir, eventlabel = workdir_finder()
+
+    #run s01
+    meta = s03.run03(eventlabel, workdir)
+
+    sm_file = workdir +  '/ancil/stellar_models/k93models/kp03_3500.fits'
+
+    assert os.path.exists(sm_file)
+
+    refspec_file = workdir + '/ancil/refspec/refspec.txt'
+
+    assert os.path.exists(refspec_file)
+
+    wvl_refspec, flux_refspec = np.loadtxt(refspec_file).T
+    print(len(wvl_refspec))
+
+
+    # run assertions for s02
+    assert len(wvl_refspec) == 162
+    assert flux_refspec[0] == 0
 
     #os.system("rm -r ./{0}".format(workdir))
     #return 0
