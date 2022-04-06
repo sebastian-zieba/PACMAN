@@ -1,5 +1,5 @@
 import numpy as np
-import sys, os, time
+import sys, os, time, glob
 import pytest
 from astropy.io import ascii
 
@@ -70,15 +70,15 @@ def test_s00(capsys):
     #run s00
     meta = s00.run00(eventlabel, pcf_path)
     workdir = meta.workdir + '/'
-    time.sleep(1.1)
+    time.sleep(1)
 
     # run assertions
     assert os.path.exists(workdir)
     assert os.path.exists(workdir+'/figs')
 
-    filelist_path = workdir + '/filelist.txt'
-    if os.path.exists(filelist_path):
-        filelist = ascii.read(filelist_path)
+    filelist_file = workdir + '/filelist.txt'
+    assert os.path.exists(filelist_file)
+    filelist = ascii.read(filelist_file)
 
     #print(t_mjd)
     ncols = len(filelist[0])
@@ -91,7 +91,7 @@ def test_s00(capsys):
 @pytest.mark.dependency(depends=['test_s00'])
 def test_s01(capsys):
     reload(s01)
-    time.sleep(2)
+    time.sleep(1)
 
     workdir, eventlabel = workdir_finder()
 
@@ -107,16 +107,16 @@ def test_s01(capsys):
 @pytest.mark.dependency(depends=['test_s01'])
 def test_s02(capsys):
     reload(s02)
-    time.sleep(2)
+    time.sleep(1)
 
     workdir, eventlabel = workdir_finder()
 
     #run s02
     meta = s02.run02(eventlabel, workdir)
 
-    filelist_path = workdir + '/filelist.txt'
-    if os.path.exists(filelist_path):
-        filelist = ascii.read(filelist_path)
+    filelist_file = workdir + '/filelist.txt'
+    assert os.path.exists(filelist_file)
+    filelist = ascii.read(filelist_file)
 
     # run assertions
     print(filelist.colnames)
@@ -127,7 +127,7 @@ def test_s02(capsys):
 @pytest.mark.dependency(depends=['test_s02'])
 def test_s03(capsys):
     reload(s03)
-    time.sleep(2)
+    time.sleep(1)
 
     workdir, eventlabel = workdir_finder()
 
@@ -154,7 +154,7 @@ def test_s03(capsys):
 @pytest.mark.dependency(depends=['test_s03'])
 def test_s10(capsys):
     reload(s10)
-    time.sleep(2)
+    time.sleep(1)
 
     workdir, eventlabel = workdir_finder()
 
@@ -176,11 +176,11 @@ def test_s10(capsys):
 @pytest.mark.dependency(depends=['test_s10'])
 def test_s20(capsys):
     reload(s20)
-    time.sleep(2)
+    time.sleep(1)
 
     workdir, eventlabel = workdir_finder()
 
-    #run s10
+    #run s20
     meta = s20.run20(eventlabel, workdir)
 
     extracted_lc_dir_path = workdir + '/extracted_lc'
@@ -198,6 +198,44 @@ def test_s20(capsys):
 
     assert len(s20_lc_spec.colnames) == 10
     assert len(s20_lc_white.colnames) == 11
+    print(s20_lc_white.colnames)
+
+
+@pytest.mark.dependency(depends=['test_s20'])
+def test_s21(capsys):
+    reload(s21)
+    time.sleep(1)
+
+    workdir, eventlabel = workdir_finder()
+
+    #run s21
+    meta = s21.run21(eventlabel, workdir)
+
+    extracted_sp_dir_path = workdir + '/extracted_sp'
+
+    s21_dir = np.array([f.path for f in os.scandir(extracted_sp_dir_path) if f.is_dir()])[0]
+
+    s21_wvl_table_file = s21_dir + '/wvl_table.dat'
+    assert os.path.exists(s21_wvl_table_file)
+    s21_wvl_table = ascii.read(s21_wvl_table_file)
+
+    wvl_s21 = s21_wvl_table['wavelengths']
+
+    #Check if the number of bins defined in the pcf is the same as 
+    #the number of wavelength bins saved into the wvl_table.dat file.
+    assert meta.wvl_bins == len(wvl_s21)
+
+    #Number of light curves should be the same as meta.wvl_bins
+    extracted_sp_lcs_files = glob.glob(os.path.join(s21_dir, "*.txt"))
+    assert meta.wvl_bins == len(extracted_sp_lcs_files)
+
+    #There should be 10 columns as for the /lc_spec.txt file which was generated after running s20.
+    extracted_sp_lc_file_0 = sn.sort_nicely(extracted_sp_lcs_files)
+    assert len(extracted_sp_lc_file_0.colnames) == 10
+
 
     #os.system("rm -r ./{0}".format(workdir))
     #return 0
+
+
+
