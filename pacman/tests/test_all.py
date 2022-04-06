@@ -62,9 +62,6 @@ def test_s00(capsys):
     #print('test_path', test_path)
     #print(os.system("pwd"))
 
-    with capsys.disabled():
-        print("PACMAN test:")
-
     pcf_path = test_path + '/run_files'
 
     #run s00
@@ -80,7 +77,6 @@ def test_s00(capsys):
     assert os.path.exists(filelist_file)
     filelist = ascii.read(filelist_file)
 
-    #print(t_mjd)
     ncols = len(filelist[0])
     nrows = len(filelist['t_mjd'])
 
@@ -118,8 +114,7 @@ def test_s02(capsys):
     assert os.path.exists(filelist_file)
     filelist = ascii.read(filelist_file)
 
-    # run assertions
-    print(filelist.colnames)
+    # Check if the barycentric correction was correctly performed
     assert ('t_bjd' in filelist.colnames)
     assert filelist['t_bjd'][0] == 2456365.030605767
 
@@ -143,10 +138,8 @@ def test_s03(capsys):
     assert os.path.exists(refspec_file)
 
     wvl_refspec, flux_refspec = np.loadtxt(refspec_file).T
-    print(len(wvl_refspec))
 
-
-    # run assertions
+    # Check if the refspec was correctly created
     assert len(wvl_refspec) == 162
     assert flux_refspec[0] == 0
 
@@ -168,7 +161,7 @@ def test_s10(capsys):
     if os.path.exists(xrefyref_file):
         xrefyref = ascii.read(xrefyref_file)
 
-    # run assertions
+    # Check if the direct image position was determined correctly
     assert np.round(xrefyref['pos1'][0], 5) == 513.57510
     assert np.round(xrefyref['pos2'][0], 5) == 400.90239
 
@@ -190,15 +183,16 @@ def test_s20(capsys):
     s20_lc_spec_file = s20_dir + '/lc_spec.txt'
     s20_lc_white_file = s20_dir + '/lc_white.txt'
 
+    #Check if the files were created
     assert os.path.exists(s20_lc_spec_file)
     assert os.path.exists(s20_lc_white_file)
 
     s20_lc_spec = ascii.read(s20_lc_spec_file)
     s20_lc_white = ascii.read(s20_lc_white_file)
 
+    #Check the amount of columns
     assert len(s20_lc_spec.colnames) == 10
     assert len(s20_lc_white.colnames) == 11
-    print(s20_lc_white.colnames)
 
 
 @pytest.mark.dependency(depends=['test_s20'])
@@ -235,6 +229,20 @@ def test_s21(capsys):
     assert len(extracted_sp_lc_0.colnames) == 10
 
 
+@pytest.mark.dependency(depends=['test_s21'])
+def test_s30(capsys):
+    reload(s30)
+    time.sleep(1)
+
+    workdir, eventlabel = workdir_finder()
+
+    #run s30
+    meta = s30.run30(eventlabel, workdir)
+
+    workdir_dirs = np.array([f.path for f in os.scandir(workdir) if f.is_dir()])  
+    fit_dirs = workdir_dirs[np.array(['fit_' in i for i in workdir_dirs])]
+    fit_dir = fit_dirs[0]
+    assert os.path.exists(fit_dir)
     #os.system("rm -r ./{0}".format(workdir))
     #return 0
 
