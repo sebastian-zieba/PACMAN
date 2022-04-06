@@ -104,7 +104,7 @@ def run00(eventlabel, pcf_path='.'):
 
     # Create directories for this run = Work Directory
     datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
-    meta.workdir = meta.rundir + '/run_' + datetime + '_' + meta.eventlabel
+    meta.workdir = meta.rundir + '/run_' + datetime + '_' + meta.eventlabel + '/'
     if not os.path.exists(meta.workdir):
         os.makedirs(meta.workdir)
     print('Location of the new work directory:', meta.workdir)

@@ -1,62 +1,71 @@
 import numpy as np
 import sys, os, time
 import pytest
+from astropy.io import ascii
 
-from ..lib import util
+sys.path.insert(0, '/home/zieba/Desktop/Projects/Open_source/PACMAN/')
+#print(sys.path)
 
-from ..reduction import s00_table as s00
-from ..reduction import s01_horizons as s01
-from ..reduction import s02_barycorr as s02
-from ..reduction import s03_refspectra as s03
-from ..reduction import s10_direct_images as s10
-from ..reduction import s20_extract as s20
-from ..reduction import s21_bin_spectroscopic_lc as s21
-from ..reduction import s30_run as s30
+from pacman.lib import util
 
-from ..lib import sort_nicely as sn
+from pacman.reduction import s00_table as s00
+from pacman.reduction import s01_horizons as s01
+from pacman.reduction import s02_barycorr as s02
+from pacman.reduction import s03_refspectra as s03
+from pacman.reduction import s10_direct_images as s10
+from pacman.reduction import s20_extract as s20
+from pacman.reduction import s21_bin_spectroscopic_lc as s21
+from pacman.reduction import s30_run as s30
 
+from pacman.lib import sort_nicely as sn
+
+from importlib import reload
 
 test_path = '/'.join(os.path.realpath(__file__).split('/')[:-1]) + '/'
 
+eventlabel='GJ1214_13021'
 
 def workdir_finder():
+    eventlabel='GJ1214_13021'
     # list subdirectories in the run directory
     dirs = np.array([f.path for f in os.scandir(test_path) if f.is_dir()])
-    print(dirs)
+    #print(dirs)
     # saves times when these subdirectories were created. 
     # They always have the following form: 'run_YYYY-MM-DD_HH-MM-SS_eventlabel'
     dirs_bool = np.array(['/run_2' in i for i in dirs])
     dirs = dirs[dirs_bool]
-    print(dirs)
-    dirs_times = [i[6:25] for i in dirs]
+    #print(dirs)
+    eventlabel_len = len(eventlabel)
+    dirs_times = [i[-(eventlabel_len+20):-(eventlabel_len+1)] for i in dirs]
+    #print(dirs_times)
     # sort the times
     times_sorted = sn.sort_nicely(dirs_times)
+    #print(times_sorted)
     # most recent time
     recent_time = times_sorted[-1]
+    #print(recent_time)
     # find the directory with that most recent time
     idx = 0
     for i in range(len(dirs)):
-        if dirs[i][6:25] == recent_time:
+        if dirs[i][-(eventlabel_len+20):-(eventlabel_len+1)] == recent_time:
             idx = i
     workdir = dirs[idx]
     #save the eventlabel which is in the directory name too
-    eventlabel = workdir[26:]
-    workdir = workdir + '/'
     print('workdir: ', workdir)
     print('eventlabel: ', eventlabel)
     return (workdir, eventlabel)
 
 
+@pytest.mark.dependency()
 def test_s00(capsys):
-    print('test_path', test_path)
+    reload(s00)
+    #print('test_path', test_path)
     #print(os.system("pwd"))
 
     with capsys.disabled():
         print("PACMAN test:")
 
-    # explicitly define meta variables to be able to run pathdirectory fn locally
-    eventlabel='GJ1214_13021'
-    pcf_path= test_path + '/run_files'
+    pcf_path = test_path + '/run_files'
 
     #run s00
     meta = s00.run00(eventlabel, pcf_path)
@@ -67,10 +76,26 @@ def test_s00(capsys):
     assert os.path.exists(workdir)
     assert os.path.exists(workdir+'/figs')
 
+    filelist_path = workdir + '/filelist.txt'
+    if os.path.exists(filelist_path):
+        filelist = ascii.read(filelist_path)
 
+    t_mjd = filelist['t_mjd']
+
+    #print(t_mjd)
+    ncols = len(filelist[0])
+    nrows = len(filelist['t_mjd'])
+
+    assert t_mjd[0] == 56364.52973075
+    assert (nrows, ncols) == (3, 9) 
+
+   # return 0
+
+
+@pytest.mark.dependency(depends=['test_s00'])
 def test_s01(capsys):
-    with capsys.disabled():
-        print("PACMAN test:")
+    reload(s01)
+    time.sleep(2)
 
     workdir, eventlabel = workdir_finder()
 
@@ -80,54 +105,11 @@ def test_s01(capsys):
     # run assertions for s01
     assert os.path.exists(workdir)
     assert os.path.exists(workdir+'/figs')
+   # return 0
 
 
-def test_s02(capsys):
-    with capsys.disabled():
-        print("PACMAN test:")
 
-    workdir, eventlabel = workdir_finder()
-
-    #run s01
-    meta = s02.run02(eventlabel, workdir)
-
-    # run assertions for s01
-    assert os.path.exists(workdir)
-    assert os.path.exists(workdir+'/figs')
-
-
-def test_s03(capsys):
-    with capsys.disabled():
-        print("PACMAN test:")
-
-    workdir, eventlabel = workdir_finder()
-
-    #run s01
-    meta = s03.run03(eventlabel, workdir)
-
-    # run assertions for s01
-    assert os.path.exists(workdir)
-    assert os.path.exists(workdir+'/figs')
-
-    os.system("rm -r ./{0}".format(workdir))
-
-
-def test_allstages(capsys):
-    test_s00(capsys)
-    time.sleep(2)
-    test_s01(capsys)
-    time.sleep(2)
-    test_s02(capsys)    
-    time.sleep(2)
-    test_s03(capsys)
-
-
-    #meta = s10.run10(eventlabel, workdir)
-    #meta = s20.run20(eventlabel, workdir)
-    #meta = s21.run21(eventlabel, workdir)
-
-
-    # remove temporary files
     #os.system("rm -r ./{0}".format(workdir))
-    #os.system("rm -r data/JWST-Sim/NIRCam/Stage4/*")
-    #os.system("rm -r data/JWST-Sim/NIRCam/Stage5/*")
+    #return 0
+
+
