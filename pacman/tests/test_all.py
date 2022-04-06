@@ -111,7 +111,7 @@ def test_s02(capsys):
 
     workdir, eventlabel = workdir_finder()
 
-    #run s01
+    #run s02
     meta = s02.run02(eventlabel, workdir)
 
     filelist_path = workdir + '/filelist.txt'
@@ -131,7 +131,7 @@ def test_s03(capsys):
 
     workdir, eventlabel = workdir_finder()
 
-    #run s01
+    #run s03
     meta = s03.run03(eventlabel, workdir)
 
     sm_file = workdir +  '/ancil/stellar_models/k93models/kp03_3500.fits'
@@ -154,3 +154,27 @@ def test_s03(capsys):
     #return 0
 
 
+
+@pytest.mark.dependency(depends=['test_s03'])
+def test_s03(capsys):
+    reload(s03)
+    time.sleep(2)
+
+    workdir, eventlabel = workdir_finder()
+
+    #run s10
+    meta = s10.run10(eventlabel, workdir)
+
+    xrefyref_file = workdir + '/xrefyref.txt'
+
+    assert os.path.exists(xrefyref_file)
+
+    if os.path.exists(xrefyref_file):
+        xrefyref = ascii.read(xrefyref_file)
+
+    # run assertions for s02
+    assert xrefyref['pos1'][0] == 513.57510
+    assert xrefyref['pos2'][0] == 400.90239
+
+    #os.system("rm -r ./{0}".format(workdir))
+    #return 0
