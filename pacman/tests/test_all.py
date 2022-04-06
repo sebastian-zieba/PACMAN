@@ -121,7 +121,7 @@ def test_s02(capsys):
     # run assertions for s02
     print(filelist.colnames)
     assert ('t_bjd' in filelist.colnames)
-    assert filelist['t_bjd'][0] == 2456265.030605767
+    assert filelist['t_bjd'][0] == 2456365.030605767
 
 
 @pytest.mark.dependency(depends=['test_s02'])
