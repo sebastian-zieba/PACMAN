@@ -37,7 +37,7 @@ def download_data():
     data_products_new = data_products[np.any(data_products_select, axis=0)]
     data_products_ima = data_products_new[data_products_new['productSubGroupDescription'] == 'IMA']
     Observations.download_products(data_products_ima,mrp_only=False)
-    file_path = os.path.dirname(os.path.abspath("__file__"))
+    file_path = os.path.realpath(__file__)
     root_dir = file_path + '/mastDownload/HST' # Specify root directory to be searched for .sav files.
     move_dir = file_path + '/data_new'
     filelist = []
