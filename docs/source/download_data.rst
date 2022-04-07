@@ -15,7 +15,7 @@ Using astroquery
 
 You can download HST data using `astroquery <https://astroquery.readthedocs.io/en/latest/>`_.
 
-Here's an example using a Jupyter Notebook on how to do that:
+Here's an example using a Jupyter Notebook on how to do that:dd
 
 .. notebook:: media/download/astroquery_visits.ipynb
 
