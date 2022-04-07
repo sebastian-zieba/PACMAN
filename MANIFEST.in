@@ -1,6 +1,6 @@
-include pyproject.toml
-recursive-include src/pacman/data/LD_coefficients/ *
-recursive-include src/pacman/data/bandpass/ *
-recursive-include src/pacman/data/flats/ *
-recursive-include src/pacman/data/run_files/ *
-recursive-include src/pacman/data/stellar_models/*/ *
+#include pyproject.toml
+#recursive-include src/pacman/data/LD_coefficients/ *
+#recursive-include src/pacman/data/bandpass/ *
+#recursive-include src/pacman/data/flats/ *
+#recursive-include src/pacman/data/run_files/ *
+#recursive-include src/pacman/data/stellar_models/*/ *
