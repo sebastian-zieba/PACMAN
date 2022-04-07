@@ -41,7 +41,7 @@ def download_data():
     root_dir = file_path + '/mastDownload/HST' # Specify root directory to be searched for .sav files.
     move_dir = file_path + '/data_new'
     filelist = []
-    for tree,fol,fils in os.walk(rdir):
+    for tree,fol,fils in os.walk(root_dir):
         filelist.extend([os.path.join(tree,fil) for fil in fils if fil.endswith('.fits')])
     for fil in filelist:
         name = fil.split('/')[-1]
