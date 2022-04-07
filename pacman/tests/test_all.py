@@ -36,10 +36,14 @@ def download_data():
         data_products_select.append((data_products['obs_id'] == j).data)
     data_products_new = data_products[np.any(data_products_select, axis=0)]
     data_products_ima = data_products_new[data_products_new['productSubGroupDescription'] == 'IMA']
-    Observations.download_products(data_products_ima,mrp_only=False)
+
     file_path = os.path.realpath(__file__)
-    root_dir = file_path + '/mastDownload/HST' # Specify root directory to be searched for .sav files.
-    move_dir = file_path + '/data_new'
+    test_dir = '/'.join(file_path.split('/')[:-1])
+
+    Observations.download_products(data_products_ima, mrp_only=False, download_dir=test_dir)
+
+    root_dir = test_dir + '/mastDownload/HST' # Specify root directory to be searched for .sav files.
+    move_dir = test_dir + '/data_new'
     filelist = []
     for tree,fol,fils in os.walk(root_dir):
         filelist.extend([os.path.join(tree,fil) for fil in fils if fil.endswith('.fits')])
