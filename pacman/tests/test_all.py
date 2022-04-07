@@ -22,7 +22,7 @@ from pacman.lib import sort_nicely as sn
 
 from importlib import reload
 
-test_path = '/'.join(os.path.realpath(__file__).split('/')[:-1]) + '/'
+test_path = os.path.dirname(os.path.realpath(__file__)) + '/'
 
 eventlabel='GJ1214_13021'
 
@@ -36,7 +36,7 @@ def test_sessionstart(capsys):
     print('test')
 
     file_path = os.path.realpath(__file__)
-    test_dir = '/'.join(file_path.split('/')[:-1])
+    test_dir = os.path.dirname(file_path)
 
     # create a data dir
     data_dir = test_dir + '/data'
@@ -280,7 +280,7 @@ def test_sessionfinish(capsys):
     """
     workdir, eventlabel = workdir_finder()
     file_path = os.path.realpath(__file__)
-    test_dir = '/'.join(file_path.split('/')[:-1])
+    test_dir = os.path.dirname(file_path)
     data_dir = test_dir + '/data'
     os.system("rm -r {0}".format(data_dir))
     os.system("rm -r {0}".format(workdir))
