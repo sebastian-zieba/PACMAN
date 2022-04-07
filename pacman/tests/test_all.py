@@ -26,7 +26,7 @@ test_path = '/'.join(os.path.realpath(__file__).split('/')[:-1]) + '/'
 
 eventlabel='GJ1214_13021'
 
-slac
+
 def download_data():
     proposal_obs = Observations.query_criteria(proposal_id=13021,  instrument_name='WFC3/IR', project='HST')
     data_products = Observations.get_product_list(proposal_obs)
