@@ -119,8 +119,8 @@ s30_fit_spec                 True
 s30_most_recent_s21          True
 s30_spec_dir_path            None
 
-remove_first_exp             True
-remove_first_orb             True
+remove_first_exp             False
+remove_first_orb             False
 
 rescale_uncert               True
 
@@ -135,12 +135,12 @@ toffset                      2456365
 run_divide_white             False
 run_verbose                  True
 
-save_allan_plot              True
+save_allan_plot              False
 save_raw_lc_plot             True
 save_fit_lc_plot             True
 
 run_lsq                      True
-run_mcmc                     True
+run_mcmc                     False
 run_nested                   False
 
 #emcee
