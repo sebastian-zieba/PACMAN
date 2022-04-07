@@ -2,6 +2,7 @@ import numpy as np
 import sys, os, time, glob
 import pytest
 from astropy.io import ascii
+from astroquery.mast import Observations
 
 sys.path.insert(0, '/home/zieba/Desktop/Projects/Open_source/PACMAN/')
 #print(sys.path)
@@ -24,6 +25,29 @@ from importlib import reload
 test_path = '/'.join(os.path.realpath(__file__).split('/')[:-1]) + '/'
 
 eventlabel='GJ1214_13021'
+
+slac
+def download_data():
+    proposal_obs = Observations.query_criteria(proposal_id=13021,  instrument_name='WFC3/IR', project='HST')
+    data_products = Observations.get_product_list(proposal_obs)
+    select = ['ibxy07p9q', 'ibxy07paq', 'ibxy07pbq'] #just download these three files
+    data_products_select = []
+    for j in select:
+        data_products_select.append((data_products['obs_id'] == j).data)
+    data_products_new = data_products[np.any(data_products_select, axis=0)]
+    data_products_ima = data_products_new[data_products_new['productSubGroupDescription'] == 'IMA']
+    Observations.download_products(data_products_ima,mrp_only=False)
+    file_path = os.path.dirname(os.path.abspath("__file__"))
+    root_dir = file_path + '/mastDownload/HST' # Specify root directory to be searched for .sav files.
+    move_dir = file_path + '/data_new'
+    filelist = []
+    for tree,fol,fils in os.walk(rdir):
+        filelist.extend([os.path.join(tree,fil) for fil in fils if fil.endswith('.fits')])
+    for fil in filelist:
+        name = fil.split('/')[-1]
+        os.rename(fil,move_dir + '/' + name)
+    os.system("rm -r {0}".format(file_path + '/mastDownload'))
+
 
 def workdir_finder():
     eventlabel='GJ1214_13021'
@@ -229,20 +253,20 @@ def test_s21(capsys):
     assert len(extracted_sp_lc_0.colnames) == 10
 
 
-@pytest.mark.dependency(depends=['test_s21'])
-def test_s30(capsys):
-    reload(s30)
-    time.sleep(1)
+#@pytest.mark.dependency(depends=['test_s21'])
+#def test_s30(capsys):
+#    reload(s30)
+#    time.sleep(1)
 
-    workdir, eventlabel = workdir_finder()
+#    workdir, eventlabel = workdir_finder()
 
     #run s30
-    meta = s30.run30(eventlabel, workdir)
+#    meta = s30.run30(eventlabel, workdir)
 
-    workdir_dirs = np.array([f.path for f in os.scandir(workdir) if f.is_dir()])  
-    fit_dirs = workdir_dirs[np.array(['fit_' in i for i in workdir_dirs])]
-    fit_dir = fit_dirs[0]
-    assert os.path.exists(fit_dir)
+#    workdir_dirs = np.array([f.path for f in os.scandir(workdir) if f.is_dir()])  
+#    fit_dirs = workdir_dirs[np.array(['fit_' in i for i in workdir_dirs])]
+#    fit_dir = fit_dirs[0]
+#    assert os.path.exists(fit_dir)
     #os.system("rm -r ./{0}".format(workdir))
     #return 0
 

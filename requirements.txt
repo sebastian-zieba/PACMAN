@@ -17,4 +17,4 @@ recommonmark
 uncertainties
 ipython_genutils
 pytest
-
+astroquery
