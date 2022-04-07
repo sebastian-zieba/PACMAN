@@ -27,7 +27,20 @@ test_path = '/'.join(os.path.realpath(__file__).split('/')[:-1]) + '/'
 eventlabel='GJ1214_13021'
 
 
-def download_data():
+def pytest_sessionstart(session):
+    """
+    Called after the Session object has been created and
+    before performing collection and entering the run test loop.
+    """
+
+    file_path = os.path.realpath(__file__)
+    test_dir = '/'.join(file_path.split('/')[:-1])
+
+    # create a data dir
+    data_dir = test_dir + '/data'
+    os.makedirs(data_dir)
+
+    #search for the HST data
     proposal_obs = Observations.query_criteria(proposal_id=13021,  instrument_name='WFC3/IR', project='HST')
     data_products = Observations.get_product_list(proposal_obs)
     select = ['ibxy07p9q', 'ibxy07paq', 'ibxy07pbq'] #just download these three files
@@ -37,22 +50,19 @@ def download_data():
     data_products_new = data_products[np.any(data_products_select, axis=0)]
     data_products_ima = data_products_new[data_products_new['productSubGroupDescription'] == 'IMA']
 
-    file_path = os.path.realpath(__file__)
-    test_dir = '/'.join(file_path.split('/')[:-1])
-
+    #download the three files
     Observations.download_products(data_products_ima, mrp_only=False, download_dir=test_dir)
 
     mast_dir = test_dir + '/mastDownload' # Specify root directory to be searched for .sav files.
-    move_dir = test_dir + '/data_new'
+
     filelist = []
     for tree,fol,fils in os.walk(mast_dir):
         filelist.extend([os.path.join(tree,fil) for fil in fils if fil.endswith('.fits')])
     for fil in filelist:
         name = fil.split('/')[-1]
-        os.rename(fil, move_dir + '/' + name)
+        os.rename(fil, data_dir + '/' + name)
     os.system("rm -r {0}".format(mast_dir))
 
-download_data()
 
 def workdir_finder():
     eventlabel='GJ1214_13021'
@@ -257,6 +267,22 @@ def test_s21(capsys):
     extracted_sp_lc_0 = ascii.read(extracted_sp_lc_file_0)
     assert len(extracted_sp_lc_0.colnames) == 10
 
+
+
+def pytest_sessionfinish(session, exitstatus):
+    """
+    Called after whole test run finished, right before
+    returning the exit status to the system.
+    """
+
+    file_path = os.path.realpath(__file__)
+    test_dir = '/'.join(file_path.split('/')[:-1])
+    data_dir = test_dir + '/data'
+    os.system("rm -r {0}".format(data_dir))
+    os.system("rm -r ./{0}".format(workdir))
+
+
+print('print at the end')
 
 #@pytest.mark.dependency(depends=['test_s21'])
 #def test_s30(capsys):
