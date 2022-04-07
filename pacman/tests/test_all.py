@@ -48,6 +48,7 @@ def download_data():
         os.rename(fil,move_dir + '/' + name)
     os.system("rm -r {0}".format(file_path + '/mastDownload'))
 
+download_data()
 
 def workdir_finder():
     eventlabel='GJ1214_13021'
