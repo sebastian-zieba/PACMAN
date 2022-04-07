@@ -42,15 +42,15 @@ def download_data():
 
     Observations.download_products(data_products_ima, mrp_only=False, download_dir=test_dir)
 
-    root_dir = test_dir + '/mastDownload/HST' # Specify root directory to be searched for .sav files.
+    mast_dir = test_dir + '/mastDownload' # Specify root directory to be searched for .sav files.
     move_dir = test_dir + '/data_new'
     filelist = []
-    for tree,fol,fils in os.walk(root_dir):
+    for tree,fol,fils in os.walk(mast_dir):
         filelist.extend([os.path.join(tree,fil) for fil in fils if fil.endswith('.fits')])
     for fil in filelist:
         name = fil.split('/')[-1]
-        os.rename(fil,move_dir + '/' + name)
-    os.system("rm -r {0}".format(file_path + '/mastDownload'))
+        os.rename(fil, move_dir + '/' + name)
+    os.system("rm -r {0}".format(mast_dir))
 
 download_data()
 
