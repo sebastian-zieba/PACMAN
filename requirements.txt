@@ -18,3 +18,5 @@ uncertainties
 ipython_genutils
 pytest
 astroquery
+flake8
+
