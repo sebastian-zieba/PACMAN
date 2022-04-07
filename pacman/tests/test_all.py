@@ -27,11 +27,13 @@ test_path = '/'.join(os.path.realpath(__file__).split('/')[:-1]) + '/'
 eventlabel='GJ1214_13021'
 
 
-def pytest_sessionstart(session):
+@pytest.mark.dependency()
+def test_sessionstart(capsys):
     """
     Called after the Session object has been created and
     before performing collection and entering the run test loop.
     """
+    print('test')
 
     file_path = os.path.realpath(__file__)
     test_dir = '/'.join(file_path.split('/')[:-1])
@@ -62,6 +64,8 @@ def pytest_sessionstart(session):
         name = fil.split('/')[-1]
         os.rename(fil, data_dir + '/' + name)
     os.system("rm -r {0}".format(mast_dir))
+
+    assert True
 
 
 def workdir_finder():
@@ -268,21 +272,23 @@ def test_s21(capsys):
     assert len(extracted_sp_lc_0.colnames) == 10
 
 
-
-def pytest_sessionfinish(session, exitstatus):
+@pytest.mark.dependency(depends=['test_s21'])
+def test_sessionfinish(capsys):
     """
     Called after whole test run finished, right before
     returning the exit status to the system.
     """
-
+    workdir, eventlabel = workdir_finder()
     file_path = os.path.realpath(__file__)
     test_dir = '/'.join(file_path.split('/')[:-1])
     data_dir = test_dir + '/data'
     os.system("rm -r {0}".format(data_dir))
-    os.system("rm -r ./{0}".format(workdir))
+    os.system("rm -r {0}".format(workdir))
 
+    print('deleted directories and files again')
 
-print('print at the end')
+    assert True
+
 
 #@pytest.mark.dependency(depends=['test_s21'])
 #def test_s30(capsys):
