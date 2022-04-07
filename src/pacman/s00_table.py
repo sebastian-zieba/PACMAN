@@ -1,6 +1,7 @@
 import numpy as np
 import os, time
 import shutil
+import pkg_resources
 from astropy.table import QTable
 from astropy.io import ascii, fits
 from scipy.stats import rankdata
@@ -88,19 +89,20 @@ def run00(eventlabel, pcf_path='.'):
 
     #this file here is saved in /pacman/reduction/s00_table.py
     #pacmandir is just the path of the directory /pacman/
-    meta.pacmandir = '/'.join(os.path.realpath(__file__).split('/')[:-2]) + '/'
+    meta.pacmandir = pkg_resources.resource_filename("pacman","")
+    #meta.pacmandir = '/'.join(os.path.realpath(__file__).split('/')[:-2]) + '/'
     print('Location of PACMAN:', meta.pacmandir)
 
     #If the user runs the tests we have to set the rundir and datadir manually
-    if meta.rundir == 'pacman/tests/':
-        print('True')
-        meta.rundir = '/'.join(pcf_path.split('/')[:-1]) + '/'
-    print('Location of the run directory:', meta.rundir)
+    #if meta.rundir == 'pacman/tests/':
+    #    print('True')
+    #    meta.rundir = '/'.join(pcf_path.split('/')[:-1]) + '/'
+    #print('Location of the tests directory:', meta.rundir)
 
-    if meta.datadir == 'pacman/tests/data':
-        print('True')
-        meta.datadir = '/'.join(pcf_path.split('/')[:-1]) + '/data/'
-    print('Location of the data directory:', meta.datadir)
+    #if meta.datadir == 'pacman/tests/data':
+    #    print('True')
+    #    meta.datadir = '/'.join(pcf_path.split('/')[:-1]) + '/data/'
+    #print('Location of the data directory:', meta.datadir)
 
     # Create directories for this run = Work Directory
     datetime = time.strftime('%Y-%m-%d_%H-%M-%S')

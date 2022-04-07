@@ -35,13 +35,14 @@ def get_bb(user_teff):
 
 def downloader(url):
     """
-    This function downloads a file from the given url using wget.
+    This function downloads a file from the given url using urllib.request.
 
-    Taken from https://github.com/nespinoza/limb-darkening/blob/master/get_lds.py
     """
+    import urllib.request
+
     file_name = url.split('/')[-1]
     print('\t      + Downloading file {:s} from {:s}.'.format(file_name, url))
-    os.system('wget ' + url)
+    urllib.request.urlretrieve(url, file_name)
 
 
 def find_nearest(array, value):
@@ -145,7 +146,7 @@ def get_sm(meta, user_met, user_logg, user_teff):
         if not os.path.exists(sm_dir_run):
             os.mkdir(sm_dir_run)
 
-    sm_dir_pkg = meta.pacmandir + '/ancil/stellar_models/{0}/'.format(sm)
+    sm_dir_pkg = meta.pacmandir + '/data/stellar_models/{0}/'.format(sm)
     if not os.path.exists(sm_dir_pkg):
         os.mkdir(sm_dir_pkg)
 
