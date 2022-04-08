@@ -19,5 +19,4 @@ ipython_genutils
 pytest
 astroquery
 flake8
-RunNotebook
 

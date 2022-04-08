@@ -10,20 +10,6 @@ There are different ways to download the data. Let's have a look at them by down
 	From the `WFC3 data handbook (Types of WFC3 Files) <https://hst-docs.stsci.edu/wfc3dhb/chapter-2-wfc3-data-structure/2-1-types-of-wfc3-files>`_: "For the IR detector, an intermediate MultiAccum (ima) file is the result after all calibrations are applied (dark subtraction, linearity correction, flat fielding, etc.) to all of the individual readouts of the IR exposure."
 
 
-Using astroquery
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
-You can download HST data using `astroquery <https://astroquery.readthedocs.io/en/latest/>`_.
-
-Here's an example using a Jupyter Notebook on how to do that:dd
-
-.. notebook:: media/download/astroquery_visits.ipynb
-
-Here again the same, just more compact:
-
-.. literalinclude:: media/download/download_data_astroquery.py
-   :language: python
-
 Using the program's site
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 

@@ -36,7 +36,8 @@ release = '0.0.1'
 # ones.
 extensions = ['sphinx_rtd_theme', 'sphinx.ext.todo', 'sphinx.ext.viewcode',
               'sphinx.ext.autodoc', 'numpydoc', 'nbsphinx', 'myst_parser',
-              'sphinx.ext.autosectionlabel', 'sphinx.ext.napoleon', 'RunNotebook']
+              'sphinx.ext.autosectionlabel', 'sphinx.ext.napoleon', 'RunNotebook.notebook_sphinxext',
+              'RunNotebook.notebookcell_sphinxext']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -69,7 +70,9 @@ html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 #html_static_path = ['_static']
 html_static_path = []
 
+
 from recommonmark.parser import CommonMarkParser
 
 source_parsers = {'.md': CommonMarkParser}
 source_suffix = ['.rst', '.md']
+

@@ -35,7 +35,7 @@ The pipeline is still under development! Use at your own risk.
    :caption: Example GJ1214 b
 
    example_introduction
-   download_data
+   astroquery_visits
    before_running
    stage00
    stage01
@@ -46,6 +46,11 @@ The pipeline is still under development! Use at your own risk.
    stage21
    stage30
 
+.. toctree::
+   :maxdepth: 1
+   :caption: Others
+
+   download_data
 
 
 Indices and tables
