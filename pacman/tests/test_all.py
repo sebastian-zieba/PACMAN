@@ -3,6 +3,7 @@ import sys, os, time, glob
 import pytest
 from astropy.io import ascii
 from astroquery.mast import Observations
+from astropy.io import fits
 
 sys.path.insert(0, '/home/zieba/Desktop/Projects/Open_source/PACMAN/')
 #print(sys.path)
@@ -19,20 +20,27 @@ from pacman.reduction import s21_bin_spectroscopic_lc as s21
 from pacman.reduction import s30_run as s30
 
 from pacman.lib import sort_nicely as sn
+from pacman.lib.suntimecorr import getcoords as getcoords
+from pacman.lib.gaussfitter import gaussfit as gaussfit
+from pacman.lib import optextr
 
 from importlib import reload
+from astropy.table import Table
+from photutils.datasets import (make_noise_image, make_gaussian_sources_image)
+
+
 
 test_path = os.path.dirname(os.path.realpath(__file__)) + '/'
 
 eventlabel='GJ1214_13021'
 
 
-@pytest.mark.dependency()
+@pytest.mark.run(order=1)
 def test_sessionstart(capsys):
     """
-    Called after the Session object has been created and
-    before performing collection and entering the run test loop.
+    Called as the first test. It downloads the three HST files used in this test using astroquery.
     """
+
     print('test')
 
     file_path = os.path.realpath(__file__)
@@ -69,6 +77,12 @@ def test_sessionstart(capsys):
 
 
 def workdir_finder():
+    """
+    Finds the latest work directory created. 
+    After running the Stage 00 test, 
+    we want to base all following tests (for s01, s02, ...) on the workdirectory created when running s00.
+    """
+
     eventlabel='GJ1214_13021'
     # list subdirectories in the run directory
     dirs = np.array([f.path for f in os.scandir(test_path) if f.is_dir()])
@@ -99,8 +113,12 @@ def workdir_finder():
     return (workdir, eventlabel)
 
 
-@pytest.mark.dependency()
+@pytest.mark.run(order=2)
 def test_s00(capsys):
+    """
+    Reads in the downloaded HST files and creates the work directory and the filelist file.
+    """
+
     reload(s00)
     #print('test_path', test_path)
     #print(os.system("pwd"))
@@ -123,12 +141,16 @@ def test_s00(capsys):
     ncols = len(filelist[0])
     nrows = len(filelist['t_mjd'])
 
-    assert filelist['t_mjd'][0] == 56364.52973075
+    assert np.round(filelist['t_mjd'][0],4) == 56364.5297
     assert (nrows, ncols) == (3, 9) 
 
 
-@pytest.mark.dependency(depends=['test_s00'])
+@pytest.mark.run(order=3)
 def test_s01(capsys):
+    """
+    Downloads the HORIZONS file.
+    """
+
     reload(s01)
     time.sleep(1)
 
@@ -143,8 +165,62 @@ def test_s01(capsys):
     assert os.path.exists(horizons_file)
 
 
-@pytest.mark.dependency(depends=['test_s01'])
+def my_round(num):
+    """
+    Cutoff a decimal number after 2 decimal places without rounding.
+    From: https://stackoverflow.com/questions/967661/python-truncate-after-a-hundreds
+    """
+    return np.float("%.2f" % (int(num*100)/float(100)))
+
+
+@pytest.mark.run(order=4)
+def test_horizons(capsys):
+    """
+    Check the shape of the HORIZONS file.
+    """
+
+    workdir, eventlabel = workdir_finder()
+
+    horizons_file = workdir+'/ancil/horizons/horizons_results_v0.txt' 
+
+    start_data = '$$SOE'
+    end_data = '$$EOE'
+
+    # Read in whole table as an list of strings, one string per line
+    ctable = open(horizons_file, 'r')
+    wholetable = ctable.readlines()
+    ctable.close()
+
+    # Find start and end line
+    i = 0
+    # while end has not been found:
+    while wholetable[i].find(end_data) == -1:
+        # if start is found get the index of next line:
+        if wholetable[i].find(start_data) != -1:
+            start = i + 1
+        i += 1
+
+    # Chop table
+    data = wholetable[start:i - 2]
+
+    # Extract values:
+    x, y, z, time = getcoords(data)
+
+    #checking shape
+    assert len(x) == 25
+
+
+    #checking first and last values
+    assert np.all(np.array([my_round(x[0]), my_round(y[0]), my_round(z[0])]) == np.array([-147684997.27, 16573698.09, 7180590.09]))
+    assert np.all(np.array([my_round(x[-1]), my_round(y[-1]), my_round(z[-1])])== np.array([-147715099.27, 16386308.81, 7090837.98]))
+
+
+@pytest.mark.run(order=10)
 def test_s02(capsys):
+    """
+    Performs the barycentric correction.
+    """
+
     reload(s02)
     time.sleep(1)
 
@@ -159,11 +235,15 @@ def test_s02(capsys):
 
     # Check if the barycentric correction was correctly performed
     assert ('t_bjd' in filelist.colnames)
-    assert filelist['t_bjd'][0] == 2456365.030605767
+    assert np.round(filelist['t_bjd'][0],4) == 2456365.0306
 
 
-@pytest.mark.dependency(depends=['test_s02'])
+@pytest.mark.run(order=15)
 def test_s03(capsys):
+    """
+    Downloads the stellar spectrum and multiplies it with the bandpass.
+    """
+
     reload(s03)
     time.sleep(1)
 
@@ -176,6 +256,15 @@ def test_s03(capsys):
 
     assert os.path.exists(sm_file)
 
+    hdul = fits.open(sm_file)
+    wvl = hdul[1].data['WAVELENGTH']*1e-10
+    flux = hdul[1].data['g50']*1e-7*1e4/1e-10/np.pi
+
+    #check if for the sm fits file the flux and wavelength is >= 0 everywhere
+    assert np.all(wvl >= 0)
+    assert np.all(flux >= 0)
+
+    #check the refspec_file
     refspec_file = workdir + '/ancil/refspec/refspec.txt'
 
     assert os.path.exists(refspec_file)
@@ -184,11 +273,17 @@ def test_s03(capsys):
 
     # Check if the refspec was correctly created
     assert len(wvl_refspec) == 162
-    assert flux_refspec[0] == 0
+    #check if for the refspec file the flux and wavelength is >= 0 everywhere
+    assert np.all(wvl_refspec >= 0)
+    assert np.all(flux_refspec >= 0)
 
 
-@pytest.mark.dependency(depends=['test_s03'])
+@pytest.mark.run(order=16)
 def test_s10(capsys):
+    """
+    Determines the position of the direct image.
+    """
+
     reload(s10)
     time.sleep(1)
 
@@ -209,8 +304,45 @@ def test_s10(capsys):
     assert np.round(xrefyref['pos2'][0], 5) == 400.90239
 
 
-@pytest.mark.dependency(depends=['test_s10'])
+@pytest.mark.run(order=26)
+def test_sim_source(capsys):
+    """
+    Determines the position of the simulated direct image.
+    """
+
+    sigma_psf = 1.0
+    source = Table()
+
+    source_xpos = np.random.randint(10, 54)
+    source_ypos = np.random.randint(10, 54)
+
+    source['flux'] = [5000]
+    source['x_mean'] = [source_xpos]
+    source['y_mean'] = [source_ypos]
+    source['x_stddev'] = sigma_psf * np.ones(1)
+    source['y_stddev'] = source['x_stddev']
+    source['theta'] = [0]
+    source['id'] = [1]
+    tshape = (64, 64)
+
+    source_data = make_gaussian_sources_image(tshape, source)
+    noise_data = make_noise_image(tshape, distribution='gaussian', mean=80.,
+                              stddev=5., seed=123)
+
+    image = (source_data + noise_data)
+
+    results = gaussfit(image, noise_data)
+
+    assert (source_xpos-1 <= results[2] <= source_xpos+1)
+    assert (source_ypos-1 <= results[3] <= source_ypos+1)
+
+
+@pytest.mark.run(order=27)
 def test_s20(capsys):
+    """
+    The extraction step. Extracts flux as a function of wavelength and time.
+    """
+
     reload(s20)
     time.sleep(1)
 
@@ -238,8 +370,32 @@ def test_s20(capsys):
     assert len(s20_lc_white.colnames) == 11
 
 
-@pytest.mark.dependency(depends=['test_s20'])
+    #test_optextr
+    spectrum = np.ones((20,9))
+
+    for i in range(len(spectrum)): 
+        for j in range(len(spectrum[0])): 
+            if 4 < i < 8: 
+                if 1 < j < 7: 
+                    spectrum[i,j] = 10
+
+    err =  np.ones((20,9))*0.01
+    Mnew = np.ones((20,9))
+    spec_box_0 = 15 * 10
+    var_box_0 = 1
+
+    [f_opt_0, var_opt_0, numoutliers] = optextr.optextr(spectrum, err, spec_box_0, var_box_0, Mnew, meta.nsmooth, meta.sig_cut, meta.save_optextr_plot, 0, 0, meta)
+
+    assert np.round(np.sum(f_opt_0), 0) == np.round(np.sum(spectrum), 0) #optimal extraction flux should be the same as the total flux in the array 
+    assert numoutliers == 0 # we didnt introduce any outliers
+
+
+@pytest.mark.run(order=29)
 def test_s21(capsys):
+    """
+    Creates spectroscopic light curves.
+    """
+
     reload(s21)
     time.sleep(1)
 
@@ -272,12 +428,12 @@ def test_s21(capsys):
     assert len(extracted_sp_lc_0.colnames) == 10
 
 
-@pytest.mark.dependency(depends=['test_s21'])
+@pytest.mark.run(order=30)
 def test_sessionfinish(capsys):
     """
-    Called after whole test run finished, right before
-    returning the exit status to the system.
+    Called after whole test run finished. It will delete the created work directory and the downloaded HST files.
     """
+
     workdir, eventlabel = workdir_finder()
     file_path = os.path.realpath(__file__)
     test_dir = os.path.dirname(file_path)

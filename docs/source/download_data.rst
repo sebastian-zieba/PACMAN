@@ -1,7 +1,7 @@
 .. _download_data:
 
-Download data
-========================
+Download data (alternatives)
+=============================
 
 There are different ways to download the data. Let's have a look at them by downloading the data taken in HST Program GO 13021.
 
