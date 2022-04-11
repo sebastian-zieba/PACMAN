@@ -443,7 +443,11 @@ def test_s30(capsys):
     meta = s30.run30(eventlabel, workdir)
 
     workdir_dirs = np.array([f.path for f in os.scandir(workdir) if f.is_dir()])  
+    print(workdir_dirs)
+    print(workdir_dirs[np.array(['fit_' in i for i in workdir_dirs])])
+
     fit_dirs = workdir_dirs[np.array(['fit_' in i for i in workdir_dirs])]
+
     fit_dir = fit_dirs[0]
     assert os.path.exists(fit_dir)
 
