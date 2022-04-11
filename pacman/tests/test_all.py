@@ -5,7 +5,7 @@ from astropy.io import ascii
 from astroquery.mast import Observations
 from astropy.io import fits
 
-#sys.path.insert(0, '/home/zieba/Desktop/Projects/Open_source/PACMAN/')
+sys.path.insert(0, '/home/zieba/Desktop/Projects/Open_source/PACMAN/')
 #print(sys.path)
 
 from pacman.lib import util
@@ -429,39 +429,44 @@ def test_s21(capsys):
 
 
 @pytest.mark.run(order=30)
-def test_sessionfinish(capsys):
+def test_s30(capsys):
     """
-    Called after whole test run finished. It will delete the created work directory and the downloaded HST files.
+    Fits spectroscopic light curves.
     """
+
+    reload(s30)
+    time.sleep(1)
 
     workdir, eventlabel = workdir_finder()
-    file_path = os.path.realpath(__file__)
-    test_dir = os.path.dirname(file_path)
-    data_dir = test_dir + '/data'
-    os.system("rm -r {0}".format(data_dir))
-    os.system("rm -r {0}".format(workdir))
 
-    print('deleted directories and files again')
+    #run s30
+    meta = s30.run30(eventlabel, workdir)
+
+    workdir_dirs = np.array([f.path for f in os.scandir(workdir) if f.is_dir()])  
+    fit_dirs = workdir_dirs[np.array(['fit_' in i for i in workdir_dirs])]
+    fit_dir = fit_dirs[0]
+    assert os.path.exists(fit_dir)
 
     assert True
 
 
-#@pytest.mark.dependency(depends=['test_s21'])
-#def test_s30(capsys):
-#    reload(s30)
-#    time.sleep(1)
+#@pytest.mark.run(order=40)
+#def test_sessionfinish(capsys):
+ #   """
+ #   Called after whole test run finished. It will delete the created work directory and the downloaded HST files.
+ #   """
+#
+ #   workdir, eventlabel = workdir_finder()
+ #   file_path = os.path.realpath(__file__)
+#    test_dir = os.path.dirname(file_path)
+ #   data_dir = test_dir + '/data'
+ #   os.system("rm -r {0}".format(data_dir))
+#    os.system("rm -r {0}".format(workdir))
+#
+#    print('deleted directories and files again')
+#
+#    assert True
 
-#    workdir, eventlabel = workdir_finder()
-
-    #run s30
-#    meta = s30.run30(eventlabel, workdir)
-
-#    workdir_dirs = np.array([f.path for f in os.scandir(workdir) if f.is_dir()])  
-#    fit_dirs = workdir_dirs[np.array(['fit_' in i for i in workdir_dirs])]
-#    fit_dir = fit_dirs[0]
-#    assert os.path.exists(fit_dir)
-    #os.system("rm -r ./{0}".format(workdir))
-    #return 0
 
 
 
