@@ -1,5 +1,8 @@
 ![](https://github.com/sebastian-zieba/PACMAN/blob/master/docs/source/media/Pacman_V2.gif)
 
+[![Documentation Status](https://readthedocs.org/projects/pacmandocs/badge/?version=latest)](https://pacmandocs.readthedocs.io/en/latest/?badge=latest)
+
+
 # PACMAN
 
 **Welcome to PACMAN**
