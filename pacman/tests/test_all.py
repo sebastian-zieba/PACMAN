@@ -449,6 +449,16 @@ def test_s30(capsys):
 
     assert os.path.exists(fit_dir)
 
+    meta.s30_fit_white = True
+    meta.s30_most_recent_s20 = True
+
+    s30.run30(eventlabel, workdir, meta=meta)
+
+    dirs = np.array([f.path for f in os.scandir(workdir) if f.is_dir()])
+    dirs_bool = np.array([b'fit_' in i for i in dirs])
+
+    print('dirs_bool: ', dirs_bool)
+
     assert True
 
 
