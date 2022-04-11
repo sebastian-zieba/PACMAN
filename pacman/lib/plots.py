@@ -1169,7 +1169,7 @@ def mcmc_chains(ndim, sampler, nburn, labels, meta):
             # axes[i].yaxis.set_major_locator(MaxNLocator(5))
             axes[i].set_ylabel(labels[i])
     elif ndim == 1:
-        axes.plot(sampler.chain[:, nburn:, i].T, alpha=0.4)
+        axes.plot(sampler.chain[:, nburn:, 0].T, alpha=0.4)
         # axes.yaxis.set_major_locator(MaxNLocator(5))
         axes.set_ylabel(labels)
     fig.tight_layout()
