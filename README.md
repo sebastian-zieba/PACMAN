@@ -1,6 +1,7 @@
 ![](https://github.com/sebastian-zieba/PACMAN/blob/master/docs/source/media/Pacman_V2.gif)
 
 [![Documentation Status](https://readthedocs.org/projects/pacmandocs/badge/?version=latest)](https://pacmandocs.readthedocs.io/en/latest/?badge=latest)
+[![codecov](https://codecov.io/gh/sebastian-zieba/PACMAN/branch/master/graph/badge.svg?token=YGPOSJSH5Z)](https://codecov.io/gh/sebastian-zieba/PACMAN)
 
 
 # PACMAN
