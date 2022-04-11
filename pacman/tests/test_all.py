@@ -454,22 +454,22 @@ def test_s30(capsys):
     assert True
 
 
-#@pytest.mark.run(order=40)
-#def test_sessionfinish(capsys):
- #   """
- #   Called after whole test run finished. It will delete the created work directory and the downloaded HST files.
- #   """
-#
- #   workdir, eventlabel = workdir_finder()
- #   file_path = os.path.realpath(__file__)
-#    test_dir = os.path.dirname(file_path)
- #   data_dir = test_dir + '/data'
- #   os.system("rm -r {0}".format(data_dir))
-#    os.system("rm -r {0}".format(workdir))
-#
-#    print('deleted directories and files again')
-#
-#    assert True
+@pytest.mark.run(order=40)
+def test_sessionfinish(capsys):
+    """
+    Called after whole test run finished. It will delete the created work directory and the downloaded HST files.
+    """
+
+    workdir, eventlabel = workdir_finder()
+    file_path = os.path.realpath(__file__)
+    test_dir = os.path.dirname(file_path)
+    data_dir = test_dir + '/data'
+    os.system("rm -r {0}".format(data_dir))
+    os.system("rm -r {0}".format(workdir))
+
+    print('deleted directories and files again')
+
+    assert True
 
 
 
