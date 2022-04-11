@@ -5,7 +5,7 @@
 rundir                       pacman/tests/      #location of run dir
 datadir                      pacman/tests/data            #location of data dir
 suffix                       ima                                                      #data suffix (only ima supported right now)
-which_visits                 everything                                                 #which visits to use; Options: list (e.g., [0,1,3]) or everything
+which_visits                 [0]                                                      #which visits to use; Options: list (e.g., [0,1,3]) or everything
 
 save_obs_times_plot          True
 show_obs_times_plot          False
