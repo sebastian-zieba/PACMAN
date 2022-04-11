@@ -1163,10 +1163,15 @@ def mcmc_chains(ndim, sampler, nburn, labels, meta):
     """
     plt.clf()
     fig, axes = plt.subplots(ndim, 1, sharex=True, figsize=(8, ndim))
-    for i in range(0, ndim):
-        axes[i].plot(sampler.chain[:, nburn:, i].T, alpha=0.4)
-        # axes[i].yaxis.set_major_locator(MaxNLocator(5))
-        axes[i].set_ylabel(labels[i])
+    if ndim > 1 :
+        for i in range(0, ndim):
+            axes[i].plot(sampler.chain[:, nburn:, i].T, alpha=0.4)
+            # axes[i].yaxis.set_major_locator(MaxNLocator(5))
+            axes[i].set_ylabel(labels[i])
+    elif == 1:
+        axes.plot(sampler.chain[:, nburn:, i].T, alpha=0.4)
+        # axes.yaxis.set_major_locator(MaxNLocator(5))
+        axes.set_ylabel(labels)
     fig.tight_layout()
     fig.subplots_adjust(wspace=0, hspace=0)
     if nburn == 0:
