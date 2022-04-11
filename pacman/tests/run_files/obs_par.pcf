@@ -133,7 +133,7 @@ ld_file                      /home/zieba/Desktop/Projects/Open_source/wfc3-pipel
 toffset                      2456365
 
 run_divide_white             False
-run_verbose                  True
+run_verbose                  False
 
 save_allan_plot              False
 save_raw_lc_plot             True
