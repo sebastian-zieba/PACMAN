@@ -58,37 +58,37 @@ opt_extract                  True
 sig_cut                      15                                                       # optimal extraction, for cosmic rays etc
 nsmooth                      9                                                        # optimal extraction, created smoothed spatial profile, medial smoothing filter
 
-save_optextr_plot            False
+save_optextr_plot            True
 
 correct_wave_shift           True
 
 output                       True
 
-save_sp2d_plot               False                                                     #save 2d spectrum
+save_sp2d_plot               True                                                     #save 2d spectrum
 show_sp2d_plot               False
 
-save_trace_plot              False                                                     #save trace
+save_trace_plot              True                                                     #save trace
 show_trace_plot              False
 
-save_bkg_hist_plot           False                                                     #save bkg_hist
+save_bkg_hist_plot           True                                                     #save bkg_hist
 show_bkg_hist_plot           False
 
-save_utr_plot                False                                                     #save 2d spectrum
+save_utr_plot                True                                                     #save 2d spectrum
 show_utr_plot                False
 
-save_sp1d_plot               False                                                     #save 2d spectrum
+save_sp1d_plot               True                                                     #save 2d spectrum
 show_sp1d_plot               False
 
 save_bkg_evo_plot            True                                                     #save 2d spectrum
 show_bkg_evo_plot            False
 
-save_sp1d_diff_plot          False                                                     #save 2d spectrum
+save_sp1d_diff_plot          True                                                     #save 2d spectrum
 show_sp1d_diff_plot          False
 
 save_utr_aper_evo_plot       True                                                     #save 2d spectrum
 show_utr_aper_evo_plot       False
 
-save_refspec_fit_plot        False
+save_refspec_fit_plot        True
 show_refspec_fit_plot        False
 
 save_drift_plot              True
@@ -140,13 +140,13 @@ save_raw_lc_plot             True
 save_fit_lc_plot             True
 
 run_lsq                      True
-run_mcmc                     False
+run_mcmc                     True
 run_nested                   False
 
 #emcee
-run_nsteps                   10000
-run_nwalkers	             50
-run_nburn                    5000
+run_nsteps                   1000
+run_nwalkers	             5
+run_nburn                    500
 
 #dynesty
 run_dlogz                    25000
