@@ -21,4 +21,5 @@ astroquery
 flake8
 photutils
 sphinx_rtd_theme
+pandoc
 
