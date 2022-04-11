@@ -24,4 +24,6 @@ sphinx_rtd_theme
 pandoc
 sphinx-gallery
 nbconvert
+pytest-cov
+codecov
 
