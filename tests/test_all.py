@@ -5,7 +5,7 @@ from astropy.io import ascii
 from astroquery.mast import Observations
 from astropy.io import fits
 
-#sys.path.insert(0, '/home/zieba/Desktop/Projects/Open_source/PACMAN/')
+#sys.path.insert(0, '/home/zieba/Desktop/Projects/Open_source/PACMAN/src/')
 #print(sys.path)
 
 from pacman.lib import util
