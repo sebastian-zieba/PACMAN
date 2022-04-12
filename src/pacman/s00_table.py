@@ -87,7 +87,7 @@ def run00(eventlabel, pcf_path='.'):
     pcf = rd.read_pcf(pcffile)
     rd.store_pcf(meta, pcf)
 
-    #this file here is saved in /pacman/reduction/s00_table.py
+    #this file here is saved in /pacman/s00_table.py
     #pacmandir is just the path of the directory /pacman/
     meta.pacmandir = pkg_resources.resource_filename("pacman","")
     #meta.pacmandir = '/'.join(os.path.realpath(__file__).split('/')[:-2]) + '/'
@@ -106,6 +106,7 @@ def run00(eventlabel, pcf_path='.'):
 
     # Create directories for this run = Work Directory
     datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
+    print(pkg_resources.resource_filename("pacman",""))
     meta.workdir = meta.rundir + '/run_' + datetime + '_' + meta.eventlabel + '/'
     if not os.path.exists(meta.workdir):
         os.makedirs(meta.workdir)
