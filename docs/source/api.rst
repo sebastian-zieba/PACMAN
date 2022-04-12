@@ -9,56 +9,56 @@ reduction
 
 reduction.s00_table
 ----------------------------------------
-.. automodule:: pacman.reduction.s00_table
+.. automodule:: pacman.s00_table
     :members:
     :undoc-members:
     :show-inheritance:
 
 reduction.s01_horizons
 ----------------------------------------
-.. automodule:: pacman.reduction.s01_horizons
+.. automodule:: pacman.s01_horizons
     :members:
     :undoc-members:
     :show-inheritance:
 
 reduction.s02_barycorr
 ----------------------------------------
-.. automodule:: pacman.reduction.s02_barycorr
+.. automodule:: pacman.s02_barycorr
     :members:
     :undoc-members:
     :show-inheritance:
 
 reduction.s03_refspectra
 ----------------------------------------
-.. automodule:: pacman.reduction.s03_refspectra
+.. automodule:: pacman.s03_refspectra
     :members:
     :undoc-members:
     :show-inheritance:
 
 reduction.s10_direct_images
 -------------------------------------------
-.. automodule:: pacman.reduction.s10_direct_images
+.. automodule:: pacman.s10_direct_images
     :members:
     :undoc-members:
     :show-inheritance:
 
 reduction.s20_extract
 -------------------------------------------
-.. automodule:: pacman.reduction.s20_extract
+.. automodule:: pacman.s20_extract
     :members:
     :undoc-members:
     :show-inheritance:
 
 reduction.s21_bin_spectroscopic_lc
 -------------------------------------------
-.. automodule:: pacman.reduction.s21_bin_spectroscopic_lc
+.. automodule:: pacman.s21_bin_spectroscopic_lc
     :members:
     :undoc-members:
     :show-inheritance:
 
 reduction.s30_run
 -------------------------------------------
-.. automodule:: pacman.reduction.s30_run
+.. automodule:: pacman.s30_run
     :members:
     :undoc-members:
     :show-inheritance:

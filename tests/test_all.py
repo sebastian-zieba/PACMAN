@@ -10,14 +10,14 @@ sys.path.insert(0, '/home/zieba/Desktop/Projects/Open_source/PACMAN/')
 
 from pacman.lib import util
 
-from pacman.reduction import s00_table as s00
-from pacman.reduction import s01_horizons as s01
-from pacman.reduction import s02_barycorr as s02
-from pacman.reduction import s03_refspectra as s03
-from pacman.reduction import s10_direct_images as s10
-from pacman.reduction import s20_extract as s20
-from pacman.reduction import s21_bin_spectroscopic_lc as s21
-from pacman.reduction import s30_run as s30
+from pacman import s00_table as s00
+from pacman import s01_horizons as s01
+from pacman import s02_barycorr as s02
+from pacman import s03_refspectra as s03
+from pacman import s10_direct_images as s10
+from pacman import s20_extract as s20
+from pacman import s21_bin_spectroscopic_lc as s21
+from pacman import s30_run as s30
 
 from pacman.lib import sort_nicely as sn
 from pacman.lib.suntimecorr import getcoords as getcoords
