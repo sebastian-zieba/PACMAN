@@ -34,4 +34,4 @@ jobs:
 
       - name: Test with pytest
         run: |
-          pytest pacman/tests/test_all.py -s
+          pytest src/pacman/tests/test_all.py -s
