@@ -8,9 +8,9 @@ import os
 import time as time_now
 from astropy.table import QTable
 from tqdm import tqdm
-from ..lib import plots
-from ..lib import sort_nicely as sn
-from ..lib import manageevent as me
+from .lib import plots
+from .lib import sort_nicely as sn
+from .lib import manageevent as me
 from astropy.table import QTable
 
 

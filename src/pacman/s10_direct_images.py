@@ -4,10 +4,10 @@ from astropy.io import ascii, fits
 from tqdm import tqdm
 import os
 from astropy.table import Table
-from ..lib import util
-from ..lib import gaussfitter
-from ..lib import plots
-from ..lib import manageevent as me
+from .lib import util
+from .lib import gaussfitter
+from .lib import plots
+from .lib import manageevent as me
 
 def run10(eventlabel, workdir, meta=None):
 	"""

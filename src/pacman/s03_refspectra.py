@@ -1,10 +1,10 @@
 import numpy as np
 import os
 from scipy.interpolate import interp1d
-from ..lib import plots
-from ..lib import stellar_spectrum
-from ..lib import manageevent as me
-from ..lib import util
+from .lib import plots
+from .lib import stellar_spectrum
+from .lib import manageevent as me
+from .lib import util
 
 
 def run03(eventlabel, workdir, meta=None):
@@ -76,7 +76,7 @@ def run03(eventlabel, workdir, meta=None):
     print('Using {0} grism.'.format(grism))
 
     #Read in bandpass for the used grism
-    bp_wvl, bp_val = np.loadtxt(meta.pacmandir + '/ancil/bandpass/bandpass_{0}.txt'.format(grism)).T
+    bp_wvl, bp_val = np.loadtxt(meta.pacmandir + '/data/bandpass/bandpass_{0}.txt'.format(grism)).T
 
 
     ### Creating the reference spectrum
