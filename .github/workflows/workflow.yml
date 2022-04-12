@@ -1,4 +1,4 @@
-name: Codecov2
+name: Codecov
 
 on: [push, pull_request]
 
@@ -15,7 +15,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install --upgrade pip
-        pip install .
+        pip install ".[test]"
 
     - name: Run tests and collect coverage
       run: pytest --cov --cov-report xml .
