@@ -3,9 +3,9 @@ import numpy as np
 from astropy.io import ascii
 from astropy.table import Column
 from tqdm import tqdm
-from ..lib import suntimecorr
-from ..lib import util
-from ..lib import manageevent as me
+from .lib import suntimecorr
+from .lib import util
+from .lib import manageevent as me
 
 
 def run02(eventlabel, workdir, meta=None):

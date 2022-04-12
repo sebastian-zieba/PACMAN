@@ -1,14 +1,13 @@
 import sys, os, time
-sys.path.append('/home/zieba/Desktop/Projects/Open_source/PACMAN/')
 import getopt
-import pacman.reduction.s00_table as s00
-import pacman.reduction.s01_horizons as s01
-import pacman.reduction.s02_barycorr as s02
-import pacman.reduction.s03_refspectra as s03
-import pacman.reduction.s10_direct_images as s10
-import pacman.reduction.s20_extract as s20
-import pacman.reduction.s21_bin_spectroscopic_lc as s21
-import pacman.reduction.s30_run as s30
+import pacman.s00_table as s00
+import pacman.s01_horizons as s01
+import pacman.s02_barycorr as s02
+import pacman.s03_refspectra as s03
+import pacman.s10_direct_images as s10
+import pacman.s20_extract as s20
+import pacman.s21_bin_spectroscopic_lc as s21
+import pacman.s30_run as s30
 from pacman.lib.update_meta import update_meta
 from pacman.lib import sort_nicely as sn
 
@@ -21,9 +20,9 @@ def usage():
         '  --s00        reads in fits files and creates filelist.txt\n'
         '  --s01        downloads positions of HST during observations\n'
         '  --s02        corrects the MJD to BJD using the positions of HST\n'
-        '  --s03        downloads the stellar spectrum and creates a reference spectrum with the bandpass of the grism\n'   
-        '  --s10        determines the position of the source by looking at the direct image\n' 
-        '  --s20        extracts the spectra\n' 
+        '  --s03        downloads the stellar spectrum and creates a reference spectrum with the bandpass of the grism\n'
+        '  --s10        determines the position of the source by looking at the direct image\n'
+        '  --s20        extracts the spectra\n'
         '  --s21        bins light curves\n'
         '  --s30        fits models to the extracted light curve(s)\n'
         '  --workdir    sets the work directory (only important if user does not want to use the latest work dir)\n'
@@ -55,7 +54,7 @@ def main():
     for o, a in opts:
         if o in ("-h", "--help"): usage()
         elif o == "--s00":
-            run_s00 = True    
+            run_s00 = True
             print([i[0] for i in opts])
             print("--eventlabel" not in [i[0] for i in opts])
             if "--eventlabel" not in [i[0] for i in opts]:
@@ -83,7 +82,7 @@ def main():
     if not run_s00:
         # list subdirectories in the run directory
         dirs = [f.path for f in os.scandir('.') if f.is_dir()]
-        # saves times when these subdirectories were created. 
+        # saves times when these subdirectories were created.
         # They always have the following form: 'run_YYYY-MM-DD_HH-MM-SS_eventlabel'
         dirs_times = [i[6:25] for i in dirs]
         # sort the times

@@ -166,9 +166,9 @@ def ancil(meta, s10=False, s20=False):
     if s20:
         meta.rdnoise = 22.0 #read noise
         if meta.grism == 'G102':
-            meta.flat = meta.pacmandir + '/ancil/flats/WFC3.IR.G102.flat.2.fits'
+            meta.flat = meta.pacmandir + '/data/flats/WFC3.IR.G102.flat.2.fits'
         elif meta.grism == 'G141':
-            meta.flat = meta.pacmandir + '/ancil/flats/WFC3.IR.G141.flat.2.fits'
+            meta.flat = meta.pacmandir + '/data/flats/WFC3.IR.G141.flat.2.fits'
 
     return meta
 
@@ -432,7 +432,7 @@ def weighted_mean(data, err):            #calculates the weighted mean for data 
     weights = 1.0/err[ind]**2
     mu = np.sum(data[ind]*weights)/np.sum(weights)
     var = 1.0/np.sum(weights)
-    return [mu, np.sqrt(var)]                
+    return [mu, np.sqrt(var)]
 
 
 
@@ -472,12 +472,3 @@ def interpolate_spectrum(spectrum, error, template, template_waves):
 #def getphase(t):
 #    phase = (t - t0)/period
 #    return phase - int(phase)
-
-
-
-
-
-
-
-
-

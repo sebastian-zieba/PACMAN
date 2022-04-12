@@ -4,15 +4,15 @@ from astropy.io import ascii, fits
 import shutil
 #from numpy import *
 #from pylab import *
-from ..lib import optextr
+from .lib import optextr
 from scipy.optimize import leastsq
 from datetime import datetime
 from astropy.table import QTable
 from scipy.signal import find_peaks
 from tqdm import tqdm
-from ..lib import manageevent as me
-from ..lib import util
-from ..lib import plots
+from .lib import manageevent as me
+from .lib import util
+from .lib import plots
 
 def run20(eventlabel, workdir, meta=None):
     """
