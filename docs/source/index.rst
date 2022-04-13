@@ -28,6 +28,7 @@ The pipeline is still under development! Use at your own risk.
    pcf
    models
    api
+   faq
    contact
 
 .. toctree::

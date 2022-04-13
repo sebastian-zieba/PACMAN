@@ -12,12 +12,14 @@ ALERT: Project PACMAN is currently under heavy development. Use at your own risk
 
 ## Installation
 
+More detailed Installing instructions can be found in the documentation: https://pacmandocs.readthedocs.io/en/latest/installation.html
+
 ### With pip & GitHub
 
 You can install ``PACMAN`` using ``pip`` by entering the following line into a terminal:
 
 ```bash
-pip install git+git://github.com/sebastian-zieba/PACMAN
+pip install git+https://github.com/sebastian-zieba/PACMAN
 ```
 
 ### Directly on GitHub
