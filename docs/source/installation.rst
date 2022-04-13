@@ -3,13 +3,18 @@
 Installation
 =============================
 
+Options
+____________________________________________________
+
 There are different options to download and install ``PACMAN``:
 
 Using a conda environment
 ---------------------------------
 
 It is generally recommended to install PACMAN in a separate new environment.
-If you do not have Anaconda install yet, you can find instructions here: https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html
+If you do not have conda installed yet, you will have to do that.
+Installing Miniconda (a minimal installer for conda) instead of Anaconda is perfectly fine: https://docs.conda.io/en/latest/miniconda.html
+Additional instructions can be found here: https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html
 
 If you have that, navigate in a terminal to a directory where you want to store the cloned PACMAN directory and type the following lines:
 
@@ -46,7 +51,7 @@ You can install ``PACMAN`` using ``pip`` by entering the following line into a t
     pip install git+https://github.com/sebastian-zieba/PACMAN
 
 
-Directly on GitHub
+Directly from GitHub
 ---------------------------------
 
 1. You can also download from source on `GitHub <https://github.com/sebastian-zieba/PACMAN>`_.
@@ -77,10 +82,10 @@ Using pip (PyPI)
 Will be added ...
 
 
-Tests
-=============================
+Test your installation
+____________________________________________________
 
-If you want to test if your installation was successful, go back to your cloned PACMAN directory and type:
+If you want to test if your installation was successful, navigate to your cloned PACMAN directory and type:
 
 .. code-block:: console
 
@@ -88,7 +93,7 @@ If you want to test if your installation was successful, go back to your cloned 
 
 This will install PACMAN again and the dependencies (including the testing dependencies!).
 
-You can now run pytest by typing:
+You can now run pytest by typing the following line while still being in the PACMAN directory:
 
 .. code-block:: console
 
@@ -101,4 +106,4 @@ You have passed all tests if you get a message like this in the end:
 
 .. code-block:: console
 
-    =========== 12 passed, 197 warnings in 157.00s (0:02:37) =============
+    =========== 12 passed, 197 warnings in 157.00s (0:02:37) ===========
