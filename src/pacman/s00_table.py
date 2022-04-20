@@ -106,7 +106,11 @@ def run00(eventlabel, pcf_path='.'):
 
     # Create directories for this run = Work Directory
     datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
-    print(pkg_resources.resource_filename("pacman",""))
+
+    run_files_dir = pkg_resources.resource_filename("pacman","") + '/data/run_files/'
+    print(run_files_dir)
+    onlyfiles = [f for f in os.listdir(run_files_dir) if os.path.isfile(os.path.join(run_files_dir, f))]
+    print(onlyfiles)
     meta.workdir = meta.rundir + '/run_' + datetime + '_' + meta.eventlabel + '/'
     if not os.path.exists(meta.workdir):
         os.makedirs(meta.workdir)
