@@ -1,6 +1,6 @@
 .. _directories:
 
-Main Directories
+Repository Structure
 ========================
 
 .. image:: media/20220310_113633.jpg
@@ -18,7 +18,7 @@ In the package
 
     + **PACMAN/pacman/ancil/bandpass**
 
-    This directory contains the bandpass of the G102 and the G141 grisms.
+    This directory contains the throughput for the G102 and the G141 grisms.
     These files will be used in Stage 03 to create the reference spectrum.
 
 
@@ -30,7 +30,7 @@ In the package
     + **PACMAN/pacman/ancil/stellar_models**
 
     This directory contains information for PACMAN which stellar models are available to download.
-    PACMAN offers the user to download three different stellar models from the internet: Kurucz stellar models 1993, Castelli and Kurucz stellar models 2004 and Phoenix models by Allard and collaborators.
+    PACMAN can download three different stellar models: Kurucz stellar models 1993, Castelli and Kurucz stellar models 2004 and Phoenix models by Allard and collaborators.
     These models will be used in Stage 03 to create the reference spectrum.
     More on this at the walkthrough of `Stage 03 <https://pacmandocs.readthedocs.io/en/latest/quickstart.html#stage-03>`_ using GJ1214 data as an example.
 

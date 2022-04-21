@@ -8,9 +8,9 @@ PACMAN is separated into different stages, summarized here.  Click on the hyperl
 
 - `Stage 00 <https://pacmandocs.readthedocs.io/en/latest/_modules/pacman/reduction/s00_table.html>`_
 
-    + read in  the _ima_ fits files in the data directory 
-    + save important information from the header in a table
-    + create a "work directory" to save all plots and files from the next stages
+  + read in  the _ima_ fits files in the data directory 
+  + save important information from the header in a table
+  + create a "work directory" to save all plots and files from the next stages
 
 
 - `Stage 01: <https://pacmandocs.readthedocs.io/en/latest/_modules/pacman/reduction/s01_horizons.html>`_
