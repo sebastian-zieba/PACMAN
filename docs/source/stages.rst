@@ -3,18 +3,14 @@
 Stages
 ============
 
-PACMAN is separated into different stages.
-Here is a quick summary of them.
-You can find an example of every stage applied on real observations in :ref:`example_introduction`.
-You can click on the Stage to inspect the main python script for it.
+PACMAN is separated into different stages, summarized here.  Click on the hyperlinks below to see the python script for each stage. For an example of each stage applied to real data, check out :ref:`example_introduction`.
 
 
+:`Stage 00: <https://pacmandocs.readthedocs.io/en/latest/_modules/pacman/reduction/s00_table.html>`_:
 
-- `Stage 00: <https://pacmandocs.readthedocs.io/en/latest/_modules/pacman/reduction/s00_table.html>`_
-  Every _ima_ fits file in the data directory is being read in and
-  important information from the header are being saved into a table.
-  This stage will create a "work directory" and all plots and files from the next stages
-  will be saved there.
+- reads in  the _ima_ fits files in the data directory 
+-  saves important information from the header in a table
+-  creates a "work directory" to save all plots and files from the next stages
 
 
 - `Stage 01: <https://pacmandocs.readthedocs.io/en/latest/_modules/pacman/reduction/s01_horizons.html>`_
