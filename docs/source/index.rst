@@ -13,6 +13,7 @@ Welcome to PACMAN's documentation!
 ``PACMAN`` is a pipeline to reduce and analyze Hubble/Wide Field Camera 3 (WFC3) observations of transiting exoplanets. The pipeline runs end-to-end, beginning with a time series of 2D images and ending with a spectrum for the planet. 
 
 The main steps in the pipeline are:
+
 - optimally extract spectra from the 'ima' data products provided by STScI 
 - bin the spectra into user-specified wavelength bins and output the light curve(s)
 - fit the light curves with a variety of astrophysical models (transit, eclipse, phase curve) and instrument systematic models (visit-long quadratic trends, orbit-long exponential trends) 
