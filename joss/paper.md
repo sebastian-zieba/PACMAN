@@ -152,6 +152,7 @@ PACMAN could also be expanded by adding a WFC3/UVIS data reduction in the future
 # Acknowledgements
 
 We acknowledge B. Zawadzki for the creation of the PACMAN logo.
+We also acknowledge the comments and contributions by I. Momcheva to PACMAN.
 
 
 # References
