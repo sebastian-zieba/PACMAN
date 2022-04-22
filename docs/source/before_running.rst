@@ -3,7 +3,7 @@
 Before Running
 ================
 
-Before we can run we have set up some stuff:
+Before we can run ``PACMAN`` we need to create a run directory.
 
 1) **Decide on a "run directory"**
 
@@ -37,10 +37,6 @@ These three files are part of the package but can also be downloaded under this 
 
 3) **Set up the pcf**
 
-Before we run Stage 00, the pcf has to be updated with information.
-See the :ref:`pcf site <pcf>` for more information.
-Most importantly, the user has to set the datadir and rundir in the pcf.
+The pacman control file, or :ref:`pcf page <pcf>`, stores all the parameters the user can tune for a particular run.
+Before we start, paths to the data and the run directory (``data_dir`` and ``run_dir``) have to be set in the pcf.   Follow along to :ref:`Stage 00 <stage00>` to set these parameters.
 
-4) Run Stage 00
-
-You run PACMAN by using the pacman_scipt.py file. For more information see :ref:`Stage 00 <stage00>`.
