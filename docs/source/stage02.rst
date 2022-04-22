@@ -3,7 +3,7 @@
 Stage 02
 ============
 
-This Stage has to perform a barycentric correction because the header only contains MJD.
+This stage performs a barycentric correction because the time stamps for the observations do not account for HST's orbital motion.
 
 .. code-block:: console
 
