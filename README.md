@@ -7,45 +7,21 @@
 # PACMAN
 
 **Welcome to PACMAN**
+``PACMAN`` is a pipeline to reduce and analyze Hubble/Wide Field Camera 3 (WFC3) observations of transiting exoplanets. The pipeline runs end-to-end, beginning with a time series of 2D images and ending with a spectrum for the planet. ``PACMAN`` can easily fit multiple observations simultaneously.
+                                                                                
+The main steps in the pipeline are:                                             
+                                                                                
+- optimally extract spectra from the 'ima' data products provided by STScI      
+- bin the spectra into user-specified wavelength bins and output the light curve(s)
+- fit the light curves with a variety of astrophysical models (transit, eclipse, phase curve) and instrument systematic models (visit-long quadratic trends, orbit-long exponential trends)
+- estimate uncertainties on the planet parameters with least-squares, MCMC, or nested sampling
+                                                                                
 
-ALERT: Project PACMAN is currently under heavy development. Use at your own risk.
+## Installation and Documentation
 
-## Installation
-
-More detailed Installing instructions can be found in the documentation: https://pacmandocs.readthedocs.io/en/latest/installation.html
-
-### With pip & GitHub
-
-You can install ``PACMAN`` using ``pip`` by entering the following line into a terminal:
-
-```bash
-pip install git+https://github.com/sebastian-zieba/PACMAN
-```
-
-### Directly on GitHub
-
-1. You can also download from source on [GitHub](https://github.com/sebastian-zieba/PACMAN).
-
-1.1. On GitHub, you can either click on **Code** and **Download ZIP** followed by unpacking the distribution by opening up a terminal and typing:
-
-```bash
-unzip PACMAN-master.zip
-```
-
-1.2. Or Clone the repository using ``git`` by typing:
-
-```bash
-git clone https://github.com/sebastian-zieba/PACMAN
-```
+Check out the [docs](https://pacmandocs.readthedocs.io/en/latest/) for the latest instructions for how to install and use ``PACMAN``.
 
 
-2. To install ``PACMAN`` as a package, go into the downloaded PACMAN directory (where setup.py is located) and type:
+## Having trouble?
 
-```bash
-pip install .
-```
-	
-
-## Documentation
-
-Check out the docs [here](https://pacmandocs.readthedocs.io/en/latest/) hosted on ReadTheDocs.
+Please take a look at the [issues page](https://github.com/sebastian-zieba/PACMAN/issues) to see if anyone else has encountered similar problems. If not, raise an issue and we will do our best to address it!
