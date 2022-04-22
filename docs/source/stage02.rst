@@ -24,10 +24,11 @@ The axis are the distance of HST to the Solar System Barycenter in kilometers.
 Horizons start and Horizons end show where our Horizon file starts and ends containing X,Y,Z information.
 The black crosses in the plot show the times when HST actually observed. One can see that HST observed 4 orbits in this particular visit (which agrees with the ``filetable.txt`` from Stage 00).
 One can also see the colored curve is a bit wiggley. This is in fact the rotation of HST around the earth.
-The colored curve consists out of a lot of points. Every one of them are a X,Y,Z position of HST downloaded from HORIZONS. The color coding denotes the time direction.
+The colored curve consists of a lot of points. Each one is an X,Y,Z position of HST downloaded from HORIZONS. The color coding denotes the time direction.
 
-The ``filetable.txt`` will be updated by the end of this stage and contains a new column called ``t_bjd`` with the time of observations in BJD.
+The ``filetable.txt`` is updated in this stage and contains a new column called ``t_bjd`` with the time of observations in BJD.
 E.g. (only showing the first few lines):
 
 .. include:: media/s02/filelist_updated.txt
+
    :literal:
