@@ -39,7 +39,7 @@ For a more detailed roadmap, see `Stages <https://pacmandocs.readthedocs.io/en/l
 
 .. toctree::
    :maxdepth: 1
-   :caption: Example GJ1214 b
+   :caption: Quickstart
 
    example_introduction
    astroquery_visits
