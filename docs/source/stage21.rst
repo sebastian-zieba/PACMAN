@@ -3,11 +3,11 @@
 Stage 21
 ============
 
-This stage create spectroscopic light curves with can be then fitted in the fitting stage (S30).
+This stage bins the data into spectroscopic light curves. 
 
-PACMAN can either use the most recent S20 run for the S21 step or a specific previous one. For the latter a path has to be given.
+PACMAN can either use the most recent S20 run for the S21 step or specify a path to a previous run.
 
-The user can decide between simply giving a wavelength range and an amount of bins into the pcf or user-defined bin edges.
+The user can set the wavelength bins in the pcf by giving a wavelength range and a number of bins, or alternatively provide user-defined bin edges.
 
 
 When running S21 the user should get an output similar to this one:
@@ -25,6 +25,6 @@ When running S21 the user should get an output similar to this one:
 	    saved light curve(s) in run_2022-02-15_21-52-46_GJ1214_Hubble13021//extracted_sp/bins12_2022-02-15_22-14-31
 	    Finished s21
 
-Below a plot showing a 1D spectrum the bin edges of a user chosen binning.
+Below is a plot of a 1D spectrum with the bin edges from a user-chosen binning.
 
 .. image:: media/s21/spec_bins12.png
