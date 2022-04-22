@@ -24,12 +24,12 @@ In the package
 
     + **PACMAN/pacman/ancil/flats**
 
-    The flats (for G102 and G141) are used to find the locations of bad pixels.
+    The flats (for the G102 and G141 grisms) are used to find the locations of bad pixels.
 
 
     + **PACMAN/pacman/ancil/stellar_models**
 
-    This directory contains information for PACMAN which stellar models are available to download.
+    This directory tells PACMAN which stellar models are available to download.
     PACMAN can download three different stellar models: Kurucz stellar models 1993, Castelli and Kurucz stellar models 2004 and Phoenix models by Allard and collaborators.
     These models will be used in Stage 03 to create the reference spectrum.
     More on this at the walkthrough of `Stage 03 <https://pacmandocs.readthedocs.io/en/latest/quickstart.html#stage-03>`_ using GJ1214 data as an example.
@@ -44,7 +44,7 @@ In the package
   - **PACMAN/pacman/reduction**
 
   This directory contains the main scripts for the individual stages.
-  The scripts here use other python code which is saved in ``PACMAN/pacman/lib``.
+  The scripts here use other python code from ``PACMAN/pacman/lib``.
 
 
   - **PACMAN/pacman/run_files**
@@ -76,7 +76,7 @@ In the package
 
     + **PACMAN/pacman/run_files/fit_par.txt**
 
-    The fit_par file is used in Stage 30 to fit the light curve. The user defines in here which fit parameters should be fixed, shared across visits, and sets other information like priors.
+    The fit_par file is used in Stage 30 to fit the light curve. The user defines here which fit parameters should be fixed, shared across visits, and sets other information like priors.
 
 
     + **PACMAN/pacman/run_files/obs_par.pcf**
@@ -116,7 +116,7 @@ Nomenclature
 
   Example: ``/home/zieba/Desktop/Projects/Observations/Hubble/GJ1214_13021/run_2022-03-04_15-10-29_GJ1214_Hubble13021``.
 
-  This directory will be created when running Stage 00.
+  This directory will be created in Stage 00.
   All the results of the following stages will be stored here.
 
   It has the following form:
@@ -138,4 +138,4 @@ Nomenclature
 
   Example: ``/home/zieba/Desktop/Projects/Open_source/PACMAN/pacman``
 
-  This is the heart of PACMAN containing all the code to run the different Stages.
+  This is the heart of PACMAN containing all the code to run the different stages.
