@@ -146,14 +146,11 @@ class Data:
         self.nfree_param = nfree_param
         self.npoints = len(self.time)
         self.dof = self.npoints  - nfree_param
-        #TODO: Q: Any need for lc_type?
         self.lc_type = meta.lc_type
         self.all_sys = None
         self.u1 = 0.
         self.u2 = 0.
-        print('nfree_param: ', nfree_param)
-        #plt.plot(self.t_vis, self.flux, '.k')
-        #plt.show()
+        print('Number of free parameters: ', nfree_param)
 
         self.prior = format_prior_for_mcmc(self, meta, fit_par)
 

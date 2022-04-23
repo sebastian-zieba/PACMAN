@@ -5,6 +5,7 @@ def transit(t, data, params, visit = 0):
 
     t0, per, rp, a, inc, ecc, w, u1, u2, limb_dark = params
     if limb_dark[visit] == 2: p.limb_dark = "quadratic"
+    elif limb_dark[visit] == 1: p.limb_dark = "linear"
     else: 
         print("unsupported limb darkening parameter")
         return 0
@@ -16,8 +17,10 @@ def transit(t, data, params, visit = 0):
     p.inc = inc[visit]
     p.ecc = ecc[visit]
     p.w = w[visit]
-    p.u = [u1[visit], u2[visit]]
-
+    if limb_dark[visit] == 2:
+        p.u = [u1[visit], u2[visit]]
+    elif limb_dark[visit] == 1:
+        p.u = [u1[visit]]
     m = batman.TransitModel(
     p, t, supersample_factor=3, exp_time = data.exp_time/24./60./60.
     )

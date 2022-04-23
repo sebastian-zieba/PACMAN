@@ -371,6 +371,171 @@ def correct_wave_shift_fct_1(meta, orbnum, cmin, cmax, spec_opt, x_data_firstexp
     return wvls, leastsq_res
 
 
+#30
+def read_fitfiles(meta):
+    """
+    read in the files (white or spectroscopic) which will be fitted
+    """
+    if meta.s30_fit_white:
+        print('White light curve fit will be performed')
+        files = []
+        if meta.s30_most_recent_s20:
+            lst_dir = os.listdir(meta.workdir + "/extracted_lc/")
+            lst_dir = sn(lst_dir)
+            white_dir = lst_dir[-1]
+            files.append(meta.workdir + "/extracted_lc/" + white_dir + "/lc_white.txt")
+            print('using most recent s20 run: {0}'.format(white_dir))
+        else:
+            files.append(meta.s30_white_file_path)
+            print('using user set white file: '.format(meta.s30_white_file_path))
+
+        if meta.grism == 'G102':
+            meta.wavelength_list = [1.0]
+        elif meta.grism == 'G141':
+            meta.wavelength_list = [1.4]
+
+    elif meta.s30_fit_spec:
+        print('Spectroscopic light curve fit(s) will be performed')
+        if meta.s30_most_recent_s21:
+            # find most recent bins directory
+            lst_dir = np.array([f.path for f in os.scandir(meta.workdir + "/extracted_sp/") if f.is_dir()])
+            dirs_bool = np.array(['/bins' in i for i in lst_dir])
+            lst_dir = lst_dir[dirs_bool]
+            dirs_times = [i[-19:] for i in lst_dir] # there are 19 digits in the typical '%Y-%m-%d_%H-%M-%S' format
+            # sort the times
+            times_sorted = sn(dirs_times)
+            # most recent time
+            recent_time = times_sorted[-1]
+            idx = 0
+            for i in range(len(lst_dir)):
+                if lst_dir[i][-19:] == recent_time:
+                    idx = i
+            spec_dir_full = lst_dir[idx]
+            #spec_dir_full = meta.workdir + "/extracted_sp/" + spec_dir
+            files = glob.glob(os.path.join(spec_dir_full, "*.txt"))
+            files = sn(files)
+            print('using most recent s21 run: {0}'.format(spec_dir_full))
+        else:
+            spec_dir_full = meta.s30_spec_dir_path
+            files = glob.glob(os.path.join(spec_dir_full, "*.txt"))  #
+            files = sn(files)
+
+            print('using user set spectroscopic directory: '.format(meta.s30_spec_dir_path))
+        spec_dir_wvl_file = spec_dir_full + '/wvl_table.dat'
+        meta.wavelength_list = ascii.read(spec_dir_wvl_file)['wavelengths']
+    else:
+        print('Neither s30_fit_white nor s30_fit_spec are True!')
+
+    print('Identified file(s) for fitting:', files)
+
+    return files, meta
+
+
+def format_params_for_Model(theta, params, meta, fit_par):
+    nvisit = int(meta.nvisit)
+    params_updated = []
+
+    fixed_array = np.array(fit_par['fixed'])
+    tied_array = np.array(fit_par['tied'])
+    free_array = []
+
+    for i in range(len(fixed_array)):
+        if fixed_array[i].lower() == 'true' and tied_array[i] == -1:
+            for ii in range(nvisit):
+                free_array.append(False)
+        if fixed_array[i].lower() == 'true' and not tied_array[i] == -1:
+            free_array.append(False)
+        if fixed_array[i].lower() == 'false' and tied_array[i] == -1:
+            free_array.append(True)
+            for ii in range(nvisit-1):
+                free_array.append(False)
+        if fixed_array[i].lower() == 'false' and not tied_array[i] == -1:
+            free_array.append(True)
+    free_array = np.array(free_array)
+
+    #TODO: Oida?
+    def repeated(array, index, n_times):
+        array_new = []
+        index_index = 0
+        for ii in range(len(array)):
+            if ii in index:
+                array_new.append([array[index[index_index]]] * n_times)
+            else:
+                array_new.append([array[ii]])
+            index_index = index_index + 1
+        array_new2 = np.array([item for sublist in array_new for item in sublist])
+        return array_new2
+
+    theta_new = theta
+
+    params_updated = np.copy(params)
+    params_updated[free_array] = theta_new
+    #print('free_array', free_array)
+    #print('params_updated', params_updated)
+    return np.array(params_updated)
+
+
+def computeRMS(data, maxnbins=None, binstep=1, isrmserr=False):
+    """
+    COMPUTE ROOT-MEAN-SQUARE AND STANDARD ERROR OF DATA FOR VARIOUS BIN SIZES
+    Taken from POET: https://github.com/kevin218/POET/blob/master/code/lib/correlated_noise.py
+    """
+    # data    = fit.normresiduals
+    # maxnbin = maximum # of bins
+    # binstep = Bin step size
+
+    # bin data into multiple bin sizes
+    npts = data.size
+    if maxnbins is None:
+        maxnbins = npts / 10.
+    binsz = np.arange(1, maxnbins + binstep, step=binstep, dtype=int)
+    nbins = np.zeros(binsz.size, dtype=int)
+    rms = np.zeros(binsz.size)
+    rmserr = np.zeros(binsz.size)
+    for i in range(binsz.size):
+        nbins[i] = int(np.floor(data.size / binsz[i]))
+        bindata = np.zeros(nbins[i], dtype=float)
+        # bin data
+        # ADDED INTEGER CONVERSION, mh 01/21/12
+        for j in range(nbins[i]):
+            bindata[j] = data[j * binsz[i]:(j + 1) * binsz[i]].mean()
+        # get rms
+        rms[i] = np.sqrt(np.mean(bindata ** 2))
+        rmserr[i] = rms[i] / np.sqrt(2. * nbins[i])
+    # expected for white noise (WINN 2008, PONT 2006)
+    stderr = (data.std() / np.sqrt(binsz)) * np.sqrt(nbins / (nbins - 1.))
+    if isrmserr is True:
+        return rms, stderr, binsz, rmserr
+    else:
+        return rms, stderr, binsz
+
+
+def format_params_for_sampling(params, meta, fit_par):	#FIXME: make sure this works for cases when nvisit>1
+    nvisit = int(meta.nvisit)
+
+    fixed_array = np.array(fit_par['fixed'])
+    tied_array = np.array(fit_par['tied'])
+    free_array = []
+
+    for i in range(len(fixed_array)):
+        if fixed_array[i].lower() == 'true' and tied_array[i] == -1:
+            for ii in range(nvisit):
+                free_array.append(False)
+        if fixed_array[i].lower() == 'true' and not tied_array[i] == -1:
+            free_array.append(False)
+        if fixed_array[i].lower() == 'false' and tied_array[i] == -1:
+            free_array.append(True)
+            for ii in range(nvisit-1):
+                free_array.append(False)
+        if fixed_array[i].lower() == 'false' and not tied_array[i] == -1:
+            free_array.append(True)
+    free_array = np.array(free_array)
+
+    theta = params[free_array]
+
+    return np.array(theta)
+
+
 def make_lsq_rprs_txt(vals, errs, idxs, meta):
     """
     Saves the rprs vs wvl as a txt file as resulting from the lsq.
@@ -378,8 +543,9 @@ def make_lsq_rprs_txt(vals, errs, idxs, meta):
     if not os.path.isdir(meta.workdir + meta.fitdir + '/lsq_res'):
         os.makedirs(meta.workdir + meta.fitdir + '/lsq_res')
     f_lsq = open(meta.workdir + meta.fitdir + '/lsq_res' + "/lsq_rprs.txt", 'w')
-    rprs_vals_lsq = [vals[ii][idxs[0][1]] for ii in range(len(vals))]
-    rprs_errs_lsq = [errs[ii][idxs[0][1]] for ii in range(len(errs))]
+    rp_idx = np.where(np.array(meta.labels) == 'rp')[0][0]
+    rprs_vals_lsq = [vals[ii][idxs[0][rp_idx]] for ii in range(len(vals))]
+    rprs_errs_lsq = [errs[ii][idxs[0][rp_idx]] for ii in range(len(errs))]
     file_header = ['wavelength (micron)', 'rprs', 'rprs_err', 'chi2red']
     print("#{: <24} {: <25} {: <25} {: <25}".format(*file_header), file=f_lsq)
     for row in zip(meta.wavelength_list, rprs_vals_lsq, rprs_errs_lsq, meta.chi2red_list):
@@ -387,32 +553,32 @@ def make_lsq_rprs_txt(vals, errs, idxs, meta):
     f_lsq.close()
 
 
-def make_mcmc_rprs_txt(meta):
+def make_mcmc_rprs_txt(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta):
     """
     Saves the rprs vs wvl as a txt file as resulting from the MCMC.
     """
-    files_mcmc_res = glob.glob(os.path.join(meta.workdir + meta.fitdir + '/mcmc_res', "mcmc_out_*.p"))
-    files_mcmc_res = sn(files_mcmc_res)
+    rp_idx = np.where(np.array(meta.labels) == 'rp')[0][0]
+    medians = np.array(vals_mcmc).T[rp_idx]
+    errors_lower = np.array(errs_lower_mcmc).T[rp_idx]
+    errors_upper = np.array(errs_upper_mcmc).T[rp_idx]
+    if not os.path.isdir(meta.workdir + meta.fitdir + '/mcmc_res'):
+        os.makedirs(meta.workdir + meta.fitdir + '/mcmc_res')
+    f_mcmc = open(meta.workdir + meta.fitdir + '/mcmc_res' + "/mcmc_rprs.txt", 'w')
+    file_header = ['wavelength (micron)', 'rprs', 'rprs_err_lower', 'rprs_err_upper']
+    print("#{: <24} {: <25} {: <25} {: <25}".format(*file_header), file=f_mcmc)
+    for row in zip(meta.wavelength_list, medians, errors_lower, errors_upper):
+        print("{: <25} {: <25} {: <25} {: <25}".format(*row), file=f_mcmc)
+    f_mcmc.close()
 
-    medians = []
-    errors_lower = []
-    errors_upper = []
 
-    for f in files_mcmc_res:
-        handle = open(f, 'rb')
-        data, params, chain = pickle.load(handle)
-        ndim = chain.shape[-1]
-        samples = chain[:, meta.run_nburn:, :].reshape((-1, ndim))
-        # TODO samples[:, 1] has to be fixeD!!!!!
-        q = quantile(samples[:, 1], [0.16, 0.5, 0.84])
-        medians.append(q[1])
-        errors_lower.append(abs(q[1] - q[0]))
-        errors_upper.append(abs(q[2] - q[1]))
-
-    medians = np.array(medians)
-    errors_lower = np.array(errors_lower)
-    errors_upper = np.array(errors_upper)
-
+def make_nested_rprs_txt(vals_nested, errs_lower_nested, errs_upper_nested, meta):
+    """
+    Saves the rprs vs wvl as a txt file as resulting from the MCMC.
+    """
+    rp_idx = np.where(np.array(meta.labels) == 'rp')[0][0]
+    medians = np.array(vals_nested).T[rp_idx]
+    errors_lower = np.array(errs_lower_nested).T[rp_idx]
+    errors_upper = np.array(errs_upper_nested).T[rp_idx]
     if not os.path.isdir(meta.workdir + meta.fitdir + '/mcmc_res'):
         os.makedirs(meta.workdir + meta.fitdir + '/mcmc_res')
     f_mcmc = open(meta.workdir + meta.fitdir + '/mcmc_res' + "/mcmc_rprs.txt", 'w')

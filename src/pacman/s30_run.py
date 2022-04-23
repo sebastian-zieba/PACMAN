@@ -15,7 +15,6 @@ from .lib.least_squares import lsq_fit
 from .lib.mcmc import mcmc_fit
 from .lib.nested import nested_sample
 from .lib.formatter import ReturnParams
-from .lib import sort_nicely as sn
 from .lib import nice_fit_par
 from .lib import plots
 from .lib import util
@@ -50,44 +49,23 @@ def run30(eventlabel, workdir, meta=None):
     #read in the user wanted fit functions
     myfuncs = meta.s30_myfuncs
 
-    #read in the files (white or spectroscopic) which will be fitted
-    if meta.s30_fit_white:
-        print('White light curve fit will be performed')
-        files = []
-        if meta.s30_most_recent_s20:
-            lst_dir = os.listdir(meta.workdir + "/extracted_lc/")
-            lst_dir = sn.sort_nicely(lst_dir)
-            white_dir = lst_dir[-1]
-            files.append(meta.workdir + "/extracted_lc/" + white_dir + "/lc_white.txt")
-        else:
-            files.append(meta.s30_white_file)
-    elif meta.s30_fit_spec:
-        print('Spectroscopic light curve fit(s) will be performed')
-        if meta.s30_most_recent_s21:
-            #TODO: This also includes the "bins12" when sorting. But i only want to sort by the time in the dir names. So just use the end of the dir names instead
-            lst_dir = os.listdir(meta.workdir + "/extracted_sp/")
-            lst_dir = sn.sort_nicely(lst_dir)
-            spec_dir = lst_dir[-1]
-            spec_dir_full = meta.workdir + "/extracted_sp/" + spec_dir
-            files = glob.glob(os.path.join(spec_dir_full, "*.txt"))
-            files = sn.sort_nicely(files)
-        else:
-            spec_dir_full = meta.s30_spec_dir
-            files = glob.glob(os.path.join(spec_dir_full, "*.txt"))  #
-            files = sn.sort_nicely(files)
-        spec_dir_wvl_file = spec_dir_full + '/wvl_table.dat'
-        meta.wavelength_list = ascii.read(spec_dir_wvl_file)['wavelengths']
-
-
-    else:
-        print('Neither s30_fit_white nor s30_fit_spec are True!')
-
-    print('Identified file(s) for fitting:', files)
+    #store files to fit
+    files, meta = util.read_fitfiles(meta)
 
     if meta.run_verbose:
         vals = []
         errs = []
         idxs = []
+
+    if meta.run_mcmc:
+        vals_mcmc       = []
+        errs_lower_mcmc = []
+        errs_upper_mcmc = []
+
+    if meta.run_nested:
+        vals_nested = []
+        errs_lower_nested = []
+        errs_upper_nested = []
 
     meta.chi2red_list = []
 
@@ -98,12 +76,20 @@ def run30(eventlabel, workdir, meta=None):
         meta.run_file = f
         meta.fittime = time.strftime('%Y-%m-%d_%H-%M-%S')
 
+        ### RUN LEAST SQUARES ###
+        ## IF NO CLIPPING IS WISHED
         if meta.run_clipiters == 0:
             print('\n')
             data = Data(f, meta, fit_par)
             model = Model(data, myfuncs)
+            print('*STARTS LEAST SQUARED*')
             data, model, params, m = lsq_fit(fit_par, data, meta, model, myfuncs, noclip=True) #not clipping
             meta.chi2red_list.append(model.chi2red)
+            if meta.save_fit_lc_plot: plots.plot_fit_lc2(data, model, meta)
+            if meta.save_fit_lc_plot: plots.plot_fit_lc3(data, model, meta)
+            if meta.save_fit_lc_plot: plots.save_plot_raw_data(data, meta)
+            if meta.save_fit_lc_plot: plots.save_astrolc_data(data, model, meta)
+        ## IF THE USER WANTS CLIPPING
         else:
             clip_idxs = []
             for iii in range(meta.run_clipiters+1):
@@ -130,13 +116,8 @@ def run30(eventlabel, workdir, meta=None):
                         clip_idxs = update_clips(clip_idxs)
                         print(clip_idxs)
 
-
-        """ind = model.resid/data.err > 10.
-        print "num outliers", sum(ind)
-        data.err[ind] = 1e12
-        data, model = lsq_fit(fit_par, data, flags, model, myfuncs)"""
-
-        if meta.run_verbose == True: print("rms, chi2red = ", model.rms, model.chi2red)
+        if meta.run_verbose == True:
+            print("rms, chi2red = ", model.rms, model.chi2red)
 
         #FIXME : make this automatic!
         """outfile = open("white_systematics.txt", "w")
@@ -146,13 +127,14 @@ def run30(eventlabel, workdir, meta=None):
         meta.labels = labels_gen(params, meta, fit_par)
 
         if meta.run_mcmc:
+            print('*STARTS MCMC*')
             time.sleep(1.1)
             if meta.rescale_uncert:
                 ##rescale error bars so reduced chi-squared is one
                 data.err *= np.sqrt(model.chi2red)
             data, model, params, m = lsq_fit(fit_par, data, meta, model, myfuncs, noclip=True)
             if meta.run_verbose == True: print("rms, chi2red = ", model.rms, model.chi2red)
-            mcmc_fit(data, model, params, f, meta, fit_par)
+            val_mcmc, err_lower_mcmc, err_upper_mcmc = mcmc_fit(data, model, params, f, meta, fit_par)
 
         if meta.run_nested:
             time.sleep(1.1)
@@ -161,7 +143,7 @@ def run30(eventlabel, workdir, meta=None):
                 data.err *= np.sqrt(model.chi2red)
             data, model, params, m = lsq_fit(fit_par, data, meta, model, myfuncs, noclip=True)
             if meta.run_verbose == True: print("rms, chi2red = ", model.rms, model.chi2red)
-            nested_sample(data, model, params, f, meta, fit_par)
+            val_nested, err_lower_nested, err_upper_nested = nested_sample(data, model, params, f, meta, fit_par)
 
         if meta.run_verbose:
             val, err, idx = ReturnParams(m, data)
@@ -169,8 +151,23 @@ def run30(eventlabel, workdir, meta=None):
             errs.append(err)
             idxs.append(idx)
 
+        if meta.run_mcmc:
+            vals_mcmc.append(val_mcmc)
+            errs_lower_mcmc.append(err_lower_mcmc)
+            errs_upper_mcmc.append(err_upper_mcmc)
+
+        if meta.run_nested:
+            vals_nested.append(val_nested)
+            errs_lower_nested.append(err_lower_nested)
+            errs_upper_nested.append(err_upper_nested)
+
     if meta.run_verbose:
         plots.params_vs_wvl(vals, errs, idxs, meta)
+        if meta.run_mcmc:
+            plots.params_vs_wvl_mcmc(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta)
+
+        if meta.run_nested:
+            plots.params_vs_wvl_nested(vals_nested, errs_lower_nested, errs_upper_nested, meta)
 
         if not meta.s30_fit_white:
             # Saves rprs and wvl as a txt file
@@ -179,8 +176,13 @@ def run30(eventlabel, workdir, meta=None):
             plots.lsq_rprs(vals, errs, idxs, meta)
 
         if not meta.s30_fit_white and meta.run_mcmc:
-            plots.mcmc_rprs(meta)
-            util.make_mcmc_rprs_txt(meta)
+
+            plots.mcmc_rprs(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta)
+            util.make_mcmc_rprs_txt(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta)
+
+        if not meta.s30_fit_white and meta.run_nested:
+            plots.nested_rprs(vals_nested, errs_lower_nested, errs_upper_nested, meta)
+            util.make_nested_rprs_txt(vals_nested, errs_lower_nested, errs_upper_nested, meta)
 
     print('Finished s30')
 
