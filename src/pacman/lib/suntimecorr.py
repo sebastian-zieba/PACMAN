@@ -311,8 +311,6 @@ def suntimecorr(meta, obst, coordtable, verbose=False):
     # Reshape back to the original shape
     rdotnhat = rdotnhat.reshape(tshape)
 
-    #  print(rdotnhat / ( c / 1000.0 ))
-
     # Time correction is: dt = length/velocity
     # Divide by the speed of light and return
     return rdotnhat / (c / 1000.0)
