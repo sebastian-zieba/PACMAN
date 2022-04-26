@@ -1100,13 +1100,13 @@ def params_vs_wvl(vals, errs, idxs, meta):
     """
     labels = meta.labels
     fig, ax = plt.subplots(len(idxs[0]), 1, figsize=(6.4,25), sharex=True)
-    if len(idxs[0]) == 1:
-        for i in range(len(idxs[0])):
+
+    for i in range(len(idxs[0])):
+        if len(idxs[0]) == 1:
             ax.errorbar(range(len(idxs)), [vals[ii][idxs[0][i]] for ii in range(len(vals))],
                            yerr=[errs[ii][idxs[0][i]] for ii in range(len(errs))], fmt='.')
             ax.set_ylabel(labels[i])
-    else:
-        for i in range(len(idxs[0])):
+        else:
             ax[i].errorbar(range(len(idxs)), [vals[ii][idxs[0][i]] for ii in range(len(vals))], yerr=[errs[ii][idxs[0][i]] for ii in range(len(errs))], fmt='.')
             ax[i].set_ylabel(labels[i])
     plt.subplots_adjust(hspace=0.01)
@@ -1128,8 +1128,13 @@ def params_vs_wvl_mcmc(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta):
 
     fig, ax = plt.subplots(len(vals_mcmc[0]), 1, figsize=(6.4,20), sharex=True)
     for i in range(len(vals_mcmc.T)):
-        ax[i].errorbar(meta.wavelength_list, vals_mcmc.T[i], yerr=(errs_lower_mcmc.T[i], errs_upper_mcmc.T[i]), fmt='.')
-        ax[i].set_ylabel(labels[i])
+        if len(vals_mcmc[0]) == 1:
+            ax.errorbar(meta.wavelength_list, vals_mcmc.T[i], yerr=(errs_lower_mcmc.T[i], errs_upper_mcmc.T[i]), fmt='.')
+            ax.set_ylabel(labels[i])
+        else:
+            ax[i].errorbar(meta.wavelength_list, vals_mcmc.T[i], yerr=(errs_lower_mcmc.T[i], errs_upper_mcmc.T[i]),
+                           fmt='.')
+            ax[i].set_ylabel(labels[i])
     plt.subplots_adjust(hspace=0.01)
     plt.tight_layout()
     plt.subplots_adjust(hspace=0.01)
@@ -1149,8 +1154,13 @@ def params_vs_wvl_nested(vals_nested, errs_lower_nested, errs_upper_nested, meta
 
     fig, ax = plt.subplots(len(vals_nested[0]), 1, figsize=(6.4,20), sharex=True)
     for i in range(len(vals_nested.T)):
-        ax[i].errorbar(meta.wavelength_list, vals_nested.T[i], yerr=(errs_lower_nested.T[i], errs_upper_nested.T[i]), fmt='.')
-        ax[i].set_ylabel(labels[i])
+        if len(vals_nested[0]) == 1:
+            ax.errorbar(meta.wavelength_list, vals_nested.T[i], yerr=(errs_lower_nested.T[i], errs_upper_nested.T[i]), fmt='.')
+            ax.set_ylabel(labels[i])
+        else:
+            ax[i].errorbar(meta.wavelength_list, vals_nested.T[i],
+                           yerr=(errs_lower_nested.T[i], errs_upper_nested.T[i]), fmt='.')
+            ax[i].set_ylabel(labels[i])
     plt.subplots_adjust(hspace=0.01)
     plt.tight_layout()
     plt.subplots_adjust(hspace=0.01)
