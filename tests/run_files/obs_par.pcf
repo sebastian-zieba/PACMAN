@@ -109,7 +109,7 @@ wvl_edge_list                [11400,12200,12600,13000,14600,15000,15400,15800,16
 
 
 ##30
-s30_myfuncs                  ['constant','upstream_downstream','model_ramp','polynomial1','transit']
+s30_myfuncs                  ['constant']
 
 s30_fit_white                False
 s30_most_recent_s20          False
@@ -141,16 +141,16 @@ save_fit_lc_plot             True
 
 run_lsq                      True
 run_mcmc                     True
-run_nested                   False
+run_nested                   True
 
 #emcee
-run_nsteps                   1000
+run_nsteps                   300
 run_nwalkers	             5
-run_nburn                    500
+run_nburn                    100
 
 #dynesty
-run_dlogz                    25000
-run_nlive                    100
+run_dlogz                    10
+run_nlive                    4
 
 
 lc_type                      transit

@@ -4,7 +4,6 @@ from datetime import datetime
 from scipy.stats import norm
 import dynesty
 import inspect
-
 import os
 from . import plots
 from dynesty import utils as dyfunc
@@ -24,9 +23,8 @@ def transform_normal(x,mu,sigma):
 
 
 def nested_sample(data, model, params, file_name, meta, fit_par):
-    #theta = util.format_params_for_sampling(params, meta, fit_par)
-    #print(theta)
-    ndim = 8#len(theta)
+    theta = util.format_params_for_sampling(params, meta, fit_par)
+    ndim = len(theta)
     print(ndim)
     l_args = [params, data, model, meta, fit_par]
     p_args = [data]
