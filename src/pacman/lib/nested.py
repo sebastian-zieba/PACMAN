@@ -4,152 +4,46 @@ from datetime import datetime
 from scipy.stats import norm
 import dynesty
 import inspect
-from dynesty import plotting as dyplot
-import matplotlib.pyplot as plt
-import corner
+
 import os
 from . import plots
 from dynesty import utils as dyfunc
+from . import util
 
-
-def name_and_args():
-    caller = inspect.stack()[1][0]
-    args, _, _, values = inspect.getargvalues(caller)
-    return [(i, values[i]) for i in args]
 
 def quantile(x, q):                                                             
         return np.percentile(x, [100. * qi for qi in q]) 
 
+
 def transform_uniform(x,a,b):
     return a + (b-a)*x
+
 
 def transform_normal(x,mu,sigma):
     return norm.ppf(x,loc=mu,scale=sigma)
 
-def format_params_for_mcmc(params, meta, fit_par):	#FIXME: make sure this works for cases when nvisit>1
-    nvisit = int(meta.nvisit)
-    theta = []
-    meta.fit_par_new = True
-    if meta.fit_par_new == False:
-        for i in range(len(fit_par)):
-                if fit_par['fixed'][i].lower() == "false":
-                        if fit_par['tied'][i].lower() == "true": theta.append(params[i*nvisit])
-                        else:
-                                for j in range(nvisit): theta.append(params[i*nvisit+j])
-    else:
-        ii = 0
-        for i in range(int(len(params)/nvisit)):
-                if fit_par['fixed'][ii].lower() == "false":
-                        if str(fit_par['tied'][ii]) == "-1":
-                            theta.append(params[i*nvisit])
-                            ii = ii + 1
-                        else:
-                            for j in range(nvisit):
-                                theta.append(params[i*nvisit+j])
-                                ii = ii + 1
-                else:
-                    ii = ii + 1
-
-    return np.array(theta)
-
-
-
-def labels_gen(params, meta, fit_par):
-    nvisit = int(meta.nvisit)
-    labels = []
-    meta.fit_par_new = True
-    if meta.fit_par_new == False:
-        for i in range(len(fit_par)):
-                if fit_par['fixed'][i].lower() == "false":
-                        if fit_par['tied'][i].lower() == "true": labels.append(fit_par['parameter'][i])
-                        else:
-                                for j in range(nvisit): labels.append(fit_par['parameter'][i]+str(j))
-    else:
-        ii = 0
-        for i in range(int(len(params)/nvisit)):
-                if fit_par['fixed'][ii].lower() == "false":
-                        if str(fit_par['tied'][ii]) == "-1":
-                            labels.append(fit_par['parameter'][ii])
-                            ii = ii + 1
-                        else:
-                            for j in range(nvisit):
-                                labels.append(fit_par['parameter'][ii]+str(j))
-                                ii = ii + 1
-                else:
-                    ii = ii + 1
-
-    #print('labels', labels)
-    return labels
-
-
-
-
-
-def mcmc_output(samples, params, meta, fit_par, data):	#FIXME: make sure this works for cases when nvisit>1
-    nvisit = int(meta.nvisit)
-    labels = labels_gen(params, meta, fit_par)
-
-    fig = corner.corner(samples, labels=labels, show_titles=True)
-    current_time = datetime.now().time()
-    figname = "pairs_"+current_time.isoformat()+".png"
-    fig.savefig(figname)
-
-
-def format_params_for_Model(theta, params, meta, fit_par):
-    nvisit = int(meta.nvisit)
-    params_updated = []
-    iter = 0									#this should be a more informative name FIXME
-    meta.fit_par_new = True
-    if meta.fit_par_new == False:
-        for i in range(len(fit_par)):
-                if fit_par['fixed'][i].lower() == "true":
-                        for j in range(nvisit):
-                                params_updated.append(params[i*nvisit+j])
-                else:
-                        if fit_par['tied'][i].lower() == "true":
-                                for j in range(nvisit): params_updated.append(theta[iter])
-                                iter += 1
-                        else:
-                                for j in range(nvisit):
-                                        params_updated.append(theta[iter])
-                                        iter += 1
-    else:
-        ii = 0
-        for i in range(int(len(params)/nvisit)):
-                if fit_par['fixed'][ii].lower() == "true":
-                        for j in range(nvisit):
-                                params_updated.append(params[i*nvisit+j])
-                        ii = ii + 1
-                else:
-                        if str(fit_par['tied'][ii]) == "-1":
-                                for j in range(nvisit): params_updated.append(theta[iter])
-                                iter += 1
-                                ii = ii + 1
-                        else:
-                                for j in range(nvisit):
-                                        params_updated.append(theta[iter])
-                                        iter += 1
-                                        ii = ii + 1
-
-    return np.array(params_updated)
 
 def nested_sample(data, model, params, file_name, meta, fit_par):
-    x = format_params_for_mcmc(params, meta, fit_par)
-
-    ndim = len(x)
-
+    #theta = util.format_params_for_sampling(params, meta, fit_par)
+    #print(theta)
+    ndim = 8#len(theta)
+    print(ndim)
     l_args = [params, data, model, meta, fit_par]
     p_args = [data]
     
-    #dsampler = dynesty.DynamicNestedSampler(loglike, ptform, ndim,
-    #                                        logl_args = l_args,
-    #                                       ptform_args = p_args,
-    #                                        update_interval=float(ndim))
-    #dsampler.run_nested(wt_kwargs={'pfrac': 1.0})#, maxiter = 20000)
-    #results = dsampler.results
-    sampler = dynesty.NestedSampler(loglike, ptform, ndim, logl_args = l_args,ptform_args = p_args, nlive=meta.run_nlive, bound='single')
-    #sampler = dynesty.NestedSampler(loglike, ptform, ndim, logl_args = l_args,ptform_args = p_args, update_interval=float(ndim), nlive=meta.run_nlive, bound='single')
-    sampler.run_nested(dlogz=meta.run_dlogz)
+   # dsampler = dynesty.DynamicNestedSampler(loglike, ptform, ndim,
+   #                                         logl_args = l_args,
+  #                                         ptform_args = p_args,
+   #                                         update_interval=float(ndim))
+   # dsampler.run_nesteinnilod(wt_kwargs={'pfrac': 1.0})#, maxiter = 20000)
+   # results = dsampler.results
+    print('test')
+    bound = 'single'  # use MutliNest algorithm for bounds
+    sample = 'rwalk'  # uniform sampling
+
+    print('Run dynesty...')
+    sampler = dynesty.NestedSampler(loglike, ptform, ndim, logl_args = l_args,ptform_args = p_args,update_interval=float(ndim), nlive=meta.run_nlive, bound=bound, sample=sample)
+    sampler.run_nested(dlogz=meta.run_dlogz, print_progress=True)
     results = sampler.results
 
     if not os.path.isdir(meta.workdir + meta.fitdir + '/nested_res'):
@@ -158,13 +52,15 @@ def nested_sample(data, model, params, file_name, meta, fit_par):
     pickle.dump(results, open(meta.workdir + meta.fitdir + '/nested_res/' +  '/nested_out_bin{0}_wvl{1:0.3f}.p'.format(meta.s30_file_counter, meta.wavelength), "wb"))
     results.summary()
 
-    labels = labels_gen(params, meta, fit_par)
-
+    labels = meta.labels
 
     samples, weights = results.samples, np.exp(results.logwt - results.logz[-1])
     mean, cov = dyfunc.mean_and_cov(samples, weights)
     new_samples = dyfunc.resample_equal(samples, weights)
 
+    plots.dyplot_runplot(results, meta)
+    plots.dyplot_traceplot(results, meta)
+    plots.dyplot_cornerplot(results, labels, meta)
     plots.nested_pairs(new_samples, params, meta, fit_par, data)
 
     medians = []
@@ -181,9 +77,10 @@ def nested_sample(data, model, params, file_name, meta, fit_par):
         print('{0: >8}: '.format(row[3]), '{0: >24} '.format(row[1]), '{0: >24} '.format(row[0]), '{0: >24} '.format(row[2]), file=f_mcmc)
     f_mcmc.close()
 
-    updated_params = format_params_for_Model(medians, params, meta, fit_par)
+    updated_params = util.format_params_for_Model(medians, params, meta, fit_par)
     fit = model.fit(data, updated_params)
     plots.plot_fit_lc2(data, fit, meta, nested=True)
+
     return medians, errors_lower, errors_upper
 
 
@@ -198,9 +95,8 @@ def ptform(u, data):
     return p
 
 
-
 def loglike(x, params, data, model, meta, fit_par):
-    updated_params = format_params_for_Model(x, params, meta, fit_par)
+    updated_params = util.format_params_for_Model(x, params, meta, fit_par)
     fit = model.fit(data, updated_params)
     #print(fit.ln_like)
     return fit.ln_like 

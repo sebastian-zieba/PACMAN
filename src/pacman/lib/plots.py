@@ -26,6 +26,7 @@ import glob
 from .sort_nicely import sort_nicely as sn
 from astropy.io import ascii
 from astropy.table import Table
+from dynesty import plotting as dyplot
 
 
 ##00
@@ -1211,6 +1212,24 @@ def nested_pairs(samples, params, meta, fit_par, data):	#FIXME: make sure this w
     fig.savefig(figname)
     plt.close()
 
+
+def dyplot_runplot(results, meta):
+    # Plot a summary of the run.
+    rfig, raxes = dyplot.runplot(results)
+    plt.savefig(meta.workdir + meta.fitdir + '/nested_res/' +  "/dyplot_runplot_bin{0}_wvl{1:0.3f}.png".format(meta.s30_file_counter, meta.wavelength))
+    plt.close()
+
+def dyplot_traceplot(results, meta):
+    # Plot traces and 1-D marginalized posteriors.
+    tfig, taxes = dyplot.traceplot(results)
+    plt.savefig(meta.workdir + meta.fitdir + '/nested_res/' +  "/dyplot_traceplot_bin{0}_wvl{1:0.3f}.png".format(meta.s30_file_counter, meta.wavelength))
+    plt.close()
+
+def dyplot_cornerplot(results, labels, meta):
+    # Plot the 2-D marginalized posteriors.
+    cfig, caxes = dyplot.cornerplot(results, show_titles=True, title_fmt='.4',labels=labels, color='blue', hist_kwargs=dict(facecolor='blue', edgecolor='blue'))
+    plt.savefig(meta.workdir + meta.fitdir + '/nested_res/' +  "/dyplot_cornerplot_bin{0}_wvl{1:0.3f}.png".format(meta.s30_file_counter, meta.wavelength))
+    plt.close()
 
 def mcmc_rprs(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta):
     """

@@ -453,21 +453,20 @@ def format_params_for_Model(theta, params, meta, fit_par):
             free_array.append(True)
     free_array = np.array(free_array)
 
-    #TODO: Oida?
-    def repeated(array, index, n_times):
-        array_new = []
-        index_index = 0
-        for ii in range(len(array)):
-            if ii in index:
-                array_new.append([array[index[index_index]]] * n_times)
-            else:
-                array_new.append([array[ii]])
-            index_index = index_index + 1
-        array_new2 = np.array([item for sublist in array_new for item in sublist])
-        return array_new2
+    # #TODO: Oida?
+    # def repeated(array, index, n_times):
+    #     array_new = []
+    #     index_index = 0
+    #     for ii in range(len(array)):
+    #         if ii in index:
+    #             array_new.append([array[index[index_index]]] * n_times)
+    #         else:
+    #             array_new.append([array[ii]])
+    #         index_index = index_index + 1
+    #     array_new2 = np.array([item for sublist in array_new for item in sublist])
+    #     return array_new2
 
-    theta_new = theta
-
+    theta_new = np.copy(theta)
     params_updated = np.copy(params)
     params_updated[free_array] = theta_new
     #print('free_array', free_array)
