@@ -1100,9 +1100,15 @@ def params_vs_wvl(vals, errs, idxs, meta):
     """
     labels = meta.labels
     fig, ax = plt.subplots(len(idxs[0]), 1, figsize=(6.4,25), sharex=True)
-    for i in range(len(idxs[0])):
-        ax[i].errorbar(range(len(idxs)), [vals[ii][idxs[0][i]] for ii in range(len(vals))], yerr=[errs[ii][idxs[0][i]] for ii in range(len(errs))], fmt='.')
-        ax[i].set_ylabel(labels[i])
+    if len(idxs[0]) == 1:
+        for i in range(len(idxs[0])):
+            ax.errorbar(range(len(idxs)), [vals[ii][idxs[0][i]] for ii in range(len(vals))],
+                           yerr=[errs[ii][idxs[0][i]] for ii in range(len(errs))], fmt='.')
+            ax.set_ylabel(labels[i])
+    else:
+        for i in range(len(idxs[0])):
+            ax[i].errorbar(range(len(idxs)), [vals[ii][idxs[0][i]] for ii in range(len(vals))], yerr=[errs[ii][idxs[0][i]] for ii in range(len(errs))], fmt='.')
+            ax[i].set_ylabel(labels[i])
     plt.subplots_adjust(hspace=0.01)
     plt.tight_layout()
     plt.subplots_adjust(hspace=0.01)

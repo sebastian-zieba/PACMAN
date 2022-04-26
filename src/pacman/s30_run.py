@@ -169,18 +169,17 @@ def run30(eventlabel, workdir, meta=None):
         if meta.run_nested:
             plots.params_vs_wvl_nested(vals_nested, errs_lower_nested, errs_upper_nested, meta)
 
-        if not meta.s30_fit_white:
+        if not meta.s30_fit_white and ('rp' in meta.labels):
             # Saves rprs and wvl as a txt file
             util.make_lsq_rprs_txt(vals, errs, idxs, meta)
             # Saves rprs vs wvl as a plot
             plots.lsq_rprs(vals, errs, idxs, meta)
 
-        if not meta.s30_fit_white and meta.run_mcmc:
-
+        if not meta.s30_fit_white and ('rp' in meta.labels) and meta.run_mcmc:
             plots.mcmc_rprs(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta)
             util.make_mcmc_rprs_txt(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta)
 
-        if not meta.s30_fit_white and meta.run_nested:
+        if not meta.s30_fit_white and ('rp' in meta.labels) and meta.run_nested:
             plots.nested_rprs(vals_nested, errs_lower_nested, errs_upper_nested, meta)
             util.make_nested_rprs_txt(vals_nested, errs_lower_nested, errs_upper_nested, meta)
 
