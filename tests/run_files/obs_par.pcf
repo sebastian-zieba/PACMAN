@@ -149,8 +149,12 @@ run_nwalkers	             5
 run_nburn                    100
 
 #dynesty
+run_dynamic                  False
 run_dlogz                    10
 run_nlive                    4
+run_bound                    single
+run_sample                   rwalk
 
 
 lc_type                      transit
+

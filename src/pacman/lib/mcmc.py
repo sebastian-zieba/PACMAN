@@ -2,15 +2,10 @@ import emcee
 import os
 import numpy as np
 import pickle
-from datetime import datetime
 from scipy.stats import norm
 from uncertainties import ufloat
 from . import plots
 from . import util
-
-
-def quantile(x, q):                                                             
-        return np.percentile(x, [100. * qi for qi in q])
 
 
 def get_step_size(params, meta, fit_par):
@@ -30,15 +25,11 @@ def get_step_size(params, meta, fit_par):
             else:
                 ii = ii + 1
 
-    #print(len(step_size))
-    #print('step size', np.array(step_size))
     return np.array(step_size)
 
 
 def mcmc_fit(data, model, params, file_name, meta, fit_par):
     theta = util.format_params_for_sampling(params, meta, fit_par)
-    #print(params)
-    #print(theta)
     ndim, nwalkers = len(theta), meta.run_nwalkers
 
     print('Run emcee...')
@@ -69,39 +60,19 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
     medians = []
     errors_lower = []
     errors_upper = []
-    #errors_mean = []
     for i in range(len(theta)):
-        q = quantile(samples[:, i], [0.16, 0.5, 0.84])
+        q = util.quantile(samples[:, i], [0.16, 0.5, 0.84])
         medians.append(q[1])
         errors_lower.append(abs(q[1] - q[0]))
         errors_upper.append(abs(q[2] - q[1]))
 
     f_mcmc = open(meta.workdir + meta.fitdir + '/mcmc_res/' + "/mcmc_res_bin{0}_wvl{1:0.3f}.txt".format(meta.s30_file_counter, meta.wavelength), 'w')
     for row in zip(errors_lower, medians, errors_upper, labels):
-    #     #print("{: <8} +/-  {: <8}".format(*row))
-    #     xl = ufloat(row[1], row[0])
-    #     xu = ufloat(row[1], row[2])
         print('{0: >8}: '.format(row[3]), '{0: >24} '.format(row[1]), '{0: >24} '.format(row[0]), '{0: >24} '.format(row[2]), file=f_mcmc)
-    #     print('2:', file=f_mcmc)
-    #     print('lower', file=f_mcmc)
-    #     print('{:13.2uS}'.format(xl), file=f_mcmc)
-    #     print('{:13.2u}'.format(xl), file=f_mcmc)
-    #     print('upper', file=f_mcmc)
-    #     print('{:13.2uS}'.format(xu), file=f_mcmc)
-    #     print('{:13.2u}'.format(xu), file=f_mcmc)
-    #
-    #     print('3:', file=f_mcmc)
-    #     print('lower', file=f_mcmc)
-    #     print('{:13.3uS}'.format(xl), file=f_mcmc)
-    #     print('{:13.3u}'.format(xl), file=f_mcmc)
-    #     print('upper', file=f_mcmc)
-    #     print('{:13.3uS}'.format(xu), file=f_mcmc)
-    #     print('{:13.3u}'.format(xu), file=f_mcmc)
     f_mcmc.close()
 
     updated_params = util.format_params_for_Model(medians, params, meta, fit_par)
     fit = model.fit(data, updated_params)
-    #print(fit.rms)
     plots.plot_fit_lc2(data, fit, meta, mcmc=True)
 
     return medians, errors_lower, errors_upper
@@ -111,7 +82,6 @@ def lnprior(theta, data):
     lnprior_prob = 0.
     n = len(data.prior)
     for i in range(n):
-        #print(lnprior_prob)
         if data.prior[i][0] == 'U': 
             if np.logical_or(theta[i] < data.prior[i][1], 
               theta[i] > data.prior[i][2]): lnprior_prob += - np.inf
@@ -119,18 +89,14 @@ def lnprior(theta, data):
             lnprior_prob -= 0.5*(np.sum(((theta[i] - 
               data.prior[i][1])/data.prior[i][2])**2 + 
               np.log(2.0*np.pi*(data.prior[i][2])**2)))
-    #print('lnprior_prob', lnprior_prob)
     return lnprior_prob
     
 
 
 def lnprob(theta, params, data, model, meta, fit_par):
     updated_params = util.format_params_for_Model(theta, params, meta, fit_par)
-    #print('updated_params', updated_params[12*5:14*5])
     fit = model.fit(data, updated_params)
-    #print('fit', fit)
     lp = lnprior(theta, data)
-    #print('lp', lp)
     return fit.ln_like + lp
 
 

@@ -11,6 +11,7 @@ def residuals(params, data, model, fjac=None):
     fit = model.fit(data, params)
     return [0, fit.resid/data.err]
 
+
 def lsq_fit(fit_par, data, meta, model, myfuncs, noclip=False):
     #TODO: noclip = True should be standard
     nvisit = data.nvisit 

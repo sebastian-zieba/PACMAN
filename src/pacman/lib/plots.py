@@ -734,7 +734,6 @@ def save_plot_raw_data(data, meta):
     """
     Saves the data used for the raw light curve plot.
     """
-    datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
 
     table = Table()
     if data.nvisit>1:
@@ -778,8 +777,6 @@ def rmsplot(model, data, meta):
         os.makedirs(meta.workdir + meta.fitdir + '/corr_plot')
     plt.savefig(meta.workdir + meta.fitdir + '/corr_plot' + '/corr_plot_bin{0}_wvl{1:0.3f}.png'.format(meta.s30_file_counter, meta.wavelength))
     plt.close()
-
-
 
 
 # def plot_fit_lc(data, fit, meta, mcmc=False):
@@ -864,7 +861,7 @@ def plot_fit_lc2(data, fit, meta, mcmc=False, nested=False):
     """
     Plots phase folded fit
     """
-    datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
+
     plt.clf()
     fig, ax = plt.subplots(2,1)
     #print(fit.params)
@@ -939,7 +936,7 @@ def plot_fit_lc3(data, fit, meta, mcmc=False):
     """
     Plots not phase folded fit
     """
-    #datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
+
     plt.clf()
     fig, ax = plt.subplots(2,1)
     #print(fit.params)
@@ -1004,8 +1001,6 @@ def save_astrolc_data(data, fit, meta):
     """
     Saves the data used to plot the astrophysical model (without the systematics) and the data (without the systematics) not phase folded.
     """
-
-    datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
 
     table_model = Table()
     table_nosys = Table()
@@ -1167,6 +1162,7 @@ def params_vs_wvl_nested(vals_nested, errs_lower_nested, errs_upper_nested, meta
     plt.savefig(meta.workdir + meta.fitdir + '/nested_res/' + '/nested_params_vs_wvl.png', dpi=500, bbox_inches='tight', pad_inches=0.05)
     plt.close()
 
+
 def lsq_rprs(vals, errs, idxs, meta):
     """
     Plots the spectrum (rprs vs wvl) as fitted by the least square routine.
@@ -1235,17 +1231,20 @@ def dyplot_runplot(results, meta):
     plt.savefig(meta.workdir + meta.fitdir + '/nested_res/' +  "/dyplot_runplot_bin{0}_wvl{1:0.3f}.png".format(meta.s30_file_counter, meta.wavelength))
     plt.close()
 
+
 def dyplot_traceplot(results, meta):
     # Plot traces and 1-D marginalized posteriors.
     tfig, taxes = dyplot.traceplot(results)
     plt.savefig(meta.workdir + meta.fitdir + '/nested_res/' +  "/dyplot_traceplot_bin{0}_wvl{1:0.3f}.png".format(meta.s30_file_counter, meta.wavelength))
     plt.close()
 
+
 def dyplot_cornerplot(results, labels, meta):
     # Plot the 2-D marginalized posteriors.
     cfig, caxes = dyplot.cornerplot(results, show_titles=True, title_fmt='.4',labels=labels, color='blue', hist_kwargs=dict(facecolor='blue', edgecolor='blue'))
     plt.savefig(meta.workdir + meta.fitdir + '/nested_res/' +  "/dyplot_cornerplot_bin{0}_wvl{1:0.3f}.png".format(meta.s30_file_counter, meta.wavelength))
     plt.close()
+
 
 def mcmc_rprs(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta):
     """
@@ -1280,7 +1279,3 @@ def nested_rprs(vals_nested, errs_lower_nested, errs_upper_nested, meta):
     plt.ylabel('Transit Depth (ppm)')
     plt.savefig(meta.workdir + meta.fitdir + '/nested_res/' + 'nested_rprs.png', dpi=300, bbox_inches='tight', pad_inches=0.05)
     plt.close()
-
-
-def quantile(x, q):
-    return np.percentile(x, [100. * qi for qi in q])

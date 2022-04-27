@@ -1,6 +1,5 @@
 import numpy as np
 import pickle
-from datetime import datetime
 from scipy.stats import norm
 import dynesty
 import inspect
@@ -8,10 +7,6 @@ import os
 from . import plots
 from dynesty import utils as dyfunc
 from . import util
-
-
-def quantile(x, q):                                                             
-        return np.percentile(x, [100. * qi for qi in q]) 
 
 
 def transform_uniform(x,a,b):
@@ -28,20 +23,19 @@ def nested_sample(data, model, params, file_name, meta, fit_par):
     print(ndim)
     l_args = [params, data, model, meta, fit_par]
     p_args = [data]
-    
-   # dsampler = dynesty.DynamicNestedSampler(loglike, ptform, ndim,
-   #                                         logl_args = l_args,
-  #                                         ptform_args = p_args,
-   #                                         update_interval=float(ndim))
-   # dsampler.run_nesteinnilod(wt_kwargs={'pfrac': 1.0})#, maxiter = 20000)
-   # results = dsampler.results
-    print('test')
-    bound = 'single'  # use MutliNest algorithm for bounds
-    sample = 'rwalk'  # uniform sampling
 
     print('Run dynesty...')
-    sampler = dynesty.NestedSampler(loglike, ptform, ndim, logl_args = l_args,ptform_args = p_args,update_interval=float(ndim), nlive=meta.run_nlive, bound=bound, sample=sample)
-    sampler.run_nested(dlogz=meta.run_dlogz, print_progress=True)
+    if meta.run_dynamic:
+        sampler = dynesty.DynamicNestedSampler(loglike, ptform, ndim, logl_args = l_args, ptform_args = p_args,
+                                               update_interval=float(ndim), bound=meta.run_bound,
+                                               sample=meta.run_sample)
+        sampler.run_nested(wt_kwargs={'pfrac': 1.0}, print_progress=True)#, maxiter = 20000)
+    else:
+        sampler = dynesty.NestedSampler(loglike, ptform, ndim, logl_args = l_args, ptform_args = p_args,
+                                        update_interval=float(ndim), nlive=meta.run_nlive, bound=meta.run_bound,
+                                        sample=meta.run_sample)
+        sampler.run_nested(dlogz=meta.run_dlogz, print_progress=True)
+
     results = sampler.results
 
     if not os.path.isdir(meta.workdir + meta.fitdir + '/nested_res'):
@@ -65,7 +59,7 @@ def nested_sample(data, model, params, file_name, meta, fit_par):
     errors_lower = []
     errors_upper = []
     for i in range(ndim):
-        q = quantile(new_samples[:, i], [0.16, 0.5, 0.84])
+        q = util.quantile(new_samples[:, i], [0.16, 0.5, 0.84])
         medians.append(q[1])
         errors_lower.append(abs(q[1] - q[0]))
         errors_upper.append(abs(q[2] - q[1]))
@@ -96,5 +90,4 @@ def ptform(u, data):
 def loglike(x, params, data, model, meta, fit_par):
     updated_params = util.format_params_for_Model(x, params, meta, fit_par)
     fit = model.fit(data, updated_params)
-    #print(fit.ln_like)
     return fit.ln_like 
