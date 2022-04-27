@@ -1,4 +1,3 @@
-nbsphinx
 numpy
 scipy
 matplotlib
@@ -11,19 +10,16 @@ seaborn
 h5py
 pyyaml
 tqdm
+uncertainties
+sphinx
+nbsphinx
+sphinx-automodapi
 numpydoc
 myst_parser
 recommonmark
-uncertainties
-ipython_genutils
-pytest
-astroquery
-flake8
-photutils
 sphinx_rtd_theme
 pandoc
 sphinx-gallery
 nbconvert
-pytest-cov
-codecov
+ipython_genutils
 

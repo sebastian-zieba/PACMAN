@@ -20,7 +20,6 @@ def transform_normal(x,mu,sigma):
 def nested_sample(data, model, params, file_name, meta, fit_par):
     theta = util.format_params_for_sampling(params, meta, fit_par)
     ndim = len(theta)
-    print(ndim)
     l_args = [params, data, model, meta, fit_par]
     p_args = [data]
 
@@ -52,7 +51,7 @@ def nested_sample(data, model, params, file_name, meta, fit_par):
 
     plots.dyplot_runplot(results, meta)
     plots.dyplot_traceplot(results, meta)
-    plots.dyplot_cornerplot(results, labels, meta)
+    plots.dyplot_cornerplot(results, meta)
     plots.nested_pairs(new_samples, params, meta, fit_par, data)
 
     medians = []

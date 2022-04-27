@@ -150,8 +150,8 @@ run_nburn                    5000
 
 #dynesty
 run_dynamic                  False
-run_dlogz                    25000
-run_nlive                    100
+run_dlogz                    0.1
+run_nlive                    120
 run_bound                    single
 run_sample                   rwalk
 

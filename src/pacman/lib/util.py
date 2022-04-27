@@ -578,9 +578,9 @@ def make_nested_rprs_txt(vals_nested, errs_lower_nested, errs_upper_nested, meta
     medians = np.array(vals_nested).T[rp_idx]
     errors_lower = np.array(errs_lower_nested).T[rp_idx]
     errors_upper = np.array(errs_upper_nested).T[rp_idx]
-    if not os.path.isdir(meta.workdir + meta.fitdir + '/mcmc_res'):
-        os.makedirs(meta.workdir + meta.fitdir + '/mcmc_res')
-    f_mcmc = open(meta.workdir + meta.fitdir + '/mcmc_res' + "/mcmc_rprs.txt", 'w')
+    if not os.path.isdir(meta.workdir + meta.fitdir + '/nested_res'):
+        os.makedirs(meta.workdir + meta.fitdir + '/nested_res')
+    f_mcmc = open(meta.workdir + meta.fitdir + '/nested_res' + "/nested_rprs.txt", 'w')
     file_header = ['wavelength (micron)', 'rprs', 'rprs_err_lower', 'rprs_err_upper']
     print("#{: <24} {: <25} {: <25} {: <25}".format(*file_header), file=f_mcmc)
     for row in zip(meta.wavelength_list, medians, errors_lower, errors_upper):

@@ -1234,14 +1234,14 @@ def dyplot_runplot(results, meta):
 
 def dyplot_traceplot(results, meta):
     # Plot traces and 1-D marginalized posteriors.
-    tfig, taxes = dyplot.traceplot(results)
+    tfig, taxes = dyplot.traceplot(results, labels=meta.labels)
     plt.savefig(meta.workdir + meta.fitdir + '/nested_res/' +  "/dyplot_traceplot_bin{0}_wvl{1:0.3f}.png".format(meta.s30_file_counter, meta.wavelength))
     plt.close()
 
 
-def dyplot_cornerplot(results, labels, meta):
+def dyplot_cornerplot(results, meta):
     # Plot the 2-D marginalized posteriors.
-    cfig, caxes = dyplot.cornerplot(results, show_titles=True, title_fmt='.4',labels=labels, color='blue', hist_kwargs=dict(facecolor='blue', edgecolor='blue'))
+    cfig, caxes = dyplot.cornerplot(results, show_titles=True, title_fmt='.4',labels=meta.labels, color='blue', hist_kwargs=dict(facecolor='blue', edgecolor='blue'))
     plt.savefig(meta.workdir + meta.fitdir + '/nested_res/' +  "/dyplot_cornerplot_bin{0}_wvl{1:0.3f}.png".format(meta.s30_file_counter, meta.wavelength))
     plt.close()
 

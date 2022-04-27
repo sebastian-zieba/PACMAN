@@ -182,6 +182,7 @@ def run20(eventlabel, workdir, meta=None):
         #corrects for wavelength drift over time
         if meta.correct_wave_shift == True:
             if i in meta.new_visit_idx_sp:
+                # store x & y data if it's the first exposure in the visit
                 x_data_firstexpvisit, y_data_firstexpvisit, leastsq_res = util.correct_wave_shift_fct_0(meta, orbnum, cmin, cmax, spec_opt, i)
                 wvls = np.copy(x_data_firstexpvisit)
                 if meta.save_drift_plot or meta.show_drift_plot:
