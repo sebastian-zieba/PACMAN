@@ -81,7 +81,6 @@ Here some examples for the currently implemented models for the instrument syste
   - systematic models:
     - visit-long polynomials
     - orbit-long exponential ramps due to charge trapping: NIR detectors like HST/WFC3 can trap photoelectrons [@Smith2008], which will cause the number of recorded photoelectrons to increase exponentially, creating typical hook-like features in each orbit
-    - _divide-white_ [seee @Kreidberg2014a]
   - astrophysical models:
     - transit and secondary eclipse curves as implemented in `batman`
     - sinusoids for phase curve fits
