@@ -19,21 +19,60 @@ from pacman import s10_direct_images as s10
 from pacman import s20_extract as s20
 from pacman import s21_bin_spectroscopic_lc as s21
 from pacman import s30_run as s30
-
 from pacman.lib import sort_nicely as sn
 from pacman.lib.suntimecorr import getcoords as getcoords
 from pacman.lib.gaussfitter import gaussfit as gaussfit
 from pacman.lib import optextr
-
 from importlib import reload
 from astropy.table import Table
 from photutils.datasets import (make_noise_image, make_gaussian_sources_image)
 
 
-
 test_path = os.path.dirname(os.path.realpath(__file__)) + '/'
-
 eventlabel='GJ1214_13021'
+
+
+def workdir_finder():
+    """
+    Finds the latest work directory created. 
+    After running the Stage 00 test, 
+    we want to base all following tests (for s01, s02, ...) on the workdirectory created when running s00.
+    """
+
+    eventlabel='GJ1214_13021'
+    # list subdirectories in the run directory
+    dirs = np.array([f.path for f in os.scandir(test_path) if f.is_dir()])
+
+    # saves times when these subdirectories were created. 
+    # They always have the following form: 'run_YYYY-MM-DD_HH-MM-SS_eventlabel'
+    dirs_bool = np.array(['/run_2' in i for i in dirs])
+    dirs = dirs[dirs_bool]
+
+    eventlabel_len = len(eventlabel)
+    dirs_times = [i[-(eventlabel_len+20):-(eventlabel_len+1)] for i in dirs]
+
+    # sort the times
+    times_sorted = sn.sort_nicely(dirs_times)
+
+    # most recent time
+    recent_time = times_sorted[-1]
+
+    # find the directory with that most recent time
+    idx = 0
+    for i in range(len(dirs)):
+        if dirs[i][-(eventlabel_len+20):-(eventlabel_len+1)] == recent_time:
+            idx = i
+    workdir = dirs[idx]
+    #save the eventlabel which is in the directory name too
+    print('workdir: ', workdir)
+    print('eventlabel: ', eventlabel)
+    return (workdir, eventlabel)
+
+
+def delete_dir(dir_name):
+    if os.path.exists(dir_name):
+        print('Old dir found and deleted')
+        os.system("rm -r {0}".format(dir_name))
 
 
 @pytest.mark.run(order=1)
@@ -42,13 +81,23 @@ def test_sessionstart(capsys):
     Called as the first test. It downloads the three HST files used in this test using astroquery.
     """
 
-    print('test')
-
     file_path = os.path.realpath(__file__)
     test_dir = os.path.dirname(file_path)
 
-    # create a data dir
+    eventlabel='GJ1214_13021'
+    dirs = np.array([f.path for f in os.scandir(test_path) if f.is_dir()])
+    dirs_bool = np.array(['/run_2' in i for i in dirs])
+    dirs = dirs[dirs_bool]
+    for diri in dirs:
+        delete_dir(diri)
+
+    # delete old data dir
     data_dir = test_dir + '/data'
+    mast_dir = test_dir + '/mastDownload' # Specify root directory to be searched for .sav files.
+    delete_dir(data_dir)
+    delete_dir(mast_dir)
+
+    # create a data dir
     os.makedirs(data_dir)
 
     #search for the HST data
@@ -64,8 +113,6 @@ def test_sessionstart(capsys):
     #download the three files
     Observations.download_products(data_products_ima, mrp_only=False, download_dir=test_dir)
 
-    mast_dir = test_dir + '/mastDownload' # Specify root directory to be searched for .sav files.
-
     filelist = []
     for tree,fol,fils in os.walk(mast_dir):
         filelist.extend([os.path.join(tree,fil) for fil in fils if fil.endswith('.fits')])
@@ -77,42 +124,6 @@ def test_sessionstart(capsys):
     assert True
 
 
-def workdir_finder():
-    """
-    Finds the latest work directory created. 
-    After running the Stage 00 test, 
-    we want to base all following tests (for s01, s02, ...) on the workdirectory created when running s00.
-    """
-
-    eventlabel='GJ1214_13021'
-    # list subdirectories in the run directory
-    dirs = np.array([f.path for f in os.scandir(test_path) if f.is_dir()])
-    #print(dirs)
-    # saves times when these subdirectories were created. 
-    # They always have the following form: 'run_YYYY-MM-DD_HH-MM-SS_eventlabel'
-    dirs_bool = np.array(['/run_2' in i for i in dirs])
-    dirs = dirs[dirs_bool]
-    #print(dirs)
-    eventlabel_len = len(eventlabel)
-    dirs_times = [i[-(eventlabel_len+20):-(eventlabel_len+1)] for i in dirs]
-    #print(dirs_times)
-    # sort the times
-    times_sorted = sn.sort_nicely(dirs_times)
-    #print(times_sorted)
-    # most recent time
-    recent_time = times_sorted[-1]
-    #print(recent_time)
-    # find the directory with that most recent time
-    idx = 0
-    for i in range(len(dirs)):
-        if dirs[i][-(eventlabel_len+20):-(eventlabel_len+1)] == recent_time:
-            idx = i
-    workdir = dirs[idx]
-    #save the eventlabel which is in the directory name too
-    print('workdir: ', workdir)
-    print('eventlabel: ', eventlabel)
-    return (workdir, eventlabel)
-
 
 @pytest.mark.run(order=2)
 def test_s00(capsys):
@@ -121,8 +132,6 @@ def test_s00(capsys):
     """
 
     reload(s00)
-    #print('test_path', test_path)
-    #print(os.system("pwd"))
 
     pcf_path = test_path + '/run_files'
 
