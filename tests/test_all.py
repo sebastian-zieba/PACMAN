@@ -90,19 +90,16 @@ def test_sessionstart(capsys):
     dirs = dirs[dirs_bool]
     for diri in dirs:
         delete_dir(diri)
-    print('tttt')
+
     # delete old data dir
     data_dir = test_dir + '/data'
     mast_dir = test_dir + '/mastDownload' # Specify root directory to be searched for .sav files.
     delete_dir(data_dir)
     delete_dir(mast_dir)
 
-#    time.sleep(2)
-    print('ttt')   
     # create a data dir
     os.makedirs(data_dir)
-    if os.path.exists(data_dir):
-        assert True
+
     #search for the HST data
     proposal_obs = Observations.query_criteria(proposal_id=13021,  instrument_name='WFC3/IR', project='HST')
     data_products = Observations.get_product_list(proposal_obs)
@@ -116,8 +113,6 @@ def test_sessionstart(capsys):
     #download the three files
     Observations.download_products(data_products_ima, mrp_only=False, download_dir=test_dir)
 
-
-
     filelist = []
     for tree,fol,fils in os.walk(mast_dir):
         filelist.extend([os.path.join(tree,fil) for fil in fils if fil.endswith('.fits')])
@@ -130,7 +125,7 @@ def test_sessionstart(capsys):
 
 
 
-@pytest.mark.dependency(depends=["test_sessionstart"])
+@pytest.mark.run(order=2)
 def test_s00(capsys):
     """
     Reads in the downloaded HST files and creates the work directory and the filelist file.
