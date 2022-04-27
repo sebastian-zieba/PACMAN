@@ -69,26 +69,36 @@ def workdir_finder():
     return (workdir, eventlabel)
 
 
+def delete_dir(dir_name):
+    if os.path.exists(dir_name):
+        print('Old dir found and deleted')
+        os.system("rm -r {0}".format(dir_name))
+
+
 @pytest.mark.run(order=1)
 def test_sessionstart(capsys):
     """
     Called as the first test. It downloads the three HST files used in this test using astroquery.
     """
-    print('ttt')
+
     file_path = os.path.realpath(__file__)
     test_dir = os.path.dirname(file_path)
 
-    workdir, _ = workdir_finder()
-    if os.path.exists(workdir):
-        print('Old workdir found and deleted')
-        os.system("rm -r {0}".format(workdir))
-
+    eventlabel='GJ1214_13021'
+    dirs = np.array([f.path for f in os.scandir(test_path) if f.is_dir()])
+    dirs_bool = np.array(['/run_2' in i for i in dirs])
+    dirs = dirs[dirs_bool]
+    for diri in dirs:
+        delete_dir(diri)
+    print('tttt')
     # delete old data dir
     data_dir = test_dir + '/data'
-    if os.path.exists(data_dir):
-        print('Old data_dir found and deleted')
-        os.system("rm -r {0}".format(data_dir))
+    mast_dir = test_dir + '/mastDownload' # Specify root directory to be searched for .sav files.
+    delete_dir(data_dir)
+    delete_dir(mast_dir)
 
+#    time.sleep(2)
+    print('ttt')   
     # create a data dir
     os.makedirs(data_dir)
     if os.path.exists(data_dir):
@@ -106,7 +116,7 @@ def test_sessionstart(capsys):
     #download the three files
     Observations.download_products(data_products_ima, mrp_only=False, download_dir=test_dir)
 
-    mast_dir = test_dir + '/mastDownload' # Specify root directory to be searched for .sav files.
+
 
     filelist = []
     for tree,fol,fils in os.walk(mast_dir):
@@ -120,7 +130,7 @@ def test_sessionstart(capsys):
 
 
 
-@pytest.mark.run(order=2)
+@pytest.mark.dependency(depends=["test_sessionstart"])
 def test_s00(capsys):
     """
     Reads in the downloaded HST files and creates the work directory and the filelist file.
