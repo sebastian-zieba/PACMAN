@@ -10,7 +10,7 @@ This Stage starts by downloading a stellar model or calculating one in case of t
               | - THE STELLAR ATMOSPHERE MODELS BY CASTELLI AND KURUCZ 2004 (``ck04models``)
               | - THE PHOENIX MODELS BY FRANCE ALLARD AND COLLABORATORS (``phoenix``)
               | - ``blackbody`` spectrum
-              | The stellar models (exluding the blackbody one) are retrieved from https://archive.stsci.edu/hlsps/reference-atlases/cdbs/grid/
+              | The stellar models (exluding the blackbody) are retrieved from https://archive.stsci.edu/hlsps/reference-atlases/cdbs/grid/
 
     .. warning:: If the user decides on any stellar model which has to be downloaded (``k93models``, ``ck04models`` or ``phoenix``), then internet connection is required! The blackbody model does not require a connection however.
 
@@ -72,8 +72,8 @@ We use the stellar parameters published in `Cloutier et al. 2021 <https://ui.ads
 	If the file already exists then it will not be downloaded again.
 
 
-After downloading or calculating the stellar spectrum, it gets multiplied with the bandpass (if the observations used G102 or G141 is recognized automatically).
+After downloading or calculating the stellar spectrum, it is multiplied by the grism throughput (if the observations used G102 or G141 is recognized automatically).
 The bandpass files are stored in the pipeline directory (e.g., ``/home/zieba/Desktop/Projects/Open_source/PACMAN/pacman/ancil/bandpass``).
-The final plot of this Stage shows the stellar spectrum, the bandpass and the product of these two. This product will be then used as the reference spectrum for wavelength calibration.
+The final plot of this stage shows the stellar spectrum, the bandpass and the product of these two. This product is used as the reference spectrum for wavelength calibration.
 
 .. image:: media/s03/refspec.png

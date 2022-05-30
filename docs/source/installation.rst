@@ -6,17 +6,14 @@ Installation
 Options
 ____________________________________________________
 
-There are different options to download and install ``PACMAN``:
+There are several options to download and install ``PACMAN``:
 
 Using a conda environment
 ---------------------------------
 
-It is generally recommended to install PACMAN in a separate new environment.
-If you do not have conda installed yet, you will have to do that.
-Installing Miniconda (a minimal installer for conda) instead of Anaconda is perfectly fine: https://docs.conda.io/en/latest/miniconda.html
-Additional instructions can be found here: https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html
+We generally recommend installing PACMAN in a ``conda`` environment.  To install conda, follow these `instructions <https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html>`_.
 
-If you have that, navigate in a terminal to a directory where you want to store the cloned PACMAN directory and type the following lines:
+Once you have Anaconda installed, navigate in a terminal to a directory where you want to store the cloned PACMAN directory and type the following lines:
 
 .. code-block:: console
 
@@ -29,7 +26,7 @@ If you have that, navigate in a terminal to a directory where you want to store 
 
 With these steps we created a conda environment called pacman and installed PACMAN and its dependencies there.
 
-.. note:: In this example, the conda environment was initialized with python v3.9.0. PACMAN was tested with python v3.7 to v3.10, so it is up to the user which version they want to use.
+.. note:: In this example, the conda environment was initialized with python v3.9.0. PACMAN was tested with python v3.7 to v3.10, so it is up to the user which version to use.
 
 If you want to update your local installation with a new release, navigate to the PACMAN directory again and type:
 
@@ -63,7 +60,7 @@ There are two ways to do that:
 
     unzip PACMAN-master.zip
 
-* Or Clone the repository using ``git`` by typing:
+* Or clone the repository using ``git`` by typing:
 
 .. code-block:: console
 
@@ -85,7 +82,7 @@ Will be added ...
 Test your installation
 ____________________________________________________
 
-If you want to test if your installation was successful, navigate to your cloned PACMAN directory and type:
+To test if your installation was successful, navigate to your cloned PACMAN directory and type:
 
 .. code-block:: console
 
@@ -93,14 +90,14 @@ If you want to test if your installation was successful, navigate to your cloned
 
 This will install PACMAN again and the dependencies (including the testing dependencies!).
 
-You can now run pytest by typing the following line while still being in the PACMAN directory:
+You can now run pytest by typing the following line while (from inside the PACMAN directory):
 
 .. code-block:: console
 
     pytest tests/tests_all.py -s
 
 The -s flag will also output all print statements during the tests so that you can see what happens.
-The tests might need a few minutes (depending on your internet connection speed).
+The tests might take a few minutes (depending on your internet connection speed).
 
 You have passed all tests if you get a message like this in the end:
 

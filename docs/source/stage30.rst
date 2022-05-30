@@ -3,21 +3,21 @@
 Stage 30
 ============
 
-Here we can fit the white light curve (which is being created after S20) or spectroscopic light curves (which is being created after S21).
+Here we can fit the broadband ("white") light curve (which is created in S20) or spectroscopic light curves (which are created in S21).
 
-Let's remove the first orbit from every visit and the first exposure from every orbit as they are strongly affected from systematics:
+Let's remove the first orbit from every visit and the first exposure from every orbit as they are typically strongly affected by instrument systematics:
 
 | remove_first_exp             True
 | remove_first_orb             True
 
 
-We can choose if we also want to run an MCMC using the emcee package next to the least square routine:
+We can choose if we also want to run an MCMC using the emcee package next to the least squares routine:
 
 | run_lsq                      True
 | run_mcmc                     True
 
 
-For the MCMC, let's do a quick, small amount of samples with an amount of walkers which is greater than twice the numbers of free parameters.
+For the MCMC, let's do a quick, small number of samples with an number of walkers greater than twice the numbers of free parameters.
 
 | run_nsteps                   4000
 | run_nwalkers	                35
@@ -29,18 +29,20 @@ Let's use the following model:
 | s30_myfuncs                  ['constant','upstream_downstream','model_ramp','polynomial1','transit']
 
 - 'constant': a normalization constant
-- 'upstream_downstream': accounts for the forward and reverse scanning effect which creates different fluxes
+- 'upstream_downstream': accounts for the forward and reverse scanning effect which creates an offset in the measured flux
 - 'model_ramp': a ramp for every orbit
 - 'polynomial1': a slope over the visit
 - 'transit': a BATMAN transit model
+
+Additional functions are listed on the `models page <https://pacmandocs.readthedocs.io/en/latest/models.html#id1>`_.
 
 Let's have the following free parameters:
 
 t0_0, rp_0, u1_0, c_0, c_1, c_2, v_0, v_1, v_2, r1_0, r1_1, r1_2, r2_0, r2_1, r2_2, r3_0, r3_1, r3_2, scale_0, scale_1, scale_2
 
-While we fixed the other important parameters (per, a inc) to the literature values.
+Other important parameters (per, a inc) are fixed to the literature values.
 
-The user can set in the pcf if the reduced chi2 which will be calculated from the least squared should be rescaled to be equal to unity or not.
+The user can set in the pcf whether the uncertainties should be rescaled to achieve a reduced chi2 of unity. 
 
 
 

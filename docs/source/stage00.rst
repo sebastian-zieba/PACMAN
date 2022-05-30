@@ -5,7 +5,7 @@ Stage 00
 
 1) **Set up pcf**
 
-	Firstly, set up the location of your Data Directory (=datadir) and Run Directory (=rundir).
+	First, set up the location of your data directory (=datadir) and run directory (=rundir).
 
 	The rundir should contain the following three files:
 
@@ -21,9 +21,9 @@ Stage 00
 	If your datadir contains a lot of visits, but you only want to analyze a subset you can use ``which_visits``.
 
 	As mentioned in the Introduction, in this example going to analyze just three
-	visits taken in the middle of the GO13021 program for simplicity (Dates (YYYY-MM-DD): 2013-03-13,  2013-03-15,  2013-03-27).
+	visits taken in the middle of the GO 13021 program (Dates (YYYY-MM-DD): 2013-03-13,  2013-03-15,  2013-03-27).
 
-	If the user downloaded all 15 visits in GO13021, he or she can choose: ``which_visits = [5,6,7]`` in the pcf.
+	If the user downloaded all 15 visits in GO 13021, he or she can choose: ``which_visits = [5,6,7]`` in the pcf.
 
 
 2) **Run PACMAN**
@@ -31,6 +31,7 @@ Stage 00
 	Now navigate to your rundir in your terminal and type:
 
 	.. code-block:: console
+
 		python pacman_script.py --s00 --eventlabel='GJ1214_Hubble13021'
 
 	Here, --s00 means we are going to run Stage 00 and --eventlabel will be used in the naming of files and directories.

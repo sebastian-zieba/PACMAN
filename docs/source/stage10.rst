@@ -56,14 +56,14 @@ The terminal should give you something like this:
 
 
 
-We see that we got messages while running that our guesses were outside of the image.
-In order to determine now where the star actually is, this run saved the images as plots into a new directory: run directory + /figs/images
+We see that we got error messages that our guesses were outside of the image.
+To determine where the star actually is, this run saved the images as plots into a new directory: run directory + /figs/images
 
 You will end up with plots like this one:
 
 .. image:: media/s10/quick_di0_wrong.png
 
-You can see that our "initial guess" (the red box in the plot) was off by a lot from the star. Lets try again with a better guess, now that we know where the star is.
+You can see that our "initial guess" (the red box in the plot) was off by a lot from the star. Let's try again with a better guess, now that we know where the star is.
 
 
 Second run
@@ -101,15 +101,15 @@ The positions of the star in physical pixels are then saved into a new file call
 .. include:: media/s10/xrefyref.txt
    :literal:
 
-| 1. column is the time when the Direct Image was taken in BJD
+| 1. column is the time when the direct image was taken in BJD
 | 2. column is the visit number
 | 3. column is the orbit number
 | 4. column is the cumulative orbit number
 | 5. column is the row position of the star in physical pixels
 | 6. column is the column position of the star in physical pixels
 
-You might notice that the fit resulted to a target location of approximately row = 513 and col = 403 but in the plots the target is closer to being at approximately row = 140 and col = 30 (by estimating by eye).
-This is because the table accounted for the offset in X and Y to subsection start. This information can be found in the header:
+You might notice that the fit resulted in a target location of approximately row = 513 and col = 403 but in the plots the target is closer to row = 140 and col = 30 (estimating by eye).
+This is because the table accounted for the offset in X and Y to subarray start. This information can be found in the header:
 
 | LTV1    =  -374.0 / offset in X to subsection start
 | LTV2    =  -374.0 / offset in Y to subsection start

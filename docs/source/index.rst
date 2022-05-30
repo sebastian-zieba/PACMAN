@@ -10,13 +10,19 @@ Welcome to PACMAN's documentation!
 
 **Welcome to the documentation for PACMAN**
 
-``PACMAN`` is a pipeline to reduce and analyze HST data (G102 or G141).
+``PACMAN`` is a pipeline to reduce and analyze Hubble/Wide Field Camera 3 (WFC3) observations of transiting exoplanets. The pipeline runs end-to-end, beginning with a time series of 2D images and ending with a spectrum for the planet. ``PACMAN`` can easily fit multiple observations simultaneously.
 
-It takes 'ima' data products created by STSci and outputs a white or spectroscopic light curves.
-The user can then fit various functions (transit, eclipse, visit long quadratic trends,
-orbital exponential trends, etc ...) to these light curves.
+The main steps in the pipeline are:
 
-The pipeline is still under development! Use at your own risk.
+- optimally extract spectra from the 'ima' data products provided by STScI 
+- bin the spectra into user-specified wavelength bins and output the light curve(s)
+- fit the light curves with a variety of astrophysical models (transit, eclipse, phase curve) and instrument systematic models (visit-long quadratic trends, orbit-long exponential trends) 
+- estimate uncertainties on the planet parameters with least-squares, MCMC, or nested sampling
+
+For a more detailed roadmap, see `Stages <https://pacmandocs.readthedocs.io/en/latest/stages.html>`_.
+
+``PACMAN`` is being developed on GitHub. If you find a bug or want a new feature, please `raise an issue <https://github.com/sebastian-zieba/PACMAN/issues>`_!
+
 
 .. toctree::
    :maxdepth: 1
@@ -33,7 +39,7 @@ The pipeline is still under development! Use at your own risk.
 
 .. toctree::
    :maxdepth: 1
-   :caption: Example GJ1214 b
+   :caption: Quickstart
 
    example_introduction
    astroquery_visits

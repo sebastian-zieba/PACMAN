@@ -3,9 +3,9 @@
 PACMAN Control File (.pcf)
 ============================
 
-To run the different Stages of ``PACMAN``,
+To run the different stages of ``PACMAN``,
 the pipeline requires a so-called PACMAN control file (.pcf)
-where Stage-specific parameters are defined (e.g. aperture size, path of the data, etc.).
+where stage-specific parameters are defined (e.g. aperture size, path to the data, etc.).
 
 In the following, we look at the contents of the pcf and include an example entry.
 
@@ -24,10 +24,10 @@ The directory where you want PACMAN to run and save data to.
 If you downloaded or cloned the GitHub repository it includes a run_files directory.
 These three files can also be downloaded under this link: `Download here <https://downgit.github.io/#/home?url=https://github.com/sebastian-zieba/PACMAN/tree/master/pacman/run_files>`_.
 You have to copy these files into your run directory.
-It has to include three files:
+It should include three files:
  - pacman_script.py: The run script
  - obs_par.pcf: The pcf file
- - fit_par.txt: The fit_par file with the fit parameters (if you don't want to fit the data (= Stage 30) you dont have to care about the contents of this file)
+ - fit_par.txt: The fit_par file with the fit parameters (only used for Stage 30) 
 
 .. warning::
 
@@ -49,7 +49,7 @@ suffix
 ''''''''''''''''''''''''''''''''''''''''''''
 | Example: ``suffix   ima``
 
-Only possible extension which is supported currently: ``ima``.
+The only extension which is supported currently: ``ima``.
 From the `WFC3 data handbook (Types of WFC3 Files) <https://hst-docs.stsci.edu/wfc3dhb/chapter-2-wfc3-data-structure/2-1-types-of-wfc3-files>`_: "For the IR detector, an intermediate MultiAccum (ima) file is the result after all calibrations are applied (dark subtraction, linearity correction, flat fielding, etc.) to all of the individual readouts of the IR exposure."
 
 
@@ -58,10 +58,11 @@ which_visits
 | Example: ``which_visits   [0,2]``
 | Example: ``which_visits   everything``
 
-If your ``datadir`` contains several visits, you can select which ones (to be more precise: which visits) you want to analyze.
-If you are interested in all visits in ``datadir`` use ``everything`` here.
+If your ``datadir`` contains several HST observations (called visits), you can select which ones to analyze. 
+If you are interested in all visits in ``datadir``, use ``everything`` here.
 
-E.g., HST GO 13021 contains 15 visits.
+``PACMAN`` automatically numbers the visits the ``datadir`` in chronological order, starting with zero.
+For example, HST GO 13021 has 15 visits in total.
 If you have all 15 visits in your ``datadir`` but only want to analyze the last two visits for now,
 you would enter ``[13,14]`` here.
 If your ``datadir`` only contained these two visits (and not the previous 13 visits before it),
@@ -71,9 +72,9 @@ you can either write ``everything`` or ``[0,1]``.
 save_obs_times_plot/show_obs_times_plot
 ''''''''''''''''''''''''''''''''''''''''''''
 Example: ``True``
-This plot consists out of one table and two subplots.
+This plot consists of one table and two subplots.
 
-- The table lists the number of orbits in each individual visit and the starting time of the visit.
+- The table lists the number of orbits in each individual visit and the start time of the visit.
 
 - The left subplot shows when the visit was observed.
 
@@ -109,15 +110,15 @@ Teff, logg, MH
 
 effective Temperature (Teff), surface gravity (logg) and metallicity (MH) of the star.
 
-Used for the generation of the stellar model.
-If the user only wants to use a blackbody spectrum, the code won't care which logg and metallicity values were set.
+Used to generate the stellar model.
+If the user only wants to use a blackbody spectrum, the code ignores logg and metallicity. 
 
 sm
 ''''''''''''''''''''''''''''''''''''''''''''
 Example: ``phoenix``
 
 The stellar model one wants to use.
-It will be then multiplied with the bandpass (G102 or G141) to create a reference spectrum
+It will be then multiplied with the grism throughput (either G102 or G141) to create a reference spectrum
 for the wavelength calibration of the spectra.
 
 Options:
@@ -126,9 +127,9 @@ Options:
 | - ``k93models``: THE 1993 KURUCZ STELLAR ATMOSPHERES ATLAS
 | - ``ck04models``: THE STELLAR ATMOSPHERE MODELS BY CASTELLI AND KURUCZ 2004
 | - ``phoenix``: THE PHOENIX MODELS BY FRANCE ALLARD AND COLLABORATORS
-| - ``blackbody``: A blackbody spectrum usings Planck's law
+| - ``blackbody``: A blackbody spectrum using Planck's law
 
-The stellar models (exluding the blackbody one) are retrieved from https://archive.stsci.edu/hlsps/reference-atlases/cdbs/grid/
+The stellar models (exluding the blackbody) are retrieved from https://archive.stsci.edu/hlsps/reference-atlases/cdbs/grid/
 
 
 smooth/smooth_sigma
@@ -137,19 +138,14 @@ Example:
 | ``smooth        True``
 | ``smooth_sigma  50``
 
-Sets if the user wants to apply a gaussian kernel smoothing to the stellar spectrum. This is generally recommened as the Kurucz or Phoenix stellar models have a higher resolution as the resulting G102 or G141 spectra.
+If ``smooth`` is ``True``, applies a Gaussian kernel smoothing to the stellar spectrum. This is recommended since the Kurucz and Phoenix stellar models have a higher resolution than the WFC3 grisms, which have native resolution of:
 
-Here some information on the smoothing
 
-G141 46.9 Angstrom/pixel dispersion
+- G141: 46.9 Angstrom/pixel dispersion
 
-G102 24.6 Angstrom/pixel dispersion
+- G102: 24.6 Angstrom/pixel dispersion
 
-More on gaussian smoothing for the reference spectrum: `Deming et al. 2013 <https://ui.adsabs.harvard.edu/abs/2013ApJ...774...95D/abstract>`_
-
-They 'we convolve each 1-D spectrum with a Gaussian kernel having FWHM = 4 pixels.'
-
-As FWHM = 2.35 * sigma, the recommended value for G141 is smooth_sigma = 2.35 * 4 * 46.9 = 441
+Gaussian smoothing the reference spectrum is discussed in detail in `Deming et al. 2013 <https://ui.adsabs.harvard.edu/abs/2013ApJ...774...95D/abstract>`_. To follow their example and convolve the reference spectrum with a Gaussian with full-width at half maximum (FWHM) of 4 pixels, we use the relation FWHM = 2.35 * sigma. The value for the G141 grism is then 2.35 * 4 * 46.9 = 441
 
 
 save_smooth_plot/show_smooth_plot
@@ -181,12 +177,12 @@ di_rmin, di_rmax, di_cmin, di_cmax
 | Example: ``di_cmin  5``
 | Example: ``di_cmax  50``
 
-These values have the goal of cutting out stamp around the target star.
+These values specify a cutout around the target star.
 Below you will find an example:
 
 .. image:: media/s10/quick_di0.png
 
-You can see that the cutout (the red box in the plot) is well chosen which is needed to determine the star position.
+You can see that the cutout (red box in the plot) includes the star, so the centroid can be determined. 
 
 
 save_image_plot/show_image_plot
@@ -236,40 +232,42 @@ upper and lower 5 pixels they can use the same settings as in the example above.
 
 window
 ''''''''''''''''''''''''''''''''''''''''''''
-| Example: ``window  12``
+| Example: ``window  10``
 
-Increase the size of the aperture by 12 pixels relative to the rows which show
-the highest change in flux compared to rows above and below.
+Sets the size of the extraction window.  ``PACMAN`` adaptively determines the best aperture in two steps:
 
-E.g., If the code determines the biggest flux change occures in row 35 and 55, and the user did set ``window  10``,
-the code will use the everything between row 25 and 65 in the optimal extraction.
+ 1. identify the rows with the largest gradient in count rate
+
+ 2. add ``window`` additional rows above and below the rows identified in step 1 
+
+For example, if the biggest flux gradient occurs in row 35 and 55, and the user set ``window  10``,
+the extraction aperture will be between rows 25 and 65. 
 
 
 background_thld
 ''''''''''''''''''''''''''''''''''''''''''''
 | Example: ``background_thld  1000``
 
-Sets a threshold to the background calculation. Pixels with a flux lower than background_thld electrons/second will be considered as background.
+Sets a threshold for the background calculation. Pixels with a flux lower than background_thld electrons/second will be considered background.
 The background flux is then determined by taking the median flux of the pixels below this threshold.
 
 
 opt_extract
 ''''''''''''''''''''''''''''''''''''''''''''
-| Example: ``background_thld  True``
+| Example: ``opt_extract  True``
 
-Uses Optimal extraction as descibed in `Horne et al. 1986 <https://ui.adsabs.harvard.edu/abs/1986PASP...98..609H>`_.
-This can be used if the user wants to have a quick look at the simple box aperture summated flux,
-but the following Stages will break if optimal extraction wasnt used.
+Extracts the spectrum using the optimal extraction routine from `Horne et al. 1986 <https://ui.adsabs.harvard.edu/abs/1986PASP...98..609H>`_.
+If set to false, ``PACMAN`` performs a quick box extraction (simply adding up all the counts in the aperture). This gives a quick look at the spectra, but the following stages will break if ``opt_extract`` is false. 
 
 
 sig_cut, nsmooth
 ''''''''''''''''''''''''''''''''''''''''''''
-| Example: ``sig_cut  15 ``
+| Example: ``sig_cut  15``
 | Example: ``nsmooth  9``
 
-sig_cut: for cosmic rays etc
+sig_cut: Specifies the outlier threshold for the optimal extraction. Outliers greater than ``sig_cut`` are masked.
 
-smooth: created smoothed spatial profile, medial smoothing filter
+smooth: Number of pixels used for median-smoothing to create the spatial profile.
 
 
 save_optextr_plot
@@ -280,13 +278,13 @@ save_optextr_plot
 correct_wave_shift
 ''''''''''''''''''''''''''''''''''''''''''''
 | Example: ``correct_wave_shift  True``
-Corrects the wavelength by using the reference spectrum.
+Interpolates each spectrum to the wavelength scale of the reference spectrum, to account for spectral drift over the observation. 
 
 
 output
 ''''''''''''''''''''''''''''''''''''''''''''
 | Example: ``output  True``
-Saves the flux as a function of time and wavelength into files.
+Saves the flux as a function of time and wavelength. 
 
 
 save_sp2d_plot/show_sp2d_plot
@@ -306,7 +304,7 @@ save_trace_plot/show_trace_plot
 
 save_bkg_hist_plot/show_bkg_hist_plot
 ''''''''''''''''''''''''''''''''''''''''''''
-Shows a histogram of the flux based on the difference of two consecutive up the ramp samples.
+Shows a histogram of the flux based on the difference of two consecutive up-the-ramp samples.
 This is why the user might see also negative fluxes.
 
 .. image:: media/s20/bkg_hist0-0.png
@@ -314,21 +312,21 @@ This is why the user might see also negative fluxes.
 
 save_utr_plot/show_utr_plot
 ''''''''''''''''''''''''''''''''''''''''''''
-Shows an up the ramp sample with the determined highest flux changes between two rows.
+Shows an up-the-ramp sample with the determined highest flux changes between two rows.
 
 .. image:: media/s20/utr0-0.png
 
 
 save_sp1d_plot/show_sp1d_plot
 ''''''''''''''''''''''''''''''''''''''''''''
-The 1D spectrum. In red the flux by simply adding up the flux in the box and in black the result from optimal extraction.
+The 1D spectrum. The optimal extraction is shown in black, and the box extraction is shown in red. 
 
 .. image:: media/s20/sp1d_0.png
 
 
 save_bkg_evo_plot/show_bkg_evo_plot
 ''''''''''''''''''''''''''''''''''''''''''''
-The temporal evolution of the determined background flux.
+The determined background flux versus time.
 
 .. image:: media/s20/bkg_evo.png
 
@@ -342,7 +340,7 @@ The difference between two consecutive 1D spectra.
 
 save_utr_aper_evo_plot/show_utr_aper_evo_plot
 '''''''''''''''''''''''''''''''''''''''''''''''''
-Shows the determined aperture size over time.
+The determined aperture size over time.
 In this case the rows with the highest change in flux were either 7 or 8 pixels apart.
 
 .. image:: media/s20/utr_aper_evo.png
@@ -350,19 +348,19 @@ In this case the rows with the highest change in flux were either 7 or 8 pixels 
 
 save_refspec_fit_plot/show_refspec_fit_plot
 ''''''''''''''''''''''''''''''''''''''''''''
-Shows the fit of the 1D spectrum to the reference spectrum.
-In the first exposure in a visit this referecnce spectrum is the product of the stellar spectrum with the bandpass.
+The fit of the 1D spectrum compared to the reference spectrum.
+In the first exposure in a visit, this referecnce spectrum is the product of the stellar spectrum with the grism throughput.
 
 .. image:: media/s20/refspec_fit_0.png
 
-In the other exposures the reference spectrum is the wavelength calibrated first exposure in a visit.
+In the other exposures, the reference spectrum is the wavelength-calibrated first exposure in a visit.
 
 .. image:: media/s20/refspec_fit_1.png
 
 
 save_drift_plot/show_drift_plot
 ''''''''''''''''''''''''''''''''''''''''''''
-Shows the change of the wavelength calibration parameters over time.
+The fitted wavelength calibration parameters over time.
 We do a linear fit (a + b * wavelength) to the reference spectrum and fit for the height.
 
  First panel: a
@@ -380,8 +378,8 @@ s21_most_recent_s20/s21_spec_dir_path_s20
 ''''''''''''''''''''''''''''''''''''''''''''
 | Example: ``s21_most_recent_s20    True``
 | Example: ``s21_spec_dir_path_s20  None``
-If s21_most_recent_s20 is set to True the most recent s20 run will be used.
-If s21_most_recent_s20 is set to False, the user can set a path with the extracted data after s20:
+If ``s21_most_recent_s20`` is set to ``True`` the most recent s20 run will be used.
+If ``s21_most_recent_s20`` is set to False, the user can set a path with the extracted data after s20:
 | Example: ``s21_most_recent_s20    False ``
 | Example: ``s21_spec_dir_path_s20  /home/zieba/Desktop/Projects/Open_source/PACMAN/run/run_2022-01-25_19-12-59_GJ1214_Hubble13021/extracted_lc/2022-02-11_17-44-56``
 
@@ -392,8 +390,8 @@ wvl_min/wvl_max/wvl_bins
 | Example: ``wvl_max   1.65``
 | Example: ``wvl_bins  12``
 
-Start and end wavelengths for the generation of the spectroscopic light curves in micron.
-The amount of spectroscopic light curve being created depends on wvl_bins.
+Start and end wavelengths for the spectroscopic light curves (microns).
+The `wvl_bins` parameter sets the number of wavelength channels. 
 
 
 use_wvl_list/wvl_edge_list
@@ -401,7 +399,7 @@ use_wvl_list/wvl_edge_list
 | Example: ``use_wvl_list   True``
 | Example: ``wvl_edge_list  [1.1, 1.3, 1.5, 1.7]``
 
-If the user wants to use a custom wavelength list for the binning use_wvl_list has to be set to True.
+If the user wants to use a custom wavelength list for the binning,  set ``use_wvl_list`` to ``True``.
 
 
 Stage 30
@@ -409,12 +407,11 @@ Stage 30
 
 s30_myfuncs
 ''''''''''''''''''''''''''''''''''''''''''''
-Choose the functions to fit the data.
-
+Choose the functions to fit the data. The available functions are listed in `models <https://pacmandocs.readthedocs.io/en/latest/models.html#id1>`_.
 
 s30_fit_white
 ''''''''''''''''''''''''''''''''''''''''''''
-Fit the white light curve which was created after Stage 20.
+Fit the white light curve created in Stage 20.
 
 
 s30_most_recent_s20
@@ -429,7 +426,7 @@ If s30_most_recent_s20 was set to False, the user can put a path to the white li
 
 s30_fit_spec
 ''''''''''''''''''''''''''''''''''''''''''''
-Fit the spectroscopic light curves which was created after Stage 21.
+Fit the spectroscopic light curves created in Stage 21.
 
 
 s30_most_recent_s21
@@ -479,7 +476,7 @@ NOT TESTED
 
 toffset
 ''''''''''''''''''''''''''''''''''''''''''''
-Removes a time offset from the time stamps so that there is no problem with floating precision due to the size of dates in BJD.
+Subtracts an offset from the time stamps so that there is no problem with floating precision due to the size of dates in BJD.
 
 
 run_divide_white
@@ -526,7 +523,7 @@ Runs an MCMC using the emcee package.
 
 run_nested
 ''''''''''''''''''''''''''''''''''''''''''''
-Runs Nested Sampling using the dynesty package.
+Runs nested sampling using the dynesty package.
 
 
 run_nsteps/run_nwalkers/run_nburn
