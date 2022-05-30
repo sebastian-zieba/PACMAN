@@ -8,7 +8,6 @@ from .lib import optextr
 from scipy.optimize import leastsq
 from datetime import datetime
 from astropy.table import QTable
-from scipy.signal import find_peaks
 from tqdm import tqdm
 from .lib import manageevent as me
 from .lib import util
@@ -90,9 +89,9 @@ def run20(eventlabel, workdir, meta=None):
 
         #TODO: SPEED UP: calculation of the start and end of the trace could be moved to util.py. It's also used in plots.plot_trace. Also in plots.utr
         cmin = int(meta.refpix[orbnum, 2] + meta.POSTARG1/meta.platescale) + meta.BEAMA_i + meta.LTV1                      #determines left column for extraction (beginning of the trace)
-        cmax = min(int(meta.refpix[orbnum, 2] + meta.POSTARG1/meta.platescale) + meta.BEAMA_f + meta.LTV1, meta.subarray_size)     #right column (end of trace, or edge of detector)
+        cmax = min(int(meta.refpix[orbnum, 2] + meta.POSTARG1/meta.platescale) + meta.BEAMA_f + meta.LTV1, meta.subarray_size-5)     #right column (end of trace, or edge of detector)
         rmin, rmax = int(meta.rmin), int(meta.rmax)                     #top and bottom row for extraction (specified in obs_par.txt)
-
+        meta.npix = cmax - cmin
         #TODO: SPEED UP: This calculation is done for every file again from new!
         #TODO: Move it to util.py so its done just once
         meta.wave_grid = util.get_wave_grid(meta)  # gets grid of wavelength solutions for each orbit and row
@@ -117,15 +116,9 @@ def run20(eventlabel, workdir, meta=None):
         for ii in tqdm(np.arange(d[0].header['nsamp']-2, dtype=int), desc='--- Looping over up-the-ramp-samples', leave=True, position=0):
             diff = d[ii*5 + 1].data[rmin:rmax,cmin:cmax] - d[ii*5 + 6].data[rmin:rmax,cmin:cmax]    #creates image that is the difference between successive scans
 
-            # determine the aperture cutout
-            rowmedian = np.median(diff, axis=1)                   # median of every row
-            rowmedian_absder = abs(rowmedian[1:] - rowmedian[:-1])   # absolute derivative in order to determine where the spectrum is
-            #we use scipy.signal.find_peaks to determine in which rows the spectrum starts and ends
-            #TODO: Think about better values for height and distance
-            #TODO: Finding the row with the highest change in flux (compared to row above and below) isnt robust against outliers!
-            peaks, _ = find_peaks(rowmedian_absder, height=max(rowmedian_absder * 0.2), distance=5)
-            #peaks = peaks[:2] # only take the two biggest peaks (there should be only 2)
-            peaks = np.array([min(peaks[:2]), max(peaks[:2]) + 1])
+            # Calculate aperture
+            peaks = util.peak_finder(diff, i, ii, orbnum, meta)
+
             #stores the locations of the peaks for every file and up-the-ramp-samples
             if meta.save_utr_aper_evo_plot or meta.show_utr_aper_evo_plot:
                 peaks_all.append(peaks)
@@ -149,9 +142,6 @@ def run20(eventlabel, workdir, meta=None):
             # we use a bit more data by using the user defined window
             spectrum = diff[max(min(peaks) - meta.window, 0):min(max(peaks) + meta.window, rmax),:]
             #spectrum = diff[max(peaks_mid - 4, 0):min(peaks_mid + 4, rmax),:]
-
-            if meta.save_utr_plot or meta.show_utr_plot:
-                plots.utr(diff, meta, i, ii, orbnum, rowmedian, rowmedian_absder, peaks)
 
             err = np.zeros_like(spectrum) + float(meta.rdnoise)**2 + skyvar
             var = abs(spectrum) + float(meta.rdnoise)**2 + skyvar          # variance estimate: Poisson noise from photon counts (first term)  + readnoise (factor of 2 for differencing) + skyvar

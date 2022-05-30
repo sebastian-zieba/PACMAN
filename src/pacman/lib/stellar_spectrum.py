@@ -85,7 +85,6 @@ def get_sm(meta, user_met, user_logg, user_teff):
     """
     rooturl = 'https://archive.stsci.edu/hlsps/reference-atlases/cdbs/grid/'
     sm = meta.sm
-
     if sm =='k93models':
         label = 'k'
         possible_mets = np.array([1.0, 0.5, 0.3, 0.2, 0.1, 0.0, -0.1, -0.2, -0.3, -0.5, -1.0, -1.5,
@@ -109,7 +108,7 @@ def get_sm(meta, user_met, user_logg, user_teff):
 
     # annoyingly, k93models and ck04models use the convention that 0 = +0 -> p00
     # but phoenix uses 0 = -0 -> m00
-    if sm == 'k93models' or 'ck04models':
+    if (sm == 'k93models') or (sm == 'ck04models'):
         if chosen_met < 0:
             l0 = 'm'
         else:
@@ -201,7 +200,7 @@ def get_sm(meta, user_met, user_logg, user_teff):
 
     # If the file wasnt downloaded yet, download it. Then move it into meta.workdir + 'ancil/stellar_models/{0}/'.format(sm)
     filepath = sm_dir_run + filename
-    print('Was the stellar model fits file already downloaded?:', os.path.exists(filepath), '\n')
+    print('Was the stellar model fits file called {0} already downloaded?:'.format(filename), os.path.exists(filepath), '\n')
     if not os.path.exists(filepath):
         downloader(full_url)
         os.rename(filename, filepath)
@@ -229,7 +228,6 @@ def get_sm(meta, user_met, user_logg, user_teff):
     wvl = hdul[1].data['WAVELENGTH']*1e-10
     flux = hdul[1].data[chosen_logg_name]*1e-7*1e4/1e-10/np.pi
     hdul.close()
-
     return wvl, flux
 
 

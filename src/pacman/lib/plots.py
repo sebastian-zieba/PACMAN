@@ -190,9 +190,9 @@ def barycorr(x,y,z,time, obsx, obsy, obsz, coordtable, meta):
 
 
 ## 03
-def smooth(meta, x, y, y_smoothed):
+def smooth(meta, x, y, x_smoothed, y_smoothed):
     plt.plot(x, y, label='raw spectrum')
-    plt.plot(x, y_smoothed, label='smoothed spectrum')
+    plt.plot(x_smoothed, y_smoothed, label='smoothed spectrum')
     plt.legend(loc=1)
     plt.xscale('log')
     plt.xlabel('wavelength (m)')
@@ -440,7 +440,7 @@ def utr(diff, meta, i, ii, orbnum, rowmedian, rowmedian_absder, peaks):
     cmin = int(meta.refpix[
                    orbnum, 2] + meta.POSTARG1 / meta.platescale) + meta.BEAMA_i + meta.LTV1  # determines left column for extraction (beginning of the trace)
     cmax = min(int(meta.refpix[orbnum, 2] + meta.POSTARG1 / meta.platescale) + meta.BEAMA_f + meta.LTV1,
-               meta.subarray_size)  # right column (end of trace, or edge of detector)
+               meta.subarray_size-5)  # right column (end of trace, or edge of detector)
 
     fig, ax = plt.subplots(1,3, figsize=(10,8), sharey=True)
 

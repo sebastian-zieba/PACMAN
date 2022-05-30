@@ -44,7 +44,6 @@ def run03(eventlabel, workdir, meta=None):
     if meta == None:
         meta = me.loadevent(workdir + '/WFC3_' + eventlabel + "_Meta_Save")
 
-
     ### Stellar Spectrum
     Teff, logg, MH = meta.Teff, meta.logg, meta.MH
     print('Using {0} model.\n'.format(meta.sm))
@@ -60,13 +59,12 @@ def run03(eventlabel, workdir, meta=None):
         sm_wvl, sm_flux = stellar_spectrum.get_bb(Teff)
 
     #only store the spectrum between 0.1 microns and 10 microns
-    sm_wvl_mask = np.bitwise_and(0.1e-6 < sm_wvl, sm_wvl < 10e-6)
+    sm_wvl_mask = np.bitwise_and(300e-9 < sm_wvl, sm_wvl < 2.10e-6)
     sm_wvl = sm_wvl[sm_wvl_mask]
     sm_flux = sm_flux[sm_wvl_mask]
 
     if meta.smooth:
         sm_wvl, sm_flux = util.gaussian_kernel(meta, sm_wvl, sm_flux)
-
 
     ### Bandpass
     if meta.grism == 'G141':
@@ -77,7 +75,6 @@ def run03(eventlabel, workdir, meta=None):
 
     #Read in bandpass for the used grism
     bp_wvl, bp_val = np.loadtxt(meta.pacmandir + '/data/bandpass/bandpass_{0}.txt'.format(grism)).T
-
 
     ### Creating the reference spectrum
     bp_wvl = bp_wvl * 1e-10

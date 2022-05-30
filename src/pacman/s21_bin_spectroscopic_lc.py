@@ -47,7 +47,7 @@ def run21(eventlabel, workdir, meta=None):
         lst_dir = sn.sort_nicely(lst_dir)
         spec_dir = lst_dir[-1]
     else:
-        spec_dir = s20_spec_dir_path
+        spec_dir = meta.s21_spec_dir_path_s20
 
     print("Chosen directory with the spectroscopic flux files:", spec_dir)
 
@@ -59,7 +59,7 @@ def run21(eventlabel, workdir, meta=None):
     d = np.array([d[i].data for i in d.colnames])
 
     nexp = meta.nexp		            #number of exposures
-    npix = meta.BEAMA_f - meta.BEAMA_i  #width of spectrum in pixels (BEAMA_f - BEAMA_i)
+    npix = meta.npix#meta.BEAMA_f - meta.BEAMA_i  #width of spectrum in pixels (BEAMA_f - BEAMA_i)
     #d = d.reshape(nexp , npix,  -1)			#reshapes array by exposure
 
     t_mjd, t_bjd = d[0].reshape(nexp, npix), d[1].reshape(nexp, npix)

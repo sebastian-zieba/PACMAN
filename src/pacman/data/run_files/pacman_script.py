@@ -1,6 +1,6 @@
-import sys, os, time
+import sys, os
 import getopt
-sys.path.insert(0, '/home/zieba/Desktop/Projects/Open_source/PACMAN/src/')
+#sys.path.insert(0, '/home/zieba/Desktop/Projects/Open_source/PACMAN/src/')
 import pacman.s00_table as s00
 import pacman.s01_horizons as s01
 import pacman.s02_barycorr as s02

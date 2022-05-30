@@ -13,6 +13,7 @@ from scipy.optimize import leastsq
 from .sort_nicely import sort_nicely as sn
 import glob
 import pickle
+from scipy.signal import find_peaks
 
 
 #s00
@@ -175,24 +176,48 @@ def ancil(meta, s10=False, s20=False):
 #03
 def gaussian_kernel(meta, x, y):
     """
-    https://matthew-brett.github.io/teaching/smoothing_intro.html
+    https://stackoverflow.com/questions/24143320/gaussian-sum-filter-for-irregular-spaced-points
     """
-
-    sigma = meta.smooth_sigma * 1e-10
-
     y = y / max(y)
-    y_smoothed = np.zeros(y.shape)
+    x.sort()
 
-    for x_idx, x_val in enumerate(x):
-        kernel = np.exp(-(x - x_val) ** 2 / (2 * sigma ** 2))
-        kernel = kernel / sum(kernel)
-        y_smoothed[x_idx] = sum(y * kernel)
-    y_smoothed = y_smoothed / max(y_smoothed)
+    resolution = min(len(x), 3000)
+
+    x_eval = np.linspace(min(x), max(x), resolution)
+    sigma = meta.smooth_sigma * 1e-10 /5
+
+    delta_x = x_eval[:, None] - x
+    weights = np.exp(-delta_x*delta_x / (2*sigma*sigma)) / (np.sqrt(2*np.pi) * sigma)
+    weights /= np.sum(weights, axis=1, keepdims=True)
+    y_eval = np.dot(weights, y)
+
+    y_eval = y_eval / max(y_eval)
 
     if meta.save_smooth_plot:
-        plots.smooth(meta, x, y, y_smoothed)
+        plots.smooth(meta, x, y, x_eval, y_eval)
 
-    return (x, y_smoothed)
+    return (x_eval, y_eval)
+
+
+# def gaussian_kernel_old(meta, x, y):
+#     """
+#     https://matthew-brett.github.io/teaching/smoothing_intro.html
+#     """
+#
+#     sigma = meta.smooth_sigma * 1e-10
+#
+#     y = y / max(y)
+#     y_smoothed = np.zeros(y.shape)
+#     for x_idx, x_val in tqdm(enumerate(x), desc='smoothing...', total=len(x)):
+#         kernel = np.exp(-(x - x_val) ** 2 / (2 * sigma ** 2))
+#         kernel = kernel / sum(kernel)
+#         y_smoothed[x_idx] = sum(y * kernel)
+#     y_smoothed = y_smoothed / max(y_smoothed)
+#
+#     if meta.save_smooth_plot:
+#         plots.smooth(meta, x, y, x, y_smoothed)
+#
+#     return (x, y_smoothed)
 
 
 #s10
@@ -202,23 +227,37 @@ def di_reformat(meta):
     This function was introduced because some observations have several DIs per orbit. The user can set in the pcf how they want to determine the DI target position in this case.
     """
     iorbit_max = max(meta.iorbit_sp_cumulative)
-    control_array = np.arange(iorbit_max + 1)
-
+    ivisit_max = max(meta.ivisit_sp)
+    control_one_per_orbit = np.arange(iorbit_max + 1)
+    control_one_per_visit = np.arange(ivisit_max + 1)
     reffile = ascii.read(meta.workdir + '/xrefyref.txt')
     #f = open(meta.workdir + "/xrefyref.txt", 'w')
 
-    meta.refpix = np.zeros((iorbit_max+1, 3))
+    meta.ivisits_new_orbit = meta.iorbit_sp[meta.new_visit_idx_sp]
+    meta.nvisits_in_orbit = np.diff(np.append(meta.iorbit_sp[meta.new_visit_idx_sp], np.array([max(meta.iorbit_sp) + 1])))
 
     # First case: Every orbit has just one DI
-    if np.array_equal(reffile['iorbit_cumul'], control_array):
+    if np.array_equal(reffile['iorbit_cumul'], control_one_per_orbit):
         print('There is one DI per orbit.')
+        meta.refpix = np.zeros((iorbit_max + 1, 3))
         for i in range(iorbit_max + 1):
             meta.refpix[i] = [reffile['t_bjd'][i], reffile['pos1'][i], reffile['pos2'][i]]
             #print(reffile['t_bjd'][i], reffile['pos1'][i], reffile['pos2'][i], file=f)
         #f.close()
-    # Second case: Every orbit contains at least one DI. But there is at least one orbit with more than one DI.
-    elif set(control_array) == set(reffile['iorbit_cumul']):
-        print('There is at least one orbit with at least more than one DI 1')
+    # Second case: Every visit has just one DI
+    elif np.array_equal(reffile['iorbit_cumul'], control_one_per_visit):
+        print('There is one DI per visit.')
+        meta.refpix = []
+        counter = 0
+        for i in range(len(meta.nvisits_in_orbit)):
+            for j in range(meta.nvisits_in_orbit[counter]):
+                meta.refpix.append([reffile['t_bjd'][counter], reffile['pos1'][counter], reffile['pos2'][counter]])
+            counter = counter + 1
+        meta.refpix = np.array(meta.refpix)
+    # Third case: Every orbit contains at least one DI. But there is at least one orbit with more than one DI.
+    elif set(control_one_per_orbit) == set(reffile['iorbit_cumul']):
+        print('There is at least one orbit with at least more than one DI')
+        meta.refpix = np.zeros((iorbit_max + 1, 3))
         for i in range(iorbit_max + 1):
             mask_i = reffile['iorbit'] == i
             if meta.di_multi == 'median':
@@ -229,11 +268,11 @@ def di_reformat(meta):
                 #print(reffile['t_bjd'][mask_i][-1], reffile['pos1'][mask_i][-1], reffile['pos2'][mask_i][-1], file=f)
         #f.close()
 
-    # TODO this here
+    # TODO add this check
     # Third case. Not every orbit has a DI.
-    if set(control_array) != set(reffile['iorbit_cumul']) and len(set(control_array)) < len(
+    if set(control_one_per_orbit) != set(reffile['iorbit_cumul']) and len(set(control_one_per_orbit)) < len(
             set(reffile['iorbit_cumul'])):
-        print('There is at least one orbit with at least more than one DI 2')
+        print('Not every orbit has a DI.')
         #f.close()
 
 #s20
@@ -280,6 +319,25 @@ def get_flatfield(meta):                    #function that flatfields a data arr
     return flatfield
 
 
+def peak_finder(array, i, ii, orbnum, meta):
+    # determine the aperture cutout
+
+    rowmedian = np.median(array, axis=1)  # median of every row
+    rowmedian_absder = abs(
+        rowmedian[1:] - rowmedian[:-1])  # absolute derivative in order to determine where the spectrum is
+    # we use scipy.signal.find_peaks to determine in which rows the spectrum starts and ends
+    # TODO: Think about better values for height and distance
+    # TODO: Finding the row with the highest change in flux (compared to row above and below) isnt robust against outliers!
+    peaks, _ = find_peaks(rowmedian_absder, height=max(rowmedian_absder * 0.3), distance=2)
+    # peaks = peaks[:2] # only take the two biggest peaks (there should be only 2)
+    peaks = np.array([min(peaks[:2]), max(peaks[:2]) + 1])
+
+    if meta.save_utr_plot or meta.show_utr_plot:
+        plots.utr(array, meta, i, ii, orbnum, rowmedian, rowmedian_absder, peaks)
+
+    return peaks
+
+
 def median_abs_dev(vec):
     """
     Used to determine the variance for the background count estimate
@@ -289,7 +347,9 @@ def median_abs_dev(vec):
 
 
 def read_refspec(meta):
-    #https://matthew-brett.github.io/teaching/smoothing_intro.html
+    """
+    Reads in the reference spectrum
+    """
     refspec = np.loadtxt(meta.workdir + '/ancil/refspec/refspec.txt').T
     x_refspec, y_refspec = refspec[0]*1e10, refspec[1]/max(refspec[1])
 
@@ -319,8 +379,8 @@ def correct_wave_shift_fct_0(meta, orbnum, cmin, cmax, spec_opt, i):
 
     x_refspec, y_refspec = read_refspec(meta)
 
-    # TODO: This is so bad
-    x_refspec_new = np.concatenate((np.linspace(-5000, min(x_refspec), 10, endpoint=False),
+    # TODO: Try to make this look nicer
+    x_refspec_new = np.concatenate((np.linspace(-5000, min(x_refspec)+1, 10, endpoint=True),
                                     x_refspec,
                                     np.linspace(max(x_refspec) + 350, 30000, 10, endpoint=False)))
     y_refspec_new = np.concatenate((np.zeros(10),
@@ -328,6 +388,7 @@ def correct_wave_shift_fct_0(meta, orbnum, cmin, cmax, spec_opt, i):
                                     np.zeros(10)))
 
     # TODO: will break if optimal extractions isnt used!
+    #x_data & y_data is the spectrum if no wavelength correction would be performed
     x_data = template_waves[g102mask]
     y_data = (spec_opt / max(spec_opt))[g102mask]
 
@@ -344,13 +405,12 @@ def correct_wave_shift_fct_0(meta, orbnum, cmin, cmax, spec_opt, i):
     # np.savetxt('testing_exp0.txt', list(zip(x_data_firstexpvisit, y_data_firstexpvisit)))
     # np.savetxt('testing_firstexp.txt', list(zip(template_waves, spec_opt/max(spec_opt))))
 
-
     return x_data_firstexpvisit, y_data_firstexpvisit, leastsq_res
 
 
 def correct_wave_shift_fct_1(meta, orbnum, cmin, cmax, spec_opt, x_data_firstexpvisit, y_data_firstexpvisit, i):
     # TODO: So bad too
-    x_model = np.concatenate((np.linspace(-5000, min(x_data_firstexpvisit), 10, endpoint=False),
+    x_model = np.concatenate((np.linspace(-5000, min(x_data_firstexpvisit)+1, 10, endpoint=True),
                               x_data_firstexpvisit,
                               np.linspace(max(x_data_firstexpvisit) + 350, 30000, 10, endpoint=False)))
     y_model = np.concatenate((np.zeros(10),
