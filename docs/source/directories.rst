@@ -9,25 +9,24 @@ In the package
 ''''''''''''''''''''''''''''''
 
 
-* **PACMAN/pacman**
+* **PACMAN/src/pacman**
 
   All code PACMAN needs to run and templates for the pcf and fit_par files are stored here.
 
+  - **PACMAN/src/pacman/data**
 
-  - **PACMAN/pacman/ancil**
-
-    + **PACMAN/pacman/ancil/bandpass**
+    + **PACMAN/src/pacman/data/bandpass**
 
     This directory contains the throughput for the G102 and the G141 grisms.
     These files will be used in Stage 03 to create the reference spectrum.
 
 
-    + **PACMAN/pacman/ancil/flats**
+    + **PACMAN/src/pacman/data/flats**
 
     The flats (for the G102 and G141 grisms) are used to find the locations of bad pixels.
 
 
-    + **PACMAN/pacman/ancil/stellar_models**
+    + **PACMAN/src/pacman/data/stellar_models**
 
     This directory tells PACMAN which stellar models are available to download.
     PACMAN can download three different stellar models: Kurucz stellar models 1993, Castelli and Kurucz stellar models 2004 and Phoenix models by Allard and collaborators.
@@ -35,21 +34,9 @@ In the package
     More on this at the walkthrough of `Stage 03 <https://pacmandocs.readthedocs.io/en/latest/quickstart.html#stage-03>`_ using GJ1214 data as an example.
 
 
-  - **PACMAN/pacman/lib**
+  - **PACMAN/src/pacman/data/run_files**
 
-  This directory contains auxiliary scripts for the stages.
-  E.g., ``PACMAN/pacman/lib/plots.py`` creates and saves plots.
-
-
-  - **PACMAN/pacman/reduction**
-
-  This directory contains the main scripts for the individual stages.
-  The scripts here use other python code from ``PACMAN/pacman/lib``.
-
-
-  - **PACMAN/pacman/run_files**
-
-    + **PACMAN/pacman/run_files/pacman_script.py**
+    + **PACMAN/src/pacman/data/run_files/pacman_script.py**
 
     This python script runs PACMAN. If the user did not install pacman properly as explained in :ref:`the installation walkthrough <installation>` (not recommended) he or she might have to add a path to the sys.path.append pointing to the PACMAN directory:
 
@@ -59,7 +46,7 @@ In the package
 
     The path in ``sys.path.append`` has to be changed to the location of PACMAN on the user's device.
 
-    .. note:: The path should point to ``/PACMAN/`` and not to ``/PACMAN/pacman/``.
+    .. note:: The path should point to ``/PACMAN/`` and not to ``/PACMAN/src/pacman/``.
 
     The user can now run any stage by adding it as an argument in the terminal. E.g., for running Stage 00:
 
@@ -74,16 +61,27 @@ In the package
   	  python pacman_script.py --help
 
 
-    + **PACMAN/pacman/run_files/fit_par.txt**
+    + **PACMAN/src/pacman/data/run_files/fit_par.txt**
 
     The fit_par file is used in Stage 30 to fit the light curve. The user defines here which fit parameters should be fixed, shared across visits, and sets other information like priors.
 
 
-    + **PACMAN/pacman/run_files/obs_par.pcf**
+    + **PACMAN/src/pacman/data/run_files/obs_par.pcf**
 
     The PACMAN control file (pcf): the user sets here which plots should be saved, the path to the data and many other parameters.
     A thorough explanation of all the parameters in the pcf can be found on Read The Docs: :ref:`pcf`.
 
+
+  - **PACMAN/src/pacman/lib**
+
+  This directory contains auxiliary scripts for the stages.
+  E.g., ``PACMAN/src/pacman/lib/plots.py`` creates and saves plots.
+
+
+  - **PACMAN/src/pacman**
+
+  This directory contains the main scripts for the individual stages.
+  The scripts here use other python code from ``PACMAN/src/pacman/lib``.
 
 
 Nomenclature
@@ -101,8 +99,8 @@ Nomenclature
 
    - fit_par
 
-   If you downloaded or cloned the GitHub repository it includes the run_files directory with templates for these three files.
-   They can also be downloaded under this link: `Download here <https://downgit.github.io/#/home?url=https://github.com/sebastian-zieba/PACMAN/tree/master/pacman/run_files>`_.
+   If you pip-installed, downloaded or cloned the GitHub repository it includes the run_files directory with templates for these three files in ``PACMAN/src/pacman/data/run_files``.
+   They can also be downloaded under this link: `Download here <https://downgit.github.io/#/home?url=https://github.com/sebastian-zieba/PACMAN/tree/master/src/pacman/data/run_files>`_.
    You have to copy these files into your run directory.
 
     .. note:: | The pcf file in the run directory is ONLY used in Stage 00.
@@ -136,6 +134,6 @@ Nomenclature
 
 * **pipeline directory**:
 
-  Example: ``/home/zieba/Desktop/Projects/Open_source/PACMAN/pacman``
+  Example: ``/home/zieba/Desktop/Projects/Open_source/PACMAN/src``
 
-  This is the heart of PACMAN containing all the code to run the different stages.
+  This is the heart of PACMAN containing all the code and data to run the different stages.

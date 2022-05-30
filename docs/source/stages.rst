@@ -26,8 +26,8 @@ PACMAN is separated into different stages, summarized here.  Click on the hyperl
 - `Stage 03: <https://pacmandocs.readthedocs.io/en/latest/_modules/pacman/reduction/s03_refspectra.html>`_
 
   + download or generate a stellar spectrum that matches the spectral type of the host star.  Options are: KURUCZ 1993, CASTELLI AND KURUCZ 2004, PHOENIX MODELS and a blackbody spectrum
-  + multiply the stellar spectrum by the grism throughput to make a reference spectrum for the wavelength calibration 
-  + saves the bandpass in pacman/ancil/bandpass
+  + multiply the stellar spectrum by the grism throughput (which is saved in `PACMAN/src/data/bandpass <https://github.com/sebastian-zieba/PACMAN/tree/master/src/pacman/data/bandpass>`_) to make a reference spectrum for the wavelength calibration
+  + saves the reference spectrum into the work directory
 
 
 - `Stage 10: <https://pacmandocs.readthedocs.io/en/latest/_modules/pacman/reduction/s10_direct_images.html>`_
