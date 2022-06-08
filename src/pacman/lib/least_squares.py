@@ -63,13 +63,12 @@ def lsq_fit(fit_par, data, meta, model, myfuncs, noclip=False):
     if meta.save_raw_lc_plot: plots.plot_raw(data, meta)
     fa = {'data':data, 'model':model}
 
-    # FIXME SZ: NO FILE "white_systematics.txt"
-    if meta.run_divide_white:
-            sys_vector = np.genfromtxt("white_systematics.txt")
-            data.all_sys = sys_vector
-            #data.nfree_param -= 2
-            #data.dof += 2
-#		print "subtracting 2 from dof for divide-white"
+    if meta.run_divide_white and meta.s30_fit_spec:
+        sys_vector = np.genfromtxt(meta.workdir + "/white_systematics.txt")
+        data.all_sys = sys_vector
+        print("subtracting 2 from dof for divide-white")
+        #data.nfree_param -= 2
+        #data.dof += 2
 
     print('\nRuns MPFIT... ')
     m = mpfit.mpfit(residuals, params_s, functkw=fa, parinfo = parinfo, quiet=True)

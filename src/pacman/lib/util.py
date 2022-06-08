@@ -407,6 +407,39 @@ def correct_wave_shift_fct_0(meta, orbnum, cmin, cmax, spec_opt, i):
 
     return x_data_firstexpvisit, y_data_firstexpvisit, leastsq_res
 
+def correct_wave_shift_fct_00(meta, orbnum, cmin, cmax, spec_opt, i):
+    template_waves = meta.wave_grid[0, int(meta.refpix[orbnum, 1]) + meta.LTV1, cmin:cmax]
+
+    x_refspec, y_refspec = template_waves, spec_opt / max(spec_opt)
+
+    # TODO: Try to make this look nicer
+    x_refspec_new = np.concatenate((np.linspace(-5000, min(x_refspec)+1, 10, endpoint=True),
+                                    x_refspec,
+                                    np.linspace(max(x_refspec) + 350, 30000, 10, endpoint=False)))
+    y_refspec_new = np.concatenate((np.zeros(10),
+                                    y_refspec,
+                                    np.zeros(10)))
+
+    # TODO: will break if optimal extractions isnt used!
+    #x_data & y_data is the spectrum if no wavelength correction would be performed
+    x_data = template_waves
+    y_data = (spec_opt / max(spec_opt))
+
+    p0 = [0, 1, 1]  # initial guess for least squares
+    leastsq_res = leastsq(residuals2, p0, args=(x_refspec_new, y_refspec_new, x_data, y_data))[0]
+
+    if meta.save_refspec_fit_plot or meta.show_refspec_fit_plot:
+        plots.refspec_fit(x_refspec_new, y_refspec_new, p0, x_data, y_data, leastsq_res, meta, i)
+
+    # for all other but first exposure in visit exposures
+    x_data_firstexpvisit = leastsq_res[0] + template_waves * leastsq_res[1]
+    y_data_firstexpvisit = np.copy(y_data)
+
+    # np.savetxt('testing_exp0.txt', list(zip(x_data_firstexpvisit, y_data_firstexpvisit)))
+    # np.savetxt('testing_firstexp.txt', list(zip(template_waves, spec_opt/max(spec_opt))))
+
+    return x_data_firstexpvisit, y_data_firstexpvisit, leastsq_res
+
 
 def correct_wave_shift_fct_1(meta, orbnum, cmin, cmax, spec_opt, x_data_firstexpvisit, y_data_firstexpvisit, i):
     # TODO: So bad too

@@ -127,20 +127,27 @@ def run20(eventlabel, workdir, meta=None):
             fullframe_diff = d[ii*5 + 1].data - d[ii*5 + 6].data                                       #fullframe difference between successive scans
 
             ### BACKGROUND SUBTRACTION
-            below_threshold = fullframe_diff < meta.background_thld # mask with all pixels below the user defined threshold
-            skymedian = np.median(fullframe_diff[below_threshold].flatten())  # estimates the background counts by taking the flux median of the pixels below the flux threshold
+            #below_threshold = fullframe_diff < meta.background_thld # mask with all pixels below the user defined threshold
+            #skymedian = np.median(fullframe_diff[below_threshold].flatten())  # estimates the background counts by taking the flux median of the pixels below the flux threshold
+            #if meta.save_bkg_evo_plot or meta.show_bkg_evo_plot:
+            #    bkg_evo.append(skymedian)
+            #skyvar = util.median_abs_dev(fullframe_diff[below_threshold].flatten())  # variance for the background count estimate
+            #if meta.save_bkg_hist_plot or meta.show_bkg_hist_plot:
+            #    plots.bkg_hist(fullframe_diff, skymedian, meta, i, ii)
+            skymedian = np.median(fullframe_diff[100:400, 40:100].flatten())
             if meta.save_bkg_evo_plot or meta.show_bkg_evo_plot:
                 bkg_evo.append(skymedian)
-            skyvar = util.median_abs_dev(fullframe_diff[below_threshold].flatten())  # variance for the background count estimate
-            if meta.save_bkg_hist_plot or meta.show_bkg_hist_plot:
-                plots.bkg_hist(fullframe_diff, skymedian, meta, i, ii)
+            skyvar = util.median_abs_dev(fullframe_diff[100:400, 40:100].flatten())
+
             diff = diff - skymedian                                    #subtracts the background
 
-            #peaks_mid = int((peaks[0]+peaks[1])/2)
-
+            peaks_mid = int((peaks[0]+peaks[1])/2)
+            #print(peaks_mid)
             # selects postage stamp centered around spectrum
             # we use a bit more data by using the user defined window
-            spectrum = diff[max(min(peaks) - meta.window, 0):min(max(peaks) + meta.window, rmax),:]
+            spectrum = diff[max(peaks_mid - 120, 0):min(peaks_mid + 120, rmax),:]
+            #print(max(peaks_mid - 120, 0), min(peaks_mid + 120, rmax))
+            #spectrum = diff[max(min(peaks) - meta.window, 0):min(max(peaks) + meta.window, rmax),:]
             #spectrum = diff[max(peaks_mid - 4, 0):min(peaks_mid + 4, rmax),:]
 
             err = np.zeros_like(spectrum) + float(meta.rdnoise)**2 + skyvar
@@ -148,7 +155,8 @@ def run20(eventlabel, workdir, meta=None):
             spec_box_0 = spectrum.sum(axis = 0)                            # initial box-extracted spectrum
             var_box_0 = var.sum(axis = 0)                                  # initial variance guess
             #Mnew = np.ones_like(M[max(min(peaks) - meta.window, 0):min(max(peaks) + meta.window, rmax),:])
-            Mnew = M[max(min(peaks) - meta.window, 0):min(max(peaks) + meta.window, rmax),:]
+            Mnew = M[max(peaks_mid - 120, 0):min(peaks_mid + 120, rmax),:]
+            #Mnew = M[max(min(peaks) - meta.window, 0):min(max(peaks) + meta.window, rmax),:]
             #Mnew = M[max(peaks_mid - 4, 0):min(peaks_mid + 4, rmax),:]
             #TODO: Just use meta to reduce the number of parameters which are given to optextr
             if meta.opt_extract==True: [f_opt_0, var_opt_0, numoutliers] = optextr.optextr(spectrum, err, spec_box_0, var_box_0, Mnew, meta.nsmooth, meta.sig_cut, meta.save_optextr_plot, i, ii, meta)
@@ -172,8 +180,11 @@ def run20(eventlabel, workdir, meta=None):
         #corrects for wavelength drift over time
         if meta.correct_wave_shift == True:
             if i in meta.new_visit_idx_sp:
-                # store x & y data if it's the first exposure in the visit
-                x_data_firstexpvisit, y_data_firstexpvisit, leastsq_res = util.correct_wave_shift_fct_0(meta, orbnum, cmin, cmax, spec_opt, i)
+            # store x & y data if it's the first exposure in the visit
+                if meta.correct_wave_shift_refspec == True:
+                    x_data_firstexpvisit, y_data_firstexpvisit, leastsq_res = util.correct_wave_shift_fct_0(meta, orbnum, cmin, cmax, spec_opt, i)
+                else:
+                    x_data_firstexpvisit, y_data_firstexpvisit, leastsq_res = util.correct_wave_shift_fct_00(meta, orbnum,cmin, cmax, spec_opt, i)
                 wvls = np.copy(x_data_firstexpvisit)
                 if meta.save_drift_plot or meta.show_drift_plot:
                     leastsq_res_all.append(leastsq_res)

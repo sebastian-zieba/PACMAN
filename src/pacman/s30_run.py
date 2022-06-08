@@ -119,10 +119,10 @@ def run30(eventlabel, workdir, meta=None):
         if meta.run_verbose == True:
             print("rms, chi2red = ", model.rms, model.chi2red)
 
-        #FIXME : make this automatic!
-        """outfile = open("white_systematics.txt", "w")
-        for i in range(len(model.all_sys)): print(model.all_sys[i], file = outfile)
-        outfile.close()"""
+        if meta.run_divide_white == True:
+            outfile = open(meta.workdir + "/white_systematics.txt", "w")
+            for i in range(len(model.all_sys)): print(model.all_sys[i], file = outfile)
+            outfile.close()
 
         meta.labels = labels_gen(params, meta, fit_par)
 

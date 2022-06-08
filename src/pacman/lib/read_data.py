@@ -151,14 +151,14 @@ class Data:
         self.u1 = 0.
         self.u2 = 0.
         print('Number of free parameters: ', nfree_param)
-
+        print('Names of free parameters: ', self.parnames)
         self.prior = format_prior_for_mcmc(self, meta, fit_par)
 
         self.vis_idx = []
         for i in range(nvisit): self.vis_idx.append(self.vis_num == i)
         #print(self.vis_idx)
-        #FIXME
-        #self.white_systematics = np.genfromtxt("white_systematics.txt")
+        if meta.s30_fit_spec:
+            self.white_systematics = np.genfromtxt(meta.workdir + "/white_systematics.txt")
 
 
 def remove_dupl(seq):
