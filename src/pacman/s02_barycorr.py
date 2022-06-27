@@ -61,6 +61,31 @@ def run02(eventlabel, workdir, meta=None):
         t_bjd[iivisit] = t_jd + (suntimecorr.suntimecorr(meta, t_jd, meta.coordtable[i], verbose=False)) / (
                 60.0 * 60.0 * 24.0)
 
+    # Identify orbits and visits
+    iorbit = 0
+    ivisit = 0
+    tos = np.zeros(len(t_bjd)) #time since begin of orbit
+    tvs = np.zeros(len(t_bjd)) #time since begin of visit
+    iorbit_begin = 0 #index of first exposure in orbit
+    ivisit_begin = 0 #index of first exposure in visit
+    times_diff = np.insert(np.diff(t_bjd), 0, 0)
+
+    for i, itime in enumerate(tqdm(t_bjd, desc='Correcting orbit and visit times to BJD', ascii=True)):
+        # if two exposures arent in the same orbit and more than an orbital period apart -> not subsequent orbits but a new visit
+        if times_diff[i] * 24 * 60 > 100:
+            iorbit_begin = i
+            ivisit_begin = i
+            iorbit = 0
+            ivisit += 1
+        # if two exposures are more than 10 min apart but less than an orbital period -> subsequent orbits
+        elif 10 < times_diff[i] * 24 * 60 <= 100:
+            iorbit_begin = i
+            iorbit += 1
+        # else: two exposures less than 10 mins apart -> same orbit and same visit
+        tos[i] = (itime - t_bjd[iorbit_begin]) * 24 * 60  # time since first exposure in orbit
+        tvs[i] = (itime - t_bjd[ivisit_begin]) * 24 * 60  # time since first exposure in visit
+
+
     print('Writing t_bjd into filelist.txt')
     if not any(np.array(filelist.keys()) == 't_bjd'):
         filelist.add_column(Column(data=t_bjd, name='t_bjd'))
@@ -68,6 +93,11 @@ def run02(eventlabel, workdir, meta=None):
     else:
         filelist.replace_column(name='t_bjd', col=Column(data=t_bjd, name='t_bjd'))
         ascii.write(filelist, filelist_path, format='rst', overwrite=True)
+
+    # Overwrite old visit and orbit times with BJD corrected ones
+    filelist['t_visit'] = tvs
+    filelist['t_orbit'] = tos
+    ascii.write(filelist, filelist_path, format='rst', overwrite=True)
 
     # Save results
     print('Saving Metadata')

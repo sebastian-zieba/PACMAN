@@ -66,7 +66,7 @@ def run20(eventlabel, workdir, meta=None):
         leastsq_res_all = []
 
     print('in total #visits, #orbits:', (meta.nvisit, meta.norbit), '\n')
-
+    if meta.background_box: print('Using Background Box')
     # in order to have the correct order of print() with tqdm, i added file=sys.stdout
     # source: https://stackoverflow.com/questions/36986929/redirect-print-command-in-python-script-through-tqdm-write
     for i in tqdm(np.arange(meta.nexp, dtype=int), desc='***************** Looping over files', file=sys.stdout):#tqdm(np.arange(len(files_sp), dtype=int)):
@@ -101,6 +101,7 @@ def run20(eventlabel, workdir, meta=None):
         bpix = d[3].data[rmin:rmax,cmin:cmax]
         badpixind =  (bpix==4)|(bpix==512)|(flatfield[orbnum][rmin:rmax, cmin:cmax] == -1.)    #selects bad pixels
         #print('bad pixels', sum(bpix==4), sum(bpix==512),sum(flatfield[orbnum][rmin:rmax, cmin:cmax] == -1.), sum(badpixind))
+        if i == 0: plots.badmask_2d((bpix==4), (bpix==512), (flatfield[orbnum][rmin:rmax, cmin:cmax] == -1), meta, i)
         M[badpixind] = 0.0                                        #initializes bad pixel mask
         #store number of bad pixels
         spec_box = np.zeros(cmax - cmin)                                #box extracted standard spectrum
@@ -113,60 +114,109 @@ def run20(eventlabel, workdir, meta=None):
         #########################################################################################################################################################
         # in order to not print a new line with tqdm every time, I added leave=True, position=0
         # source: https://stackoverflow.com/questions/41707229/tqdm-printing-to-newline
-        for ii in tqdm(np.arange(d[0].header['nsamp']-2, dtype=int), desc='--- Looping over up-the-ramp-samples', leave=True, position=0):
-            diff = d[ii*5 + 1].data[rmin:rmax,cmin:cmax] - d[ii*5 + 6].data[rmin:rmax,cmin:cmax]    #creates image that is the difference between successive scans
 
-            # Calculate aperture
-            peaks = util.peak_finder(diff, i, ii, orbnum, meta)
+        if len(set(meta.scans_sp)) == 1:
+            for ii in tqdm(np.arange(d[0].header['nsamp']-1, dtype=int), desc='--- Looping over up-the-ramp-samples',
+                           leave=True, position=0):
 
-            #stores the locations of the peaks for every file and up-the-ramp-samples
-            if meta.save_utr_aper_evo_plot or meta.show_utr_aper_evo_plot:
-                peaks_all.append(peaks)
+                fullframe = d[ii * 5 + 1].data
+                frame = fullframe[rmin:rmax, cmin:cmax]
 
-            #estimates sky background and variance
-            fullframe_diff = d[ii*5 + 1].data - d[ii*5 + 6].data                                       #fullframe difference between successive scans
+                # Calculate aperture
+                peaks = util.peak_finder(frame, i, ii, orbnum, meta)
 
-            ### BACKGROUND SUBTRACTION
-            #below_threshold = fullframe_diff < meta.background_thld # mask with all pixels below the user defined threshold
-            #skymedian = np.median(fullframe_diff[below_threshold].flatten())  # estimates the background counts by taking the flux median of the pixels below the flux threshold
-            #if meta.save_bkg_evo_plot or meta.show_bkg_evo_plot:
-            #    bkg_evo.append(skymedian)
-            #skyvar = util.median_abs_dev(fullframe_diff[below_threshold].flatten())  # variance for the background count estimate
-            #if meta.save_bkg_hist_plot or meta.show_bkg_hist_plot:
-            #    plots.bkg_hist(fullframe_diff, skymedian, meta, i, ii)
-            skymedian = np.median(fullframe_diff[100:400, 40:100].flatten())
-            if meta.save_bkg_evo_plot or meta.show_bkg_evo_plot:
-                bkg_evo.append(skymedian)
-            skyvar = util.median_abs_dev(fullframe_diff[100:400, 40:100].flatten())
+                # stores the locations of the peaks for every file and up-the-ramp-samples
+                if meta.save_utr_aper_evo_plot or meta.show_utr_aper_evo_plot:
+                    peaks_all.append(peaks)
 
-            diff = diff - skymedian                                    #subtracts the background
+                bg_rmin, bg_rmax, bg_cmin, bg_cmax = int(meta.bg_rmin), int(meta.bg_rmax), int(meta.bg_cmin), int(meta.bg_cmax),
+                skymedian = np.median(fullframe[bg_rmin:bg_rmax, bg_cmin:bg_cmax].flatten())
+                if meta.save_bkg_evo_plot or meta.show_bkg_evo_plot:
+                    bkg_evo.append(skymedian)
+                skyvar = util.median_abs_dev(fullframe[bg_rmin:bg_rmax, bg_cmin:bg_cmax].flatten())
 
-            peaks_mid = int((peaks[0]+peaks[1])/2)
-            #print(peaks_mid)
-            # selects postage stamp centered around spectrum
-            # we use a bit more data by using the user defined window
-            spectrum = diff[max(peaks_mid - 120, 0):min(peaks_mid + 120, rmax),:]
-            #print(max(peaks_mid - 120, 0), min(peaks_mid + 120, rmax))
-            #spectrum = diff[max(min(peaks) - meta.window, 0):min(max(peaks) + meta.window, rmax),:]
-            #spectrum = diff[max(peaks_mid - 4, 0):min(peaks_mid + 4, rmax),:]
+                frame = frame - skymedian
 
-            err = np.zeros_like(spectrum) + float(meta.rdnoise)**2 + skyvar
-            var = abs(spectrum) + float(meta.rdnoise)**2 + skyvar          # variance estimate: Poisson noise from photon counts (first term)  + readnoise (factor of 2 for differencing) + skyvar
-            spec_box_0 = spectrum.sum(axis = 0)                            # initial box-extracted spectrum
-            var_box_0 = var.sum(axis = 0)                                  # initial variance guess
-            #Mnew = np.ones_like(M[max(min(peaks) - meta.window, 0):min(max(peaks) + meta.window, rmax),:])
-            Mnew = M[max(peaks_mid - 120, 0):min(peaks_mid + 120, rmax),:]
-            #Mnew = M[max(min(peaks) - meta.window, 0):min(max(peaks) + meta.window, rmax),:]
-            #Mnew = M[max(peaks_mid - 4, 0):min(peaks_mid + 4, rmax),:]
-            #TODO: Just use meta to reduce the number of parameters which are given to optextr
-            if meta.opt_extract==True: [f_opt_0, var_opt_0, numoutliers] = optextr.optextr(spectrum, err, spec_box_0, var_box_0, Mnew, meta.nsmooth, meta.sig_cut, meta.save_optextr_plot, i, ii, meta)
-            else: [f_opt, var_opt] = [spec_box_0,var_box_0]
+                spectrum = frame[max(min(peaks) - meta.window, 0):min(max(peaks) + meta.window, rmax), :]
 
-            #sums up spectra and variance for all the differenced images
-            spec_opt += f_opt_0
-            var_opt += var_opt_0
-            spec_box += spec_box_0
-            var_box += var_box_0
+                err = np.zeros_like(spectrum) + float(meta.rdnoise) ** 2 + skyvar
+                var = abs(spectrum) + float(
+                    meta.rdnoise) ** 2 + skyvar  # variance estimate: Poisson noise from photon counts (first term)  + readnoise (factor of 2 for differencing) + skyvar
+                spec_box_0 = spectrum.sum(axis=0)  # initial box-extracted spectrum
+                var_box_0 = var.sum(axis=0)  # initial variance guess
+                # Mnew = np.ones_like(M[max(min(peaks) - meta.window, 0):min(max(peaks) + meta.window, rmax),:])
+                # Mnew = M[max(peaks_mid - 110, 0):min(peaks_mid + 110, rmax),:]
+                Mnew = M[max(min(peaks) - meta.window, 0):min(max(peaks) + meta.window, rmax), :]
+                # TODO: Just use meta to reduce the number of parameters which are given to optextr
+                if meta.opt_extract == True:
+                    [f_opt_0, var_opt_0, numoutliers] = optextr.optextr(spectrum, err, spec_box_0, var_box_0, Mnew,
+                                                                        meta.nsmooth, meta.sig_cut,
+                                                                        meta.save_optextr_plot, i, ii, meta)
+                else:
+                    [f_opt, var_opt] = [spec_box_0, var_box_0]
+
+                # sums up spectra and variance for all the differenced images
+                spec_opt += f_opt_0
+                var_opt += var_opt_0
+                spec_box += spec_box_0
+                var_box += var_box_0
+
+        elif len(set(meta.scans_sp)) == 2:
+            for ii in tqdm(np.arange(d[0].header['nsamp']-2, dtype=int), desc='--- Looping over up-the-ramp-samples', leave=True, position=0):
+                diff = d[ii*5 + 1].data[rmin:rmax,cmin:cmax] - d[ii*5 + 6].data[rmin:rmax,cmin:cmax]    #creates image that is the difference between successive scans
+
+                # Calculate aperture
+                peaks = util.peak_finder(diff, i, ii, orbnum, meta)
+
+                #stores the locations of the peaks for every file and up-the-ramp-samples
+                if meta.save_utr_aper_evo_plot or meta.show_utr_aper_evo_plot:
+                    peaks_all.append(peaks)
+
+                #estimates sky background and variance
+                fullframe_diff = d[ii*5 + 1].data - d[ii*5 + 6].data                                       #fullframe difference between successive scans
+
+                ### BACKGROUND SUBTRACTION
+                if not meta.background_box:
+                    below_threshold = fullframe_diff < meta.background_thld # mask with all pixels below the user defined threshold
+                    skymedian = np.median(fullframe_diff[below_threshold].flatten())  # estimates the background counts by taking the flux median of the pixels below the flux threshold
+                    if meta.save_bkg_evo_plot or meta.show_bkg_evo_plot:
+                        bkg_evo.append(skymedian)
+                    skyvar = util.median_abs_dev(fullframe_diff[below_threshold].flatten())  # variance for the background count estimate
+                    if meta.save_bkg_hist_plot or meta.show_bkg_hist_plot:
+                        plots.bkg_hist(fullframe_diff, skymedian, meta, i, ii)
+                else:
+                    bg_rmin, bg_rmax, bg_cmin, bg_cmax = int(meta.bg_rmin), int(meta.bg_rmax), int(meta.bg_cmin), int(meta.bg_cmax),
+                    skymedian = np.median(fullframe_diff[bg_rmin:bg_rmax, bg_cmin:bg_cmax].flatten())
+                    if meta.save_bkg_evo_plot or meta.show_bkg_evo_plot:
+                        bkg_evo.append(skymedian)
+                    skyvar = util.median_abs_dev(fullframe_diff[bg_rmin:bg_rmax, bg_cmin:bg_cmax].flatten())
+
+                diff = diff - skymedian                                    #subtracts the background
+
+                #print(peaks[0]-peaks[1])
+
+                #peaks_mid = int((peaks[0]+peaks[1])/2)
+                # selects postage stamp centered around spectrum
+                # we use a bit more data by using the user defined window
+                #spectrum = diff[max(peaks_mid - 110, 0):min(peaks_mid + 110, rmax),:]
+                spectrum = diff[max(min(peaks) - meta.window, 0):min(max(peaks) + meta.window, rmax),:]
+
+                err = np.zeros_like(spectrum) + float(meta.rdnoise)**2 + skyvar
+                var = abs(spectrum) + float(meta.rdnoise)**2 + skyvar          # variance estimate: Poisson noise from photon counts (first term)  + readnoise (factor of 2 for differencing) + skyvar
+                spec_box_0 = spectrum.sum(axis = 0)                            # initial box-extracted spectrum
+                var_box_0 = var.sum(axis = 0)                                  # initial variance guess
+                #Mnew = np.ones_like(M[max(min(peaks) - meta.window, 0):min(max(peaks) + meta.window, rmax),:])
+                #Mnew = M[max(peaks_mid - 110, 0):min(peaks_mid + 110, rmax),:]
+                Mnew = M[max(min(peaks) - meta.window, 0):min(max(peaks) + meta.window, rmax),:]
+                #TODO: Just use meta to reduce the number of parameters which are given to optextr
+                if meta.opt_extract==True: [f_opt_0, var_opt_0, numoutliers] = optextr.optextr(spectrum, err, spec_box_0, var_box_0, Mnew, meta.nsmooth, meta.sig_cut, meta.save_optextr_plot, i, ii, meta)
+                else: [f_opt, var_opt] = [spec_box_0,var_box_0]
+
+                #sums up spectra and variance for all the differenced images
+                spec_opt += f_opt_0
+                var_opt += var_opt_0
+                spec_box += spec_box_0
+                var_box += var_box_0
 
         ######################################################################################################################################
         #TODO: Q: int(meta.refpix[orbnum, 1]) + meta.LTV1 is kinda sus
@@ -184,9 +234,9 @@ def run20(eventlabel, workdir, meta=None):
                 if meta.correct_wave_shift_refspec == True:
                     x_data_firstexpvisit, y_data_firstexpvisit, leastsq_res = util.correct_wave_shift_fct_0(meta, orbnum, cmin, cmax, spec_opt, i)
                 else:
-                    x_data_firstexpvisit, y_data_firstexpvisit, leastsq_res = util.correct_wave_shift_fct_00(meta, orbnum,cmin, cmax, spec_opt, i)
+                    x_data_firstexpvisit, y_data_firstexpvisit, leastsq_res = util.correct_wave_shift_fct_00(meta, orbnum, cmin, cmax, spec_opt, i)
                 wvls = np.copy(x_data_firstexpvisit)
-                if meta.save_drift_plot or meta.show_drift_plot:
+                if (meta.save_drift_plot or meta.show_drift_plot) and (not meta.correct_wave_shift_refspec):
                     leastsq_res_all.append(leastsq_res)
             else:
                 wvls, leastsq_res = util.correct_wave_shift_fct_1(meta, orbnum, cmin, cmax, spec_opt, x_data_firstexpvisit, y_data_firstexpvisit, i)

@@ -58,11 +58,16 @@ def run03(eventlabel, workdir, meta=None):
               'We proceed with the bb')
         sm_wvl, sm_flux = stellar_spectrum.get_bb(Teff)
 
-    #only store the spectrum between 0.1 microns and 10 microns
+    # UNITS: wavelength: nm
+
+    #Keeping the whole spectral range of the spectrum is not neccessary
+    # Let's only keep the spectrum around the G102 and G141 grisms, so let's say like 0.3 microns and 2.1 microns
     sm_wvl_mask = np.bitwise_and(300e-9 < sm_wvl, sm_wvl < 2.10e-6)
     sm_wvl = sm_wvl[sm_wvl_mask]
     sm_flux = sm_flux[sm_wvl_mask]
 
+    # Let's smooth the stellar model using a gaussian kernel
+    # More information here: https://ui.adsabs.harvard.edu/abs/2013ApJ...774...95D/abstract
     if meta.smooth:
         sm_wvl, sm_flux = util.gaussian_kernel(meta, sm_wvl, sm_flux)
 

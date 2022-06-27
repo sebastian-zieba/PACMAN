@@ -112,6 +112,7 @@ def ancil(meta, s10=False, s20=False):
     meta.scans_sp = filelist['scan'][meta.mask_sp].data
     meta.iorbit_sp = filelist['iorbit'][meta.mask_sp].data
     meta.ivisit_sp = filelist['ivisit'][meta.mask_sp].data
+    meta.iexp_orb_sp = filelist['iexp_orb'][meta.mask_sp].data
 
     # the following list stores the cumulative orbit number
     meta.iorbit_sp_cumulative = np.zeros(len(meta.iorbit_sp), dtype=int)
@@ -346,12 +347,31 @@ def median_abs_dev(vec):
     return ma.median(abs(vec - med))
 
 
+def zero_pad_x(array):
+    # TODO: Try to make this look nicer
+    array_new = np.concatenate((np.linspace(-5000, min(array)+1, 10, endpoint=True),
+                                    array,
+                                    np.linspace(max(array) + 350, 30000, 10, endpoint=False)))
+    return array_new
+
+
+def zero_pad_y(array):
+    array_new = np.concatenate((np.zeros(10),
+                                    array,
+                                    np.zeros(10)))
+    return array_new
+
+
 def read_refspec(meta):
     """
     Reads in the reference spectrum
     """
     refspec = np.loadtxt(meta.workdir + '/ancil/refspec/refspec.txt').T
     x_refspec, y_refspec = refspec[0]*1e10, refspec[1]/max(refspec[1])
+
+
+    x_refspec = zero_pad_x(x_refspec)
+    y_refspec = zero_pad_y(y_refspec)
 
     return (x_refspec, y_refspec)
 
@@ -366,26 +386,37 @@ def residuals2(params, x1, y1, x2, y2):
     y1=np.array(y1)
     y2=np.array(y2)
 
-    f = interp1d(x1, y1, kind='cubic')
+    f = interp1d(x1, y1, kind='linear')
     fit = f(a+b*x2)*c
 
     return fit - y2
 
 
+def residuals2_lin(params, x1, y1, x2, y2):
+    """
+    calculate residuals for leastsq.
+    """
+    a, c = params
+    x1=np.array(x1)
+    x2=np.array(x2)
+    y1=np.array(y1)
+    y2=np.array(y2)
+
+    f = interp1d(x1, y1, kind='linear')
+    fit = f(a+x2)*c
+
+    return fit - y2
+
+
 def correct_wave_shift_fct_0(meta, orbnum, cmin, cmax, spec_opt, i):
+    """
+    use the reference spectrum for the wave cal
+    """
     template_waves = meta.wave_grid[0, int(meta.refpix[orbnum, 1]) + meta.LTV1, cmin:cmax]
 
     g102mask = template_waves > 8200  # we dont use the spectrum below 8200 angstrom for the interpolation as the reference bandpass cuts out below this wavelength
 
     x_refspec, y_refspec = read_refspec(meta)
-
-    # TODO: Try to make this look nicer
-    x_refspec_new = np.concatenate((np.linspace(-5000, min(x_refspec)+1, 10, endpoint=True),
-                                    x_refspec,
-                                    np.linspace(max(x_refspec) + 350, 30000, 10, endpoint=False)))
-    y_refspec_new = np.concatenate((np.zeros(10),
-                                    y_refspec,
-                                    np.zeros(10)))
 
     # TODO: will break if optimal extractions isnt used!
     #x_data & y_data is the spectrum if no wavelength correction would be performed
@@ -393,32 +424,61 @@ def correct_wave_shift_fct_0(meta, orbnum, cmin, cmax, spec_opt, i):
     y_data = (spec_opt / max(spec_opt))[g102mask]
 
     p0 = [0, 1, 1]  # initial guess for least squares
-    leastsq_res = leastsq(residuals2, p0, args=(x_refspec_new, y_refspec_new, x_data, y_data))[0]
+    leastsq_res = leastsq(residuals2, p0, args=(x_refspec, y_refspec, x_data, y_data))[0]
+    #leastsq_res[0] = leastsq_res[0] + 60
 
     if meta.save_refspec_fit_plot or meta.show_refspec_fit_plot:
-        plots.refspec_fit(x_refspec_new, y_refspec_new, p0, x_data, y_data, leastsq_res, meta, i)
+        plots.refspec_fit(x_refspec, y_refspec, p0, x_data, y_data, leastsq_res, meta, i)
 
     # for all other but first exposure in visit exposures
     x_data_firstexpvisit = leastsq_res[0] + template_waves * leastsq_res[1]
     y_data_firstexpvisit = np.copy(y_data)
 
-    # np.savetxt('testing_exp0.txt', list(zip(x_data_firstexpvisit, y_data_firstexpvisit)))
-    # np.savetxt('testing_firstexp.txt', list(zip(template_waves, spec_opt/max(spec_opt))))
+    #np.savetxt('testing_template.txt', list(zip(x_refspec, y_refspec)))
+    #np.savetxt('testing_exp0.txt', list(zip(x_data, y_data)))
 
     return x_data_firstexpvisit, y_data_firstexpvisit, leastsq_res
 
+
+def correct_wave_shift_fct_0_lin(meta, orbnum, cmin, cmax, spec_opt, i):
+    """
+    use the reference spectrum for the wave cal
+    """
+    template_waves = meta.wave_grid[0, int(meta.refpix[orbnum, 1]) + meta.LTV1, cmin:cmax]
+
+    g102mask = template_waves > 8200  # we dont use the spectrum below 8200 angstrom for the interpolation as the reference bandpass cuts out below this wavelength
+
+    x_refspec, y_refspec = read_refspec(meta)
+
+    # TODO: will break if optimal extractions isnt used!
+    #x_data & y_data is the spectrum if no wavelength correction would be performed
+    x_data = template_waves[g102mask]
+    y_data = (spec_opt / max(spec_opt))[g102mask]
+
+    p0 = [0, 1]  # initial guess for least squares
+    leastsq_res = leastsq(residuals2_lin, p0, args=(x_refspec, y_refspec, x_data, y_data))[0]
+    #leastsq_res[0] = leastsq_res[0] + 60
+
+    if meta.save_refspec_fit_plot or meta.show_refspec_fit_plot:
+        plots.refspec_fit_lin(x_refspec, y_refspec, p0, x_data, y_data, leastsq_res, meta, i)
+
+    # for all other but first exposure in visit exposures
+    x_data_firstexpvisit = leastsq_res[0] + template_waves
+    y_data_firstexpvisit = np.copy(y_data)
+
+    #np.savetxt('/home/zieba/Desktop/Projects/Observations/Hubble/KELT11_15255/run_2022-05-25_16-57-51_new/spectra_drift/' + 'testing_template.txt', list(zip(x_refspec_new, y_refspec_new)))
+    #np.savetxt('/home/zieba/Desktop/Projects/Observations/Hubble/KELT11_15255/run_2022-05-25_16-57-51_new/spectra_drift/' + 'testing_exp0.txt', list(zip(x_data, y_data)))
+
+    return x_data_firstexpvisit, y_data_firstexpvisit, leastsq_res
+
+
 def correct_wave_shift_fct_00(meta, orbnum, cmin, cmax, spec_opt, i):
+    """
+    use the first exposure in the visit for wave cal
+    """
     template_waves = meta.wave_grid[0, int(meta.refpix[orbnum, 1]) + meta.LTV1, cmin:cmax]
 
     x_refspec, y_refspec = template_waves, spec_opt / max(spec_opt)
-
-    # TODO: Try to make this look nicer
-    x_refspec_new = np.concatenate((np.linspace(-5000, min(x_refspec)+1, 10, endpoint=True),
-                                    x_refspec,
-                                    np.linspace(max(x_refspec) + 350, 30000, 10, endpoint=False)))
-    y_refspec_new = np.concatenate((np.zeros(10),
-                                    y_refspec,
-                                    np.zeros(10)))
 
     # TODO: will break if optimal extractions isnt used!
     #x_data & y_data is the spectrum if no wavelength correction would be performed
@@ -426,10 +486,10 @@ def correct_wave_shift_fct_00(meta, orbnum, cmin, cmax, spec_opt, i):
     y_data = (spec_opt / max(spec_opt))
 
     p0 = [0, 1, 1]  # initial guess for least squares
-    leastsq_res = leastsq(residuals2, p0, args=(x_refspec_new, y_refspec_new, x_data, y_data))[0]
+    leastsq_res = leastsq(residuals2, p0, args=(x_refspec, y_refspec, x_data, y_data))[0]
 
     if meta.save_refspec_fit_plot or meta.show_refspec_fit_plot:
-        plots.refspec_fit(x_refspec_new, y_refspec_new, p0, x_data, y_data, leastsq_res, meta, i)
+        plots.refspec_fit(x_refspec, y_refspec, p0, x_data, y_data, leastsq_res, meta, i)
 
     # for all other but first exposure in visit exposures
     x_data_firstexpvisit = leastsq_res[0] + template_waves * leastsq_res[1]
@@ -442,13 +502,9 @@ def correct_wave_shift_fct_00(meta, orbnum, cmin, cmax, spec_opt, i):
 
 
 def correct_wave_shift_fct_1(meta, orbnum, cmin, cmax, spec_opt, x_data_firstexpvisit, y_data_firstexpvisit, i):
-    # TODO: So bad too
-    x_model = np.concatenate((np.linspace(-5000, min(x_data_firstexpvisit)+1, 10, endpoint=True),
-                              x_data_firstexpvisit,
-                              np.linspace(max(x_data_firstexpvisit) + 350, 30000, 10, endpoint=False)))
-    y_model = np.concatenate((np.zeros(10),
-                              y_data_firstexpvisit,
-                              np.zeros(10)))
+
+    x_model = zero_pad_x(x_data_firstexpvisit)
+    y_model = zero_pad_y(y_data_firstexpvisit)
 
     x_data = meta.wave_grid[0, int(meta.refpix[orbnum, 1]) + meta.LTV1, cmin:cmax]
     y_data = spec_opt / max(spec_opt)
@@ -461,8 +517,30 @@ def correct_wave_shift_fct_1(meta, orbnum, cmin, cmax, spec_opt, x_data_firstexp
 
     wvls = leastsq_res[0] + x_data * leastsq_res[1]
 
+    #np.savetxt('testing_exp{0}.txt'.format(i), list(zip(x_data, y_data)))
+
     return wvls, leastsq_res
 
+
+def correct_wave_shift_fct_1_lin(meta, orbnum, cmin, cmax, spec_opt, x_data_firstexpvisit, y_data_firstexpvisit, i):
+
+    x_model = zero_pad_x(x_data_firstexpvisit)
+    y_model = zero_pad_y(y_data_firstexpvisit)
+
+    x_data = meta.wave_grid[0, int(meta.refpix[orbnum, 1]) + meta.LTV1, cmin:cmax]
+    y_data = spec_opt / max(spec_opt)
+
+    p0 = [0, 1]
+    leastsq_res = leastsq(residuals2_lin, p0, args=(x_model, y_model, x_data, y_data))[0]
+
+    if meta.save_refspec_fit_plot or meta.show_refspec_fit_plot:
+        plots.refspec_fit_lin(x_model, y_model, p0, x_data, y_data, leastsq_res, meta, i)
+
+    wvls = leastsq_res[0] + x_data
+
+    #np.savetxt('/home/zieba/Desktop/Projects/Observations/Hubble/KELT11_15255/run_2022-05-25_16-57-51_new/spectra_drift/' + 'testing_exp{0}.txt'.format(i), list(zip(x_data, y_data)))
+
+    return wvls, leastsq_res
 
 #30
 def read_fitfiles(meta):
@@ -656,9 +734,9 @@ def make_mcmc_rprs_txt(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta):
     if not os.path.isdir(meta.workdir + meta.fitdir + '/mcmc_res'):
         os.makedirs(meta.workdir + meta.fitdir + '/mcmc_res')
     f_mcmc = open(meta.workdir + meta.fitdir + '/mcmc_res' + "/mcmc_rprs.txt", 'w')
-    file_header = ['wavelength (micron)', 'rprs', 'rprs_err_lower', 'rprs_err_upper']
+    file_header = ['wavelength (micron)', 'rprs', 'rprs_err_lower', 'rprs_err_upper', 'rms_pred', 'rms_obs']
     print("#{: <24} {: <25} {: <25} {: <25}".format(*file_header), file=f_mcmc)
-    for row in zip(meta.wavelength_list, medians, errors_lower, errors_upper):
+    for row in zip(meta.wavelength_list, medians, errors_lower, errors_upper, meta.rms_pred_list, meta.rms_list_emcee):
         print("{: <25} {: <25} {: <25} {: <25}".format(*row), file=f_mcmc)
     f_mcmc.close()
 
@@ -674,10 +752,10 @@ def make_nested_rprs_txt(vals_nested, errs_lower_nested, errs_upper_nested, meta
     if not os.path.isdir(meta.workdir + meta.fitdir + '/nested_res'):
         os.makedirs(meta.workdir + meta.fitdir + '/nested_res')
     f_mcmc = open(meta.workdir + meta.fitdir + '/nested_res' + "/nested_rprs.txt", 'w')
-    file_header = ['wavelength (micron)', 'rprs', 'rprs_err_lower', 'rprs_err_upper']
-    print("#{: <24} {: <25} {: <25} {: <25}".format(*file_header), file=f_mcmc)
-    for row in zip(meta.wavelength_list, medians, errors_lower, errors_upper):
-        print("{: <25} {: <25} {: <25} {: <25}".format(*row), file=f_mcmc)
+    file_header = ['wavelength (micron)', 'rprs', 'rprs_err_lower', 'rprs_err_upper', 'rms_pred', 'rms_obs']
+    print("#{: <24} {: <25} {: <25} {: <25} {: <25} {: <25}".format(*file_header), file=f_mcmc)
+    for row in zip(meta.wavelength_list, medians, errors_lower, errors_upper, meta.rms_pred_list, meta.rms_list_nested):
+        print("{: <25} {: <25} {: <25} {: <25} {: <25} {: <25}".format(*row), file=f_mcmc)
     f_mcmc.close()
 
 
@@ -693,24 +771,21 @@ def weighted_mean(data, err):            #calculates the weighted mean for data 
     return [mu, np.sqrt(var)]
 
 
+# def residuals(params, template_waves, template, spectrum, error):
+#     shift, scale = params
+#     fit = scale*np.interp(template_waves, template_waves-shift, spectrum)
+#     x = (template-fit)/error
+#     return (template-fit)/error
 
 
-def residuals(params, template_waves, template, spectrum, error):
-    shift, scale = params
-    fit = scale*np.interp(template_waves, template_waves-shift, spectrum)
-    x = (template-fit)/error
-    return (template-fit)/error
+# def interpolate_spectrum(spectrum, error, template, template_waves):
+#     p0 = [1., 1.0]                                        #initial guess for parameters shift and scale
+#     plsq, success  = leastsq(residuals, p0, args=(template_waves, template, spectrum, error))
+#     shift, scale = plsq
+#     interp_spectrum = np.interp(template_waves, template_waves-shift, spectrum)
+#     interp_error = np.interp(template_waves, template_waves-shift, error)
+#     return [interp_spectrum, interp_error, shift]
 
-
-
-
-def interpolate_spectrum(spectrum, error, template, template_waves):
-    p0 = [1., 1.0]                                        #initial guess for parameters shift and scale
-    plsq, success  = leastsq(residuals, p0, args=(template_waves, template, spectrum, error))
-    shift, scale = plsq
-    interp_spectrum = np.interp(template_waves, template_waves-shift, spectrum)
-    interp_error = np.interp(template_waves, template_waves-shift, error)
-    return [interp_spectrum, interp_error, shift]
 
 # def read_dict(filename):
 #     #with open(filename,"r") as text:
@@ -724,7 +799,6 @@ def interpolate_spectrum(spectrum, error, template, template_waves):
 #             if value == 'False': value = False
 #             dict[key] = value
 #     return dict
-
 
 
 #def getphase(t):

@@ -138,6 +138,8 @@ def run00(eventlabel, pcf_path='.'):
     instr = np.zeros(len(files), object)
     scans = np.zeros(len(files), dtype=int) #stores scan directions
 
+    postarg2 = np.zeros(len(files))
+
     # Will create a table with the properties of all _ima.fits files at the first run
     for i, file in enumerate(tqdm(files, desc='Reading in files and their headers', ascii=True)):
         ima = fits.open(file)
@@ -151,6 +153,7 @@ def run00(eventlabel, pcf_path='.'):
         scans[i] = 0  # sets scan direction
         if ima[0].header['postarg2'] < 0: scans[i] = 1
         if instr[i][0] == 'F': scans[i]= -1
+        postarg2[i] = ima[0].header['postarg2']
         ima.close()
 
     # files are chronologically sorted
@@ -163,6 +166,7 @@ def run00(eventlabel, pcf_path='.'):
     instr = instr[tsort]
     instr = np.array([str(iii) for iii in instr])
     scans = scans[tsort]
+    postarg2 = postarg2[tsort]
     #
     # for i, file in enumerate(tqdm(files, desc='Reading in files and their headers', ascii=True)):
     #     f = open(meta.workdir + '/{0}header_{1}.txt'.format(i, str(file).split('/')[-1]), 'w')
@@ -173,12 +177,15 @@ def run00(eventlabel, pcf_path='.'):
     #     f.close
 
     # Identify orbits and visits
+    iexp_orb = np.zeros(len(times), dtype=int)
     iorbits = np.zeros(len(times), dtype=int)
     ivisits = np.zeros(len(times), dtype=int)
+
     iorbit = 0
     ivisit = 0
     tos = np.zeros(len(times)) #time since begin of orbit
     tvs = np.zeros(len(times)) #time since begin of visit
+    iexp_orb_counter = 0 #index of first exposure in orbit
     iorbit_begin = 0 #index of first exposure in orbit
     ivisit_begin = 0 #index of first exposure in visit
     times_diff = np.insert(np.diff(times), 0, 0)
@@ -190,15 +197,23 @@ def run00(eventlabel, pcf_path='.'):
             ivisit_begin = i
             iorbit = 0
             ivisit += 1
+            iexp_orb_counter = 0
         # if two exposures are more than 10 min apart but less than an orbital period -> subsequent orbits
         elif 10 < times_diff[i] * 24 * 60 <= 100:
             iorbit_begin = i
             iorbit += 1
+            iexp_orb_counter = 0
         # else: two exposures less than 10 mins apart -> same orbit and same visit
         iorbits[i] = iorbit
         ivisits[i] = ivisit
         tos[i] = (itime - times[iorbit_begin]) * 24 * 60  # time since first exposure in orbit
         tvs[i] = (itime - times[ivisit_begin]) * 24 * 60  # time since first exposure in visit
+        if instr[i][0] == 'F':
+            iexp_orb[i] = -1
+            iexp_orb_counter = 0
+        elif instr[i][0] == 'G':
+            iexp_orb[i] = iexp_orb_counter
+            iexp_orb_counter += 1
 
     # Saves a plot showing when was observered
     if meta.save_obs_times_plot or meta.show_obs_times_plot:
@@ -209,12 +224,14 @@ def run00(eventlabel, pcf_path='.'):
         mask_visit = [any(tup) for tup in zip(*[ivisits == i for i in meta.which_visits])]
         files = files[mask_visit]
         instr = instr[mask_visit]
+        iexp_orb = iexp_orb[mask_visit]
         ivisits = ivisits[mask_visit]
         iorbits = iorbits[mask_visit]
         times = times[mask_visit]
         tvs = tvs[mask_visit]
         tos = tos[mask_visit]
         scans = scans[mask_visit]
+        postarg2 = postarg2[mask_visit]
         exp = exp[mask_visit]
         print('The user does not want to analyse every visit (which_visits != everything). '
               'The amount of files analyzed therefore reduced from {0} to {1}.'.format(num_data_files, sum(mask_visit)))
@@ -231,9 +248,9 @@ def run00(eventlabel, pcf_path='.'):
         plots.obs_times(meta, times, ivisits, iorbits, updated=True)
 
     print('Writing table into filelist.txt')
-    table = QTable([files, instr, ivisits, iorbits, times, tvs, tos, scans, exp],
-               names=('filenames', 'instr', 'ivisit', 'iorbit', 't_mjd', 't_visit', 't_orbit',
-                      'scan', 'exp'))# scan: (0: forward - lower flux, 1: reverse - higher flux, -1: Direct Image)
+    table = QTable([files, instr, ivisits, iorbits, iexp_orb, times, tvs, tos, scans, exp, postarg2],
+               names=('filenames', 'instr', 'ivisit', 'iorbit', 'iexp_orb', 't_mjd', 't_visit', 't_orbit',
+                      'scan', 'exp', 'postarg2'))# scan: (0: forward - lower flux, 1: reverse - higher flux, -1: Direct Image)
     ascii.write(table, meta.workdir + '/filelist.txt', format='rst', overwrite=True)
 
     # Save results

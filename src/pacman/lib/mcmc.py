@@ -74,6 +74,7 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
     updated_params = util.format_params_for_Model(medians, params, meta, fit_par)
     fit = model.fit(data, updated_params)
     plots.plot_fit_lc2(data, fit, meta, mcmc=True)
+    meta.rms_list_emcee.append(fit.rms)
 
     return medians, errors_lower, errors_upper
 

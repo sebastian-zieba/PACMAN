@@ -21,6 +21,7 @@ def eclipse(t, data, params, visit = 0.):
     p.inc = inc
     p.ecc = ecc
     p.w = w
+    #TODO: WHY IS THIS HARD CODED?
     p.limb_dark = 'quadratic'
     p.u = [0.1, 0.2]
     

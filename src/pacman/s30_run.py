@@ -68,6 +68,10 @@ def run30(eventlabel, workdir, meta=None):
         errs_upper_nested = []
 
     meta.chi2red_list = []
+    meta.rms_pred_list = []
+    meta.rms_list = []
+    meta.rms_list_emcee = []
+    meta.rms_list_nested = []
 
     for counter, f in enumerate(files):
         print('\n****** File: {0}/{1}'.format(counter+1, len(files)))
@@ -85,6 +89,8 @@ def run30(eventlabel, workdir, meta=None):
             print('*STARTS LEAST SQUARED*')
             data, model, params, m = lsq_fit(fit_par, data, meta, model, myfuncs, noclip=True) #not clipping
             meta.chi2red_list.append(model.chi2red)
+            meta.rms_list.append(model.rms)
+            meta.rms_pred_list.append(model.rms_predicted)
             if meta.save_fit_lc_plot: plots.plot_fit_lc2(data, model, meta)
             if meta.save_fit_lc_plot: plots.plot_fit_lc3(data, model, meta)
             if meta.save_fit_lc_plot: plots.save_plot_raw_data(data, meta)
@@ -119,9 +125,10 @@ def run30(eventlabel, workdir, meta=None):
         if meta.run_verbose == True:
             print("rms, chi2red = ", model.rms, model.chi2red)
 
-        if meta.run_divide_white == True:
+        if meta.s30_fit_white == True:
             outfile = open(meta.workdir + "/white_systematics.txt", "w")
             for i in range(len(model.all_sys)): print(model.all_sys[i], file = outfile)
+            print('Saved white_systematics.txt file')
             outfile.close()
 
         meta.labels = labels_gen(params, meta, fit_par)

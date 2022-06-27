@@ -42,7 +42,7 @@ class Model:
         self.chi2red = 0.
         self.rms = 0.
         self.rms_predicted = 1.0e6*np.sqrt(np.mean((data.err/data.flux)**2))
-        #self.rms_predicted = 1.0e6*np.sqrt(np.mean(np.sqrt((1./data.flux))**2))                #wong because we binned over several pixels
+        #self.rms_predicted = 1.0e6*np.sqrt(np.mean(np.sqrt((1./data.flux))**2)) #wrong because we binned over several pixels
         self.ln_like = 0.
         self.bic = 0.
         self.params = []

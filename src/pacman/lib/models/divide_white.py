@@ -1,6 +1,3 @@
-import sys
-sys.path.insert(0,'..')
-import numpy as np
 
-def divide_white(t, data, params):
+def divide_white(t, data, params, visit = 0):
     return data.white_systematics 

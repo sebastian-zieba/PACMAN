@@ -63,10 +63,10 @@ def lsq_fit(fit_par, data, meta, model, myfuncs, noclip=False):
     if meta.save_raw_lc_plot: plots.plot_raw(data, meta)
     fa = {'data':data, 'model':model}
 
-    if meta.run_divide_white and meta.s30_fit_spec:
+    if ('divide_white' in data.s30_myfuncs) and meta.s30_fit_spec:
         sys_vector = np.genfromtxt(meta.workdir + "/white_systematics.txt")
         data.all_sys = sys_vector
-        print("subtracting 2 from dof for divide-white")
+        #print("subtracting 2 from dof for divide-white")
         #data.nfree_param -= 2
         #data.dof += 2
 

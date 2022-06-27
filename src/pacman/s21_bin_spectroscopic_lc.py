@@ -68,11 +68,13 @@ def run21(eventlabel, workdir, meta=None):
     scan = d[6].reshape(nexp, npix)
     spec_opt, var_opt = d[7].reshape(nexp, npix), d[8].reshape(nexp, npix)
     w = d[9].reshape(nexp, npix) # d[0,:, 4]
+    #print(w[0])
     #f = d[0, :, 2]
 
-    w_min = max(w[:,0])
-    w_max = min(w[:,-1])
-
+    w_min = w.min()#max(w[:,0])
+    w_max = w.max()#min(w[:,-1])
+    #print(w_min, w_max)
+    #print(w.min(), w.max())
     #w_hires = np.linspace(w.min(), w.max(), 10000)
     w_hires = np.linspace(w_min, w_max, 10000)
     oversample_factor = len(w_hires)/npix*1.0
@@ -93,7 +95,7 @@ def run21(eventlabel, workdir, meta=None):
         outname = dirname + "/speclc" + "{0:.3f}".format(wave)+".txt"
         #outname = "wasp33b_" + "{0:.4f}".format(wave)+".txt"
         #outfile = open(outname, 'w')
-
+        #print(sum(wave_inds[i]))
         table = QTable(names=('t_mjd', 't_bjd', 't_visit', 't_orbit', 'ivisit', 'iorbit', 'scan', 'spec_opt', 'var_opt', 'wave'))
 
         #print('#t_mjd', '\t', 't_bjd', '\t', 't_visit', '\t', 't_orbit', '\t', 'ivisit', '\t', 'iorbit', '\t', 'scan', '\t', 'spec_opt', '\t', 'var_opt', '\t','wave', file=outfile)

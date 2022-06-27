@@ -360,6 +360,27 @@ def sp2d(d, meta, i):
         plt.close('all')
 
 
+def badmask_2d(array1, array2, array3, meta, i):
+    """
+    Plots the badmask arrays which are used by the optimal extraction routine.
+    """
+    fig, ax = plt.subplots(1, 4, figsize=(9,6), sharey=True, sharex=True)
+    ax[0].set_title('bpix==4')
+    ax[1].set_title('bpix==512')
+    ax[2].set_title('flatfield')
+    ax[3].set_title('combined')
+    ax[0].imshow(array1, cmap='Greys')
+    ax[1].imshow(array2, cmap='Greys')
+    ax[2].imshow(array3, cmap='Greys')
+    ax[3].imshow(array1|array2|array3, cmap='Greys')
+    ax[0].set_xlabel('ncol')
+    ax[0].set_ylabel('nrow')
+    if not os.path.isdir(meta.workdir + '/figs/s20_badmask/'):
+        os.makedirs(meta.workdir + '/figs/s20_badmask/')
+    plt.savefig(meta.workdir + '/figs/s20_badmask/badmask_{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
+    plt.close()
+
+
 def trace(d, meta, visnum, orbnum, i):
     """
     Plots the spectrum together with the trace
@@ -395,8 +416,8 @@ def bkg_hist(fullframe_diff, skymedian, meta, i, ii):
     Plot saving a histogram of the fluxes in the up-the-ramp sample. Showing the user decided background threshold and the median flux below the threshold.
     """
     histo = fullframe_diff.flatten()
-    fig, ax = plt.subplots(2,1)
-    yy, xx, _ = ax[0].hist(histo, int(len(histo)/2000), facecolor='k', alpha=0.2)
+    fig, ax = plt.subplots(3,1, figsize = (10,8))
+    ax[0].hist(histo, int(len(histo)/2000), facecolor='k', alpha=0.2)
     plt.suptitle('UpTheRamp {0}-{1}, visit {2}, orbit {3}'.format(i, ii, meta.ivisit_sp[i], meta.iorbit_sp[i]))
     ax[0].axvline(meta.background_thld, lw=2, ls='-', c='b', label='background_thld')
     ax[0].axvline(skymedian, lw=2, ls='--', c='b', label='skymedian')
@@ -404,14 +425,20 @@ def bkg_hist(fullframe_diff, skymedian, meta, i, ii):
     ax[0].set_xlabel('Flux')
     ax[0].set_ylabel('log. Frequ.')
     ax[0].legend(loc=1)
-    ax[1].axvline(skymedian, lw=2, ls='--', c='b', label='skymedian {0:.3g}'.format(skymedian))
+    ax[1].hist(histo, int(len(histo) / 10000), facecolor='k', alpha=0.2)
+    ax[1].axvline(meta.background_thld, lw=2, ls='-', c='b', label='background_thld')
+    ax[1].axvline(skymedian, lw=2, ls='--', c='b', label='skymedian')
     ax[1].set_xlabel('Flux')
     ax[1].set_ylabel('lin. Frequ.')
+    ax[1].legend(loc=1)
+    ax[2].axvline(skymedian, lw=2, ls='--', c='b', label='skymedian {0:.3g}'.format(skymedian))
+    ax[2].set_xlabel('Flux')
+    ax[2].set_ylabel('lin. Frequ.')
     zoom = 150
     #yyy, xxx, _ = ax[1].hist(histo, 51, range=(skymedian - zoom, skymedian + zoom), facecolor='k', alpha=0.2)
-    ax[1].hist(histo, 41, range=(skymedian - zoom, skymedian + zoom), facecolor='k', alpha=0.2)
+    ax[2].hist(histo, 41, range=(skymedian - zoom, skymedian + zoom), facecolor='k', alpha=0.2)
     #xmax = xxx[np.argsort(yyy)[::-1]][0]
-    ax[1].legend(loc=1)
+    ax[2].legend(loc=1)
     plt.tight_layout()
     #data_new = histo[((skymedian - zoom) < histo) & (histo < (skymedian + zoom))]
     #var = util.median_abs_dev(data_new)
@@ -426,7 +453,7 @@ def bkg_hist(fullframe_diff, skymedian, meta, i, ii):
     if meta.save_bkg_hist_plot:
         if not os.path.isdir(meta.workdir + '/figs/s20_bkg_hist/'):
             os.makedirs(meta.workdir + '/figs/s20_bkg_hist/')
-        plt.savefig(meta.workdir + '/figs/s20_bkg_hist/bkg_hist{0}-{1}.png'.format(i,ii), bbox_inches='tight', pad_inches=0.05, dpi=120)
+        plt.savefig(meta.workdir + '/figs/s20_bkg_hist/bkg_hist{0}-{1}.png'.format(i,ii), bbox_inches='tight', pad_inches=0.05, dpi=100)
         plt.close('all')
     else:
         plt.show()
@@ -622,6 +649,34 @@ def refspec_fit(modelx, modely, p0, datax, datay, leastsq_res, meta, i):
     #ax.plot((p0[0] + p0[1] * datax), datay * p0[2], label='initial guess')
     ax.plot((leastsq_res[0] + datax * leastsq_res[1]), datay * leastsq_res[2],
              label='spectrum fit, wvl = ({0:.5g}+{1:.5g}*x), {2:.5g}'.format(leastsq_res[0], leastsq_res[1], leastsq_res[2]))
+    ax.plot(datax, datay/max(datay), label='spectrum before fit')
+    if meta.grism == 'G141':
+        ax.set_xlim(9000, 20000)
+    elif meta.grism == 'G102':
+        ax.set_xlim(5000, 16000)
+    ax.set_xscale('log')
+    ax.set_xlabel('Wavelength (angstrom)')
+    ax.set_xlabel('rel. Flux')
+    plt.legend()
+    plt.tight_layout()
+    if meta.save_refspec_fit_plot:
+        if not os.path.isdir(meta.workdir + '/figs/s20_refspec_fit/'):
+            os.makedirs(meta.workdir + '/figs/s20_refspec_fit/')
+        plt.savefig(meta.workdir + '/figs/s20_refspec_fit/refspec_fit_{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
+        plt.close('all')
+    else:
+        plt.show()
+        plt.close('all')
+
+
+def refspec_fit_lin(modelx, modely, p0, datax, datay, leastsq_res, meta, i):
+    fig, ax = plt.subplots(1,1, figsize=(9,6))
+    plt.suptitle('refspec_fit {0}, visit {1}, orbit {2}'.format(i, meta.ivisit_sp[i], meta.iorbit_sp[i]))
+    ax.plot(modelx, modely, label='refspec')
+    #ax.plot((p0[0] + p0[1] * datax), datay * p0[2], label='initial guess')
+    ax.plot((leastsq_res[0] + datax), datay * leastsq_res[1],
+             label='spectrum fit, wvl = ({0:.5g}+x), {1:.5g}'.format(leastsq_res[0], leastsq_res[1]))
+    ax.plot(datax, datay/max(datay), label='spectrum before fit')
     if meta.grism == 'G141':
         ax.set_xlim(9000, 20000)
     elif meta.grism == 'G102':
@@ -664,6 +719,36 @@ def drift(leastsq_res_all, meta):
     ax[0].set_ylabel('a')
     ax[1].set_ylabel('b')
     ax[2].set_ylabel('c')
+
+    plt.subplots_adjust(hspace=0.05)
+
+    if meta.save_drift_plot:
+        if not os.path.isdir(meta.workdir + '/figs/s20_drift/'):
+            os.makedirs(meta.workdir + '/figs/s20_drift/')
+        plt.savefig(meta.workdir + '/figs/s20_drift/drift.png', bbox_inches='tight', pad_inches=0.05, dpi=120)
+        plt.close('all')
+    else:
+        plt.show()
+        plt.close('all')
+
+def drift_lin(leastsq_res_all, meta):
+
+    a = np.array([i[0] for i in leastsq_res_all])
+    c = np.array([i[1] for i in leastsq_res_all])
+
+    fig, ax = plt.subplots(3,1, figsize=(8,8), sharex=True)
+    ax[0].set_title('Wavelength calibration: Function: c*(a+b*x)')
+    ax[0].plot(range(len(a)), a, label='lin. wvl shift')
+    ax[1].plot(range(len(c)), c, label='flux scaling')
+
+    [ax[0].axvline(i, ls='--', c='k', lw=2.2, alpha=0.55) for i in meta.new_visit_idx_sp]
+    [ax[1].axvline(i, ls='--', c='k', lw=2.2, alpha=0.55) for i in meta.new_visit_idx_sp]
+
+    [ax[0].axvline(i, ls='--', c='k', lw=2, alpha=0.35) for i in meta.new_orbit_idx_sp]
+    [ax[1].axvline(i, ls='--', c='k', lw=2, alpha=0.35) for i in meta.new_orbit_idx_sp]
+
+    ax[0].set_ylabel('a')
+    ax[1].set_ylabel('c')
 
     plt.subplots_adjust(hspace=0.05)
 
