@@ -116,7 +116,7 @@ wvl_edge_list                [11400,12200,12600,13000,14600,15000,15400,15800,16
 
 
 ##30
-s30_myfuncs                  ['constant', 'transit']
+s30_myfuncs                  ['constant','transit']
 
 s30_fit_white                False
 s30_most_recent_s20          False
