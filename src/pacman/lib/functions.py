@@ -11,9 +11,8 @@ from ..lib.models.eclipse import eclipse
 from ..lib.models.model_ramp import model_ramp
 from ..lib.models.divide_white import divide_white
 from ..lib.models.ackbar import ackbar
-
+from ..lib.models.gp_sho import gp_sho
 from ..lib.models.constants_cj import constants_cj
-
 
 
 #need to automate appending parameters to functions
@@ -23,6 +22,8 @@ class Functions:
         self.astro_porder = []
         self.sys = []
         self.sys_porder = []
+        self.gp = []
+        self.gp_porder = []
 
         for f in funcs:
             if f == "constant":
@@ -111,6 +112,14 @@ class Functions:
                     data.par_order['inc']*data.nvisit, 
                     data.par_order['ecc']*data.nvisit, 
                     data.par_order['w']*data.nvisit, 
+                    ])
+            elif f == "gp_sho":
+                self.gp.append(gp_sho)
+                self.gp_porder.append([
+                    data.par_order['logQ_gp']*data.nvisit,
+                    data.par_order['logw_gp']*data.nvisit,
+                    data.par_order['logS_gp']*data.nvisit,
+                    data.par_order['log_jit']*data.nvisit
                     ])
             elif f == "constants_cj":
                 self.sys.append(constants_cj)

@@ -23,7 +23,7 @@ MH                           0.29                                               
 sm                           k93models                                                #stellar model. Options: blackbody, k93models, ck04models or phoenix
 
 smooth                       True
-smooth_sigma                 50
+smooth_sigma                 441
 
 save_smooth_plot             True
 show_smooth_plot             False
@@ -52,17 +52,24 @@ rmax                         261
 
 window                       12
 
-background_thld              1000                                                     #background threshold in counts
-
 opt_extract                  True
 sig_cut                      15                                                       # optimal extraction, for cosmic rays etc
 nsmooth                      9                                                        # optimal extraction, created smoothed spatial profile, medial smoothing filter
 
-save_optextr_plot            True
+output                       True
 
 correct_wave_shift           True
+correct_wave_shift_refspec   True
 
-output                       True
+background_thld              1000                                                     #background threshold in counts
+
+background_box               False
+bg_rmin                      100
+bg_rmax                      400
+bg_cmin                      40
+bg_cmax                      100
+
+save_optextr_plot            True
 
 save_sp2d_plot               True                                                     #save 2d spectrum
 show_sp2d_plot               False
@@ -127,12 +134,12 @@ rescale_uncert               True
 run_clipiters                0
 run_clipsigma                0
 
+ld_model                     1
 fix_ld                       False
 ld_file                      /home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/wfc3_reduction/limb-darkening/results/ld_outputfile.txt
 
 toffset                      2456365
 
-run_divide_white             False
 run_verbose                  True
 
 save_allan_plot              True

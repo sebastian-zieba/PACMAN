@@ -44,6 +44,11 @@ class FormatParams:
             self.trap_pop_f = params[data.par_order['trap_pop_f']*data.nvisit:(1 + data.par_order['trap_pop_f'])*data.nvisit]
             self.dTrap_s = params[data.par_order['dTrap_s']*data.nvisit:(1 + data.par_order['dTrap_s'])*data.nvisit]
             self.dTrap_f = params[data.par_order['dTrap_f']*data.nvisit:(1 + data.par_order['dTrap_f'])*data.nvisit]
+        elif 'gp_sho' in data.s30_myfuncs:
+            self.logS_gp = params[data.par_order['logS_gp'] * data.nvisit:(1 + data.par_order['logS_gp']) * data.nvisit]
+            self.logw_gp = params[data.par_order['logw_gp'] * data.nvisit:(1 + data.par_order['logw_gp']) * data.nvisit]
+            self.logQ_gp = params[data.par_order['logQ_gp'] * data.nvisit:(1 + data.par_order['logQ_gp']) * data.nvisit]
+            self.log_jit = params[data.par_order['log_jit'] * data.nvisit:(1 + data.par_order['log_jit']) * data.nvisit]
         elif 'constants_cj' in data.s30_myfuncs:
             self.c0 = params[data.par_order['c0']*data.nvisit:(1 + data.par_order['c0'])*data.nvisit]
             self.c1 = params[data.par_order['c1']*data.nvisit:(1 + data.par_order['c1'])*data.nvisit]

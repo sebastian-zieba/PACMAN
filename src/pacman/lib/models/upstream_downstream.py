@@ -2,6 +2,7 @@ import sys
 sys.path.insert(0,'..')
 import numpy as np
 
+
 def upstream_downstream(t, data, params, visit = 0):
     scale = params
     scale = scale[0][visit]
