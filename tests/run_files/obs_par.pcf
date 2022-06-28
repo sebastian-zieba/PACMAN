@@ -152,13 +152,13 @@ run_nested                   True
 
 #emcee
 run_nsteps                   300
-run_nwalkers	             5
+run_nwalkers	             6
 run_nburn                    100
 
 #dynesty
 run_dynamic                  False
 run_dlogz                    10
-run_nlive                    4
+run_nlive                    5
 run_bound                    single
 run_sample                   rwalk
 

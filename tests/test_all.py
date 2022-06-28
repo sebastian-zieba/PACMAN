@@ -152,7 +152,7 @@ def test_s00(capsys):
     nrows = len(filelist['t_mjd'])
 
     assert np.round(filelist['t_mjd'][0],4) == 56364.5297
-    assert (nrows, ncols) == (3, 11) 
+    assert (nrows, ncols) == (6, 11) 
 
 
 @pytest.mark.run(order=3)
@@ -217,12 +217,12 @@ def test_horizons(capsys):
     x, y, z, time = getcoords(data)
 
     #checking shape
-    assert len(x) == 25
+    assert len(x) == 27
 
 
     #checking first and last values
     assert np.all(np.array([my_round(x[0]), my_round(y[0]), my_round(z[0])]) == np.array([-147684997.27, 16573698.09, 7180590.09]))
-    assert np.all(np.array([my_round(x[-1]), my_round(y[-1]), my_round(z[-1])])== np.array([-147715099.27, 16386308.81, 7090837.98]))
+    assert np.all(np.array([my_round(x[-1]), my_round(y[-1]), my_round(z[-1])])== np.array([-147721652.49, 16371575.31, 7082911.34]))
 
 
 @pytest.mark.run(order=10)
