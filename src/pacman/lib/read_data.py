@@ -167,7 +167,7 @@ class Data:
         self.vis_idx = []
         for i in range(nvisit): self.vis_idx.append(self.vis_num == i)
         #print(self.vis_idx)
-        if meta.s30_fit_spec:
+        if ('divide_white' in data.s30_myfuncs) and meta.s30_fit_spec:
             self.white_systematics = np.genfromtxt(meta.workdir + "/white_systematics.txt")
 
 def remove_dupl(seq):
