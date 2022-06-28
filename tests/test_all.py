@@ -152,7 +152,7 @@ def test_s00(capsys):
     nrows = len(filelist['t_mjd'])
 
     assert np.round(filelist['t_mjd'][0],4) == 56364.5297
-    assert (nrows, ncols) == (3, 9) 
+    assert (nrows, ncols) == (3, 11) 
 
 
 @pytest.mark.run(order=3)
