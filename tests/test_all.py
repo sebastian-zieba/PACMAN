@@ -103,7 +103,7 @@ def test_sessionstart(capsys):
     #search for the HST data
     proposal_obs = Observations.query_criteria(proposal_id=13021,  instrument_name='WFC3/IR', project='HST')
     data_products = Observations.get_product_list(proposal_obs)
-    select = ['ibxy07p9q', 'ibxy07paq', 'ibxy07pbq'] #just download these three files
+    select = ['ibxy07p9q', 'ibxy07paq', 'ibxy07pbq', 'ibxy07pcq', 'ibxy07pdq', 'ibxy07pfq'] #just download these six files
     data_products_select = []
     for j in select:
         data_products_select.append((data_products['obs_id'] == j).data)
