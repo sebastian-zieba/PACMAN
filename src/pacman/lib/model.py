@@ -86,7 +86,7 @@ class Model:
         self.chi2 = np.sum((self.resid/data.err)**2)		
         self.chi2red = self.chi2/data.dof
         self.rms = 1.0e6*np.sqrt(np.mean((self.resid/data.flux)**2))
-        if 'gp_sho' not in data.s30_myfuncs:
+        if ('gp_sho' not in data.s30_myfuncs) and ('gp_matern32' not in data.s30_myfuncs):
             self.ln_like = (-0.5*(np.sum((self.resid/data.err)**2
                 + np.log(2.0*np.pi*(data.err)**2)))
             )
@@ -101,7 +101,7 @@ class Model:
                 gp, gp_ln_like = calc_gp(idx, params, data, self.norm_resid, self.myfuncs, visit)
                 self.model_gp[idx] = gp
                 self.ln_like += gp_ln_like
-
+                #print(gp_ln_like)
             self.params = params
             self.model = self.model_sys * self.model_astro * self.model_gp
             self.data_nosys = data.flux / (self.model_sys * self.model_gp)

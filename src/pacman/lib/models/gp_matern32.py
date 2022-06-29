@@ -6,26 +6,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def gp_sho(idx, data, resid, params):
-    logQ, logw, logS, log_jit = params
+def gp_matern32(idx, data, resid, params):
+    log_rho, log_sigma = params
     err = data.err/data.flux
-    #logerr = np.log(np.median(err))
-    logerr = log_jit 
 
-    #print "logQ, logw, logS", logQ, logw, logS
-
-    mean_resid = np.mean(resid)
-    #resid -= mean_resid
-    
     t = data.t_vis[idx]/60/60
-    
-    kernel = (terms.SHOTerm(log_S0 = logS, log_Q = logQ, log_omega0 = logw) + 
-              terms.JitterTerm(log_sigma = logerr)
-             )
+    kernel = terms.Matern32Term(log_rho=log_rho, log_sigma=log_sigma)
 
     gp = celerite.GP(kernel, fit_mean = True) 
     gp.compute(t, err, check_sorted = False)   #t must be ascending!
-
 
     mu = gp.predict(resid, t, return_cov = False)
     gp_lnlike = gp.log_likelihood(resid)

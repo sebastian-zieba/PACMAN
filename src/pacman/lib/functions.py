@@ -3,6 +3,7 @@ sys.path.insert(0, './models')
 from ..lib.models.constant import constant
 from ..lib.models.polynomial1 import polynomial1
 from ..lib.models.polynomial2 import polynomial2
+from ..lib.models.logarithmic_visit import logarithmic_visit
 from ..lib.models.sine1 import sine1
 from ..lib.models.sine2 import sine2
 from ..lib.models.upstream_downstream import upstream_downstream
@@ -12,6 +13,7 @@ from ..lib.models.model_ramp import model_ramp
 from ..lib.models.divide_white import divide_white
 from ..lib.models.ackbar import ackbar
 from ..lib.models.gp_sho import gp_sho
+from ..lib.models.gp_matern32 import gp_matern32
 from ..lib.models.constants_cj import constants_cj
 
 
@@ -40,7 +42,13 @@ class Functions:
                 self.sys_porder.append([
                     data.par_order['v']*data.nvisit,
                     data.par_order['v2']*data.nvisit
-                ]) 
+                ])
+            elif f == "logarithmic_visit":
+                self.sys.append(logarithmic_visit)
+                self.sys_porder.append([
+                    data.par_order['log1']*data.nvisit,
+                    data.par_order['log2']*data.nvisit
+                ])
             elif f == "sine1":
                 self.sys.append(sine1)
                 self.sys_porder.append([
@@ -111,7 +119,7 @@ class Functions:
                     data.par_order['a']*data.nvisit, 
                     data.par_order['inc']*data.nvisit, 
                     data.par_order['ecc']*data.nvisit, 
-                    data.par_order['w']*data.nvisit, 
+                    data.par_order['w']*data.nvisit
                     ])
             elif f == "gp_sho":
                 self.gp.append(gp_sho)
@@ -120,6 +128,12 @@ class Functions:
                     data.par_order['logw_gp']*data.nvisit,
                     data.par_order['logS_gp']*data.nvisit,
                     data.par_order['log_jit']*data.nvisit
+                    ])
+            elif f == "gp_matern32":
+                self.gp.append(gp_matern32)
+                self.gp_porder.append([
+                    data.par_order['log_rho']*data.nvisit,
+                    data.par_order['log_sigma']*data.nvisit
                     ])
             elif f == "constants_cj":
                 self.sys.append(constants_cj)
@@ -153,7 +167,7 @@ class Functions:
                     data.par_order['c26'] * data.nvisit,
                     data.par_order['c27'] * data.nvisit,
                     data.par_order['c28'] * data.nvisit,
-                    data.par_order['c29'] * data.nvisit,
+                    data.par_order['c29'] * data.nvisit
                     ])
             else:
                 #FIXME return error here

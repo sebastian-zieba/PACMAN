@@ -33,6 +33,9 @@ class FormatParams:
         elif 'polynomial2' in data.s30_myfuncs:
             self.v = params[data.par_order['v']*data.nvisit:(1 + data.par_order['v'])*data.nvisit]
             self.v2 = params[data.par_order['v2']*data.nvisit:(1 + data.par_order['v2'])*data.nvisit]
+        elif 'logarithmic_visit' in data.s30_myfuncs:
+            self.log1 = params[data.par_order['log1']*data.nvisit:(1 + data.par_order['log1'])*data.nvisit]
+            self.log2 = params[data.par_order['log2']*data.nvisit:(1 + data.par_order['log2'])*data.nvisit]
         elif 'model_ramp' in data.s30_myfuncs:
             self.r1 = params[data.par_order['r1']*data.nvisit:(1 + data.par_order['r1'])*data.nvisit]
             self.r2 = params[data.par_order['r2']*data.nvisit:(1 + data.par_order['r2'])*data.nvisit]
@@ -49,6 +52,9 @@ class FormatParams:
             self.logw_gp = params[data.par_order['logw_gp'] * data.nvisit:(1 + data.par_order['logw_gp']) * data.nvisit]
             self.logQ_gp = params[data.par_order['logQ_gp'] * data.nvisit:(1 + data.par_order['logQ_gp']) * data.nvisit]
             self.log_jit = params[data.par_order['log_jit'] * data.nvisit:(1 + data.par_order['log_jit']) * data.nvisit]
+        elif 'gp_matern32' in data.s30_myfuncs:
+            self.log_rho = params[data.par_order['log_rho'] * data.nvisit:(1 + data.par_order['log_rho']) * data.nvisit]
+            self.log_sigma = params[data.par_order['log_sigma'] * data.nvisit:(1 + data.par_order['log_sigma']) * data.nvisit]
         elif 'constants_cj' in data.s30_myfuncs:
             self.c0 = params[data.par_order['c0']*data.nvisit:(1 + data.par_order['c0'])*data.nvisit]
             self.c1 = params[data.par_order['c1']*data.nvisit:(1 + data.par_order['c1'])*data.nvisit]
