@@ -36,6 +36,9 @@ class FormatParams:
         elif 'logarithmic_visit' in data.s30_myfuncs:
             self.log1 = params[data.par_order['log1']*data.nvisit:(1 + data.par_order['log1'])*data.nvisit]
             self.log2 = params[data.par_order['log2']*data.nvisit:(1 + data.par_order['log2'])*data.nvisit]
+        elif 'exponential_visit' in data.s30_myfuncs:
+            self.exp1 = params[data.par_order['exp1']*data.nvisit:(1 + data.par_order['exp1'])*data.nvisit]
+            self.exp2 = params[data.par_order['exp2']*data.nvisit:(1 + data.par_order['exp2'])*data.nvisit]
         elif 'model_ramp' in data.s30_myfuncs:
             self.r1 = params[data.par_order['r1']*data.nvisit:(1 + data.par_order['r1'])*data.nvisit]
             self.r2 = params[data.par_order['r2']*data.nvisit:(1 + data.par_order['r2'])*data.nvisit]

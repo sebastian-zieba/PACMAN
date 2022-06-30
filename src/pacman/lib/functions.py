@@ -4,6 +4,7 @@ from ..lib.models.constant import constant
 from ..lib.models.polynomial1 import polynomial1
 from ..lib.models.polynomial2 import polynomial2
 from ..lib.models.logarithmic_visit import logarithmic_visit
+from ..lib.models.exponential_visit import exponential_visit
 from ..lib.models.sine1 import sine1
 from ..lib.models.sine2 import sine2
 from ..lib.models.upstream_downstream import upstream_downstream
@@ -48,6 +49,12 @@ class Functions:
                 self.sys_porder.append([
                     data.par_order['log1']*data.nvisit,
                     data.par_order['log2']*data.nvisit
+                ])
+            elif f == "exponential_visit":
+                self.sys.append(exponential_visit)
+                self.sys_porder.append([
+                    data.par_order['exp1']*data.nvisit,
+                    data.par_order['exp2']*data.nvisit
                 ])
             elif f == "sine1":
                 self.sys.append(sine1)
