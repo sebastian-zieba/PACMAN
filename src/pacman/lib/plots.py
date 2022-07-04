@@ -122,9 +122,11 @@ def obs_times(meta, times, ivisits, iorbits, updated=False):
         else:
             plt.savefig(meta.workdir + '/figs/s00_obs_dates/obs_dates.png', bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
+        plt.clf()
     else:
         plt.show()
         plt.close('all')
+        plt.clf()
 
 
 ## 02
@@ -184,9 +186,11 @@ def barycorr(x,y,z,time, obsx, obsy, obsz, coordtable, meta):
             os.makedirs(meta.workdir + '/figs/s02_barycorr/')
         plt.savefig(meta.workdir + '/figs/s02_barycorr/bjdcorr_{0}.png'.format(coordtable.split('/')[-1].split('.')[0]), bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
+        plt.clf()
     else:
         plt.show()
         plt.close('all')
+        plt.clf()
 
 
 ## 03
@@ -204,9 +208,11 @@ def smooth(meta, x, y, x_smoothed, y_smoothed):
                     pad_inches=0.05,
                     dpi=120)
         plt.close('all')
+        plt.clf()
     else:
         plt.show()
         plt.close('all')
+        plt.clf()
 
 
 def refspec(bp_wvl, bp_val, sm_wvl, sm_flux, ref_wvl, ref_flux, meta):
@@ -233,9 +239,11 @@ def refspec(bp_wvl, bp_val, sm_wvl, sm_flux, ref_wvl, ref_flux, meta):
                     pad_inches=0.05,
                     dpi=120)
         plt.close('all')
+        plt.clf()
     else:
         plt.show()
         plt.close('all')
+        plt.clf()
 
 
 ## 10
@@ -281,9 +289,11 @@ def image_quick(ima, i, meta):
             os.makedirs(meta.workdir + '/figs/s10_images/')
         plt.savefig(meta.workdir + '/figs/s10_images/quick_di{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=180)
         plt.close('all')
+        plt.clf()
     else:
         plt.show()
         plt.close('all')
+        plt.clf()
 
 
 def image(dat, ima, results, i, meta):
@@ -335,10 +345,11 @@ def image(dat, ima, results, i, meta):
             os.makedirs(meta.workdir + '/figs/s10_images/')
         plt.savefig(meta.workdir + '/figs/s10_images/di_{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
+        plt.clf()
     else:
         plt.show()
         plt.close('all')
-
+        plt.clf()
 
 
 ## 20
@@ -355,10 +366,11 @@ def sp2d(d, meta, i):
             os.makedirs(meta.workdir + '/figs/s20_sp2d')
         plt.savefig(meta.workdir + '/figs/s20_sp2d/sp2d_{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
+        plt.clf()
     else:
         plt.show()
         plt.close('all')
-
+        plt.clf()
 
 def badmask_2d(array1, array2, array3, meta, i):
     """
@@ -378,7 +390,8 @@ def badmask_2d(array1, array2, array3, meta, i):
     if not os.path.isdir(meta.workdir + '/figs/s20_badmask/'):
         os.makedirs(meta.workdir + '/figs/s20_badmask/')
     plt.savefig(meta.workdir + '/figs/s20_badmask/badmask_{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
-    #plt.close()
+    plt.close('all')
+    plt.clf()
 
 
 def trace(d, meta, visnum, orbnum, i):
@@ -405,10 +418,12 @@ def trace(d, meta, visnum, orbnum, i):
         if not os.path.isdir(meta.workdir + '/figs/s20_trace/'):
             os.makedirs(meta.workdir + '/figs/s20_trace/')
         plt.savefig(meta.workdir + '/figs/s20_trace/trace_{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
-        #plt.close()
+        plt.close('all')
+        plt.clf()
     else:
         plt.show()
-        #plt.close()
+        plt.close('all')
+        plt.clf()
 
 
 def bkg_hist(fullframe_diff, skymedian, meta, i, ii):
@@ -455,9 +470,11 @@ def bkg_hist(fullframe_diff, skymedian, meta, i, ii):
             os.makedirs(meta.workdir + '/figs/s20_bkg_hist/')
         plt.savefig(meta.workdir + '/figs/s20_bkg_hist/bkg_hist{0}-{1}.png'.format(i,ii), bbox_inches='tight', pad_inches=0.05, dpi=100)
         plt.close('all')
+        plt.clf()
     else:
         plt.show()
-        #plt.close()
+        plt.close('all')
+        plt.clf()
 
 
 def utr(diff, meta, i, ii, orbnum, rowmedian, rowmedian_absder, peaks):
@@ -526,9 +543,11 @@ def utr(diff, meta, i, ii, orbnum, rowmedian, rowmedian_absder, peaks):
             os.makedirs(meta.workdir + '/figs/s20_utr/')
         plt.savefig(meta.workdir + '/figs/s20_utr/utr{0}-{1}.png'.format(i, ii), bbox_inches='tight', pad_inches=0.05, dpi=90)
         plt.close('all')
+        plt.clf()
     else:
         plt.show()
         plt.close('all')
+        plt.clf()
 
 
 def sp1d(template_waves, spec_box, meta, i, spec_opt=False):
@@ -548,10 +567,11 @@ def sp1d(template_waves, spec_box, meta, i, spec_opt=False):
             os.makedirs(meta.workdir + '/figs/s20_sp1d/')
         plt.savefig(meta.workdir + '/figs/s20_sp1d/sp1d_{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
+        plt.clf()
     else:
         plt.show()
         plt.close('all')
-
+        plt.clf()
 
 def bkg_evo(bkg_evo, meta):
     """
@@ -569,10 +589,11 @@ def bkg_evo(bkg_evo, meta):
             os.makedirs(meta.workdir + '/figs/s20_bkg_evo/')
         plt.savefig(meta.workdir + '/figs/s20_bkg_evo/bkg_evo.png', bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
+        plt.clf()
     else:
         plt.show()
         plt.close('all')
-
+        plt.clf()
 
 def sp1d_diff(sp1d_all_diff, meta, wvl_hires):
     """
@@ -596,9 +617,11 @@ def sp1d_diff(sp1d_all_diff, meta, wvl_hires):
         if meta.save_sp1d_diff_plot:
             plt.savefig(meta.workdir + '/figs/s20_sp1d_diff/sp1d_diff_{0}.png'.format(iiii), bbox_inches='tight', pad_inches=0.05, dpi=120)
             plt.close('all')
+            plt.clf()
         else:
             plt.show()
             plt.close('all')
+            plt.clf()
 
 
 def utr_aper_evo(peaks_all, meta):
@@ -637,9 +660,11 @@ def utr_aper_evo(peaks_all, meta):
             os.makedirs(meta.workdir + '/figs/s20_utr_aper_evo/')
         plt.savefig(meta.workdir + '/figs/s20_utr_aper_evo/utr_aper_evo.png', bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
+        plt.clf()
     else:
         plt.show()
         plt.close('all')
+        plt.clf()
 
 
 def refspec_fit(modelx, modely, p0, datax, datay, leastsq_res, meta, i):
@@ -664,9 +689,11 @@ def refspec_fit(modelx, modely, p0, datax, datay, leastsq_res, meta, i):
             os.makedirs(meta.workdir + '/figs/s20_refspec_fit/')
         plt.savefig(meta.workdir + '/figs/s20_refspec_fit/refspec_fit_{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
+        plt.clf()
     else:
         plt.show()
         plt.close('all')
+        plt.clf()
 
 
 def refspec_fit_lin(modelx, modely, p0, datax, datay, leastsq_res, meta, i):
@@ -691,9 +718,11 @@ def refspec_fit_lin(modelx, modely, p0, datax, datay, leastsq_res, meta, i):
             os.makedirs(meta.workdir + '/figs/s20_refspec_fit/')
         plt.savefig(meta.workdir + '/figs/s20_refspec_fit/refspec_fit_{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
+        plt.clf()
     else:
         plt.show()
         plt.close('all')
+        plt.clf()
 
 
 def drift(leastsq_res_all, meta):
@@ -727,9 +756,11 @@ def drift(leastsq_res_all, meta):
             os.makedirs(meta.workdir + '/figs/s20_drift/')
         plt.savefig(meta.workdir + '/figs/s20_drift/drift.png', bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
+        plt.clf()
     else:
         plt.show()
         plt.close('all')
+        plt.clf()
 
 def drift_lin(leastsq_res_all, meta):
 
@@ -756,10 +787,12 @@ def drift_lin(leastsq_res_all, meta):
         if not os.path.isdir(meta.workdir + '/figs/s20_drift/'):
             os.makedirs(meta.workdir + '/figs/s20_drift/')
         plt.savefig(meta.workdir + '/figs/s20_drift/drift.png', bbox_inches='tight', pad_inches=0.05, dpi=120)
-        plt.close('all')
+    plt.close('all')
+    plt.clf()
     else:
         plt.show()
-        plt.close('all')
+    plt.close('all')
+    plt.clf()
 
 
 ##21
@@ -812,7 +845,8 @@ def plot_raw(data, meta):
     if not os.path.isdir(meta.workdir + meta.fitdir + '/raw_lc'):
         os.makedirs(meta.workdir + meta.fitdir + '/raw_lc')
     plt.savefig(meta.workdir + meta.fitdir + '/raw_lc' + '/raw_lc_bin{0}_wvl{1:0.3f}.png'.format(meta.s30_file_counter, meta.wavelength).format(meta.s30_file_counter))
-    #plt.close()
+    plt.close('all')
+    plt.clf()
 
 
 def save_plot_raw_data(data, meta):
@@ -861,7 +895,8 @@ def rmsplot(model, data, meta):
     if not os.path.isdir(meta.workdir + meta.fitdir + '/corr_plot'):
         os.makedirs(meta.workdir + meta.fitdir + '/corr_plot')
     plt.savefig(meta.workdir + meta.fitdir + '/corr_plot' + '/corr_plot_bin{0}_wvl{1:0.3f}.png'.format(meta.s30_file_counter, meta.wavelength))
-    #plt.close()
+    plt.close('all')
+    plt.clf()
 
 
 # def plot_fit_lc(data, fit, meta, mcmc=False):
@@ -1014,7 +1049,8 @@ def plot_fit_lc2(data, fit, meta, mcmc=False, nested=False):
         plt.savefig(meta.workdir + meta.fitdir + '/fit_lc' + '/nested_lc_bin{0}_wvl{1:0.3f}.png'.format(meta.s30_file_counter, meta.wavelength))
     else:
         plt.savefig(meta.workdir + meta.fitdir + '/fit_lc' + '/lsq_lc_bin{0}_wvl{1:0.3f}.png'.format(meta.s30_file_counter, meta.wavelength))
-    #plt.close()
+    plt.close('all')
+    plt.clf()
 
 
 def plot_fit_lc3(data, fit, meta, mcmc=False):
@@ -1079,7 +1115,8 @@ def plot_fit_lc3(data, fit, meta, mcmc=False):
     else:
         plt.savefig(meta.workdir + meta.fitdir + '/fit_lc' + '/newfit_lc_bin{0}_wvl{1:0.3f}.png'.format(meta.s30_file_counter, meta.wavelength))
     # plt.waitforbuttonpress(0) # this will wait for indefinite time
-    #plt.close()
+    plt.close('all')
+    plt.clf()
 
 
 def save_astrolc_data(data, fit, meta):
@@ -1193,7 +1230,8 @@ def params_vs_wvl(vals, errs, idxs, meta):
     plt.tight_layout()
     plt.subplots_adjust(hspace=0.01)
     plt.savefig(meta.workdir + meta.fitdir + '/lsq_res/' + '/lsq_params_vs_wvl.png', dpi=450, bbox_inches='tight', pad_inches=0.05)
-    #plt.close()
+    plt.close('all')
+    plt.clf()
 
 
 def params_vs_wvl_mcmc(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta):
@@ -1219,7 +1257,8 @@ def params_vs_wvl_mcmc(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta):
     plt.tight_layout()
     plt.subplots_adjust(hspace=0.01)
     plt.savefig(meta.workdir + meta.fitdir + '/mcmc_res/' + '/mcmc_params_vs_wvl.png', dpi=500, bbox_inches='tight', pad_inches=0.05)
-    #plt.close()
+    plt.close('all')
+    plt.clf()
 
 
 def params_vs_wvl_nested(vals_nested, errs_lower_nested, errs_upper_nested, meta):
@@ -1245,7 +1284,8 @@ def params_vs_wvl_nested(vals_nested, errs_lower_nested, errs_upper_nested, meta
     plt.tight_layout()
     plt.subplots_adjust(hspace=0.01)
     plt.savefig(meta.workdir + meta.fitdir + '/nested_res/' + '/nested_params_vs_wvl.png', dpi=500, bbox_inches='tight', pad_inches=0.05)
-    #plt.close()
+    plt.close('all')
+    plt.clf()
 
 
 def lsq_rprs(vals, errs, idxs, meta):
@@ -1261,7 +1301,8 @@ def lsq_rprs(vals, errs, idxs, meta):
     if not os.path.isdir(meta.workdir + meta.fitdir + '/lsq_res'):
         os.makedirs(meta.workdir + meta.fitdir + '/lsq_res')
     plt.savefig(meta.workdir + meta.fitdir + '/lsq_res/' + 'lsq_rprs.png', dpi=300, bbox_inches='tight', pad_inches=0.05)
-    #plt.close()
+    plt.close('all')
+    plt.clf()
 
 
 def mcmc_chains(ndim, sampler, nburn, labels, meta):
@@ -1285,7 +1326,8 @@ def mcmc_chains(ndim, sampler, nburn, labels, meta):
         fig.savefig(meta.workdir + meta.fitdir + '/mcmc_res/' + "/mcmc_chains_bin{0}_wvl{1:0.3f}.png".format(meta.s30_file_counter, meta.wavelength))
     else:
         fig.savefig(meta.workdir + meta.fitdir + '/mcmc_res/' + "/mcmc_chains_noburn_bin{0}_wvl{1:0.3f}.png".format(meta.s30_file_counter, meta.wavelength))
-    #plt.close()
+    plt.close('all')
+    plt.clf()
 
 
 def mcmc_pairs(samples, params, meta, fit_par, data):	#FIXME: make sure this works for cases when nvisit>1
@@ -1296,7 +1338,8 @@ def mcmc_pairs(samples, params, meta, fit_par, data):	#FIXME: make sure this wor
     fig = corner.corner(samples, labels=labels, show_titles=True,quantiles=[0.16, 0.5, 0.84],title_fmt='.4')
     figname = meta.workdir + meta.fitdir + '/mcmc_res/' + "/mcmc_pairs_bin{0}_wvl{1:0.3f}.png".format(meta.s30_file_counter, meta.wavelength)
     fig.savefig(figname)
-    #plt.close()
+    plt.close('all')
+    plt.clf()
 
 
 def nested_pairs(samples, params, meta, fit_par, data):	#FIXME: make sure this works for cases when nvisit>1
@@ -1307,28 +1350,32 @@ def nested_pairs(samples, params, meta, fit_par, data):	#FIXME: make sure this w
     fig = corner.corner(samples, labels=labels, show_titles=True,quantiles=[0.16, 0.5, 0.84],title_fmt='.4')
     figname = meta.workdir + meta.fitdir + '/nested_res/' + "/nested_pairs_bin{0}_wvl{1:0.3f}.png".format(meta.s30_file_counter, meta.wavelength)
     fig.savefig(figname)
-    #plt.close()
+    plt.close('all')
+    plt.clf()
 
 
 def dyplot_runplot(results, meta):
     # Plot a summary of the run.
     rfig, raxes = dyplot.runplot(results)
     plt.savefig(meta.workdir + meta.fitdir + '/nested_res/' +  "/dyplot_runplot_bin{0}_wvl{1:0.3f}.png".format(meta.s30_file_counter, meta.wavelength))
-    #plt.close()
+    plt.close('all')
+    plt.clf()
 
 
 def dyplot_traceplot(results, meta):
     # Plot traces and 1-D marginalized posteriors.
     tfig, taxes = dyplot.traceplot(results, labels=meta.labels)
     plt.savefig(meta.workdir + meta.fitdir + '/nested_res/' +  "/dyplot_traceplot_bin{0}_wvl{1:0.3f}.png".format(meta.s30_file_counter, meta.wavelength))
-    #plt.close()
+    plt.close('all')
+    plt.clf()
 
 
 def dyplot_cornerplot(results, meta):
     # Plot the 2-D marginalized posteriors.
     cfig, caxes = dyplot.cornerplot(results, show_titles=True, title_fmt='.4',labels=meta.labels, color='blue', hist_kwargs=dict(facecolor='blue', edgecolor='blue'))
     plt.savefig(meta.workdir + meta.fitdir + '/nested_res/' +  "/dyplot_cornerplot_bin{0}_wvl{1:0.3f}.png".format(meta.s30_file_counter, meta.wavelength))
-    #plt.close()
+    plt.close('all')
+    plt.clf()
 
 
 def mcmc_rprs(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta):
@@ -1345,7 +1392,8 @@ def mcmc_rprs(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta):
     plt.xlabel('Wavelength (micron)')
     plt.ylabel('Transit Depth (ppm)')
     plt.savefig(meta.workdir + meta.fitdir + '/mcmc_res/' + 'mcmc_rprs.png', dpi=300, bbox_inches='tight', pad_inches=0.05)
-    #plt.close()
+    plt.close('all')
+    plt.clf()
 
 
 def nested_rprs(vals_nested, errs_lower_nested, errs_upper_nested, meta):
@@ -1363,4 +1411,5 @@ def nested_rprs(vals_nested, errs_lower_nested, errs_upper_nested, meta):
     plt.xlabel('Wavelength (micron)')
     plt.ylabel('Transit Depth (ppm)')
     plt.savefig(meta.workdir + meta.fitdir + '/nested_res/' + 'nested_rprs.png', dpi=300, bbox_inches='tight', pad_inches=0.05)
-    #plt.close()
+    plt.close('all')
+    plt.clf()
