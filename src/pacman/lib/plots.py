@@ -787,12 +787,12 @@ def drift_lin(leastsq_res_all, meta):
         if not os.path.isdir(meta.workdir + '/figs/s20_drift/'):
             os.makedirs(meta.workdir + '/figs/s20_drift/')
         plt.savefig(meta.workdir + '/figs/s20_drift/drift.png', bbox_inches='tight', pad_inches=0.05, dpi=120)
-    plt.close('all')
-    plt.clf()
+        plt.close('all')
+        plt.clf()
     else:
         plt.show()
-    plt.close('all')
-    plt.clf()
+        plt.close('all')
+        plt.clf()
 
 
 ##21
