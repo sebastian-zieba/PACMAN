@@ -378,7 +378,7 @@ def badmask_2d(array1, array2, array3, meta, i):
     if not os.path.isdir(meta.workdir + '/figs/s20_badmask/'):
         os.makedirs(meta.workdir + '/figs/s20_badmask/')
     plt.savefig(meta.workdir + '/figs/s20_badmask/badmask_{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
-    plt.close()
+    #plt.close()
 
 
 def trace(d, meta, visnum, orbnum, i):
@@ -405,10 +405,10 @@ def trace(d, meta, visnum, orbnum, i):
         if not os.path.isdir(meta.workdir + '/figs/s20_trace/'):
             os.makedirs(meta.workdir + '/figs/s20_trace/')
         plt.savefig(meta.workdir + '/figs/s20_trace/trace_{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
-        plt.close()
+        #plt.close()
     else:
         plt.show()
-        plt.close()
+        #plt.close()
 
 
 def bkg_hist(fullframe_diff, skymedian, meta, i, ii):
@@ -457,7 +457,7 @@ def bkg_hist(fullframe_diff, skymedian, meta, i, ii):
         plt.close('all')
     else:
         plt.show()
-        plt.close()
+        #plt.close()
 
 
 def utr(diff, meta, i, ii, orbnum, rowmedian, rowmedian_absder, peaks):
@@ -812,7 +812,7 @@ def plot_raw(data, meta):
     if not os.path.isdir(meta.workdir + meta.fitdir + '/raw_lc'):
         os.makedirs(meta.workdir + meta.fitdir + '/raw_lc')
     plt.savefig(meta.workdir + meta.fitdir + '/raw_lc' + '/raw_lc_bin{0}_wvl{1:0.3f}.png'.format(meta.s30_file_counter, meta.wavelength).format(meta.s30_file_counter))
-    plt.close()
+    #plt.close()
 
 
 def save_plot_raw_data(data, meta):
@@ -861,7 +861,7 @@ def rmsplot(model, data, meta):
     if not os.path.isdir(meta.workdir + meta.fitdir + '/corr_plot'):
         os.makedirs(meta.workdir + meta.fitdir + '/corr_plot')
     plt.savefig(meta.workdir + meta.fitdir + '/corr_plot' + '/corr_plot_bin{0}_wvl{1:0.3f}.png'.format(meta.s30_file_counter, meta.wavelength))
-    plt.close()
+    #plt.close()
 
 
 # def plot_fit_lc(data, fit, meta, mcmc=False):
@@ -939,7 +939,7 @@ def rmsplot(model, data, meta):
 #     else:
 #         plt.savefig(meta.workdir + meta.fitdir + '/fit_lc' + "/fit_lc_{0}.png".format(meta.s30_file_counter))
 #     # plt.waitforbuttonpress(0) # this will wait for indefinite time
-#     plt.close()
+#     #plt.close()
 
 
 def plot_fit_lc2(data, fit, meta, mcmc=False, nested=False):
@@ -1014,7 +1014,7 @@ def plot_fit_lc2(data, fit, meta, mcmc=False, nested=False):
         plt.savefig(meta.workdir + meta.fitdir + '/fit_lc' + '/nested_lc_bin{0}_wvl{1:0.3f}.png'.format(meta.s30_file_counter, meta.wavelength))
     else:
         plt.savefig(meta.workdir + meta.fitdir + '/fit_lc' + '/lsq_lc_bin{0}_wvl{1:0.3f}.png'.format(meta.s30_file_counter, meta.wavelength))
-    plt.close()
+    #plt.close()
 
 
 def plot_fit_lc3(data, fit, meta, mcmc=False):
@@ -1079,7 +1079,7 @@ def plot_fit_lc3(data, fit, meta, mcmc=False):
     else:
         plt.savefig(meta.workdir + meta.fitdir + '/fit_lc' + '/newfit_lc_bin{0}_wvl{1:0.3f}.png'.format(meta.s30_file_counter, meta.wavelength))
     # plt.waitforbuttonpress(0) # this will wait for indefinite time
-    plt.close()
+    #plt.close()
 
 
 def save_astrolc_data(data, fit, meta):
@@ -1171,7 +1171,7 @@ def save_astrolc_data(data, fit, meta):
 #     else:
 #         plt.savefig(meta.workdir + meta.fitdir + '/fit_lc' + "/new2fit_lc_{0}.png".format(meta.s30_file_counter))
 #     # plt.waitforbuttonpress(0) # this will wait for indefinite time
-#     plt.close()
+#     #plt.close()
 
 
 def params_vs_wvl(vals, errs, idxs, meta):
@@ -1193,7 +1193,7 @@ def params_vs_wvl(vals, errs, idxs, meta):
     plt.tight_layout()
     plt.subplots_adjust(hspace=0.01)
     plt.savefig(meta.workdir + meta.fitdir + '/lsq_res/' + '/lsq_params_vs_wvl.png', dpi=450, bbox_inches='tight', pad_inches=0.05)
-    plt.close()
+    #plt.close()
 
 
 def params_vs_wvl_mcmc(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta):
@@ -1219,7 +1219,7 @@ def params_vs_wvl_mcmc(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta):
     plt.tight_layout()
     plt.subplots_adjust(hspace=0.01)
     plt.savefig(meta.workdir + meta.fitdir + '/mcmc_res/' + '/mcmc_params_vs_wvl.png', dpi=500, bbox_inches='tight', pad_inches=0.05)
-    plt.close()
+    #plt.close()
 
 
 def params_vs_wvl_nested(vals_nested, errs_lower_nested, errs_upper_nested, meta):
@@ -1245,7 +1245,7 @@ def params_vs_wvl_nested(vals_nested, errs_lower_nested, errs_upper_nested, meta
     plt.tight_layout()
     plt.subplots_adjust(hspace=0.01)
     plt.savefig(meta.workdir + meta.fitdir + '/nested_res/' + '/nested_params_vs_wvl.png', dpi=500, bbox_inches='tight', pad_inches=0.05)
-    plt.close()
+    #plt.close()
 
 
 def lsq_rprs(vals, errs, idxs, meta):
@@ -1261,7 +1261,7 @@ def lsq_rprs(vals, errs, idxs, meta):
     if not os.path.isdir(meta.workdir + meta.fitdir + '/lsq_res'):
         os.makedirs(meta.workdir + meta.fitdir + '/lsq_res')
     plt.savefig(meta.workdir + meta.fitdir + '/lsq_res/' + 'lsq_rprs.png', dpi=300, bbox_inches='tight', pad_inches=0.05)
-    plt.close()
+    #plt.close()
 
 
 def mcmc_chains(ndim, sampler, nburn, labels, meta):
@@ -1285,7 +1285,7 @@ def mcmc_chains(ndim, sampler, nburn, labels, meta):
         fig.savefig(meta.workdir + meta.fitdir + '/mcmc_res/' + "/mcmc_chains_bin{0}_wvl{1:0.3f}.png".format(meta.s30_file_counter, meta.wavelength))
     else:
         fig.savefig(meta.workdir + meta.fitdir + '/mcmc_res/' + "/mcmc_chains_noburn_bin{0}_wvl{1:0.3f}.png".format(meta.s30_file_counter, meta.wavelength))
-    plt.close()
+    #plt.close()
 
 
 def mcmc_pairs(samples, params, meta, fit_par, data):	#FIXME: make sure this works for cases when nvisit>1
@@ -1296,7 +1296,7 @@ def mcmc_pairs(samples, params, meta, fit_par, data):	#FIXME: make sure this wor
     fig = corner.corner(samples, labels=labels, show_titles=True,quantiles=[0.16, 0.5, 0.84],title_fmt='.4')
     figname = meta.workdir + meta.fitdir + '/mcmc_res/' + "/mcmc_pairs_bin{0}_wvl{1:0.3f}.png".format(meta.s30_file_counter, meta.wavelength)
     fig.savefig(figname)
-    plt.close()
+    #plt.close()
 
 
 def nested_pairs(samples, params, meta, fit_par, data):	#FIXME: make sure this works for cases when nvisit>1
@@ -1307,28 +1307,28 @@ def nested_pairs(samples, params, meta, fit_par, data):	#FIXME: make sure this w
     fig = corner.corner(samples, labels=labels, show_titles=True,quantiles=[0.16, 0.5, 0.84],title_fmt='.4')
     figname = meta.workdir + meta.fitdir + '/nested_res/' + "/nested_pairs_bin{0}_wvl{1:0.3f}.png".format(meta.s30_file_counter, meta.wavelength)
     fig.savefig(figname)
-    plt.close()
+    #plt.close()
 
 
 def dyplot_runplot(results, meta):
     # Plot a summary of the run.
     rfig, raxes = dyplot.runplot(results)
     plt.savefig(meta.workdir + meta.fitdir + '/nested_res/' +  "/dyplot_runplot_bin{0}_wvl{1:0.3f}.png".format(meta.s30_file_counter, meta.wavelength))
-    plt.close()
+    #plt.close()
 
 
 def dyplot_traceplot(results, meta):
     # Plot traces and 1-D marginalized posteriors.
     tfig, taxes = dyplot.traceplot(results, labels=meta.labels)
     plt.savefig(meta.workdir + meta.fitdir + '/nested_res/' +  "/dyplot_traceplot_bin{0}_wvl{1:0.3f}.png".format(meta.s30_file_counter, meta.wavelength))
-    plt.close()
+    #plt.close()
 
 
 def dyplot_cornerplot(results, meta):
     # Plot the 2-D marginalized posteriors.
     cfig, caxes = dyplot.cornerplot(results, show_titles=True, title_fmt='.4',labels=meta.labels, color='blue', hist_kwargs=dict(facecolor='blue', edgecolor='blue'))
     plt.savefig(meta.workdir + meta.fitdir + '/nested_res/' +  "/dyplot_cornerplot_bin{0}_wvl{1:0.3f}.png".format(meta.s30_file_counter, meta.wavelength))
-    plt.close()
+    #plt.close()
 
 
 def mcmc_rprs(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta):
@@ -1345,7 +1345,7 @@ def mcmc_rprs(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta):
     plt.xlabel('Wavelength (micron)')
     plt.ylabel('Transit Depth (ppm)')
     plt.savefig(meta.workdir + meta.fitdir + '/mcmc_res/' + 'mcmc_rprs.png', dpi=300, bbox_inches='tight', pad_inches=0.05)
-    plt.close()
+    #plt.close()
 
 
 def nested_rprs(vals_nested, errs_lower_nested, errs_upper_nested, meta):
@@ -1363,4 +1363,4 @@ def nested_rprs(vals_nested, errs_lower_nested, errs_upper_nested, meta):
     plt.xlabel('Wavelength (micron)')
     plt.ylabel('Transit Depth (ppm)')
     plt.savefig(meta.workdir + meta.fitdir + '/nested_res/' + 'nested_rprs.png', dpi=300, bbox_inches='tight', pad_inches=0.05)
-    plt.close()
+    #plt.close()
