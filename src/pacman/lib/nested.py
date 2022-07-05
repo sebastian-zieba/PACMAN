@@ -40,7 +40,8 @@ def nested_sample(data, model, params, file_name, meta, fit_par):
     if not os.path.isdir(meta.workdir + meta.fitdir + '/nested_res'):
         os.makedirs(meta.workdir + meta.fitdir + '/nested_res')
 
-    pickle.dump(results, open(meta.workdir + meta.fitdir + '/nested_res/' +  '/nested_out_bin{0}_wvl{1:0.3f}.p'.format(meta.s30_file_counter, meta.wavelength), "wb"))
+    with open(meta.workdir + meta.fitdir + '/nested_res/' +  '/nested_out_bin{0}_wvl{1:0.3f}.p'.format(meta.s30_file_counter, meta.wavelength), "wb") as pickle_file:
+        pickle.dump(results, pickle_file)
     results.summary()
 
     labels = meta.labels
@@ -52,7 +53,7 @@ def nested_sample(data, model, params, file_name, meta, fit_par):
     plots.dyplot_runplot(results, meta)
     plots.dyplot_traceplot(results, meta)
     plots.dyplot_cornerplot(results, meta)
-    plots.nested_pairs(new_samples, params, meta, fit_par, data)
+    #plots.nested_pairs(new_samples, params, meta, fit_par, data)
 
     medians = []
     errors_lower = []

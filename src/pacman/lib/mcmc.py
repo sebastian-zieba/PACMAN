@@ -41,7 +41,8 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
     if not os.path.isdir(meta.workdir + meta.fitdir + '/mcmc_res'):
         os.makedirs(meta.workdir + meta.fitdir + '/mcmc_res')
 
-    pickle.dump([data, params, sampler.chain], open(meta.workdir + meta.fitdir + '/mcmc_res/' +  '/mcmc_out_bin{0}_wvl{1:0.3f}.p'.format(meta.s30_file_counter, meta.wavelength), "wb"))
+    with open(meta.workdir + meta.fitdir + '/mcmc_res/' +  '/mcmc_out_bin{0}_wvl{1:0.3f}.p'.format(meta.s30_file_counter, meta.wavelength), "wb") as pickle_file:
+        pickle.dump([data, params, sampler.chain], pickle_file)
     nburn = meta.run_nburn
 
     if meta.run_nsteps * meta.run_nwalkers > 1000000:
