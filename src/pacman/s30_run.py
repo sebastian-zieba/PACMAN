@@ -196,6 +196,7 @@ def run30(eventlabel, workdir, meta=None):
 
     return meta
 
+
 def update_clips(clips_array):
     clips_old = clips_array[0]
     clips_new = clips_array[1]

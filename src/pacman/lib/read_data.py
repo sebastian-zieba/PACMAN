@@ -170,6 +170,7 @@ class Data:
         if ('divide_white' in meta.s30_myfuncs) and meta.s30_fit_spec:
             self.white_systematics = np.genfromtxt(meta.workdir + "/white_systematics.txt")
 
+
 def remove_dupl(seq):
     #https://stackoverflow.com/questions/480214/how-do-you-remove-duplicates-from-a-list-whilst-preserving-order
     seen = set()

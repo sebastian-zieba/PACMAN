@@ -27,6 +27,8 @@ from .sort_nicely import sort_nicely as sn
 from astropy.io import ascii
 from astropy.table import Table
 from dynesty import plotting as dyplot
+import gc
+matplotlib.use('Agg')
 
 
 ##00
@@ -123,10 +125,12 @@ def obs_times(meta, times, ivisits, iorbits, updated=False):
             plt.savefig(meta.workdir + '/figs/s00_obs_dates/obs_dates.png', bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
         plt.clf()
+        gc.collect()
     else:
         plt.show()
         plt.close('all')
         plt.clf()
+        gc.collect()
 
 
 ## 02
@@ -187,10 +191,12 @@ def barycorr(x,y,z,time, obsx, obsy, obsz, coordtable, meta):
         plt.savefig(meta.workdir + '/figs/s02_barycorr/bjdcorr_{0}.png'.format(coordtable.split('/')[-1].split('.')[0]), bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
         plt.clf()
+        gc.collect()
     else:
         plt.show()
         plt.close('all')
         plt.clf()
+        gc.collect()
 
 
 ## 03
@@ -209,10 +215,12 @@ def smooth(meta, x, y, x_smoothed, y_smoothed):
                     dpi=120)
         plt.close('all')
         plt.clf()
+        gc.collect()
     else:
         plt.show()
         plt.close('all')
         plt.clf()
+        gc.collect()
 
 
 def refspec(bp_wvl, bp_val, sm_wvl, sm_flux, ref_wvl, ref_flux, meta):
@@ -240,10 +248,12 @@ def refspec(bp_wvl, bp_val, sm_wvl, sm_flux, ref_wvl, ref_flux, meta):
                     dpi=120)
         plt.close('all')
         plt.clf()
+        gc.collect()
     else:
         plt.show()
         plt.close('all')
         plt.clf()
+        gc.collect()
 
 
 ## 10
@@ -290,10 +300,12 @@ def image_quick(ima, i, meta):
         plt.savefig(meta.workdir + '/figs/s10_images/quick_di{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=180)
         plt.close('all')
         plt.clf()
+        gc.collect()
     else:
         plt.show()
         plt.close('all')
         plt.clf()
+        gc.collect()
 
 
 def image(dat, ima, results, i, meta):
@@ -346,10 +358,12 @@ def image(dat, ima, results, i, meta):
         plt.savefig(meta.workdir + '/figs/s10_images/di_{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
         plt.clf()
+        gc.collect()
     else:
         plt.show()
         plt.close('all')
         plt.clf()
+        gc.collect()
 
 
 ## 20
@@ -367,10 +381,12 @@ def sp2d(d, meta, i):
         plt.savefig(meta.workdir + '/figs/s20_sp2d/sp2d_{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
         plt.clf()
+        gc.collect()
     else:
         plt.show()
         plt.close('all')
         plt.clf()
+        gc.collect()
 
 def badmask_2d(array1, array2, array3, meta, i):
     """
@@ -392,6 +408,7 @@ def badmask_2d(array1, array2, array3, meta, i):
     plt.savefig(meta.workdir + '/figs/s20_badmask/badmask_{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
     plt.close('all')
     plt.clf()
+    gc.collect()
 
 
 def trace(d, meta, visnum, orbnum, i):
@@ -420,10 +437,12 @@ def trace(d, meta, visnum, orbnum, i):
         plt.savefig(meta.workdir + '/figs/s20_trace/trace_{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
         plt.clf()
+        gc.collect()
     else:
         plt.show()
         plt.close('all')
         plt.clf()
+        gc.collect()
 
 
 def bkg_hist(fullframe_diff, skymedian, meta, i, ii):
@@ -471,10 +490,12 @@ def bkg_hist(fullframe_diff, skymedian, meta, i, ii):
         plt.savefig(meta.workdir + '/figs/s20_bkg_hist/bkg_hist{0}-{1}.png'.format(i,ii), bbox_inches='tight', pad_inches=0.05, dpi=100)
         plt.close('all')
         plt.clf()
+        gc.collect()
     else:
         plt.show()
         plt.close('all')
         plt.clf()
+        gc.collect()
 
 
 def utr(diff, meta, i, ii, orbnum, rowmedian, rowmedian_absder, peaks):
@@ -544,10 +565,12 @@ def utr(diff, meta, i, ii, orbnum, rowmedian, rowmedian_absder, peaks):
         plt.savefig(meta.workdir + '/figs/s20_utr/utr{0}-{1}.png'.format(i, ii), bbox_inches='tight', pad_inches=0.05, dpi=90)
         plt.close('all')
         plt.clf()
+        gc.collect()
     else:
         plt.show()
         plt.close('all')
         plt.clf()
+        gc.collect()
 
 
 def sp1d(template_waves, spec_box, meta, i, spec_opt=False):
@@ -568,10 +591,12 @@ def sp1d(template_waves, spec_box, meta, i, spec_opt=False):
         plt.savefig(meta.workdir + '/figs/s20_sp1d/sp1d_{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
         plt.clf()
+        gc.collect()
     else:
         plt.show()
         plt.close('all')
         plt.clf()
+        gc.collect()
 
 def bkg_evo(bkg_evo, meta):
     """
@@ -590,10 +615,12 @@ def bkg_evo(bkg_evo, meta):
         plt.savefig(meta.workdir + '/figs/s20_bkg_evo/bkg_evo.png', bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
         plt.clf()
+        gc.collect()
     else:
         plt.show()
         plt.close('all')
         plt.clf()
+        gc.collect()
 
 def sp1d_diff(sp1d_all_diff, meta, wvl_hires):
     """
@@ -618,10 +645,12 @@ def sp1d_diff(sp1d_all_diff, meta, wvl_hires):
             plt.savefig(meta.workdir + '/figs/s20_sp1d_diff/sp1d_diff_{0}.png'.format(iiii), bbox_inches='tight', pad_inches=0.05, dpi=120)
             plt.close('all')
             plt.clf()
+            gc.collect()
         else:
             plt.show()
             plt.close('all')
             plt.clf()
+            gc.collect()
 
 
 def utr_aper_evo(peaks_all, meta):
@@ -661,10 +690,12 @@ def utr_aper_evo(peaks_all, meta):
         plt.savefig(meta.workdir + '/figs/s20_utr_aper_evo/utr_aper_evo.png', bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
         plt.clf()
+        gc.collect()
     else:
         plt.show()
         plt.close('all')
         plt.clf()
+        gc.collect()
 
 
 def refspec_fit(modelx, modely, p0, datax, datay, leastsq_res, meta, i):
@@ -690,10 +721,12 @@ def refspec_fit(modelx, modely, p0, datax, datay, leastsq_res, meta, i):
         plt.savefig(meta.workdir + '/figs/s20_refspec_fit/refspec_fit_{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
         plt.clf()
+        gc.collect()
     else:
         plt.show()
         plt.close('all')
         plt.clf()
+        gc.collect()
 
 
 def refspec_fit_lin(modelx, modely, p0, datax, datay, leastsq_res, meta, i):
@@ -719,10 +752,12 @@ def refspec_fit_lin(modelx, modely, p0, datax, datay, leastsq_res, meta, i):
         plt.savefig(meta.workdir + '/figs/s20_refspec_fit/refspec_fit_{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
         plt.clf()
+        gc.collect()
     else:
         plt.show()
         plt.close('all')
         plt.clf()
+        gc.collect()
 
 
 def drift(leastsq_res_all, meta):
@@ -757,10 +792,12 @@ def drift(leastsq_res_all, meta):
         plt.savefig(meta.workdir + '/figs/s20_drift/drift.png', bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
         plt.clf()
+        gc.collect()
     else:
         plt.show()
         plt.close('all')
         plt.clf()
+        gc.collect()
 
 def drift_lin(leastsq_res_all, meta):
 
@@ -789,10 +826,12 @@ def drift_lin(leastsq_res_all, meta):
         plt.savefig(meta.workdir + '/figs/s20_drift/drift.png', bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
         plt.clf()
+        gc.collect()
     else:
         plt.show()
         plt.close('all')
         plt.clf()
+        gc.collect()
 
 
 ##21
@@ -847,6 +886,7 @@ def plot_raw(data, meta):
     plt.savefig(meta.workdir + meta.fitdir + '/raw_lc' + '/raw_lc_bin{0}_wvl{1:0.3f}.png'.format(meta.s30_file_counter, meta.wavelength).format(meta.s30_file_counter))
     plt.close('all')
     plt.clf()
+    gc.collect()
 
 
 def save_plot_raw_data(data, meta):
@@ -897,6 +937,7 @@ def rmsplot(model, data, meta):
     plt.savefig(meta.workdir + meta.fitdir + '/corr_plot' + '/corr_plot_bin{0}_wvl{1:0.3f}.png'.format(meta.s30_file_counter, meta.wavelength))
     plt.close('all')
     plt.clf()
+    gc.collect()
 
 
 # def plot_fit_lc(data, fit, meta, mcmc=False):
@@ -1051,6 +1092,7 @@ def plot_fit_lc2(data, fit, meta, mcmc=False, nested=False):
         plt.savefig(meta.workdir + meta.fitdir + '/fit_lc' + '/lsq_lc_bin{0}_wvl{1:0.3f}.png'.format(meta.s30_file_counter, meta.wavelength))
     plt.close('all')
     plt.clf()
+    gc.collect()
 
 
 def plot_fit_lc3(data, fit, meta, mcmc=False):
@@ -1117,6 +1159,7 @@ def plot_fit_lc3(data, fit, meta, mcmc=False):
     # plt.waitforbuttonpress(0) # this will wait for indefinite time
     plt.close('all')
     plt.clf()
+    gc.collect()
 
 
 def save_astrolc_data(data, fit, meta):
@@ -1232,6 +1275,7 @@ def params_vs_wvl(vals, errs, idxs, meta):
     plt.savefig(meta.workdir + meta.fitdir + '/lsq_res/' + '/lsq_params_vs_wvl.png', dpi=450, bbox_inches='tight', pad_inches=0.05)
     plt.close('all')
     plt.clf()
+    gc.collect()
 
 
 def params_vs_wvl_mcmc(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta):
@@ -1259,6 +1303,7 @@ def params_vs_wvl_mcmc(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta):
     plt.savefig(meta.workdir + meta.fitdir + '/mcmc_res/' + '/mcmc_params_vs_wvl.png', dpi=500, bbox_inches='tight', pad_inches=0.05)
     plt.close('all')
     plt.clf()
+    gc.collect()
 
 
 def params_vs_wvl_nested(vals_nested, errs_lower_nested, errs_upper_nested, meta):
@@ -1286,6 +1331,7 @@ def params_vs_wvl_nested(vals_nested, errs_lower_nested, errs_upper_nested, meta
     plt.savefig(meta.workdir + meta.fitdir + '/nested_res/' + '/nested_params_vs_wvl.png', dpi=500, bbox_inches='tight', pad_inches=0.05)
     plt.close('all')
     plt.clf()
+    gc.collect()
 
 
 def lsq_rprs(vals, errs, idxs, meta):
@@ -1303,6 +1349,7 @@ def lsq_rprs(vals, errs, idxs, meta):
     plt.savefig(meta.workdir + meta.fitdir + '/lsq_res/' + 'lsq_rprs.png', dpi=300, bbox_inches='tight', pad_inches=0.05)
     plt.close('all')
     plt.clf()
+    gc.collect()
 
 
 def mcmc_chains(ndim, sampler, nburn, labels, meta):
@@ -1328,6 +1375,7 @@ def mcmc_chains(ndim, sampler, nburn, labels, meta):
         fig.savefig(meta.workdir + meta.fitdir + '/mcmc_res/' + "/mcmc_chains_noburn_bin{0}_wvl{1:0.3f}.png".format(meta.s30_file_counter, meta.wavelength))
     plt.close('all')
     plt.clf()
+    gc.collect()
 
 
 def mcmc_pairs(samples, params, meta, fit_par, data):	#FIXME: make sure this works for cases when nvisit>1
@@ -1340,6 +1388,7 @@ def mcmc_pairs(samples, params, meta, fit_par, data):	#FIXME: make sure this wor
     fig.savefig(figname)
     plt.close('all')
     plt.clf()
+    gc.collect()
 
 
 def nested_pairs(samples, params, meta, fit_par, data):	#FIXME: make sure this works for cases when nvisit>1
@@ -1352,6 +1401,7 @@ def nested_pairs(samples, params, meta, fit_par, data):	#FIXME: make sure this w
     fig.savefig(figname)
     plt.close('all')
     plt.clf()
+    gc.collect()
 
 
 def dyplot_runplot(results, meta):
@@ -1360,6 +1410,7 @@ def dyplot_runplot(results, meta):
     plt.savefig(meta.workdir + meta.fitdir + '/nested_res/' +  "/dyplot_runplot_bin{0}_wvl{1:0.3f}.png".format(meta.s30_file_counter, meta.wavelength))
     plt.close('all')
     plt.clf()
+    gc.collect()
 
 
 def dyplot_traceplot(results, meta):
@@ -1368,6 +1419,7 @@ def dyplot_traceplot(results, meta):
     plt.savefig(meta.workdir + meta.fitdir + '/nested_res/' +  "/dyplot_traceplot_bin{0}_wvl{1:0.3f}.png".format(meta.s30_file_counter, meta.wavelength))
     plt.close('all')
     plt.clf()
+    gc.collect()
 
 
 def dyplot_cornerplot(results, meta):
@@ -1376,6 +1428,7 @@ def dyplot_cornerplot(results, meta):
     plt.savefig(meta.workdir + meta.fitdir + '/nested_res/' +  "/dyplot_cornerplot_bin{0}_wvl{1:0.3f}.png".format(meta.s30_file_counter, meta.wavelength))
     plt.close('all')
     plt.clf()
+    gc.collect()
 
 
 def mcmc_rprs(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta):
@@ -1394,6 +1447,7 @@ def mcmc_rprs(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta):
     plt.savefig(meta.workdir + meta.fitdir + '/mcmc_res/' + 'mcmc_rprs.png', dpi=300, bbox_inches='tight', pad_inches=0.05)
     plt.close('all')
     plt.clf()
+    gc.collect()
 
 
 def nested_rprs(vals_nested, errs_lower_nested, errs_upper_nested, meta):
@@ -1413,3 +1467,4 @@ def nested_rprs(vals_nested, errs_lower_nested, errs_upper_nested, meta):
     plt.savefig(meta.workdir + meta.fitdir + '/nested_res/' + 'nested_rprs.png', dpi=300, bbox_inches='tight', pad_inches=0.05)
     plt.close('all')
     plt.clf()
+    gc.collect()

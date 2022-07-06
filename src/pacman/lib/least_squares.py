@@ -116,6 +116,7 @@ def lsq_fit(fit_par, data, meta, model, myfuncs, noclip=False):
             os.makedirs(meta.workdir + meta.fitdir + '/lsq_res')
         f_lsq = open(meta.workdir + meta.fitdir + '/lsq_res/' + "/lsq_res_bin{0}_wvl{1:0.3f}.txt".format(meta.s30_file_counter, meta.wavelength), 'w')
         PrintParams(m, data, savefile=f_lsq)
+        f_lsq.close()
         PrintParams(m, data)
 
     if meta.save_allan_plot:
