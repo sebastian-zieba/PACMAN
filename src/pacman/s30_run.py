@@ -138,7 +138,8 @@ def run30(eventlabel, workdir, meta=None):
             time.sleep(1.1)
             if meta.rescale_uncert:
                 ##rescale error bars so reduced chi-squared is one
-                data.err *= np.sqrt(model.chi2red)
+                if model.chi2red > 1:
+                    data.err *= np.sqrt(model.chi2red)
             data, model, params, m = lsq_fit(fit_par, data, meta, model, myfuncs, noclip=True)
             if meta.run_verbose == True: print("rms, chi2red = ", model.rms, model.chi2red)
             val_mcmc, err_lower_mcmc, err_upper_mcmc = mcmc_fit(data, model, params, f, meta, fit_par)
@@ -147,7 +148,8 @@ def run30(eventlabel, workdir, meta=None):
             time.sleep(1.1)
             if meta.rescale_uncert:
                 ##rescale error bars so reduced chi-squared is one
-                data.err *= np.sqrt(model.chi2red)
+                if model.chi2red > 1:
+                    data.err *= np.sqrt(model.chi2red)
             data, model, params, m = lsq_fit(fit_par, data, meta, model, myfuncs, noclip=True)
             if meta.run_verbose == True: print("rms, chi2red = ", model.rms, model.chi2red)
             val_nested, err_lower_nested, err_upper_nested = nested_sample(data, model, params, f, meta, fit_par)
