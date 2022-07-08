@@ -85,6 +85,9 @@ This plot consists of one table and two subplots.
 If the user didn't set ``which_visits   everything``, two figures like this will be generated.
 One with all visits and the other with only the ones set with ``which_visits``.
 
+
+
+
 Stage 02
 ---------------------------------------------------------
 
@@ -96,6 +99,7 @@ Saves or shows a plot with the downloaded X,Y,Z positions of HST from
 the `HORIZONS system <https://ssd.jpl.nasa.gov/horizons/>`_ by JPL during the observations.
 
 .. image:: media/s02/bjdcorr_horizons_results_v1.png
+
 
 
 
@@ -134,9 +138,8 @@ The stellar models (exluding the blackbody) are retrieved from https://archive.s
 
 smooth/smooth_sigma
 ''''''''''''''''''''''''''''''''''''''''''''
-Example:
-| ``smooth        True``
-| ``smooth_sigma  50``
+| Example: ``smooth        True``
+| Example: ``smooth_sigma  50``
 
 If ``smooth`` is ``True``, applies a Gaussian kernel smoothing to the stellar spectrum. This is recommended since the Kurucz and Phoenix stellar models have a higher resolution than the WFC3 grisms, which have native resolution of:
 
@@ -204,6 +207,7 @@ di_multi
 
 Some observations have more than one direct image per orbit which were taken at the start of the orbit.
 In these cases the user can decide if they want to only use the most recent DI or a median of the DI positions in the orbit.
+
 
 
 
@@ -281,10 +285,27 @@ correct_wave_shift
 Interpolates each spectrum to the wavelength scale of the reference spectrum, to account for spectral drift over the observation. 
 
 
+correct_wave_shift_refspec
+''''''''''''''''''''''''''''''''''''''''''''
+uses the created refence spectrum during Stage 03 for the wavelength calibration.
+
+
 output
 ''''''''''''''''''''''''''''''''''''''''''''
 | Example: ``output  True``
 Saves the flux as a function of time and wavelength. 
+
+
+background_box & bg_rmin etc.
+''''''''''''''''''''''''''''''''''''''''''''
+Do you want to calculate the median flux in a box to use as an estimate of the background flux?
+
+| Example: ``background_box               False``
+| Example: ``bg_rmin                      100``
+| Example: ``bg_rmax                      400``
+| Example: ``bg_cmin                      40``
+| Example: ``bg_cmax                      100``
+
 
 
 save_sp2d_plot/show_sp2d_plot
@@ -451,7 +472,8 @@ Removes the first orbit from every visit.
 
 rescale_uncert
 ''''''''''''''''''''''''''''''''''''''''''''
-Rescales the uncertainties for the sampler (MCMC or nested sampling), so that the reduced chi2 = 1.
+Rescales the uncertainties for the sampler (MCMC or nested sampling), so that the reduced chi2red = 1.
+Note: This only happens if chi2red < 1 after least squared fit.
 
 
 run_clipiters
@@ -464,24 +486,27 @@ run_clipsigma
 NOT TESTED
 
 
+ld_model
+''''''''''''''''''''''''''''''''''''''''''''
+| Example: ``ld_model  1``
+1 = "linear" limb darkening 
+2 = "quadratic" limb darkening 
+
+
 fix_ld
 ''''''''''''''''''''''''''''''''''''''''''''
-NOT TESTED
+If true, PACMAN will use `ExoTiC-LD <https://github.com/Exo-TiC/ExoTiC-LD>`_ to calculate limb darkening parameters and fix them during the fits.
 
 
 ld_file
 ''''''''''''''''''''''''''''''''''''''''''''
-NOT TESTED
+NOT TESTED but should give the possibility to use your own limb darkening file.
 
 
 toffset
 ''''''''''''''''''''''''''''''''''''''''''''
 Subtracts an offset from the time stamps so that there is no problem with floating precision due to the size of dates in BJD.
 
-
-run_divide_white
-''''''''''''''''''''''''''''''''''''''''''''
-NOT TESTED
 
 
 run_verbose
@@ -533,4 +558,12 @@ Parameters for emcee.
 
 run_dlogz/run_nlive
 ''''''''''''''''''''''''''''''''''''''''''''
+| Example: ``run_dynamic                  False``
+| Example: ``run_dlogz                    0.1``
+| Example: ``run_nlive                    700``
+| Example: ``run_bound                    single``
+| Example: ``run_sample                   rwalk``
+
 Parameters for dynesty.
+
+

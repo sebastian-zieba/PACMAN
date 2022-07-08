@@ -30,13 +30,25 @@ Instrument Systematics
 
   Quadratic trend (free parameters: v, v2)
 
+* `exponential_visit.py <https://pacmandocs.readthedocs.io/en/latest/_modules/pacman/lib/models/exponential_visit.html#exponential_visit>`_
+
+  Exponential trend over the whole visit (free parameters: exp1, exp12)
+
+* `logarithmic_visit.py <https://pacmandocs.readthedocs.io/en/latest/_modules/pacman/lib/models/logarithmic_visit.html#logarithmic_visit>`_
+
+  Logarithmic trend over the whole visit (free parameters: log1, log2)
+
 * `upstream_downstream.py <https://pacmandocs.readthedocs.io/en/latest/_modules/pacman/lib/models/upstream_downstream.html#upstream_downstream>`_
 
   Offset between scan directions due to the upstream-downstream effect (free parameters: scale)
 
 * `divide_white.py <https://pacmandocs.readthedocs.io/en/latest/_modules/pacman/lib/models/divide_white.html#divide_white>`_
 
+  Uses the divide-white method which assumes that the systematic parameters for a spectroscopic light curves are the same (have the same shape) as for the white light curve. TODO ADD REF
 
+* `constants_cj.py <https://pacmandocs.readthedocs.io/en/latest/_modules/pacman/lib/models/constants_cj.html#constants_cj>`_
+
+  Alternative for model_ramp which fits a constant to every j-th exposure in an orbit. TODO ADD REF 
 
 Astrophysical
 ''''''''''''''''''''''''''''''
