@@ -50,6 +50,9 @@ Instrument Systematics
 
   Alternative for model_ramp which fits a constant to every j-th exposure in an orbit. TODO ADD REF 
 
+.. note:: c is in log10. A average flux of 10^7 photoelectrons therefore leads to approximately c = 7.
+
+
 Astrophysical
 ''''''''''''''''''''''''''''''
 
