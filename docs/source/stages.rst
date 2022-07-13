@@ -47,10 +47,8 @@ PACMAN is separated into different stages, summarized here.  Click on the hyperl
   + bins the spectra in wavelength to create spectroscopic light curves (this step can be skipped if the user is only interested in the broadband light curve).
 
 
-- `Stage 22: <https://pacmandocs.readthedocs.io/en/latest/_modules/pacman/reduction/s22_ld_inputmaker.html>`_
-
-  + (optional, to be added) generate limb darkening parameters from a stellar model
-
 - `Stage 30: <https://pacmandocs.readthedocs.io/en/latest/_modules/pacman/reduction/s30_run.html>`_
 
-  + fit a model to the light curve(s)
+  + fit a model to the light curve(s). You can find the models currently available `here <https://pacmandocs.readthedocs.io/en/latest/models.html>`_.
+  + the user can also download and use precalculated limb darkening parameters in this stage. For more information see the `fix-ld <https://pacmandocs.readthedocs.io/en/latest/pcf.html#fix-ld>`_ parameter in the pcf.
+

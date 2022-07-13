@@ -17,14 +17,13 @@ Once you have Anaconda installed, navigate in a terminal to a directory where yo
 
 .. code-block:: console
 
-    conda deactivate
     conda create -n pacman python==3.9
     git clone https://github.com/sebastian-zieba/PACMAN
     cd PACMAN
     conda activate pacman
-    pip install .
+    pip install -e .
 
-With these steps we created a conda environment called pacman and installed PACMAN and its dependencies there.
+With these steps we created a conda environment called ``pacman`` and installed ``PACMAN`` and its dependencies there.
 
 .. note:: In this example, the conda environment was initialized with python v3.9.0. PACMAN was tested with python v3.7 to v3.10, so it is up to the user which version to use.
 
@@ -45,7 +44,7 @@ You can install ``PACMAN`` using ``pip`` by entering the following line into a t
 
 .. code-block:: console
 
-    pip install git+https://github.com/sebastian-zieba/PACMAN
+    pip install -e git+https://github.com/sebastian-zieba/PACMAN
 
 
 Directly from GitHub
@@ -70,7 +69,7 @@ There are two ways to do that:
 
 .. code-block:: console
 
-    pip install .
+    pip install -e .
 
 
 Using pip (PyPI)

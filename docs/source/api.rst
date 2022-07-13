@@ -213,6 +213,13 @@ lib.models.constant
     :undoc-members:
     :show-inheritance:
 
+lib.models.constants_cj
+----------------------------------------
+.. automodule:: pacman.lib.models.constants_cj
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 lib.models.model_ramp
 ----------------------------------------
 .. automodule:: pacman.lib.models.model_ramp
@@ -230,6 +237,20 @@ lib.models.polynomial1
 lib.models.polynomial2
 ----------------------------------------
 .. automodule:: pacman.lib.models.polynomial2
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+lib.models.exponential_visit
+----------------------------------------
+.. automodule:: pacman.lib.models.exponential_visit
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+lib.models.logarithmic_visit
+----------------------------------------
+.. automodule:: pacman.lib.models.logarithmic_visit
     :members:
     :undoc-members:
     :show-inheritance:
