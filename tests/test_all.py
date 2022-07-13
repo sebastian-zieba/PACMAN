@@ -282,7 +282,7 @@ def test_s03(capsys):
     wvl_refspec, flux_refspec = np.loadtxt(refspec_file).T
 
     # Check if the refspec was correctly created
-    assert len(wvl_refspec) == 162
+    assert len(wvl_refspec) == 7751
     #check if for the refspec file the flux and wavelength is >= 0 everywhere
     assert np.all(wvl_refspec >= 0)
     assert np.all(flux_refspec >= 0)
