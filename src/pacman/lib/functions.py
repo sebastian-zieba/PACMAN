@@ -169,12 +169,12 @@ class Functions:
                     data.par_order['c21'] * data.nvisit,
                     data.par_order['c22'] * data.nvisit,
                     data.par_order['c23'] * data.nvisit,
-                    data.par_order['c24'] * data.nvisit,
-                    data.par_order['c25'] * data.nvisit,
-                    data.par_order['c26'] * data.nvisit,
-                    data.par_order['c27'] * data.nvisit,
-                    data.par_order['c28'] * data.nvisit,
-                    data.par_order['c29'] * data.nvisit
+                    data.par_order['c24'] * data.nvisit#,
+                    #data.par_order['c25'] * data.nvisit#,
+                    #data.par_order['c26'] * data.nvisit,
+                    #data.par_order['c27'] * data.nvisit,
+                    #data.par_order['c28'] * data.nvisit,
+                    #data.par_order['c29'] * data.nvisit
                     ])
             else:
                 #FIXME return error here

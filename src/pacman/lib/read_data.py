@@ -51,14 +51,27 @@ class Data:
         #####################################
         # Remove first orbit of each visit
         # The NOT cumulative orbit list is saved in meta.iorbit_sp
-        if meta.remove_first_orb:
-            #removes first exposure from each orbit
-            leave_ind = iorbit_sp != 0
-            d = d[leave_ind]
-            # Remove first orbit from meta.iorbit_sp too
-            iorbit_sp = iorbit_sp[leave_ind]
-            iexp_orb_sp = iexp_orb_sp[leave_ind]
-            print('Removed {0} exposures because they were the first orbit in the visit.'.format(sum(~leave_ind)))
+        if len(meta.remove_which_orb) == 1:
+            if meta.remove_first_orb:
+                #removes first exposure from each orbit
+                leave_ind = iorbit_sp != 0
+                d = d[leave_ind]
+                # Remove first orbit from meta.iorbit_sp too
+                iorbit_sp = iorbit_sp[leave_ind]
+                iexp_orb_sp = iexp_orb_sp[leave_ind]
+                print('Removed {0} exposures because they were the first orbit in the visit.'.format(sum(~leave_ind)))
+        elif len(meta.remove_which_orb) != 1 and meta.remove_first_orb:
+            if meta.remove_first_orb:
+                masks_orb = []
+                for i in range(len(meta.remove_which_orb)):
+                    masks_orb.append(iorbit_sp != meta.remove_which_orb[i])
+                #removes chosen orbits from each orbit
+                leave_ind = np.bitwise_and(*masks_orb)
+                d = d[leave_ind]
+                # Remove first orbit from meta.iorbit_sp too
+                iorbit_sp = iorbit_sp[leave_ind]
+                iexp_orb_sp = iexp_orb_sp[leave_ind]
+                print('Removed {0} exposures because they were the first orbit in the visit.'.format(sum(~leave_ind)))
         else:
             print('Leaving the first orbit in every visit.')
 
@@ -91,9 +104,11 @@ class Data:
         norbit = int(meta.norbit)
 
         #FIXME SZ If white it should take wavelength integrated limb darking from file not just at 1.4 micron
-        #wavelength = d[0,3]
         if meta.s30_fit_white:
-            meta.wavelength = 1.4
+            if meta.grism == 'G102':
+                meta.wavelength = 1.0
+            elif meta.grism == 'G141':
+                meta.wavelength = 1.4
         else:
             meta.wavelength = d['wave'].value[0]
 

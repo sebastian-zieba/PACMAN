@@ -227,7 +227,7 @@ def get_sm(meta, user_met, user_logg, user_teff):
     chosen_logg_name = 'g' + str(chosen_logg)[0] + str(chosen_logg)[2]
     wvl = hdul[1].data['WAVELENGTH']*1e-10
     flux = hdul[1].data[chosen_logg_name]*1e-7*1e4/1e-10/np.pi
-    flux = flux * wvl
+    #flux = flux * wvl
     hdul.close()
     return wvl, flux
 

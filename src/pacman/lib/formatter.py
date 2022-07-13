@@ -84,11 +84,11 @@ class FormatParams:
             self.c22 = params[data.par_order['c22']*data.nvisit:(1 + data.par_order['c22'])*data.nvisit]
             self.c23 = params[data.par_order['c23']*data.nvisit:(1 + data.par_order['c23'])*data.nvisit]
             self.c24 = params[data.par_order['c24']*data.nvisit:(1 + data.par_order['c24'])*data.nvisit]
-            self.c25 = params[data.par_order['c25']*data.nvisit:(1 + data.par_order['c25'])*data.nvisit]
-            self.c26 = params[data.par_order['c26']*data.nvisit:(1 + data.par_order['c26'])*data.nvisit]
-            self.c27 = params[data.par_order['c27']*data.nvisit:(1 + data.par_order['c27'])*data.nvisit]
-            self.c28 = params[data.par_order['c28']*data.nvisit:(1 + data.par_order['c28'])*data.nvisit]
-            self.c29 = params[data.par_order['c29']*data.nvisit:(1 + data.par_order['c29'])*data.nvisit]
+            #self.c25 = params[data.par_order['c25']*data.nvisit:(1 + data.par_order['c25'])*data.nvisit]
+            #self.c26 = params[data.par_order['c26']*data.nvisit:(1 + data.par_order['c26'])*data.nvisit]
+            #self.c27 = params[data.par_order['c27']*data.nvisit:(1 + data.par_order['c27'])*data.nvisit]
+            #self.c28 = params[data.par_order['c28']*data.nvisit:(1 + data.par_order['c28'])*data.nvisit]
+            #self.c29 = params[data.par_order['c29']*data.nvisit:(1 + data.par_order['c29'])*data.nvisit]
 
 
 def PrintParams(m, data, savefile=False):

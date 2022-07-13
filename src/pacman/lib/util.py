@@ -414,7 +414,7 @@ def correct_wave_shift_fct_0(meta, orbnum, cmin, cmax, spec_opt, i):
     """
     template_waves = meta.wave_grid[0, int(meta.refpix[orbnum, 1]) + meta.LTV1, cmin:cmax]
 
-    g102mask = template_waves > 8200  # we dont use the spectrum below 8200 angstrom for the interpolation as the reference bandpass cuts out below this wavelength
+    g102mask = template_waves > 820  # we dont use the spectrum below 8200 angstrom for the interpolation as the reference bandpass cuts out below this wavelength
 
     x_refspec, y_refspec = read_refspec(meta)
 
@@ -431,7 +431,7 @@ def correct_wave_shift_fct_0(meta, orbnum, cmin, cmax, spec_opt, i):
         plots.refspec_fit(x_refspec, y_refspec, p0, x_data, y_data, leastsq_res, meta, i)
 
     # for all other but first exposure in visit exposures
-    x_data_firstexpvisit = leastsq_res[0] + template_waves * leastsq_res[1]
+    x_data_firstexpvisit = leastsq_res[0] + x_data * leastsq_res[1]
     y_data_firstexpvisit = np.copy(y_data)
 
     #np.savetxt('testing_template.txt', list(zip(x_refspec, y_refspec)))
@@ -446,7 +446,7 @@ def correct_wave_shift_fct_0_lin(meta, orbnum, cmin, cmax, spec_opt, i):
     """
     template_waves = meta.wave_grid[0, int(meta.refpix[orbnum, 1]) + meta.LTV1, cmin:cmax]
 
-    g102mask = template_waves > 8200  # we dont use the spectrum below 8200 angstrom for the interpolation as the reference bandpass cuts out below this wavelength
+    g102mask = template_waves > 820  # we dont use the spectrum below 8200 angstrom for the interpolation as the reference bandpass cuts out below this wavelength
 
     x_refspec, y_refspec = read_refspec(meta)
 
@@ -463,7 +463,7 @@ def correct_wave_shift_fct_0_lin(meta, orbnum, cmin, cmax, spec_opt, i):
         plots.refspec_fit_lin(x_refspec, y_refspec, p0, x_data, y_data, leastsq_res, meta, i)
 
     # for all other but first exposure in visit exposures
-    x_data_firstexpvisit = leastsq_res[0] + template_waves
+    x_data_firstexpvisit = leastsq_res[0] + x_data
     y_data_firstexpvisit = np.copy(y_data)
 
     #np.savetxt('/home/zieba/Desktop/Projects/Observations/Hubble/KELT11_15255/run_2022-05-25_16-57-51_new/spectra_drift/' + 'testing_template.txt', list(zip(x_refspec_new, y_refspec_new)))
@@ -492,7 +492,7 @@ def correct_wave_shift_fct_00(meta, orbnum, cmin, cmax, spec_opt, i):
         plots.refspec_fit(x_refspec, y_refspec, p0, x_data, y_data, leastsq_res, meta, i)
 
     # for all other but first exposure in visit exposures
-    x_data_firstexpvisit = leastsq_res[0] + template_waves * leastsq_res[1]
+    x_data_firstexpvisit = leastsq_res[0] + x_data * leastsq_res[1]
     y_data_firstexpvisit = np.copy(y_data)
 
     # np.savetxt('testing_exp0.txt', list(zip(x_data_firstexpvisit, y_data_firstexpvisit)))

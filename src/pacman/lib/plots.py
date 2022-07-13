@@ -707,10 +707,10 @@ def refspec_fit(modelx, modely, p0, datax, datay, leastsq_res, meta, i):
              label='spectrum fit, wvl = ({0:.5g}+{1:.5g}*x), {2:.5g}'.format(leastsq_res[0], leastsq_res[1], leastsq_res[2]))
     ax.plot(datax, datay/max(datay), label='spectrum before fit')
     if meta.grism == 'G141':
-        ax.set_xlim(9000, 20000)
+        ax.set_xlim(9800, 18000)
     elif meta.grism == 'G102':
-        ax.set_xlim(5000, 16000)
-    ax.set_xscale('log')
+        ax.set_xlim(7000, 12500)
+    #ax.set_xscale('log')
     ax.set_xlabel('Wavelength (angstrom)')
     ax.set_xlabel('rel. Flux')
     plt.legend()
