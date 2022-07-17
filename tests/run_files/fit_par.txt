@@ -5,7 +5,7 @@ t_secondary   True    -1     0.0         False     0.0       False    0.0      X
 w             True    -1     90.0        False     0.0       False    0.0      X       0.0       0.0      0.0        
 a             True    -1     15.23       False     14.0      False    16.0     X       4.98      0.05     0.02       
 inc           True    -1     89.1        False     88.0      False    89.9     X       85.3      0.2      0.02       
-rp            True   -1     0.0        True      0.00      True     0.1      U       0.0       0.1      0.00001      
+rp            True   -1     0.001        True      0.00      True     0.1      U       0.0       0.1      0.00001      
 fp            True    -1     0.0         False     0.0       False    0.002    X       0.0       1.0      0.0        
 u1            True    -1     0.29        False     0.0       False    0.6      U       0.0       1.0      0.01       
 u2            True    -1     0.0         False     0.0       False    0.0      X       0.0       0.0      0.0        

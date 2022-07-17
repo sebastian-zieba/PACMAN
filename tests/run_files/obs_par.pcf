@@ -126,7 +126,7 @@ s30_fit_spec                 True
 s30_most_recent_s21          True
 s30_spec_dir_path            None
 
-remove_first_exp             False
+remove_first_exp             True
 remove_first_orb             False
 remove_which_orb             []
 
