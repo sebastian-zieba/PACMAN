@@ -33,10 +33,11 @@ The contents of run_files are three different files:
 
  - **obs_par.pcf**
 
-These three files are part of the package but can also be downloaded under this link: `Download here <https://downgit.github.io/#/home?url=https://github.com/sebastian-zieba/PACMAN/tree/master/pacman/run_files>`_.
+These three files are `part of the package <https://github.com/sebastian-zieba/PACMAN/tree/master/src/pacman/data/run_files>`_ but can also be downloaded under this link: `Download here <https://downgit.github.io/#/home?url=https://github.com/sebastian-zieba/PACMAN/tree/master/src/pacman/data/run_files>`_.
 
 3) **Set up the pcf**
 
 The pacman control file, or :ref:`pcf page <pcf>`, stores all the parameters the user can tune for a particular run.
-Before we start, paths to the data and the run directory (``data_dir`` and ``run_dir``) have to be set in the pcf.   Follow along to :ref:`Stage 00 <stage00>` to set these parameters.
+Before we start, paths to the data and the run directory (``data_dir`` and ``run_dir``) have to be set in the pcf.
+Follow along to :ref:`Stage 00 <stage00>` to set these parameters.
 

@@ -26,34 +26,22 @@ The terminal should give you something like this:
 
 	    Successfully reloaded meta file
 	    Starting s10
-	    Determining Source Positions for Direct Images:   8%|8         | 1/12 [00:01<00:15,  1.45s/it]
+	    Determining Source Positions for Direct Images:   8%|8         | 1/8 [00:01<00:15,  1.45s/it]
 	    Your guess for di_rmax is outside of the image.
-	    Determining Source Positions for Direct Images:  17%|#6        | 2/12 [00:02<00:13,  1.36s/it]
+	    Determining Source Positions for Direct Images:  17%|#6        | 2/8 [00:02<00:13,  1.36s/it]
 	    Your guess for di_rmax is outside of the image.
-	    Determining Source Positions for Direct Images:  25%|##5       | 3/12 [00:03<00:11,  1.26s/it]
+	    Determining Source Positions for Direct Images:  25%|##5       | 3/8 [00:03<00:11,  1.26s/it]
 	    Your guess for di_rmax is outside of the image.
-
 	    Your guess for di_rmax is outside of the image.
-	    Determining Source Positions for Direct Images:  42%|####1     | 5/12 [00:05<00:07,  1.14s/it]
+	    Determining Source Positions for Direct Images:  42%|####1     | 5/8 [00:05<00:07,  1.14s/it]
 	    Your guess for di_rmax is outside of the image.
-
 	    Your guess for di_rmax is outside of the image.
-	    Determining Source Positions for Direct Images:  58%|#####8    | 7/12 [00:07<00:05,  1.10s/it]
+	    Determining Source Positions for Direct Images:  58%|#####8    | 7/8 [00:07<00:05,  1.10s/it]
 	    Your guess for di_rmax is outside of the image.
-	    Determining Source Positions for Direct Images:  67%|######6   | 8/12 [00:08<00:04,  1.11s/it]
-	    Your guess for di_rmax is outside of the image.
-	    Determining Source Positions for Direct Images:  75%|#######5  | 9/12 [00:10<00:03,  1.12s/it]
-	    Your guess for di_rmax is outside of the image.
-	    Determining Source Positions for Direct Images:  83%|########3 | 10/12 [00:11<00:02,  1.09s/it]
-	    Your guess for di_rmax is outside of the image.
-
-	    Your guess for di_rmax is outside of the image.
-	    Determining Source Positions for Direct Images: 100%|##########| 12/12 [00:13<00:00,  1.10s/it]
-
+	    Determining Source Positions for Direct Images:  100%|#########| 8/8 [00:08<00:04,  1.11s/it]
 	    Your guess for di_rmax is outside of the image.
 	    Saving Metadata
 	    Finished s10
-
 
 
 We see that we got error messages that our guesses were outside of the image.
@@ -81,11 +69,13 @@ The terminal should give you something like this:
 
 .. code-block:: console
 
-	    Successfully reloaded meta file
-	    Starting s10
-	    Determining Source Positions for Direct Images: 100%|##########| 12/12 [00:36<00:00,  3.02s/it]
-	    Saving Metadata
-	    Finished s10
+    Successfully reloaded meta file
+    Starting s10
+    Determining Source Positions for Direct Images: 100%|#| 8/8 [00:06<00:00,  1.26i
+    There is one DI per orbit.
+    Saving Metadata
+    Finished s10
+
 
 You will end up with plots like this one:
 

@@ -15,18 +15,21 @@ Stage 00
 
 	- **obs_par.pcf**
 
-	They can be either found in your package directory, on `GitHub <https://github.com/sebastian-zieba/PACMAN>`_
-	or can be downloaded `here <https://downgit.github.io/#/home?url=https://github.com/sebastian-zieba/PACMAN/tree/master/pacman/run_files>`_.
+	They can be either found in your package directory, on `GitHub <https://github.com/sebastian-zieba/PACMAN/tree/master/src/pacman/data/run_files>`_
+	or can be downloaded `here <https://downgit.github.io/#/home?url=https://github.com/sebastian-zieba/PACMAN/tree/master/src/pacman/data/run_files>`_.
 
 	If your datadir contains a lot of visits, but you only want to analyze a subset you can use ``which_visits``.
 
-	As mentioned in the Introduction, in this example going to analyze just three
-	visits taken in the middle of the GO 13021 program (Dates (YYYY-MM-DD): 2013-03-13,  2013-03-15,  2013-03-27).
+	As mentioned in the Introduction, in this example going to analyze just two
+	visits taken in the middle of the GO 13021 program (Dates (YYYY-MM-DD): 2013-03-13,  2013-03-15).
 
-	If the user downloaded all 15 visits in GO 13021, he or she can choose: ``which_visits = [5,6,7]`` in the pcf.
+	If the user downloaded all 15 visits in GO 13021, he or she can choose: ``which_visits = [5,6]`` in the pcf.
 
 
 2) **Run PACMAN**
+
+    You can give your analysis an "eventlabel" which might make it easier to identify it in the future.
+    Here we just call our analysis: 'GJ1214_Hubble13021'.
 
 	Now navigate to your rundir in your terminal and type:
 
@@ -62,7 +65,8 @@ Stage 00
 
 
 
-.. note:: | All next steps are going to use the pcf and fit_par which is located in the workdir (run_2022-03-04_15-10-29_GJ1214_Hubble13021) and not the pcf and fit_par in the rundir (GJ1214_13021)!
+.. note::
+    All next steps are going to use the pcf and fit_par which is located in the workdir (run_2022-03-04_15-10-29_GJ1214_Hubble13021) and not the pcf and fit_par in the rundir (GJ1214_13021)!!
 
 
 3) Results
@@ -75,7 +79,7 @@ Stage 00
 		    Found 1145 data file(s) ending in ima.fits
 		    Reading in files and their headers: 100%|##########| 1145/1145 [00:03<00:00, 303.42it/s]
 		    Determining orbit(s) and visit(s): 100%|##########| 1145/1145 [00:00<00:00, 261786.76it/s]
-		    The user does not want to analyse every visit (which_visits != everything). The amount of files analyzed therefore reduced from 1145 to 237.
+		    The user does not want to analyse every visit (which_visits != everything). The amount of files analyzed therefore reduced from 1145 to 150.
 		    Writing table into filelist.txt
 		    Saving Metadata
 		    Finished s00

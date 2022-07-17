@@ -14,7 +14,8 @@ This Stage starts by downloading a stellar model or calculating one in case of t
 
     .. warning:: If the user decides on any stellar model which has to be downloaded (``k93models``, ``ck04models`` or ``phoenix``), then internet connection is required! The blackbody model does not require a connection however.
 
-The user sets Teff, logg and MH in the pcf file. For ``k93models``, ``ck04models`` and ``phoenix`` the closest available metallicity, then the closest available effective temperature and finally the closest available surface gravity is searched and then used.
+The user sets Teff, logg and MH in the pcf file. For ``k93models``, ``ck04models`` and ``phoenix`` the closest available metallicity,
+then the closest available effective temperature and finally the closest available surface gravity is searched and then used.
 To see the workflow see the code block below.
 
 Let's look at an example for GJ 1214:
@@ -23,6 +24,8 @@ We use the stellar parameters published in `Cloutier et al. 2021 <https://ui.ads
 | Teff   =  3250
 | logg   =  5.026
 | MH     =  0.29
+
+Let's use an ``k93models`` model.
 
 .. code-block:: console
 

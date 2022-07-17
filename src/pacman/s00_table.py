@@ -248,9 +248,12 @@ def run00(eventlabel, pcf_path='.'):
         plots.obs_times(meta, times, ivisits, iorbits, updated=True)
 
     print('Writing table into filelist.txt')
-    table = QTable([files, instr, ivisits, iorbits, iexp_orb, times, tvs, tos, scans, exp, postarg2],
+#    table = QTable([files, instr, ivisits, iorbits, iexp_orb, times, tvs, tos, scans, exp, postarg2],
+#               names=('filenames', 'instr', 'ivisit', 'iorbit', 'iexp_orb', 't_mjd', 't_visit', 't_orbit',
+#                      'scan', 'exp', 'postarg2'))# scan: (0: forward - lower flux, 1: reverse - higher flux, -1: Direct Image)
+    table = QTable([files, instr, ivisits, iorbits, iexp_orb, times, tvs, tos, scans, exp],
                names=('filenames', 'instr', 'ivisit', 'iorbit', 'iexp_orb', 't_mjd', 't_visit', 't_orbit',
-                      'scan', 'exp', 'postarg2'))# scan: (0: forward - lower flux, 1: reverse - higher flux, -1: Direct Image)
+                      'scan', 'exp'))# scan: (0: forward - lower flux, 1: reverse - higher flux, -1: Direct Image)
     ascii.write(table, meta.workdir + '/filelist.txt', format='rst', overwrite=True)
 
     # Save results

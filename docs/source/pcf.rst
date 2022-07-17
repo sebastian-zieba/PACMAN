@@ -276,6 +276,8 @@ smooth: Number of pixels used for median-smoothing to create the spatial profile
 
 save_optextr_plot
 ''''''''''''''''''''''''''''''''''''''''''''
+Save plot showing some diagnostics from the optimal extraction.
+
 .. image:: media/s20/optextr0-0.png
 
 
@@ -287,7 +289,7 @@ Interpolates each spectrum to the wavelength scale of the reference spectrum, to
 
 correct_wave_shift_refspec
 ''''''''''''''''''''''''''''''''''''''''''''
-uses the created refence spectrum during Stage 03 for the wavelength calibration.
+uses the created reference spectrum during Stage 03 for the wavelength calibration.
 
 
 output
@@ -382,7 +384,8 @@ In the other exposures, the reference spectrum is the wavelength-calibrated firs
 save_drift_plot/show_drift_plot
 ''''''''''''''''''''''''''''''''''''''''''''
 The fitted wavelength calibration parameters over time.
-We do a linear fit (a + b * wavelength) to the reference spectrum and fit for the height.
+We do a linear fit (a + b * wavelength) to the reference spectrum (which can be either a stellar model * instrument throughput or the first exposure in a visit depending on what the user chose in correct_wave_shift_refspec) and fit for the height.
+If a reference spectrum was a stellar model * the throughput, the first fit parameters of the fit of the 1d to the sm*throughput wont be shown in that plot.
 
  First panel: a
  Second panel: b
@@ -469,6 +472,11 @@ remove_first_orb
 ''''''''''''''''''''''''''''''''''''''''''''
 Removes the first orbit from every visit.
 
+remove_which_orb
+''''''''''''''''''''''''''''''''''''''''''''
+Which orbits do you want to remove?
+E.g., if only the first choose [0]. If the first two, use [0,1].
+
 
 rescale_uncert
 ''''''''''''''''''''''''''''''''''''''''''''
@@ -532,7 +540,7 @@ save_fit_lc_plot
 ''''''''''''''''''''''''''''''''''''''''''''
 Plots the light curve fit without the instrumental systematics and only the astrophysical signal.
 
-.. image:: media/s30/white/fit_lc_0_2022-02-15_22-20-09.png
+.. image:: media/s30/white/lsq_lc_bin0_wvl1.400.png
 
 
 run_lsq

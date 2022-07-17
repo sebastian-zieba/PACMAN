@@ -17,7 +17,7 @@ After running Stage 01 you should get an output like this:
 
 	    Successfully reloaded meta file
 	    Starting s01
-	    Retrieving Horizons file for every visit: 100%|##########| 3/3 [00:06<00:00,  2.04s/it]
+	    Retrieving Horizons file for every visit: 100%|##########| 2/2 [00:06<00:00,  2.04s/it]
 	    Saving Metadata
 	    Finished s01
 
@@ -26,7 +26,7 @@ For that a new directory was created in the run directory called "ancil/horizons
 Two new .txt files where saved there; a Horizons file for each visit.
 Each file contains the X, Y and Z position of HST relative to the solar system barycenter. The X,Y,Z positions of HST were downloaded for 5 minute intervals starting one hour before the first exposure in the observations and one hour after the observations.
 
-For example, the second file should look like this (due to its length, we just display the first 100 lines):
+For example, the first of the two horizon files should look like this (due to its length, we just display the first 100 lines):
 
 .. include:: media/s01/horizons_results_v1_short.txt
    :literal:

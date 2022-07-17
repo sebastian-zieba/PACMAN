@@ -628,8 +628,8 @@ def sp1d_diff(sp1d_all_diff, meta, wvl_hires):
     """
     if not os.path.isdir(meta.workdir + '/figs/s20_sp1d_diff/'):
         os.makedirs(meta.workdir + '/figs/s20_sp1d_diff/')
-    ylimmin = np.min(sp1d_all_diff)
-    ylimmax = np.max(sp1d_all_diff)
+    ylimmin = np.nanmin(sp1d_all_diff)
+    ylimmax = np.nanmax(sp1d_all_diff)
     for iiii in range(len(sp1d_all_diff)):
         plt.clf()
         fig, ax = plt.subplots(1, 1, figsize=(6.4, 6.4*1.5/2))

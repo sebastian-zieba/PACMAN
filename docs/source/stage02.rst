@@ -9,16 +9,16 @@ This stage performs a barycentric correction because the time stamps for the obs
 
 	    Successfully reloaded meta file
 	    Starting s02
-	    Converting MJD to BJD: 100%|##########| 3/3 [00:02<00:00,  1.35it/s]
+	    Converting MJD to BJD: 100%|##########| 2/2 [00:02<00:00,  1.35it/s]
 	    Writing t_bjd into filelist.txt
 	    Saving Metadata
 	    Finished s02
 
 
 After the calculation has been performed, the user can check a newly generated plot also saved into "ancil/horizons".
-Here we show the plot generated for the second of the two visits:
+Here we show the plot generated for the first of the two visits:
 
-.. image:: media/s02/bjdcorr_horizons_results_v1.png
+.. image:: media/s02/bjdcorr_horizons_results_v0.png
 
 The axis are the distance of HST to the Solar System Barycenter in kilometers.
 Horizons start and Horizons end show where our Horizon file starts and ends containing X,Y,Z information.
