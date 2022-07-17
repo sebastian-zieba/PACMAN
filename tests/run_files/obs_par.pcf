@@ -109,7 +109,7 @@ s21_spec_dir_path_s20        None
 
 wvl_min                      1.135
 wvl_max                      1.642
-wvl_bins                     11
+wvl_bins                     3
 
 use_wvl_list                 False
 wvl_edge_list                [11400,12200,12600,13000,14600,15000,15400,15800,16200]
