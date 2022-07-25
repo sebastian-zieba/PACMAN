@@ -1,6 +1,7 @@
 ![](https://github.com/sebastian-zieba/PACMAN/blob/master/docs/source/media/Pacman_V2.gif)
 
 [![DOI](https://zenodo.org/badge/278655981.svg)](https://zenodo.org/badge/latestdoi/278655981)
+[![status](https://joss.theoj.org/papers/73b451e3272d57cc63d1be78c097ec4d/status.svg)](https://joss.theoj.org/papers/73b451e3272d57cc63d1be78c097ec4d)
 [![Documentation Status](https://readthedocs.org/projects/pacmandocs/badge/?version=latest)](https://pacmandocs.readthedocs.io/en/latest/?badge=latest)
 [![codecov](https://codecov.io/gh/sebastian-zieba/PACMAN/branch/master/graph/badge.svg?token=YGPOSJSH5Z)](https://codecov.io/gh/sebastian-zieba/PACMAN)
 
