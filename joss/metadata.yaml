@@ -1,15 +1,16 @@
 variables:
-  archive_doi: "https://doi.org/xxx"
-  formatted_doi: "xxx"
+  archive_doi: "https://doi.org/10.5281/zenodo.6901368"
+  formatted_doi: "10.5281/zenodo.6901368"
   repository: "https://github.com/sebastian-zieba/PACMAN"
   doi_batch_id: "xxxx"
   editor_url: "xxx"
   review_issue_url: "https://github.com/xxx"
   paper_url: "xxx"
+  journal_name: "Journal of Open Source Software"
 
 metadata:
   logo_path: "figures/joss-logo.png"
-  citation_author: "Zieba et al."
+  citation_author: "Sebastian Zieba et al."
   issue: "xxx"
   page: "xxx"
   volume: "xxx"
@@ -18,4 +19,4 @@ metadata:
   reviewers:
     - "xxx"
     - "xxx"
-  submitted: "xxx"
+  submitted: "25 July 2022"
