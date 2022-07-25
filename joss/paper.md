@@ -93,7 +93,7 @@ Here some examples for the currently implemented models for the instrument syste
     \end{equation}
 
 with _T(t)_ being the transit model, _c_ (_k_) a constant (slope), _S(t)_ a scale factor equal to 1 for exposures with spatial scanning in the forward direction and _s_ for reverse
-scans, _r_$_1$ and _r_$_2$ are parameters to account for the exponential ramps.  $t_v$ and _t_$_{orb}$ are $t_{orb}$ the times from the first exposure in the visit and in the orbit, respectively.
+scans, $r_{\rm{1}}$ and $r_{\rm{2}}$ are parameters to account for the exponential ramps. $t_{\rm{v}}$ and $t_{\rm{orb}}$ are the times from the first exposure in the visit and in the orbit, respectively.
 
 - **parameter estimation**: The user has different options to estimate best fitting parameters and their uncertainies:
   - least square: `scipy.optimize`
