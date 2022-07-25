@@ -91,8 +91,9 @@ Here some examples for the currently implemented models for the instrument syste
     \label{eq:equation1}
     F(t) = T(t) \, (c\,S(t) + k\,t_{\rm{v}}) \, (1 - \exp(-r_1\,t_{\rm{orb}} - r_2 )),
     \end{equation}
-    with _T(t)_ being the transit model, _c_ (_k_) a constant (slope), _S(t)_ a scale factor equal to 1 for exposures with spatial scanning in the forward direction and _s_ for reverse
-    scans, _r<sub>1</sub>_ and _r<sub>2</sub>_ are parameters to account for the exponential ramps.  _t<sub>v</sub>_ and _t<sub>orb</sub>_ are the times from the first exposure in the visit and in the orbit, respectively.
+
+with _T(t)_ being the transit model, _c(k)_ a constant (slope), _S(t)_ a scale factor equal to 1 for exposures with spatial scanning in the forward direction and _s_ for reverse
+scans, _r<sub>1</sub>_ and _r<sub>2</sub>_ are parameters to account for the exponential ramps.  _t<sub>v</sub>_ and _t<sub>orb</sub>_ are the times from the first exposure in the visit and in the orbit, respectively.
 
 - **parameter estimation**: The user has different options to estimate best fitting parameters and their uncertainies:
   - least square: `scipy.optimize`
@@ -133,7 +134,6 @@ It includes most notably, a full explanation of every parameter in the _pacman c
 The only other end-to-end open source pipeline\footnote{as far as we are aware of} specifically developed for the reduction and analysis of HST/WFC3 data is [`Iraclis`](https://github.com/ucl-exoplanets/Iraclis) [@Tsiaras2016].
 
 Another open-source pipeline which has been used as an independent check of recent results presented in @Mugnai2021 and @Carone2021 is [`CASCADe`](https://jbouwman.gitlab.io/CASCADe/) (Calibration of trAnsit Spectroscopy using CAusal Data).
-[comment]: <> (The pipeline has been applied to both Hubble and Spitzer datasets and uses causal connections within a dataset to model both transit signal and systematics.)
 For a more detailed discussion of `CASCADe` see Appendix 1 in @Carone2021.
 
 
