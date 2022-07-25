@@ -58,6 +58,16 @@ The user can set in the pcf whether the uncertainties should be rescaled to achi
 White light curve fit
 '''''''''''''''''''''''''''''''''
 
+Here's the fit_par.txt file which was used in this example to fit the white light curve:
+
+.. include:: media/s30/fit_par_white.txt
+   :literal:
+
+If a parameter is free and not jointly shared across visits, the user has to repeat the parameter in the fit_par.txt file as shown above.
+Furthermore, the visit number must be added in the "tied" column.
+tied = -1 means that the parameters is shared across all visits, which makes sense for orbital parameters but less for systematics like the constant.
+
+
 Let's run the white light curve fit now:
 
 .. code-block:: console
@@ -186,6 +196,11 @@ Corner plot from the MCMC:
 
 Spectroscopic light curve fit
 '''''''''''''''''''''''''''''''''
+
+Here's the fit_par.txt file which was used in this example to fit the spectroscopic light curves:
+
+.. include:: media/s30/fit_par_spec.txt
+   :literal:
 
 .. code-block:: console
 

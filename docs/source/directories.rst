@@ -3,8 +3,6 @@
 Repository Structure
 ========================
 
-.. image:: media/20220310_113633.jpg
-
 In the package
 ''''''''''''''''''''''''''''''
 

@@ -271,6 +271,8 @@ sig_cut, nsmooth
 
 sig_cut: Specifies the outlier threshold for the optimal extraction. Outliers greater than ``sig_cut`` are masked.
 
+If you have a lot of nans in your light curve you might want to increase the sig_cut value.
+
 smooth: Number of pixels used for median-smoothing to create the spatial profile.
 
 
