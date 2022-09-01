@@ -31,128 +31,132 @@ def run30(eventlabel, workdir, meta=None):
 
     # Create directories for Stage 3 processing
     datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
-    meta.fitdir = '/fit_' + datetime + '_' + meta.eventlabel
-    if not os.path.exists(meta.workdir + meta.fitdir):
-        os.makedirs(meta.workdir + meta.fitdir)
 
-    # Make fit_par nice...
+    # Create a directory for the white or the spectroscopic fit
+    if  meta.s30_fit_white:
+        meta.fitdir = f'/fit_white/fit_{datetime}_{meta.eventlabel}'
+    elif meta.s30_fit_spec:
+        meta.fitdir = f'/fit_spec/fit_{datetime}_{meta.eventlabel}'
+
+    if not os.path.exists(meta.workdir + meta.fitdir):
+        os.makedirs(meta.workdir + meta.fitdir, exist_ok=True)
+
+    # Make fit_par nicer by lining up the columns
     nice_fit_par.nice_fit_par(meta.workdir + "/fit_par.txt")
 
-    # Copy pcf and fit_par files
+    # Copy pcf and fit_par files into the new fitdirectory
     shutil.copy(meta.workdir + "/obs_par.pcf", meta.workdir + meta.fitdir)
     shutil.copy(meta.workdir + "/fit_par.txt", meta.workdir + meta.fitdir)
 
-    # reads in fit parameters
+    # Reads in fit parameters from the fit_par file
     #TODO: Check that fit_par is configured correctly. Eg initial value has to be within boundaries!
     fit_par = ascii.read(meta.workdir + "/fit_par.txt", Reader=ascii.CommentedHeader)
 
-    #read in the user wanted fit functions
+    # Read in the user wanted fit functions
     myfuncs = meta.s30_myfuncs
 
-    #store files to fit
+    # Indentify path of light curve files
     files, meta = util.read_fitfiles(meta)
 
+    # Prepare some lists for diagnostics
+    # TODO: Maybe make dict out of this?
     if meta.run_verbose:
         vals = []
         errs = []
         idxs = []
-
     if meta.run_mcmc:
         vals_mcmc       = []
         errs_lower_mcmc = []
         errs_upper_mcmc = []
-
     if meta.run_nested:
         vals_nested = []
         errs_lower_nested = []
         errs_upper_nested = []
 
-    meta.chi2red_list = []
-    meta.rms_pred_list = []
-    meta.rms_list = []
-    meta.rms_list_emcee = []
-    meta.rms_list_nested = []
+    meta = util.log_run_setup(meta)
 
+    # Loop through light curves
     for counter, f in enumerate(files):
         print('\n****** File: {0}/{1}'.format(counter+1, len(files)))
         meta.s30_file_counter = counter
-        time.sleep(1.1) #sleep to prevent overwriting of data if saved in the same second
+        time.sleep(1.01) #sleep to prevent overwriting of data if saved in the same second
         meta.run_file = f
         meta.fittime = time.strftime('%Y-%m-%d_%H-%M-%S')
 
         ### RUN LEAST SQUARES ###
         ## IF NO CLIPPING IS WISHED
-        if meta.run_clipiters == 0:
-            print('\n')
-            data = Data(f, meta, fit_par)
-            model = Model(data, myfuncs)
-            print('*STARTS LEAST SQUARED*')
-            data, model, params, m = lsq_fit(fit_par, data, meta, model, myfuncs, noclip=True) #not clipping
-            meta.chi2red_list.append(model.chi2red)
-            meta.rms_list.append(model.rms)
-            meta.rms_pred_list.append(model.rms_predicted)
-            if meta.save_fit_lc_plot: plots.plot_fit_lc2(data, model, meta)
-            if meta.save_fit_lc_plot: plots.plot_fit_lc3(data, model, meta)
-            if meta.save_fit_lc_plot: plots.save_plot_raw_data(data, meta)
-            if meta.save_fit_lc_plot: plots.save_astrolc_data(data, model, meta)
-        ## IF THE USER WANTS CLIPPING
-        else:
-            clip_idxs = []
-            for iii in range(meta.run_clipiters+1):
+        if meta.run_lsq:
+            if meta.run_clipiters == 0:
                 print('\n')
-                print('Sigma Iters: ', iii, 'of', meta.run_clipiters)
-                if iii == 0:
-                    data = Data(f, meta, fit_par)
-                else:
-                    data = Data(f, meta, fit_par, clip_idx)
+                data = Data(f, meta, fit_par)
                 model = Model(data, myfuncs)
-                if iii == meta.run_clipiters:
-                    data, model, params, m = lsq_fit(fit_par, data, meta, model, myfuncs, noclip=True)
-                else:
-                    data, model, params, clip_idx, m = lsq_fit(fit_par, data, meta, model, myfuncs)
-                    print("rms, chi2red = ", model.rms, model.chi2red)
-                    print(clip_idx == [])
-                    if clip_idx == []: break
-                    clip_idxs.append(clip_idx)
-                    print(clip_idxs)
-                    print('length: ', len(clip_idxs) )
-                    if len(clip_idxs)>1:
-                        clip_idx = update_clips(clip_idxs)
-                        print(clip_idx)
-                        clip_idxs = update_clips(clip_idxs)
+                print('\n*STARTS LEAST SQUARED*')
+                data, model, params, m = lsq_fit(fit_par, data, meta, model, myfuncs, noclip=True) #not clipping
+
+            ## IF THE USER WANTS CLIPPING
+            else:
+                clip_idxs = []
+                for iii in range(meta.run_clipiters+1):
+                    print('\n')
+                    print('Sigma Iters: ', iii, 'of', meta.run_clipiters)
+                    if iii == 0:
+                        data = Data(f, meta, fit_par)
+                    else:
+                        data = Data(f, meta, fit_par, clip_idx)
+                    model = Model(data, myfuncs)
+                    if iii == meta.run_clipiters:
+                        data, model, params, m = lsq_fit(fit_par, data, meta, model, myfuncs, noclip=True)
+                    else:
+                        data, model, params, clip_idx, m = lsq_fit(fit_par, data, meta, model, myfuncs)
+                        print("rms, chi2red = ", model.rms, model.chi2red)
+                        print(clip_idx == [])
+                        if clip_idx == []: break
+                        clip_idxs.append(clip_idx)
                         print(clip_idxs)
+                        print('length: ', len(clip_idxs) )
+                        if len(clip_idxs)>1:
+                            clip_idx = update_clips(clip_idxs)
+                            print(clip_idx)
+                            clip_idxs = update_clips(clip_idxs)
+                            print(clip_idxs)
 
-        if meta.run_verbose == True:
-            print("rms, chi2red = ", model.rms, model.chi2red)
+            if meta.run_verbose == True:
+                print("rms, chi2red = ", model.rms, model.chi2red)
 
-        if meta.s30_fit_white == True:
-            outfile = open(meta.workdir + "/white_systematics.txt", "w")
-            for i in range(len(model.all_sys)): print(model.all_sys[i], file = outfile)
-            print('Saved white_systematics.txt file')
-            outfile.close()
+            # Save white systematics file if it was a white fit
+            if meta.s30_fit_white == True:
+                outfile = open(meta.workdir + meta.fitdir + '/white_systematics.txt', "w")
+                for i in range(len(model.all_sys)): print(model.all_sys[i], file = outfile)
+                print('Saved white_systematics.txt file')
+                outfile.close()
 
         meta.labels = labels_gen(params, meta, fit_par)
+        print(meta.labels) # TODO: isnt this the same as free_parnames?
 
         if meta.run_mcmc:
-            print('*STARTS MCMC*')
-            time.sleep(1.1)
+            print('\n*STARTS MCMC*')
+            time.sleep(1.01)
             if meta.rescale_uncert:
                 ##rescale error bars so reduced chi-squared is one
                 if model.chi2red > 1:
                     data.err *= np.sqrt(model.chi2red)
-            data, model, params, m = lsq_fit(fit_par, data, meta, model, myfuncs, noclip=True)
-            if meta.run_verbose == True: print("rms, chi2red = ", model.rms, model.chi2red)
-            val_mcmc, err_lower_mcmc, err_upper_mcmc = mcmc_fit(data, model, params, f, meta, fit_par)
+            # if a least square hasnt been run yet or the uncertainies should be rescaled, to the lsq again
+            if not meta.run_lsq or meta.rescale_uncert:
+                data, model, params, m = lsq_fit(fit_par, data, meta, model, myfuncs, noclip=True)
+                if meta.run_verbose == True: print("rms, chi2red = ", model.rms, model.chi2red)
+            val_mcmc, err_lower_mcmc, err_upper_mcmc, fit = mcmc_fit(data, model, params, f, meta, fit_par)
 
         if meta.run_nested:
-            time.sleep(1.1)
+            print('\n*STARTS NESTED SAMPLING*')
+            time.sleep(1.01)
             if meta.rescale_uncert:
                 ##rescale error bars so reduced chi-squared is one
                 if model.chi2red > 1:
                     data.err *= np.sqrt(model.chi2red)
-            data, model, params, m = lsq_fit(fit_par, data, meta, model, myfuncs, noclip=True)
-            if meta.run_verbose == True: print("rms, chi2red = ", model.rms, model.chi2red)
-            val_nested, err_lower_nested, err_upper_nested = nested_sample(data, model, params, f, meta, fit_par)
+            if not meta.run_lsq or meta.rescale_uncert:
+                data, model, params, m = lsq_fit(fit_par, data, meta, model, myfuncs, noclip=True)
+                if meta.run_verbose == True: print("rms, chi2red = ", model.rms, model.chi2red)
+            val_nested, err_lower_nested, err_upper_nested, fit = nested_sample(data, model, params, f, meta, fit_par)
 
         if meta.run_verbose:
             val, err, idx = ReturnParams(m, data)
@@ -186,11 +190,14 @@ def run30(eventlabel, workdir, meta=None):
 
         if not meta.s30_fit_white and ('rp' in meta.labels) and meta.run_mcmc:
             plots.mcmc_rprs(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta)
-            util.make_mcmc_rprs_txt(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta)
+            util.make_rprs_txt(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta, fitter='mcmc')
 
         if not meta.s30_fit_white and ('rp' in meta.labels) and meta.run_nested:
             plots.nested_rprs(vals_nested, errs_lower_nested, errs_upper_nested, meta)
-            util.make_nested_rprs_txt(vals_nested, errs_lower_nested, errs_upper_nested, meta)
+            util.make_rprs_txt(vals_nested, errs_lower_nested, errs_upper_nested, meta, fitter='nested')
+
+    if meta.run_mcmc or meta.run_nested:
+        util.save_fit_output(fit, data, meta)
 
     print('Finished s30')
 
