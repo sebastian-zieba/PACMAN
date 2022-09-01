@@ -905,8 +905,9 @@ def save_fit_output(fit, data, meta):
             t['bic_alt_notrescaled'] = meta.bic_alt_notrescaled_list_nested
             t['uncmulti'] = meta.uncmulti_nested
 
-    t['uncmulti2'] = t['uncmulti'] ** 2
-    t['uncmulti2'].info.format = '.3f'
+    if 'uncmulti' in meta.s30_myfuncs:
+        t['uncmulti2'] = t['uncmulti'] ** 2
+        t['uncmulti2'].info.format = '.3f'
 
     t['npoints'] = [data.npoints] * meta.nfits
     t['nfree_param'] = [data.nfree_param] * meta.nfits
