@@ -135,6 +135,8 @@ rescale_uncert               True
 run_clipiters                0
 run_clipsigma                0
 
+white_sys_path               None
+
 ld_model                     1
 fix_ld                       False
 ld_file                      /home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/wfc3_reduction/limb-darkening/results/ld_outputfile.txt
@@ -157,12 +159,17 @@ run_nwalkers	             6
 run_nburn                    100
 
 #dynesty
-run_dynamic                  False
 run_dlogz                    10
 run_nlive                    5
+
+run_dynamic                  False
+run_dlogz_init               0.01
+run_nlive_init               80
+run_nlive_batch              100
+run_maxbatch                 20
+
 run_bound                    single
 run_sample                   rwalk
-
 
 lc_type                      transit
 
