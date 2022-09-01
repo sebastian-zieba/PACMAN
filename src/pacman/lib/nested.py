@@ -18,9 +18,12 @@ def transform_normal(x,mu,sigma):
 
 
 def nested_sample(data, model, params, file_name, meta, fit_par):
+    util.create_res_dir(meta)
+
     theta = util.format_params_for_sampling(params, meta, fit_par)
     ndim = len(theta)
-    l_args = [params, data, model, meta, fit_par]
+    err_notrescaled = np.copy(data.err)
+    l_args = [params, data, model, meta, fit_par, err_notrescaled]
     p_args = [data]
 
     print('Run dynesty...')
@@ -28,7 +31,9 @@ def nested_sample(data, model, params, file_name, meta, fit_par):
         sampler = dynesty.DynamicNestedSampler(loglike, ptform, ndim, logl_args = l_args, ptform_args = p_args,
                                                update_interval=float(ndim), bound=meta.run_bound,
                                                sample=meta.run_sample)
-        sampler.run_nested(wt_kwargs={'pfrac': 1.0}, print_progress=True)#, maxiter = 20000)
+        sampler.run_nested(dlogz_init=meta.run_dlogz_init, nlive_init=meta.run_nlive_init,
+                           nlive_batch=meta.run_nlive_batch, maxbatch=meta.run_maxbatch)
+        #sampler.run_nested(wt_kwargs={'pfrac': 1.0}, print_progress=True)#, maxiter = 20000)
     else:
         sampler = dynesty.NestedSampler(loglike, ptform, ndim, logl_args = l_args, ptform_args = p_args,
                                         update_interval=float(ndim), nlive=meta.run_nlive, bound=meta.run_bound,
@@ -36,9 +41,6 @@ def nested_sample(data, model, params, file_name, meta, fit_par):
         sampler.run_nested(dlogz=meta.run_dlogz, print_progress=True)
 
     results = sampler.results
-
-    if not os.path.isdir(meta.workdir + meta.fitdir + '/nested_res'):
-        os.makedirs(meta.workdir + meta.fitdir + '/nested_res')
 
     with open(meta.workdir + meta.fitdir + '/nested_res/' +  '/nested_out_bin{0}_wvl{1:0.3f}.p'.format(meta.s30_file_counter, meta.wavelength), "wb") as pickle_file:
         pickle.dump(results, pickle_file)
@@ -71,10 +73,14 @@ def nested_sample(data, model, params, file_name, meta, fit_par):
 
     updated_params = util.format_params_for_Model(medians, params, meta, fit_par)
     fit = model.fit(data, updated_params)
-    plots.plot_fit_lc2(data, fit, meta, nested=True)
-    meta.rms_list_nested.append(fit.rms)
 
-    return medians, errors_lower, errors_upper
+    util.append_fit_output(fit, meta, fitter='nested', medians=medians)
+
+    plots.plot_fit_lc2(data, fit, meta, nested=True)
+
+    plots.rmsplot(model, data, meta, fitter='nested')
+
+    return medians, errors_lower, errors_upper, fit
 
 
 def ptform(u, data):
@@ -88,7 +94,10 @@ def ptform(u, data):
     return p
 
 
-def loglike(x, params, data, model, meta, fit_par):
+def loglike(x, params, data, model, meta, fit_par,err_notrescaled):
     updated_params = util.format_params_for_Model(x, params, meta, fit_par)
+    if 'uncmulti' in data.s30_myfuncs:
+        data.err = updated_params[-1] * err_notrescaled
+
     fit = model.fit(data, updated_params)
     return fit.ln_like 

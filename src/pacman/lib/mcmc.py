@@ -9,6 +9,9 @@ from . import util
 
 
 def get_step_size(params, meta, fit_par):
+    """
+    Get the step sizes which were set in the fit_par.txt file by the user
+    """
     nvisit = int(meta.nvisit)
     step_size = []
 
@@ -29,17 +32,18 @@ def get_step_size(params, meta, fit_par):
 
 
 def mcmc_fit(data, model, params, file_name, meta, fit_par):
+    util.create_res_dir(meta)
+
     theta = util.format_params_for_sampling(params, meta, fit_par)
     ndim, nwalkers = len(theta), meta.run_nwalkers
+    err_notrescaled = np.copy(data.err) # needed for unc multiplier
+    l_args = [params, data, model, meta, fit_par, err_notrescaled]
 
     print('Run emcee...')
-    sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args = (params, data, model, meta, fit_par))
+    sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args = l_args)
     step_size = get_step_size(params, meta, fit_par)
     pos = [theta + np.array(step_size)*np.random.randn(ndim) for i in range(nwalkers)]
     sampler.run_mcmc(pos, meta.run_nsteps, progress=True)
-
-    if not os.path.isdir(meta.workdir + meta.fitdir + '/mcmc_res'):
-        os.makedirs(meta.workdir + meta.fitdir + '/mcmc_res')
 
     with open(meta.workdir + meta.fitdir + '/mcmc_res/' +  '/mcmc_out_bin{0}_wvl{1:0.3f}.p'.format(meta.s30_file_counter, meta.wavelength), "wb") as pickle_file:
         pickle.dump([data, params, sampler.chain], pickle_file)
@@ -69,15 +73,19 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
 
     f_mcmc = open(meta.workdir + meta.fitdir + '/mcmc_res/' + "/mcmc_res_bin{0}_wvl{1:0.3f}.txt".format(meta.s30_file_counter, meta.wavelength), 'w')
     for row in zip(errors_lower, medians, errors_upper, labels):
-        print('{0: >8}: '.format(row[3]), '{0: >24} '.format(row[1]), '{0: >24} '.format(row[0]), '{0: >24} '.format(row[2]), file=f_mcmc)
+        print(f'{row[3]: >8}: {row[1]: >24} {row[0]: >24} {row[2]: >24} ', file=f_mcmc)
     f_mcmc.close()
 
     updated_params = util.format_params_for_Model(medians, params, meta, fit_par)
     fit = model.fit(data, updated_params)
-    plots.plot_fit_lc2(data, fit, meta, mcmc=True)
-    meta.rms_list_emcee.append(fit.rms)
 
-    return medians, errors_lower, errors_upper
+    util.append_fit_output(fit, meta, fitter='mcmc', medians=medians)
+
+    plots.plot_fit_lc2(data, fit, meta, mcmc=True)
+
+    plots.rmsplot(model, data, meta, fitter='mcmc')
+
+    return medians, errors_lower, errors_upper, fit
 
 
 def lnprior(theta, data):
@@ -92,11 +100,12 @@ def lnprior(theta, data):
               data.prior[i][1])/data.prior[i][2])**2 + 
               np.log(2.0*np.pi*(data.prior[i][2])**2)))
     return lnprior_prob
-    
 
 
-def lnprob(theta, params, data, model, meta, fit_par):
+def lnprob(theta, params, data, model, meta, fit_par, err_notrescaled):
     updated_params = util.format_params_for_Model(theta, params, meta, fit_par)
+    if 'uncmulti' in data.s30_myfuncs:
+        data.err = updated_params[-1] * err_notrescaled
     fit = model.fit(data, updated_params)
     lp = lnprior(theta, data)
     return fit.ln_like + lp
