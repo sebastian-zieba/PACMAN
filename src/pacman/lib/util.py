@@ -14,10 +14,10 @@ from .sort_nicely import sort_nicely as sn
 import glob
 import pickle
 from scipy.signal import find_peaks
+from astropy.table import Table
 
 
 #s00
-
 def readfiles(meta):
     """
     Reads in the files saved in datadir and saves them into a list
@@ -599,6 +599,8 @@ def read_fitfiles(meta):
 
     print('Identified file(s) for fitting:', files)
 
+    meta.nfits = len(files)
+
     return files, meta
 
 
@@ -710,53 +712,39 @@ def make_lsq_rprs_txt(vals, errs, idxs, meta):
     """
     Saves the rprs vs wvl as a txt file as resulting from the lsq.
     """
-    if not os.path.isdir(meta.workdir + meta.fitdir + '/lsq_res'):
-        os.makedirs(meta.workdir + meta.fitdir + '/lsq_res')
     f_lsq = open(meta.workdir + meta.fitdir + '/lsq_res' + "/lsq_rprs.txt", 'w')
     rp_idx = np.where(np.array(meta.labels) == 'rp')[0][0]
     rprs_vals_lsq = [vals[ii][idxs[0][rp_idx]] for ii in range(len(vals))]
     rprs_errs_lsq = [errs[ii][idxs[0][rp_idx]] for ii in range(len(errs))]
-    file_header = ['wavelength (micron)', 'rprs', 'rprs_err', 'chi2red']
-    print("#{: <24} {: <25} {: <25} {: <25}".format(*file_header), file=f_lsq)
-    for row in zip(meta.wavelength_list, rprs_vals_lsq, rprs_errs_lsq, meta.chi2red_list):
-        print("{: <25} {: <25} {: <25} {: <25}".format(*row), file=f_lsq)
+    file_header = ['wavelength (micron)', 'rprs', 'rprs_err']
+    print("#{: <24} {: <25} {: <25}".format(*file_header), file=f_lsq)
+    for row in zip(meta.wavelength_list, rprs_vals_lsq, rprs_errs_lsq):
+        print("{: <25} {: <25} {: <25}".format(*row), file=f_lsq)
     f_lsq.close()
 
 
-def make_mcmc_rprs_txt(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta):
+def make_rprs_txt(vals, errs_lower, errs_upper, meta, fitter=None):
     """
-    Saves the rprs vs wvl as a txt file as resulting from the MCMC.
-    """
-    rp_idx = np.where(np.array(meta.labels) == 'rp')[0][0]
-    medians = np.array(vals_mcmc).T[rp_idx]
-    errors_lower = np.array(errs_lower_mcmc).T[rp_idx]
-    errors_upper = np.array(errs_upper_mcmc).T[rp_idx]
-    if not os.path.isdir(meta.workdir + meta.fitdir + '/mcmc_res'):
-        os.makedirs(meta.workdir + meta.fitdir + '/mcmc_res')
-    f_mcmc = open(meta.workdir + meta.fitdir + '/mcmc_res' + "/mcmc_rprs.txt", 'w')
-    file_header = ['wavelength (micron)', 'rprs', 'rprs_err_lower', 'rprs_err_upper', 'rms_pred', 'rms_obs']
-    print("#{: <24} {: <25} {: <25} {: <25}".format(*file_header), file=f_mcmc)
-    for row in zip(meta.wavelength_list, medians, errors_lower, errors_upper, meta.rms_pred_list, meta.rms_list_emcee):
-        print("{: <25} {: <25} {: <25} {: <25}".format(*row), file=f_mcmc)
-    f_mcmc.close()
-
-
-def make_nested_rprs_txt(vals_nested, errs_lower_nested, errs_upper_nested, meta):
-    """
-    Saves the rprs vs wvl as a txt file as resulting from the MCMC.
+    Saves the rprs vs wvl as a txt file as resulting from the sampler.
     """
     rp_idx = np.where(np.array(meta.labels) == 'rp')[0][0]
-    medians = np.array(vals_nested).T[rp_idx]
-    errors_lower = np.array(errs_lower_nested).T[rp_idx]
-    errors_upper = np.array(errs_upper_nested).T[rp_idx]
-    if not os.path.isdir(meta.workdir + meta.fitdir + '/nested_res'):
-        os.makedirs(meta.workdir + meta.fitdir + '/nested_res')
-    f_mcmc = open(meta.workdir + meta.fitdir + '/nested_res' + "/nested_rprs.txt", 'w')
-    file_header = ['wavelength (micron)', 'rprs', 'rprs_err_lower', 'rprs_err_upper', 'rms_pred', 'rms_obs']
-    print("#{: <24} {: <25} {: <25} {: <25} {: <25} {: <25}".format(*file_header), file=f_mcmc)
-    for row in zip(meta.wavelength_list, medians, errors_lower, errors_upper, meta.rms_pred_list, meta.rms_list_nested):
-        print("{: <25} {: <25} {: <25} {: <25} {: <25} {: <25}".format(*row), file=f_mcmc)
-    f_mcmc.close()
+    medians = np.array(vals).T[rp_idx]
+    errors_lower = np.array(errs_lower).T[rp_idx]
+    errors_upper = np.array(errs_upper).T[rp_idx]
+    if fitter == 'mcmc':
+        f_mcmc = open(meta.workdir + meta.fitdir + '/mcmc_res' + "/mcmc_rprs.txt", 'w')
+        file_header = ['wavelength (micron)', 'rprs', 'rprs_err_lower', 'rprs_err_upper']
+        print("#{: <24} {: <25} {: <25} {: <25}".format(*file_header), file=f_mcmc)
+        for row in zip(meta.wavelength_list, medians, errors_lower, errors_upper):
+            print("{: <25} {: <25} {: <25} {: <25}".format(*row), file=f_mcmc)
+        f_mcmc.close()
+    if fitter == 'nested':
+        f_nested = open(meta.workdir + meta.fitdir + '/nested_res' + "/nested_rprs.txt", 'w')
+        file_header = ['wavelength (micron)', 'rprs', 'rprs_err_lower', 'rprs_err_upper']
+        print("#{: <24} {: <25} {: <25} {: <25}".format(*file_header), file=f_nested)
+        for row in zip(meta.wavelength_list, medians, errors_lower, errors_upper):
+            print("{: <25} {: <25} {: <25} {: <25}".format(*row), file=f_nested)
+        f_nested.close()
 
 
 def quantile(x, q):
@@ -769,6 +757,186 @@ def weighted_mean(data, err):            #calculates the weighted mean for data 
     mu = np.sum(data[ind]*weights)/np.sum(weights)
     var = 1.0/np.sum(weights)
     return [mu, np.sqrt(var)]
+
+
+def create_res_dir(meta):
+    """
+    Creates the result directory depending on which fitters were used.
+    """
+    if meta.run_lsq:
+        if not os.path.isdir(meta.workdir + meta.fitdir + '/lsq_res'):
+            os.makedirs(meta.workdir + meta.fitdir + '/lsq_res')
+    if meta.run_mcmc:
+        if not os.path.isdir(meta.workdir + meta.fitdir + '/mcmc_res'):
+            os.makedirs(meta.workdir + meta.fitdir + '/mcmc_res')
+    if meta.run_nested:
+        if not os.path.isdir(meta.workdir + meta.fitdir + '/nested_res'):
+            os.makedirs(meta.workdir + meta.fitdir + '/nested_res')
+
+
+def log_run_setup(meta):
+    """
+    Prepares lists in meta where fit statistics will be saved into.
+    """
+    meta.rms_pred_list_lsq = []
+    meta.rms_pred_list_mcmc = []
+    meta.rms_pred_list_nested = []
+
+    meta.rms_list_lsq = []
+    meta.rms_list_mcmc = []
+    meta.rms_list_nested = []
+
+    meta.chi2_list_lsq = []
+    meta.chi2_list_mcmc = []
+    meta.chi2_list_nested = []
+
+    meta.chi2red_list_lsq = []
+    meta.chi2red_list_mcmc = []
+    meta.chi2red_list_nested = []
+
+    meta.bic_list_lsq = []
+    meta.bic_list_mcmc = []
+    meta.bic_list_nested = []
+
+    meta.bic_alt_list_lsq = []
+    meta.bic_alt_list_mcmc = []
+    meta.bic_alt_list_nested = []
+
+    if 'uncmulti' in meta.s30_myfuncs:
+        meta.chi2_notrescaled_list_lsq = []
+        meta.chi2_notrescaled_list_mcmc = []
+        meta.chi2_notrescaled_list_nested = []
+
+        meta.chi2red_notrescaled_list_lsq = []
+        meta.chi2red_notrescaled_list_mcmc = []
+        meta.chi2red_notrescaled_list_nested = []
+
+        meta.bic_notrescaled_list_lsq = []
+        meta.bic_notrescaled_list_mcmc = []
+        meta.bic_notrescaled_list_nested = []
+
+        meta.bic_alt_notrescaled_list_lsq = []
+        meta.bic_alt_notrescaled_list_mcmc = []
+        meta.bic_alt_notrescaled_list_nested = []
+
+        meta.uncmulti_mcmc = []
+        meta.uncmulti_nested = []
+
+    return meta
+
+
+def append_fit_output(fit, meta, fitter=None, medians=None):
+    """
+    Appends fit statistics like rms or chi2 into meta lists.
+    """
+    precision = 3
+    if fitter == 'lsq':
+        meta.rms_pred_list_lsq.append(round(fit.rms_predicted, precision))
+        meta.rms_list_lsq.append(round(fit.rms, precision))
+        meta.chi2_list_lsq.append(round(fit.chi2, precision))
+        meta.chi2red_list_lsq.append(round(fit.chi2red, precision))
+        meta.bic_list_lsq.append(round(fit.bic, precision))
+        meta.bic_alt_list_lsq.append(round(fit.bic_alt, precision))
+
+    if fitter == 'mcmc':
+        meta.rms_pred_list_mcmc.append(round(fit.rms_predicted, precision))
+        meta.rms_list_mcmc.append(round(fit.rms, precision))
+        meta.chi2_list_mcmc.append(round(fit.chi2, precision))
+        meta.chi2red_list_mcmc.append(round(fit.chi2red, precision))
+        meta.bic_list_mcmc.append(round(fit.bic, precision))
+        meta.bic_alt_list_mcmc.append(round(fit.bic_alt, precision))
+
+    if fitter == 'nested':
+        meta.rms_pred_list_nested.append(round(fit.rms_predicted, precision))
+        meta.rms_list_nested.append(round(fit.rms, precision))
+        meta.chi2_list_nested.append(round(fit.chi2, precision))
+        meta.chi2red_list_nested.append(round(fit.chi2red, precision))
+        meta.bic_list_nested.append(round(fit.bic, precision))
+        meta.bic_alt_list_nested.append(round(fit.bic_alt, precision))
+
+    if 'uncmulti' in meta.s30_myfuncs:
+        if fitter == 'mcmc':
+            meta.chi2_notrescaled_list_mcmc.append(round(fit.chi2_notrescaled, precision))
+            meta.chi2red_notrescaled_list_mcmc.append(round(fit.chi2red_notrescaled, precision))
+            meta.bic_notrescaled_list_mcmc.append(round(fit.bic_notrescaled, precision))
+            meta.bic_alt_notrescaled_list_mcmc.append(round(fit.bic_alt_notrescaled, precision))
+            meta.uncmulti_mcmc.append(round(medians[-1], precision))
+        if fitter == 'nested':
+            meta.chi2_notrescaled_list_nested.append(round(fit.chi2_notrescaled, precision))
+            meta.chi2red_notrescaled_list_nested.append(round(fit.chi2red_notrescaled, precision))
+            meta.bic_notrescaled_list_nested.append(round(fit.bic_notrescaled, precision))
+            meta.bic_alt_notrescaled_list_nested.append(round(fit.bic_alt_notrescaled, precision))
+            meta.uncmulti_nested.append(round(medians[-1], precision))
+
+
+def save_fit_output(fit, data, meta):
+    """
+    Saves all the fit statistics like rms or chi2 into an astropy table.
+    """
+    t = Table()
+
+    t['wave'] = meta.wavelength_list
+    t['wave'].info.format = '.3f'
+    if meta.run_mcmc:
+        t['rms_pred'] = meta.rms_pred_list_mcmc
+        t['rms']      = meta.rms_list_mcmc
+        t['chi2']     = meta.chi2_list_mcmc
+        t['chi2red']  = meta.chi2red_list_mcmc
+        t['bic']      = meta.bic_list_mcmc
+        t['bic_alt']  = meta.bic_alt_list_mcmc
+        if 'uncmulti' in meta.s30_myfuncs:
+            t['chi2_notrescaled'] = meta.chi2_notrescaled_list_mcmc
+            t['chi2red_notrescaled'] = meta.chi2red_notrescaled_list_mcmc
+            t['bic_notrescaled'] = meta.bic_notrescaled_list_mcmc
+            t['bic_alt_notrescaled'] = meta.bic_alt_notrescaled_list_mcmc
+            t['uncmulti'] = meta.uncmulti_mcmc
+
+    if meta.run_nested:
+        t['rms_pred'] = meta.rms_pred_list_nested
+        t['rms']      = meta.rms_list_nested
+        t['chi2']     = meta.chi2_list_nested
+        t['chi2red']  = meta.chi2red_list_nested
+        t['bic']      = meta.bic_list_nested
+        t['bic_alt']  = meta.bic_alt_list_nested
+        if 'uncmulti' in meta.s30_myfuncs:
+            t['chi2_notrescaled'] = meta.chi2_notrescaled_list_nested
+            t['chi2red_notrescaled'] = meta.chi2red_notrescaled_list_nested
+            t['bic_notrescaled'] = meta.bic_notrescaled_list_nested
+            t['bic_alt_notrescaled'] = meta.bic_alt_notrescaled_list_nested
+            t['uncmulti'] = meta.uncmulti_nested
+
+    t['uncmulti2'] = t['uncmulti'] ** 2
+    t['uncmulti2'].info.format = '.3f'
+
+    t['npoints'] = [data.npoints] * meta.nfits
+    t['nfree_param'] = [data.nfree_param] * meta.nfits
+    t['dof'] = [data.dof] * meta.nfits
+
+    ascii.write(t, meta.workdir + meta.fitdir + '/fit_results.txt', format='rst', overwrite=True)
+    print('Saved fit_results.txt file')
+
+
+def save_allandata(binsz, rms, stderr, meta, fitter=None):
+    """
+    Saves the data used to create the Allan deviation plot
+    """
+    t = Table()
+
+    t['binsz'] = binsz
+    t['rms'] = rms
+    t['stderr'] = stderr
+
+    if fitter == 'nested':
+        dname = '/nested_res'
+        fname = dname + '/corr_data_bin{0}_wvl{1:0.3f}.txt'.format(meta.s30_file_counter, meta.wavelength)
+    elif fitter == 'mcmc':
+        dname = '/mcmc_res'
+        fname = dname + '/corr_data_bin{0}_wvl{1:0.3f}.txt'.format(meta.s30_file_counter, meta.wavelength)
+    elif fitter == 'lsq':
+        dname = '/lsq_res'
+        fname = dname + '/corr_data_bin{0}_wvl{1:0.3f}.txt'.format(meta.s30_file_counter, meta.wavelength)
+
+    ascii.write(t, meta.workdir + meta.fitdir + fname, format='rst', overwrite=True)
 
 
 # def residuals(params, template_waves, template, spectrum, error):
