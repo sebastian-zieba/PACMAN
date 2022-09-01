@@ -44,13 +44,23 @@ Instrument Systematics
 
 * `divide_white.py <https://pacmandocs.readthedocs.io/en/latest/_modules/pacman/lib/models/divide_white.html#divide_white>`_
 
-  Uses the divide-white method which assumes that the systematic parameters for a spectroscopic light curves are the same (have the same shape) as for the white light curve. TODO ADD REF
+  Uses the divide-white method which assumes that the systematic parameters for a spectroscopic light curves are the same (have the same shape) as for the white light curve. See equation 2 in `Kreidberg et al. (2014) <https://arxiv.org/pdf/1401.0022.pdf>`_ for a reference. This model does not has any additional free parameters (so nothing has to be added to the fit_par.txt file which used).
 
 * `constants_cj.py <https://pacmandocs.readthedocs.io/en/latest/_modules/pacman/lib/models/constants_cj.html#constants_cj>`_
 
-  Alternative for model_ramp which fits a constant to every j-th exposure in an orbit. TODO ADD REF 
+  Alternative for model_ramp which fits a constant to every j-th exposure in an orbit. See equation 1 in `Kreidberg et al. (2019) <https://arxiv.org/pdf/1904.10618.pdf>`_ and references within for an application of this model. 
 
 .. note:: c is in log10. A average flux of 10^7 photoelectrons therefore leads to approximately c = 7.
+
+
+* `uncmulti.py <https://pacmandocs.readthedocs.io/en/latest/_modules/pacman/lib/models/uncmulti.html#uncmulti>`_
+
+  Scales the errorbars at every iteration of the sampler (free parameter: uncmulti_val). Does not work for the least squares fit only for the samplers, mcmc and dynesty.
+
+.. warning:: With the current version of PACMAN, uncmulti_val has to be entered into fit_par.txt as the last parameter!!
+ 
+  This function has been implemented as an alternative to the 'rescale_uncert' technique. This rescales the errorbars of the flux measurements after the least squares routine so that chi2_red = 1. This might be problematic however, if the least squares is having toubles finding a good solution. Then the errorbars would be overestimated.
+
 
 
 Astrophysical

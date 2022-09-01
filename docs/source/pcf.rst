@@ -485,6 +485,8 @@ rescale_uncert
 Rescales the uncertainties for the sampler (MCMC or nested sampling), so that the reduced chi2red = 1.
 Note: This only happens if chi2red < 1 after least squared fit.
 
+An alternative is to use uncmulti as a model in your fit. This will rescale the errorbars at every step of the sampler. The uncmulti value which the user will get after the sampling should be approximately the square root of the reduced chi square of the fit (i.e., uncmulti ~ sqrt(chi2_red)).
+
 
 run_clipiters
 ''''''''''''''''''''''''''''''''''''''''''''
@@ -494,6 +496,13 @@ NOT TESTED
 run_clipsigma
 ''''''''''''''''''''''''''''''''''''''''''''
 NOT TESTED
+
+
+
+white_sys_path
+''''''''''''''''''''''''''''''''''''''''''''
+Location of the white_systematics.txt file.
+Only needed if the user wants to use 'divide_white' as a model.
 
 
 ld_model
@@ -565,15 +574,33 @@ run_nsteps/run_nwalkers/run_nburn
 ''''''''''''''''''''''''''''''''''''''''''''
 Parameters for emcee.
 
+nwalkers is explained here in the `emcee API <https://emcee.readthedocs.io/en/stable/user/sampler/#the-ensemble-sampler>`_ and run_nsteps `here <https://emcee.readthedocs.io/en/stable/user/sampler/#emcee.EnsembleSampler.run_mcmc>`_.
 
-run_dlogz/run_nlive
+run_dlogz/run_nlive etc
 ''''''''''''''''''''''''''''''''''''''''''''
+| Example: ``run_dlogz                    0.01``
+| Example: ``run_nlive                    400``
 | Example: ``run_dynamic                  False``
-| Example: ``run_dlogz                    0.1``
-| Example: ``run_nlive                    700``
-| Example: ``run_bound                    single``
-| Example: ``run_sample                   rwalk``
+| Example: ``run_dlogz_init               0.01``
+| Example: ``run_nlive_init               80``
+| Example: ``run_nlive_batch              100``
+| Example: ``run_maxbatch                 20``
+| Example: ``run_bound                    multi``
+| Example: ``run_sample                   auto``
+
 
 Parameters for dynesty.
 
+If run_dynamic = False, then dynesty's static mode will be used.
+The dynamic parameters (run_dlogz_init, run_nlive_init, run_nlive_batch, run_maxbatch, run_bound, run_sample) are well-explained in the `dynesty API <https://dynesty.readthedocs.io/en/stable/api.html#dynesty.dynamicsampler.DynamicSampler.run_nested>`_ and `in this tutorial <https://dynesty.readthedocs.io/en/stable/dynamic.html#initializing-the-dynamicsampler>`_
+The static parameters (run_dlogz, run_nlive, run_bound, run_sample) are expained in the `dynesty API <https://dynesty.readthedocs.io/en/stable/api.html#dynesty.sampler.Sampler.run_nested>`_ too. 
 
+The bound and sample parameters which are used by both the static and the dynamic mode are explained `here <https://dynesty.readthedocs.io/en/stable/api.html#dynesty.dynesty.DynamicNestedSampler>`_.
+
+
+
+
+
+lc_type
+''''''''''''''''''''''''''''''''''''''''''''
+Currently not used.
