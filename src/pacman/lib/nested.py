@@ -80,6 +80,12 @@ def nested_sample(data, model, params, file_name, meta, fit_par):
 
     plots.rmsplot(model, data, meta, fitter='nested')
 
+    if meta.s30_fit_white:
+        outfile = open(meta.workdir + meta.fitdir + '/white_systematics_nested.txt', "w")
+        for i in range(len(fit.all_sys)): print(fit.all_sys[i], file=outfile)
+        print('Saved white_systematics.txt file for nested sampling run')
+        outfile.close()
+
     return medians, errors_lower, errors_upper, fit
 
 
