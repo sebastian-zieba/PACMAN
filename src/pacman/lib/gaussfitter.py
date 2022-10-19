@@ -28,7 +28,8 @@ The version of mpfit I use can be found here:
 """
 
 def moments(data,circle,rotate,vheight,estimator=median,**kwargs):
-    """Returns (height, amplitude, x, y, width_x, width_y, rotation angle)
+    """
+    Returns (height, amplitude, x, y, width_x, width_y, rotation angle)
     the gaussian parameters of a 2D distribution by calculating its
     moments.  Depending on the input parameters, will only output 
     a subset of the above.

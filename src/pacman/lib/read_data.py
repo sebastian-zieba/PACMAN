@@ -177,7 +177,7 @@ class Data:
         print('Names of free parameters: ', free_parnames)
         self.npoints = len(self.time)
         self.dof = self.npoints - self.nfree_param
-        self.lc_type = meta.lc_type
+        #self.lc_type = meta.lc_type # not currently used
         self.all_sys = None
         self.prior = format_prior_for_mcmc(self, meta, fit_par)
         self.vis_idx = []

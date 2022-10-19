@@ -27,7 +27,7 @@ copyright = '2022, Laura Kreidberg, Sebastian Zieba'
 author = 'Laura Kreidberg, Sebastian Zieba'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1'
+release = '0.1.0'
 
 
 # -- General configuration ---------------------------------------------------

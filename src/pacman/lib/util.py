@@ -2,8 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import ascii, fits
 import math
-from importlib import reload
-import multiprocessing as mp
 import os
 from tqdm import tqdm
 import numpy.ma as ma
@@ -177,7 +175,8 @@ def ancil(meta, s10=False, s20=False):
 #03
 def gaussian_kernel(meta, x, y):
     """
-    https://stackoverflow.com/questions/24143320/gaussian-sum-filter-for-irregular-spaced-points
+    Performs a gaussian kernel over an array. Used in smoothing of the stellar spectrum.
+    Taken from: https://stackoverflow.com/questions/24143320/gaussian-sum-filter-for-irregular-spaced-points
     """
     y = y / max(y)
     x.sort()
@@ -321,6 +320,9 @@ def get_flatfield(meta):                    #function that flatfields a data arr
 
 
 def peak_finder(array, i, ii, orbnum, meta):
+    """
+    Finding peaks in an array.
+    """
     # determine the aperture cutout
 
     rowmedian = np.median(array, axis=1)  # median of every row
@@ -604,14 +606,11 @@ def read_fitfiles(meta):
     return files, meta
 
 
-def format_params_for_Model(theta, params, meta, fit_par):
-    nvisit = int(meta.nvisit)
-    params_updated = []
-
-    fixed_array = np.array(fit_par['fixed'])
-    tied_array = np.array(fit_par['tied'])
+def return_free_array(nvisit, fixed_array, tied_array):
+    """
+    Reads in the fit_par.txt and determines which parameters are free.
+    """
     free_array = []
-
     for i in range(len(fixed_array)):
         if fixed_array[i].lower() == 'true' and tied_array[i] == -1:
             for ii in range(nvisit):
@@ -625,6 +624,12 @@ def format_params_for_Model(theta, params, meta, fit_par):
         if fixed_array[i].lower() == 'false' and not tied_array[i] == -1:
             free_array.append(True)
     free_array = np.array(free_array)
+    return free_array
+
+
+def format_params_for_Model(theta, params, nvisit, fixed_array, tied_array, free_array):
+    nvisit = int(nvisit)
+    params_updated = []
 
     # #TODO: Oida?
     # def repeated(array, index, n_times):
@@ -751,7 +756,10 @@ def quantile(x, q):
     return np.percentile(x, [100. * qi for qi in q])
 
 
-def weighted_mean(data, err):            #calculates the weighted mean for data points data with std devs. err
+def weighted_mean(data, err):
+    """
+    calculates the weighted mean for data points data with std devs. err
+    """
     ind = err != 0.0
     weights = 1.0/err[ind]**2
     mu = np.sum(data[ind]*weights)/np.sum(weights)

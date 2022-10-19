@@ -87,8 +87,8 @@ def run00(eventlabel, pcf_path='.'):
     pcf = rd.read_pcf(pcffile)
     rd.store_pcf(meta, pcf)
 
-    #this file here is saved in /pacman/s00_table.py
-    #pacmandir is just the path of the directory /pacman/
+    # this file here is saved in /pacman/s00_table.py
+    # pacmandir is just the path of the directory /pacman/
     meta.pacmandir = pkg_resources.resource_filename("pacman","")
     #meta.pacmandir = '/'.join(os.path.realpath(__file__).split('/')[:-2]) + '/'
     print('Location of PACMAN:', meta.pacmandir)

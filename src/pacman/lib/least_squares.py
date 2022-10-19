@@ -3,12 +3,14 @@ import os
 from . import mpfit
 from . import plots
 from .formatter import PrintParams
-import pickle
 from astropy.stats import sigma_clip
 from . import util
 
 
 def residuals(params, data, model, fjac=None):
+    """
+    Calculates the residuals of the fit.
+    """
     fit = model.fit(data, params)
     return [0, fit.resid/data.err]
 
@@ -20,18 +22,18 @@ def lsq_fit(fit_par, data, meta, model, myfuncs, noclip=False):
     util.create_res_dir(meta) # creates the lsq directory
 
     # TODO: noclip = True should be standard
-    nvisit = data.nvisit 
+    nvisit = data.nvisit
     npar = len(data.parnames)*nvisit
 
     # initializes least squares fit parameters
-    parinfo = [{'value':0, 'fixed':0, 'limited':[0,0,], 'limits':[0.0,0.0], 
+    parinfo = [{'value':0, 'fixed':0, 'limited':[0,0,], 'limits':[0.0,0.0],
                 'step':0.0} for j in range(npar)]
     params_s = []
 
     # loops through parameters and visits
     # sets initial guess, step size, tie, bounds
 
-    ii=0
+    ii = 0
     for i in range(int(len(data.parnames))):
         if str(fit_par['tied'][ii]) == "-1":
             for j in range(nvisit):

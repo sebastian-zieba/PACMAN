@@ -1,11 +1,10 @@
-import os, glob, scipy, sys
+import os, sys
 import numpy as np
 from astropy.io import ascii, fits
 import shutil
 #from numpy import *
 #from pylab import *
 from .lib import optextr
-from scipy.optimize import leastsq
 from datetime import datetime
 from astropy.table import QTable
 from tqdm import tqdm

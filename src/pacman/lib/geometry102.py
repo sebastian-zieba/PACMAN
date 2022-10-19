@@ -5,7 +5,6 @@ def trace(X_ref, Y_ref):
 	"""
 	Calculates the slope and intercept for the trace, given the position  of the direct image in physical pixels.
 	These coefficients are for the WFC3 G141 grism.
-
 	See also: https://ui.adsabs.harvard.edu/abs/2009wfc..rept...18K/abstract
 	"""
 	BEAMA_i = 41 

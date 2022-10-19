@@ -6,11 +6,11 @@ sys.path.insert(0, './models')
 
 def calc_astro(t, params, data, funcs, visit):
     flux = np.ones_like(t)
-    for i, f in enumerate(funcs.astro): 
+    for i, f in enumerate(funcs.astro):
         # selects parameters to pass to function
         funcparams = [params[j:j + data.nvisit] for j in funcs.astro_porder[i]]
         flux *= f(t, data, funcparams, visit)
-    return flux 
+    return flux
 
 
 def calc_sys(t, params, data, funcs, visit):
@@ -19,7 +19,7 @@ def calc_sys(t, params, data, funcs, visit):
         # selects parameters to pass to function
         funcparams = [params[j: j + data.nvisit] for j in funcs.sys_porder[i]]
         flux *= f(t, data, funcparams, visit)
-    return flux 
+    return flux
 
 
 def calc_gp(idx, params, data, resid, funcs, visit):
@@ -42,7 +42,8 @@ class Model:
         self.model = np.zeros(npoints)
         self.model_sys = np.zeros(npoints)
         self.model_astro = np.zeros(npoints)
-        self.model_gp = np.zeros(npoints)
+        if ('gp_sho' in data.s30_myfuncs) or ('gp_matern32' in data.s30_myfuncs):
+            self.model_gp = np.zeros(npoints)
         self.norm_flux = np.zeros(npoints)
         self.phase = np.zeros(npoints)
         self.resid = np.zeros(npoints)
