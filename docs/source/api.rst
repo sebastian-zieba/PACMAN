@@ -298,7 +298,7 @@ lib.models.sine2
     :show-inheritance:
 
 lib.models.sine_curve
-----------------------------------------
+---------------------
 .. automodule:: pacman.lib.models.sine_curve
     :members:
     :undoc-members:
@@ -306,7 +306,7 @@ lib.models.sine_curve
 
 
 lib.models.uncmulti
-----------------------------------------
+-------------------
 .. automodule:: pacman.lib.models.uncmulti
     :members:
     :undoc-members:
