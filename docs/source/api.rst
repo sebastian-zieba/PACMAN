@@ -1,7 +1,7 @@
 .. _api:
 
 The Code (API)
-===============
+==============
 
 
 pacman
@@ -311,3 +311,4 @@ lib.models.uncmulti
     :members:
     :undoc-members:
     :show-inheritance:
+
