@@ -98,7 +98,7 @@ Example: ``True``
 Saves or shows a plot with the downloaded X,Y,Z positions of HST from
 the `HORIZONS system <https://ssd.jpl.nasa.gov/horizons/>`_ by JPL during the observations.
 
-.. image:: media/s02/bjdcorr_horizons_results_v1.png
+.. image:: media/s02/bjdcorr_horizons_results_v0.png
 
 
 
@@ -286,7 +286,8 @@ Save plot showing some diagnostics from the optimal extraction.
 correct_wave_shift
 ''''''''''''''''''''''''''''''''''''''''''''
 | Example: ``correct_wave_shift  True``
-Interpolates each spectrum to the wavelength scale of the reference spectrum, to account for spectral drift over the observation. 
+
+Interpolates each spectrum to the wavelength scale of the reference spectrum, to account for spectral drift over the observation.
 
 
 correct_wave_shift_refspec
@@ -297,6 +298,7 @@ uses the created reference spectrum during Stage 03 for the wavelength calibrati
 output
 ''''''''''''''''''''''''''''''''''''''''''''
 | Example: ``output  True``
+
 Saves the flux as a function of time and wavelength. 
 
 
@@ -404,8 +406,10 @@ s21_most_recent_s20/s21_spec_dir_path_s20
 ''''''''''''''''''''''''''''''''''''''''''''
 | Example: ``s21_most_recent_s20    True``
 | Example: ``s21_spec_dir_path_s20  None``
+
 If ``s21_most_recent_s20`` is set to ``True`` the most recent s20 run will be used.
 If ``s21_most_recent_s20`` is set to False, the user can set a path with the extracted data after s20:
+
 | Example: ``s21_most_recent_s20    False ``
 | Example: ``s21_spec_dir_path_s20  /home/zieba/Desktop/Projects/Open_source/PACMAN/run/run_2022-01-25_19-12-59_GJ1214_Hubble13021/extracted_lc/2022-02-11_17-44-56``
 
@@ -485,6 +489,8 @@ rescale_uncert
 Rescales the uncertainties for the sampler (MCMC or nested sampling), so that the reduced chi2red = 1.
 Note: This only happens if chi2red < 1 after least squared fit.
 
+An alternative is to use uncmulti as a model in your fit. This will rescale the errorbars at every step of the sampler. The uncmulti value which the user will get after the sampling should be approximately the square root of the reduced chi square of the fit (i.e., uncmulti ~ sqrt(chi2_red)).
+
 
 run_clipiters
 ''''''''''''''''''''''''''''''''''''''''''''
@@ -496,9 +502,17 @@ run_clipsigma
 NOT TESTED
 
 
+
+white_sys_path
+''''''''''''''''''''''''''''''''''''''''''''
+Location of the white_systematics.txt file.
+Only needed if the user wants to use 'divide_white' as a model.
+
+
 ld_model
 ''''''''''''''''''''''''''''''''''''''''''''
 | Example: ``ld_model  1``
+
 1 = "linear" limb darkening 
 2 = "quadratic" limb darkening 
 
@@ -528,14 +542,14 @@ save_allan_plot
 ''''''''''''''''''''''''''''''''''''''''''''
 The Allan deviation plot.
 
-.. image:: media/s30/white/corr_plot_0.png
+.. image:: media/s30/white/corr_plot_bin0_wvl1.400.png
 
 
 save_raw_lc_plot
 ''''''''''''''''''''''''''''''''''''''''''''
 Raw light curve plot
 
-.. image:: media/s30/white/raw_lc_0.png
+.. image:: media/s30/white/raw_lc_bin0_wvl1.400.png
 
 
 save_fit_lc_plot
@@ -561,19 +575,42 @@ run_nested
 Runs nested sampling using the dynesty package.
 
 
+ncpu
+''''''''''''''''''''''''''''''''''''''''''''
+Number of cores used by emcee or dynesty. Use ncpu = 1, if you don't want to use parallelization.
+
+
 run_nsteps/run_nwalkers/run_nburn
 ''''''''''''''''''''''''''''''''''''''''''''
 Parameters for emcee.
 
+nwalkers is explained here in the `emcee API <https://emcee.readthedocs.io/en/stable/user/sampler/#the-ensemble-sampler>`_ and run_nsteps `here <https://emcee.readthedocs.io/en/stable/user/sampler/#emcee.EnsembleSampler.run_mcmc>`_.
 
-run_dlogz/run_nlive
+run_dlogz/run_nlive etc
 ''''''''''''''''''''''''''''''''''''''''''''
+| Example: ``run_dlogz                    0.01``
+| Example: ``run_nlive                    400``
 | Example: ``run_dynamic                  False``
-| Example: ``run_dlogz                    0.1``
-| Example: ``run_nlive                    700``
-| Example: ``run_bound                    single``
-| Example: ``run_sample                   rwalk``
+| Example: ``run_dlogz_init               0.01``
+| Example: ``run_nlive_init               80``
+| Example: ``run_nlive_batch              100``
+| Example: ``run_maxbatch                 20``
+| Example: ``run_bound                    multi``
+| Example: ``run_sample                   auto``
+
 
 Parameters for dynesty.
 
+If run_dynamic = False, then dynesty's static mode will be used.
+The dynamic parameters (run_dlogz_init, run_nlive_init, run_nlive_batch, run_maxbatch, run_bound, run_sample) are well-explained in the `dynesty API <https://dynesty.readthedocs.io/en/stable/api.html#dynesty.dynamicsampler.DynamicSampler.run_nested>`_ and `in this tutorial <https://dynesty.readthedocs.io/en/stable/dynamic.html#initializing-the-dynamicsampler>`_
+The static parameters (run_dlogz, run_nlive, run_bound, run_sample) are expained in the `dynesty API <https://dynesty.readthedocs.io/en/stable/api.html#dynesty.sampler.Sampler.run_nested>`_ too. 
 
+The bound and sample parameters which are used by both the static and the dynamic mode are explained `here <https://dynesty.readthedocs.io/en/stable/api.html#dynesty.dynesty.DynamicNestedSampler>`_.
+
+
+
+
+
+lc_type
+''''''''''''''''''''''''''''''''''''''''''''
+Currently not used.

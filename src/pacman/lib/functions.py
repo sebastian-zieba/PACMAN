@@ -16,6 +16,7 @@ from ..lib.models.ackbar import ackbar
 from ..lib.models.gp_sho import gp_sho
 from ..lib.models.gp_matern32 import gp_matern32
 from ..lib.models.constants_cj import constants_cj
+from ..lib.models.uncmulti import uncmulti
 
 
 #need to automate appending parameters to functions
@@ -144,38 +145,16 @@ class Functions:
                     ])
             elif f == "constants_cj":
                 self.sys.append(constants_cj)
+                cj_list = []
+                for i in range(data.imax):
+                    ci = f'c{i}'
+                    cj_list.append(data.par_order[ci] * data.nvisit)
+                self.sys_porder.append(cj_list)
+            elif f == "uncmulti":
+                self.sys.append(uncmulti)
                 self.sys_porder.append([
-                    data.par_order['c0'] * data.nvisit,
-                    data.par_order['c1'] * data.nvisit,
-                    data.par_order['c2'] * data.nvisit,
-                    data.par_order['c3'] * data.nvisit,
-                    data.par_order['c4'] * data.nvisit,
-                    data.par_order['c5'] * data.nvisit,
-                    data.par_order['c6'] * data.nvisit,
-                    data.par_order['c7'] * data.nvisit,
-                    data.par_order['c8'] * data.nvisit,
-                    data.par_order['c9'] * data.nvisit,
-                    data.par_order['c10'] * data.nvisit,
-                    data.par_order['c11'] * data.nvisit,
-                    data.par_order['c12'] * data.nvisit,
-                    data.par_order['c13'] * data.nvisit,
-                    data.par_order['c14'] * data.nvisit,
-                    data.par_order['c15'] * data.nvisit,
-                    data.par_order['c16'] * data.nvisit,
-                    data.par_order['c17'] * data.nvisit,
-                    data.par_order['c18'] * data.nvisit,
-                    data.par_order['c19'] * data.nvisit,
-                    data.par_order['c20'] * data.nvisit,
-                    data.par_order['c21'] * data.nvisit,
-                    data.par_order['c22'] * data.nvisit,
-                    data.par_order['c23'] * data.nvisit,
-                    data.par_order['c24'] * data.nvisit#,
-                    #data.par_order['c25'] * data.nvisit#,
-                    #data.par_order['c26'] * data.nvisit,
-                    #data.par_order['c27'] * data.nvisit,
-                    #data.par_order['c28'] * data.nvisit,
-                    #data.par_order['c29'] * data.nvisit
-                    ])
+                    data.par_order['uncmulti_val'] * data.nvisit
+                ])
             else:
                 #FIXME return error here
                 return 0

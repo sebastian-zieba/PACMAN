@@ -14,19 +14,20 @@ import os
 import sys
 import sphinx_rtd_theme
 
-sys.path.insert(0, os.path.abspath('..'))
-sys.path.insert(0, os.path.abspath('../..'))
-sys.path.insert(0, os.path.abspath('../../src'))
-sys.path.insert(0, os.path.abspath('../../src/pacman'))
+sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('../'))
+sys.path.insert(0, os.path.abspath('../../'))
+sys.path.insert(0, os.path.abspath('../../src/'))
+
 
 # -- Project information -----------------------------------------------------
 
 project = 'PACMAN'
-copyright = '2021, Laura Kreidberg, Sebastian Zieba'
+copyright = '2022, Laura Kreidberg, Sebastian Zieba'
 author = 'Laura Kreidberg, Sebastian Zieba'
 
 # The full version, including alpha/beta/rc tags
-release = '0.0.1'
+release = '0.1.0'
 
 
 # -- General configuration ---------------------------------------------------

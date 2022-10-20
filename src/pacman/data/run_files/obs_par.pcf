@@ -2,42 +2,42 @@
 # NOTE: DO NOT USE SPACES IN LISTS!
 
 # 00
-rundir                       .      #location of run dir
-datadir                      ./data            #location of data dir
-suffix                       ima                                                      #data suffix (only ima supported right now)
-which_visits                 everything                                                 #which visits to use; Options: list (e.g., [0,1,3]) or everything
+rundir                       /home/zieba/Desktop/Projects/Observations/Hubble/GJ1214_13021 # location of run dir
+datadir                      /home/zieba/Desktop/Data/GJ1214_Hubble13021        # location of data dir
+suffix                       ima                                                # data suffix (only ima supported right now)
+which_visits                 everything                                          # which visits to use; Options: list (e.g., [0,1,3]) or everything
 
 save_obs_times_plot          True
 show_obs_times_plot          False
 
 
 ## 02 barycorr
-save_barycorr_plot           True                                                     #save a plot with locations of HST?
+save_barycorr_plot           True                                               # save a plot with locations of HST?
 show_barycorr_plot           False
 
 
 ## 03
-Teff                         3250                                                     #effective temperature of the star
-logg                         5.026                                                    #surface gravity of the star
-MH                           0.29                                                     #metallicity of the star
-sm                           k93models                                                #stellar model. Options: blackbody, k93models, ck04models or phoenix
+Teff                         3250                                               # effective temperature of the star
+logg                         5.026                                              # surface gravity of the star
+MH                           0.29                                               # metallicity of the star
+sm                           k93models                                          # stellar model. Options: blackbody, k93models, ck04models or phoenix
 
-smooth                       True
-smooth_sigma                 50
+smooth                       True                                               # smooth stellar spectrum using a gaussian kernel
+smooth_sigma                 441
 
 save_smooth_plot             True
 show_smooth_plot             False
 
-save_refspec_plot            True                                                     #save a plot showing the stellar model, bandpass and the product of them?
+save_refspec_plot            True                                               # save a plot showing the stellar model, bandpass and the product of them?
 show_refspec_plot            False
 
 ## 10
-di_rmin                      120                                                      #coordinates (row min max and column min max) where the star in the direct image is
+di_rmin                      120                                                # coordinates (row min max and column min max) where the star in the direct image is
 di_rmax                      160
 di_cmin                      5
 di_cmax                      50
 
-save_image_plot              True                                                     #save plot with direct image and best fit?
+save_image_plot              True                                               # save plot with direct image and best fit?
 show_image_plot              False
 
 di_multi                     median
@@ -52,46 +52,53 @@ rmax                         261
 
 window                       12
 
-background_thld              1000                                                     #background threshold in counts
-
 opt_extract                  True
-sig_cut                      15                                                       # optimal extraction, for cosmic rays etc
-nsmooth                      9                                                        # optimal extraction, created smoothed spatial profile, medial smoothing filter
-
-save_optextr_plot            False
-
-correct_wave_shift           True
+sig_cut                      15                                                 # optimal extraction, for cosmic rays etc
+nsmooth                      9                                                  # optimal extraction, created smoothed spatial profile, medial smoothing filter
 
 output                       True
 
-save_sp2d_plot               False                                                     #save 2d spectrum
+correct_wave_shift           True
+correct_wave_shift_refspec   True
+
+background_thld              1000                                               # background threshold in counts
+
+background_box               False
+bg_rmin                      100
+bg_rmax                      400
+bg_cmin                      40
+bg_cmax                      100
+
+save_optextr_plot            False
+
+save_sp2d_plot               False                                              # save plot of 2d spectrum
 show_sp2d_plot               False
 
-save_trace_plot              False                                                     #save trace
+save_trace_plot              False                                              # save plot of trace
 show_trace_plot              False
 
-save_bkg_hist_plot           False                                                     #save bkg_hist
+save_bkg_hist_plot           False                                              # save histogram of fluxes 
 show_bkg_hist_plot           False
 
-save_utr_plot                False                                                     #save 2d spectrum
+save_utr_plot                False                                              # save plot of individual up-the-ramps
 show_utr_plot                False
 
-save_sp1d_plot               False                                                     #save 2d spectrum
+save_sp1d_plot               False                                              # save plot of 1d spectrum
 show_sp1d_plot               False
 
-save_bkg_evo_plot            True                                                     #save 2d spectrum
+save_bkg_evo_plot            True                                               # save plot of the background flux over time
 show_bkg_evo_plot            False
 
-save_sp1d_diff_plot          False                                                     #save 2d spectrum
+save_sp1d_diff_plot          False                                              # save difference plot of consecutive 1d spectra
 show_sp1d_diff_plot          False
 
-save_utr_aper_evo_plot       True                                                     #save 2d spectrum
+save_utr_aper_evo_plot       True                                               # save plot of aperture size over time
 show_utr_aper_evo_plot       False
 
-save_refspec_fit_plot        False
+save_refspec_fit_plot        False                                              # save plot of fit of the 1d spectrum to the refspec
 show_refspec_fit_plot        False
 
-save_drift_plot              True
+save_drift_plot              True                                               # save plot of 1d spectrum drift over time
 show_drift_plot              False
 
 
@@ -110,29 +117,33 @@ wvl_edge_list                [11400,12200,12600,13000,14600,15000,15400,15800,16
 
 ##30
 s30_myfuncs                  ['constant','upstream_downstream','model_ramp','polynomial1','transit']
+#s30_myfuncs                  ['constant','upstream_downstream','model_ramp','polynomial1','transit','uncmulti']
 
-s30_fit_white                False
-s30_most_recent_s20          False
+s30_fit_white                True
+s30_most_recent_s20          True
 s30_white_file_path          None
 
-s30_fit_spec                 True
-s30_most_recent_s21          True
+s30_fit_spec                 False
+s30_most_recent_s21          False
 s30_spec_dir_path            None
 
 remove_first_exp             True
 remove_first_orb             True
+remove_which_orb             [0]
 
 rescale_uncert               True
 
 run_clipiters                0
 run_clipsigma                0
 
+white_sys_path               None
+
+ld_model                     1
 fix_ld                       False
 ld_file                      /home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/wfc3_reduction/limb-darkening/results/ld_outputfile.txt
 
 toffset                      2456365
 
-run_divide_white             False
 run_verbose                  True
 
 save_allan_plot              True
@@ -143,17 +154,24 @@ run_lsq                      True
 run_mcmc                     True
 run_nested                   False
 
-#emcee
-run_nsteps                   10000
-run_nwalkers	             50
-run_nburn                    5000
+ncpu                         1
 
-#dynesty
-run_dynamic                  False
-run_dlogz                    0.1
-run_nlive                    120
-run_bound                    single
+#emcee
+run_nsteps                   4000
+run_nwalkers	             30
+run_nburn                    2000
+
+#dynesty static
+run_dlogz                    0.01
+run_nlive                    400
+
+#dynesty dynamic
+run_dynamic                  True
+run_dlogz_init               0.01
+run_nlive_init               100
+run_nlive_batch              50
+run_maxbatch                 50
+
+run_bound                    multi
 run_sample                   rwalk
 
-
-lc_type                      transit

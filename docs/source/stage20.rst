@@ -3,6 +3,12 @@
 Stage 20
 ============
 
+.. topic:: TL;DR
+
+    - Navigate to the run directory and execute the pacman_script.py file using the --s20 flag
+    - Continue with s21 if you want to create spectroscopic light curves and fit them
+    - (Continue with s30 if you are ONLY interested in the white light curve)
+
 This step finally extracts the spectra!
 
 A new directory will be created in the work directory. It will look similar to this ``workdir + extracted_lc/2022-01-21_18-33-25``.

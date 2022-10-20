@@ -87,8 +87,8 @@ def run00(eventlabel, pcf_path='.'):
     pcf = rd.read_pcf(pcffile)
     rd.store_pcf(meta, pcf)
 
-    #this file here is saved in /pacman/s00_table.py
-    #pacmandir is just the path of the directory /pacman/
+    # this file here is saved in /pacman/s00_table.py
+    # pacmandir is just the path of the directory /pacman/
     meta.pacmandir = pkg_resources.resource_filename("pacman","")
     #meta.pacmandir = '/'.join(os.path.realpath(__file__).split('/')[:-2]) + '/'
     print('Location of PACMAN:', meta.pacmandir)
@@ -107,10 +107,10 @@ def run00(eventlabel, pcf_path='.'):
     # Create directories for this run = Work Directory
     datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
 
-    run_files_dir = pkg_resources.resource_filename("pacman","") + '/data/run_files/'
-    print(run_files_dir)
-    onlyfiles = [f for f in os.listdir(run_files_dir) if os.path.isfile(os.path.join(run_files_dir, f))]
-    print(onlyfiles)
+    #run_files_dir = pkg_resources.resource_filename("pacman","") + '/data/run_files/'
+    #print(run_files_dir)
+    #onlyfiles = [f for f in os.listdir(run_files_dir) if os.path.isfile(os.path.join(run_files_dir, f))]
+    #print(onlyfiles)
     meta.workdir = meta.rundir + '/run_' + datetime + '_' + meta.eventlabel + '/'
     if not os.path.exists(meta.workdir):
         os.makedirs(meta.workdir)
@@ -124,7 +124,7 @@ def run00(eventlabel, pcf_path='.'):
     shutil.copy(pcffile, meta.workdir)
     fit_parfile = pcf_path + '/fit_par.txt'
     shutil.copy(fit_parfile, meta.workdir)
-    print('pcf and fit_par files moved to the new work directory', meta.workdir)
+    print('pcf and fit_par files copied to the new work directory', meta.workdir)
 
     # Create list of file segments
     meta = util.readfiles(meta)

@@ -19,17 +19,17 @@ def getcoords(file):
     horizons file.
 
     Parameters
-    -----------
+    ----------
     file : Strings list
            A list containing the lines of a horizons file.
 
     Returns
-    --------
+    -------
     A four elements list containing the X, Y, Z, and time arrays of
     values from file.
 
-    Example:
-    --------
+    Example
+    -------
     start_data = '$$SOE'
     end_data   = '$$EOE'
     
@@ -54,7 +54,7 @@ def getcoords(file):
     # print(x, y, z, t)
 
     Modification History
-    ---------------------
+    --------------------
     2010-11-01  patricio  Written by Patricio Cubillos.
                         pcubillos@fulbrightmail.org
 
@@ -86,7 +86,7 @@ def suntimecorr(meta, obst, coordtable, verbose=False):
     Horizons system.
 
     Parameters
-    -----------
+    ----------
     meta
                  includes ra, dec and other information
     obst :       Float or Numpy Float array
@@ -99,7 +99,7 @@ def suntimecorr(meta, obst, coordtable, verbose=False):
                  If True, print X,Y,Z coordinates.
 
     Returns
-    --------
+    -------
 
     This function returns the time correction in seconds to be ADDED
     to the observation time to get the time when the observed photons
@@ -107,7 +107,7 @@ def suntimecorr(meta, obst, coordtable, verbose=False):
     containing the reference position.
 
     Notes
-    ------ 
+    -----
 
     The position vectors from coordtable are given in the following
     coordinate system:
@@ -173,7 +173,7 @@ def suntimecorr(meta, obst, coordtable, verbose=False):
     !$$EOF
 
     Example
-    ---------
+    -------
     >>> # Spitzer is in nearly the Earth's orbital plane.  Light coming from
     >>> # the north ecliptic pole should hit the observatory and the sun at
     >>> # about the same time.
@@ -203,7 +203,7 @@ def suntimecorr(meta, obst, coordtable, verbose=False):
 
 
     Modification History
-    ---------------------
+    --------------------
     2005-12-01 statia   Written by Statia Luszcz.
     2006-03-09 jh	Corrected 90deg error in algorithm, renamed,
 			updated header, made Coordtable a positional

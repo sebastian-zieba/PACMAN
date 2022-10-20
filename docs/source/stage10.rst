@@ -2,6 +2,10 @@
 
 Stage 10
 ============
+.. topic:: TL;DR
+
+    - Navigate to the run directory and execute the pacman_script.py file using the --s10 flag
+    - Continue with s20
 
 This stage determines the position of the star in each direct image.
 

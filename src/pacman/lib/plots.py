@@ -201,6 +201,9 @@ def barycorr(x,y,z,time, obsx, obsy, obsz, coordtable, meta):
 
 ## 03
 def smooth(meta, x, y, x_smoothed, y_smoothed):
+    """
+    Plots the raw stellar spectrum and the smoothed spectrum.
+    """
     plt.plot(x, y, label='raw spectrum')
     plt.plot(x_smoothed, y_smoothed, label='smoothed spectrum')
     plt.legend(loc=1)
@@ -856,24 +859,24 @@ def plot_raw(data, meta):
     #palette = sns.color_palette("husl", data.nvisit)
     sns.set_palette("muted")
     palette = sns.color_palette("muted", data.nvisit)
-    fig, ax = plt.subplots(data.nvisit, 1, figsize=(6.4, 2.4*data.nvisit), sharex=True)
+    fig, ax = plt.subplots(data.nvisit, 1, figsize=(6, 3.6*data.nvisit), sharex=True)
     if data.nvisit>1:
         for i in range(data.nvisit):
             ind = data.vis_num == i
             #plt.subplot((data.nvisit) * 100 + 10 + i + 1)
-            ax[i].plot(data.t_vis[ind] * 24., data.flux[ind], marker='o', \
+            ax[i].plot(data.t_vis[ind] / 60., data.flux[ind], marker='o', \
                      markersize=3.0, linestyle="none", \
                      label="Visit {0}".format(i), color=palette[i])
-            ax[i].set_xlim(((data.t_vis.min() - 0.02) * 24., (data.t_vis.max() + 0.05) * 24.))
+            ax[i].set_xlim(((data.t_vis.min() - 0.02) / 60, (data.t_vis.max() + 0.05) / 60))
             ax[i].set_ylim((0.998 * data.flux.min(), 1.002 * data.flux.max()))
             ax[i].legend(loc=1)
             ax[i].set_ylabel("Flux (e-)")
     else:
         #plt.subplot((data.nvisit) * 100 + 10 + i + 1)
-        ax.plot(data.t_vis * 24., data.flux, marker='o', \
+        ax.plot(data.t_vis / 60., data.flux, marker='o', \
                  markersize=3.0, linestyle="none", \
                  label="Visit 0", color=palette[0])
-        ax.set_xlim(((data.t_vis.min() - 0.02) * 24., (data.t_vis.max() + 0.05) * 24.))
+        ax.set_xlim(((data.t_vis.min() - 0.02) / 60, (data.t_vis.max() + 0.05) / 60))
         ax.set_ylim((0.998 * data.flux.min(), 1.002 * data.flux.max()))
         ax.legend(loc=1)
         ax.set_ylabel("Flux (e-)")
@@ -883,7 +886,7 @@ def plot_raw(data, meta):
 
     if not os.path.isdir(meta.workdir + meta.fitdir + '/raw_lc'):
         os.makedirs(meta.workdir + meta.fitdir + '/raw_lc')
-    plt.savefig(meta.workdir + meta.fitdir + '/raw_lc' + '/raw_lc_bin{0}_wvl{1:0.3f}.png'.format(meta.s30_file_counter, meta.wavelength).format(meta.s30_file_counter))
+    plt.savefig(meta.workdir + meta.fitdir + '/raw_lc' + '/raw_lc_bin{0}_wvl{1:0.3f}.png'.format(meta.s30_file_counter, meta.wavelength))
     plt.close('all')
     plt.clf()
     gc.collect()
@@ -908,7 +911,7 @@ def save_plot_raw_data(data, meta):
     ascii.write(table, meta.workdir + meta.fitdir +  '/raw_lc/raw_lc_data_bin{0}_wvl{1:0.3f}.txt'.format(meta.s30_file_counter, meta.wavelength), format='rst', overwrite=True)
 
 
-def rmsplot(model, data, meta):
+def rmsplot(model, data, meta, fitter=None):
     """
     Plot RMS vs. bin size looking for time-correlated noise
     Taken from POET: https://github.com/kevin218/POET/blob/master/code/lib/plots.py
@@ -932,100 +935,30 @@ def rmsplot(model, data, meta):
     plt.xticks(size=12)
     plt.yticks(size=12)
     plt.legend()
-    if not os.path.isdir(meta.workdir + meta.fitdir + '/corr_plot'):
-        os.makedirs(meta.workdir + meta.fitdir + '/corr_plot')
-    plt.savefig(meta.workdir + meta.fitdir + '/corr_plot' + '/corr_plot_bin{0}_wvl{1:0.3f}.png'.format(meta.s30_file_counter, meta.wavelength))
+    if fitter == 'nested':
+        dname = '/nested_res'
+        fname = dname + '/corr_plot_bin{0}_wvl{1:0.3f}.png'.format(meta.s30_file_counter, meta.wavelength)
+    elif fitter == 'mcmc':
+        dname = '/mcmc_res'
+        fname = dname + '/corr_plot_bin{0}_wvl{1:0.3f}.png'.format(meta.s30_file_counter, meta.wavelength)
+    elif fitter == 'lsq':
+        dname = '/lsq_res'
+        fname = dname + '/corr_plot_bin{0}_wvl{1:0.3f}.png'.format(meta.s30_file_counter, meta.wavelength)
+    plt.savefig(meta.workdir + meta.fitdir + fname)
     plt.close('all')
+    util.save_allandata(binsz, rms, stderr, meta, fitter=fitter)
     plt.clf()
     gc.collect()
 
 
-# def plot_fit_lc(data, fit, meta, mcmc=False):
-#     datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
-#     plt.clf()
-#     fig, ax = plt.subplots(2,1)
-#     p = FormatParams(fit.params, data)  # FIXME
-#
-#     sns.set_palette("muted")
-#     palette = sns.color_palette("muted", data.nvisit)
-#
-#     # ind = model.phase > 0.5
-#     # model.phase[ind] -= 1.
-#
-#     # calculate a range of times at higher resolution to make model look nice
-#     phase_hr = np.linspace(fit.phase.min() - 0.05, fit.phase.max() + 0.05, 1000)
-#     t_hr = phase_hr * p.per[0] + p.t0[0] + data.toffset
-#
-#     # colors = ['blue', 'red', 'orange', 'gray']
-#
-#     # plot data
-#     # plot best fit model from first visit
-#
-#     ax[0].plot(phase_hr, calc_astro(t_hr, fit.params, data, fit.myfuncs, 0))
-#
-#
-#     # plot systematics removed data
-#     for i in range(data.nvisit):
-#         ind = data.vis_num == i
-#         ax[0].plot(fit.phase[ind], fit.data_nosys[ind], color=palette[i], marker='o', markersize=3, linestyle="none")
-#
-#     clip_mask = np.ma.getmask(sigma_clip(fit.resid, sigma=meta.run_clipsigma, maxiters=1))
-#     ax[0].scatter(fit.phase[clip_mask], fit.data_nosys[clip_mask], marker='x', s=100, c='r')
-#
-#     ax[1].axhline(np.median(1.0e6 * fit.norm_resid), c='r')
-#     clip_line = np.std(1.0e6 * fit.norm_resid)
-#     ax[1].axhline(np.median(1.0e6 * fit.norm_resid)+clip_line*meta.run_clipsigma, c='r', ls='--')
-#     ax[1].axhline(np.median(1.0e6 * fit.norm_resid)-clip_line*meta.run_clipsigma, c='r', ls='--')
-#
-#     # add labels/set axes
-#     # xlo, xhi = np.min(model.phase)*0.9, np.max(model.phase)*1.1
-#     xlo, xhi = -0.1, 0.1
-#     ax[0].set_xlim(xlo, xhi)
-#     ax[0].set_ylabel("Relative Flux")
-#
-#     # annotate plot with fit diagnostics
-#     #ax = plt.gca()
-#     ax[0].text(0.85, 0.29,
-#             '$\chi^2_\\nu$:    ' + '{0:0.2f}'.format(fit.chi2red) + '\n'
-#             + 'obs. rms:  ' + '{0:0d}'.format(int(fit.rms)) + '\n'
-#             + 'exp. rms:  ' + '{0:0d}'.format(int(fit.rms_predicted)),
-#             verticalalignment='top', horizontalalignment='left',
-#             transform=ax[0].transAxes, fontsize=12
-#             )
-#
-#     # plot fit residuals
-#     ax[1].axhline(0, zorder=1, color='0.2', linestyle='dashed')
-#
-#     for i in range(data.nvisit):
-#         ind = data.vis_num == i
-#         ax[1].plot(fit.phase[ind], 1.0e6 * fit.norm_resid[ind], color=palette[i], marker='o', markersize=3,
-#                  linestyle="none")
-#
-#     # add labels/set axes
-#     ax[1].set_xlim(xlo, xhi)
-#     ax[1].set_ylabel("Residuals (ppm)")
-#     ax[1].set_xlabel("Orbital phase")
-#
-#     plt.tight_layout()
-#
-#     if not os.path.isdir(meta.workdir + meta.fitdir + '/fit_lc'):
-#         os.makedirs(meta.workdir + meta.fitdir + '/fit_lc')
-#     if mcmc:
-#         plt.savefig(meta.workdir + meta.fitdir + '/fit_lc' + "/mcmc_lc_{0}.png".format(meta.s30_file_counter))
-#     else:
-#         plt.savefig(meta.workdir + meta.fitdir + '/fit_lc' + "/fit_lc_{0}.png".format(meta.s30_file_counter))
-#     # plt.waitforbuttonpress(0) # this will wait for indefinite time
-#     #plt.close()
-
-
 def plot_fit_lc2(data, fit, meta, mcmc=False, nested=False):
     """
-    Plots phase folded fit
+    Plots phase folded fit.
     """
 
     plt.clf()
     fig, ax = plt.subplots(2,1)
-    #print(fit.params)
+
     p = FormatParams(fit.params, data)  # FIXME
     sns.set_palette("muted")
     palette = sns.color_palette("muted", data.nvisit)
@@ -1055,8 +988,8 @@ def plot_fit_lc2(data, fit, meta, mcmc=False, nested=False):
     #ax = plt.gca()
     ax[0].text(0.85, 0.29,
             '$\chi^2_\\nu$:    ' + '{0:0.2f}'.format(fit.chi2red) + '\n'
-            + 'obs. rms:  ' + '{0:0d}'.format(int(fit.rms)) + '\n'
-            + 'exp. rms:  ' + '{0:0d}'.format(int(fit.rms_predicted)),
+            + 'obs. rms:  ' + '{0:0.1f}'.format(fit.rms) + '\n'
+            + 'exp. rms:  ' + '{0:0.1f}'.format(fit.rms_predicted),
             verticalalignment='top', horizontalalignment='left',
             transform=ax[0].transAxes, fontsize=12
             )
@@ -1082,8 +1015,7 @@ def plot_fit_lc2(data, fit, meta, mcmc=False, nested=False):
         fig.suptitle('LSQ, {0:0.3f} micron'.format(meta.wavelength), fontsize=15, y=0.998)
 
     plt.tight_layout()
-    if not os.path.isdir(meta.workdir + meta.fitdir + '/fit_lc'):
-        os.makedirs(meta.workdir + meta.fitdir + '/fit_lc')
+
     if mcmc:
         plt.savefig(meta.workdir + meta.fitdir + '/fit_lc' + '/mcmc_lc_bin{0}_wvl{1:0.3f}.png'.format(meta.s30_file_counter, meta.wavelength))
     elif nested:
@@ -1097,51 +1029,41 @@ def plot_fit_lc2(data, fit, meta, mcmc=False, nested=False):
 
 def plot_fit_lc3(data, fit, meta, mcmc=False):
     """
-    Plots not phase folded fit
+    Plots light curve without systematics model.
     """
 
     plt.clf()
-    fig, ax = plt.subplots(2,1)
-    #print(fit.params)
+    fig, ax = plt.subplots(1,1)
+
     p = FormatParams(fit.params, data)  # FIXME
     sns.set_palette("muted")
     palette = sns.color_palette("muted", data.nvisit)
 
     time_model = np.linspace(data.time.min() - 0.05, data.time.max() + 0.05, 1000)
     flux_model = calc_astro(time_model, fit.params, data, fit.myfuncs, 0)
-    ax[0].plot(time_model, flux_model)
+    ax.plot(time_model, flux_model)
 
     # plot systematics removed data
-    ax[0].plot(data.time, fit.data_nosys, marker='o', markersize=3, linestyle="none")
+    ax.plot(data.time, fit.data_nosys, marker='o', markersize=3, linestyle="none")
 
     # add labels/set axes
     # xlo, xhi = np.min(model.phase)*0.9, np.max(model.phase)*1.1
     #xlo, xhi = -0.1, 0.1
     #ax[0].set_xlim(xlo, xhi)
-    ax[0].set_ylabel("Relative Flux")
+    ax.set_ylabel("Relative Flux")
 
     # annotate plot with fit diagnostics
     #ax = plt.gca()
-    ax[0].text(0.85, 0.29,
+    ax.text(0.85, 0.29,
             '$\chi^2_\\nu$:    ' + '{0:0.2f}'.format(fit.chi2red) + '\n'
             + 'obs. rms:  ' + '{0:0d}'.format(int(fit.rms)) + '\n'
             + 'exp. rms:  ' + '{0:0d}'.format(int(fit.rms_predicted)),
             verticalalignment='top', horizontalalignment='left',
-            transform=ax[0].transAxes, fontsize=12
+            transform=ax.transAxes, fontsize=12
             )
 
-    # plot fit residuals
-    ax[1].axhline(0, zorder=1, color='0.2', linestyle='dashed')
-
-    # for i in range(data.nvisit):
-    #     ind = data.vis_num == i
-    #     ax[1].plot(fit.phase[ind], 1.0e6 * fit.norm_resid[ind], color=palette[i], marker='o', markersize=3,
-    #              linestyle="none")
-
     # add labels/set axes
-    #ax[1].set_xlim(xlo, xhi)
-    ax[1].set_ylabel("Residuals (ppm)")
-    ax[1].set_xlabel("Time")
+    ax.set_xlabel("Time")
 
     if mcmc:
         fig.suptitle('MCMC, {0:0.3f} micron'.format(meta.wavelength), fontsize=15, y=0.998)
@@ -1344,8 +1266,6 @@ def lsq_rprs(vals, errs, idxs, meta):
     plt.errorbar(meta.wavelength_list, rprs_vals_lsq, yerr=rprs_errs_lsq, fmt='.', c='red')
     plt.xlabel('Wavelength (micron)')
     plt.ylabel('Transit Depth (ppm)')
-    if not os.path.isdir(meta.workdir + meta.fitdir + '/lsq_res'):
-        os.makedirs(meta.workdir + meta.fitdir + '/lsq_res')
     plt.savefig(meta.workdir + meta.fitdir + '/lsq_res/' + 'lsq_rprs.png', dpi=300, bbox_inches='tight', pad_inches=0.05)
     plt.close('all')
     plt.clf()

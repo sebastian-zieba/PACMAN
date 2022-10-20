@@ -22,4 +22,7 @@ pandoc
 sphinx-gallery
 nbconvert
 ipython_genutils
+celerite
+exotic-ld
+
 

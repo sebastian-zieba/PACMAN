@@ -3,6 +3,11 @@
 Stage 03
 ============
 
+.. topic:: TL;DR
+
+    - Navigate to the run directory and execute the pacman_script.py file using the --s03 flag
+    - Continue with s10
+
 This Stage starts by downloading a stellar model or calculating one in case of the black body spectrum.
 
     .. note:: | PACMAN currently offers the following stellar models:

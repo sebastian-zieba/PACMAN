@@ -3,6 +3,11 @@
 Stage 02
 ============
 
+.. topic:: TL;DR
+
+    - Navigate to the run directory and execute the pacman_script.py file using the --s02 flag
+    - Continue with s03
+
 This stage performs a barycentric correction because the time stamps for the observations do not account for HST's orbital motion.
 
 .. code-block:: console
@@ -30,5 +35,4 @@ The ``filetable.txt`` is updated in this stage and contains a new column called 
 E.g. (only showing the first few lines):
 
 .. include:: media/s02/filelist_updated.txt
-
    :literal:

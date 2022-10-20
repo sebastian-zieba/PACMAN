@@ -1,5 +1,6 @@
 import batman
 
+
 def transit(t, data, params, visit = 0):
     p = batman.TransitParams()
 
@@ -22,6 +23,6 @@ def transit(t, data, params, visit = 0):
     elif data.ld_model == 1:
         p.u = [u1[visit]]
     m = batman.TransitModel(
-    p, t, supersample_factor=3, exp_time = data.exp_time/24./60./60.
+        p, t, supersample_factor=3, exp_time = data.exp_time/24./60./60.
     )
     return m.light_curve(p)
