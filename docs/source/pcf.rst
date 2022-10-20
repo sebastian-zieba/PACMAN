@@ -98,7 +98,7 @@ Example: ``True``
 Saves or shows a plot with the downloaded X,Y,Z positions of HST from
 the `HORIZONS system <https://ssd.jpl.nasa.gov/horizons/>`_ by JPL during the observations.
 
-.. image:: media/s02/bjdcorr_horizons_results_v1.png
+.. image:: media/s02/bjdcorr_horizons_results_v0.png
 
 
 
@@ -286,7 +286,8 @@ Save plot showing some diagnostics from the optimal extraction.
 correct_wave_shift
 ''''''''''''''''''''''''''''''''''''''''''''
 | Example: ``correct_wave_shift  True``
-Interpolates each spectrum to the wavelength scale of the reference spectrum, to account for spectral drift over the observation. 
+
+Interpolates each spectrum to the wavelength scale of the reference spectrum, to account for spectral drift over the observation.
 
 
 correct_wave_shift_refspec
@@ -297,6 +298,7 @@ uses the created reference spectrum during Stage 03 for the wavelength calibrati
 output
 ''''''''''''''''''''''''''''''''''''''''''''
 | Example: ``output  True``
+
 Saves the flux as a function of time and wavelength. 
 
 
@@ -404,8 +406,10 @@ s21_most_recent_s20/s21_spec_dir_path_s20
 ''''''''''''''''''''''''''''''''''''''''''''
 | Example: ``s21_most_recent_s20    True``
 | Example: ``s21_spec_dir_path_s20  None``
+
 If ``s21_most_recent_s20`` is set to ``True`` the most recent s20 run will be used.
 If ``s21_most_recent_s20`` is set to False, the user can set a path with the extracted data after s20:
+
 | Example: ``s21_most_recent_s20    False ``
 | Example: ``s21_spec_dir_path_s20  /home/zieba/Desktop/Projects/Open_source/PACMAN/run/run_2022-01-25_19-12-59_GJ1214_Hubble13021/extracted_lc/2022-02-11_17-44-56``
 
@@ -508,6 +512,7 @@ Only needed if the user wants to use 'divide_white' as a model.
 ld_model
 ''''''''''''''''''''''''''''''''''''''''''''
 | Example: ``ld_model  1``
+
 1 = "linear" limb darkening 
 2 = "quadratic" limb darkening 
 
@@ -537,14 +542,14 @@ save_allan_plot
 ''''''''''''''''''''''''''''''''''''''''''''
 The Allan deviation plot.
 
-.. image:: media/s30/white/corr_plot_0.png
+.. image:: media/s30/white/corr_plot_bin0_wvl1.400.png
 
 
 save_raw_lc_plot
 ''''''''''''''''''''''''''''''''''''''''''''
 Raw light curve plot
 
-.. image:: media/s30/white/raw_lc_0.png
+.. image:: media/s30/white/raw_lc_bin0_wvl1.400.png
 
 
 save_fit_lc_plot

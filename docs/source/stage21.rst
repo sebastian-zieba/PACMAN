@@ -3,6 +3,11 @@
 Stage 21
 ============
 
+.. topic:: TL;DR
+
+    - Navigate to the run directory and execute the pacman_script.py file using the --s21 flag
+    - Continue with s30 to fit the white and spectroscopic light curves
+
 This stage bins the data into spectroscopic light curves. 
 
 PACMAN can either use the most recent S20 run for the S21 step or specify a path to a previous run.
@@ -33,4 +38,4 @@ When running S21 the user should get an output similar to this one:
 
 Below is a plot of a 1D spectrum with the bin edges from a user-chosen binning.
 
-.. image:: media/s21/spec_bins12.png
+.. image:: media/s21/spec_bins11.png

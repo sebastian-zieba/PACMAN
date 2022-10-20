@@ -22,9 +22,9 @@ All runs will be saved in a run directory. For the analysis of the GJ1214 data, 
 						└── obs_par.pcf
 		└── Data
 			└── GJ1214_Hubble13021
-                ├── ibxy06d0q_ima.fits
-                ├── ...
-                └── ibxy07ryq_ima.fits
+                            ├── ibxy06d0q_ima.fits
+                            ├── ...
+                            └── ibxy07ryq_ima.fits
 
 In this case `/user/Desktop/Projects/Observations/Hubble/GJ1214_13021` is my run directory.
 
@@ -32,7 +32,7 @@ In this case `/user/Desktop/Projects/Observations/Hubble/GJ1214_13021` is my run
 
 The contents of run_files are three different files:
 
- - **run_pacman.py**
+ - **pacman_script.py**
 
  - **fit_par.txt**
 

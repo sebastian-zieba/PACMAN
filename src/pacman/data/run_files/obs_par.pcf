@@ -5,7 +5,7 @@
 rundir                       /home/zieba/Desktop/Projects/Observations/Hubble/GJ1214_13021 # location of run dir
 datadir                      /home/zieba/Desktop/Data/GJ1214_Hubble13021        # location of data dir
 suffix                       ima                                                # data suffix (only ima supported right now)
-which_visits                 [5,6]                                              # which visits to use; Options: list (e.g., [0,1,3]) or everything
+which_visits                 everything                                          # which visits to use; Options: list (e.g., [0,1,3]) or everything
 
 save_obs_times_plot          True
 show_obs_times_plot          False
@@ -157,9 +157,9 @@ run_nested                   False
 ncpu                         1
 
 #emcee
-run_nsteps                   10000
-run_nwalkers	             50
-run_nburn                    5000
+run_nsteps                   4000
+run_nwalkers	             30
+run_nburn                    2000
 
 #dynesty static
 run_dlogz                    0.01
