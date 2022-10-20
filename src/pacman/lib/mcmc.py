@@ -34,7 +34,6 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
     Calls the emcee package and does the sampling.
     """
     nvisit = int(meta.nvisit)
-    meta.ncpu = 6
 
     # Create the mcmc_res directory
     util.create_res_dir(meta)

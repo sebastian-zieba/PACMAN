@@ -27,7 +27,6 @@ def nested_sample(data, model, params, file_name, meta, fit_par):
     Calls the dynesty package and does the sampling.
     """
     nvisit = int(meta.nvisit)
-    meta.ncpu = 6
 
     # Create the nested_res directory
     util.create_res_dir(meta)
