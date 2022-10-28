@@ -79,6 +79,7 @@ E.g.,
 | ``datadir   /home/zieba/Desktop/Data/GJ1214_Hubble13021``
 
 
-Next we will download the data (fits files) needed for our analysis using ``astroquery``.from .
-`In the next step of the quickstart <https://pacmandocs.readthedocs.io/en/latest/astroquery_visits.html>`_, let's
+`In the next step of the quickstart <https://pacmandocs.readthedocs.io/en/latest/astroquery_visits.html>`_,
+we will download the data (fits files) needed for our analysis using ``astroquery``.
+
 
