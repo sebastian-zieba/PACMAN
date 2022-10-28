@@ -987,7 +987,7 @@ def plot_fit_lc2(data, fit, meta, mcmc=False, nested=False):
     # annotate plot with fit diagnostics
     #ax = plt.gca()
     ax[0].text(0.85, 0.29,
-            '$\chi^2_\\nu$:    ' + '{0:0.2f}'.format(fit.chi2red) + '\n'
+            r'$\chi^2_{\nu}$:    ' + '{0:0.2f}'.format(fit.chi2red) + '\n'
             + 'obs. rms:  ' + '{0:0.1f}'.format(fit.rms) + '\n'
             + 'exp. rms:  ' + '{0:0.1f}'.format(fit.rms_predicted),
             verticalalignment='top', horizontalalignment='left',
@@ -1055,7 +1055,7 @@ def plot_fit_lc3(data, fit, meta, mcmc=False):
     # annotate plot with fit diagnostics
     #ax = plt.gca()
     ax.text(0.85, 0.29,
-            '$\chi^2_\\nu$:    ' + '{0:0.2f}'.format(fit.chi2red) + '\n'
+            r'$\chi^2_{\nu}$:    ' + '{0:0.2f}'.format(fit.chi2red) + '\n'
             + 'obs. rms:  ' + '{0:0d}'.format(int(fit.rms)) + '\n'
             + 'exp. rms:  ' + '{0:0d}'.format(int(fit.rms_predicted)),
             verticalalignment='top', horizontalalignment='left',

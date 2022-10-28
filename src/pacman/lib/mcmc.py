@@ -41,11 +41,11 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
     # Setting up parameters for sampler
     theta = util.format_params_for_sampling(params, meta, fit_par)
     ndim, nwalkers = len(theta), meta.run_nwalkers
-    err_notrescaled = np.copy(data.err) # needed for unc multiplier
+
     fixed_array = np.array(fit_par['fixed'])
     tied_array = np.array(fit_par['tied'])
     free_array = util.return_free_array(nvisit, fixed_array, tied_array)
-    l_args = [params, data, model, nvisit, fixed_array, tied_array, free_array, err_notrescaled]
+    l_args = [params, data, model, nvisit, fixed_array, tied_array, free_array]
 
     # Setting up multiprocessing
     if hasattr(meta, 'ncpu') and meta.ncpu > 1:
@@ -140,15 +140,17 @@ def lnprior(theta, data):
     return lnprior_prob
 
 
-def lnprob(theta, params, data, model, nvisit, fixed_array, tied_array, free_array, err_notrescaled):
+def lnprob(theta, params, data, model, nvisit, fixed_array, tied_array, free_array):
     """
     Calculates the log-likelihood.
     """
     updated_params = util.format_params_for_Model(theta, params, nvisit, fixed_array, tied_array, free_array)
     if 'uncmulti' in data.s30_myfuncs:
-        data.err = updated_params[-1] * err_notrescaled
-    fit = model.fit(data, updated_params)
+        data.err = updated_params[-1] * data.err_notrescaled
     lp = lnprior(theta, data)
+    if lp == -np.inf:  # if the likelihood from the priors is already -inf, dont evaluate the function
+        return lp
+    fit = model.fit(data, updated_params)
     return fit.ln_like + lp
 
 

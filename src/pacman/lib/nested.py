@@ -34,11 +34,11 @@ def nested_sample(data, model, params, file_name, meta, fit_par):
     # Setting up parameters for sampler
     theta = util.format_params_for_sampling(params, meta, fit_par)
     ndim = len(theta)
-    err_notrescaled = np.copy(data.err) # needed for unc multiplier
+
     fixed_array = np.array(fit_par['fixed'])
     tied_array = np.array(fit_par['tied'])
     free_array = util.return_free_array(nvisit, fixed_array, tied_array)
-    l_args = [params, data, model, nvisit, fixed_array, tied_array, free_array, err_notrescaled]
+    l_args = [params, data, model, nvisit, fixed_array, tied_array, free_array]
     p_args = [data]
 
     # Setting up multiprocessing
@@ -77,7 +77,7 @@ def nested_sample(data, model, params, file_name, meta, fit_par):
     with open(meta.workdir + meta.fitdir + '/nested_res/' +
               '/nested_out_bin{0}_wvl{1:0.3f}.p'.format(meta.s30_file_counter, meta.wavelength), "wb") as pickle_file:
         pickle.dump(results, pickle_file)
-    results.summary()
+    #results.summary()
 
     labels = meta.labels
 
@@ -139,12 +139,12 @@ def ptform(u, data):
     return p
 
 
-def loglike(x, params, data, model, nvisit, fixed_array, tied_array, free_array, err_notrescaled):
+def loglike(x, params, data, model, nvisit, fixed_array, tied_array, free_array):
     """
     Calculates the log-likelihood.
     """
     updated_params = util.format_params_for_Model(x, params, nvisit, fixed_array, tied_array, free_array)
     if 'uncmulti' in data.s30_myfuncs:
-        data.err = updated_params[-1] * err_notrescaled
+        data.err = updated_params[-1] * data.err_notrescaled
     fit = model.fit(data, updated_params)
     return fit.ln_like 
