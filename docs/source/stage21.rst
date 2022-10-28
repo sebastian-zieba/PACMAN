@@ -3,7 +3,7 @@
 Stage 21
 ============
 
-.. topic:: TL;DR
+.. topic:: Summary
 
     - Navigate to the run directory and execute the pacman_script.py file using the --s21 flag
     - Continue with s30 to fit the white and spectroscopic light curves

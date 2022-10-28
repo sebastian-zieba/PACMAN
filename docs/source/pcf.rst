@@ -205,6 +205,8 @@ di_multi
 | Example: ``di_multi  median``
 | Example: ``di_multi  latest``
 
+Options: ``median`` or ``latest``
+
 Some observations have more than one direct image per orbit which were taken at the start of the orbit.
 In these cases the user can decide if they want to only use the most recent DI or a median of the DI positions in the orbit.
 
@@ -513,8 +515,13 @@ ld_model
 ''''''''''''''''''''''''''''''''''''''''''''
 | Example: ``ld_model  1``
 
+Options:
+
 1 = "linear" limb darkening 
-2 = "quadratic" limb darkening 
+
+2 = "quadratic" limb darkening
+
+kipping2013 = quadratic limb darkening in the `Kipping2013 <https://arxiv.org/abs/1308.0009>`_ parameterization.
 
 
 fix_ld

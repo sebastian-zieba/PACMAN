@@ -42,8 +42,8 @@ For a more detailed roadmap, see `Stages <https://pacmandocs.readthedocs.io/en/l
    :caption: Quickstart
 
    example_introduction
-   astroquery_visits
    before_running
+   astroquery_visits
    stage00
    stage01
    stage02

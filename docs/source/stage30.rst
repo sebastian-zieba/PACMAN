@@ -3,7 +3,7 @@
 Stage 30
 ============
 
-.. topic:: TL;DR
+.. topic:: Summary
 
     - 1) White light curve fit:
     - Open your pcf file (the one in the work directory!).

@@ -7,20 +7,20 @@ Stage 00
 
     <style> .blue {color:blue} </style>
 
-.. topic:: TL;DR
+.. topic:: Summary
 
-    - Decide on a run directory
-    - Copy pacman_script.py, fit_par.txt and obs_par.pcf to the run directory
-    - Enter path to run directory and data directory into the pcf
-    - Navigate to the run directory and execute the pacman_script.py file using the --s00 flag
+    - Make sure you followed the steps in Before Running!
+    - You should now have a run directory which include pacman_script.py, fit_par.txt and obs_par.pcf.
+    - Make sure the path to run directory and data directory are set in the pcf
+    - Navigate to the run directory and execute the pacman_script.py file using the --s00 flag and the --eventlabel argument
     - Continue with s01
 
 
 1) **Set up pcf**
 
-    .. role:: blue
-    :blue:`First, set up the location of your data directory (=datadir) and run directory (=rundir).`
+    In :ref:`Before Running <before_running>`, we did set up the location of your data directory (=datadir) and run directory (=rundir) in the pcf.
 
+    As a quick reminder:
 
     For me, these directories are located at the following places:
 
@@ -41,9 +41,11 @@ Stage 00
 	As mentioned in the Introduction, in this example going to analyze just two
 	visits taken in the middle of the GO 13021 program (Dates (YYYY-MM-DD): 2013-03-13 and 2013-03-15).
 
+    **Set up which_visits in the pcf**
+
     If your datadir contains a lot of visits, but you only want to analyze a subset you can use the ``which_visits`` parameter in the pcf.
     If the user downloaded all 15 visits in GO 13021, he or she can choose: ``which_visits = [5,6]`` in the pcf.
-
+    If you only downloaded the two visits as shown in the Download Data instructions, leave the default setting (which should be ``which_visits     everything``).
 
 2) **Run PACMAN**
 
@@ -87,6 +89,10 @@ Stage 00
 
 .. note::
     All next steps are going to use the pcf and fit_par which is located in the workdir (run_2022-03-04_15-10-29_GJ1214_Hubble13021) and not the pcf and fit_par in the rundir (GJ1214_13021)!!
+
+.. note::
+    You can type ``python pacman_script.py --help`` to see all possible flags which are available.
+
 
 
 3) Results

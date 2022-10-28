@@ -17,4 +17,4 @@ When you sort the visits by time, these visits have an index 5 and 6 (if you sta
     (see for example the `visit information page for program 13021 <https://www.stsci.edu/cgi-bin/get-visit-status?id=13021&markupFormat=html&observatory=HST>`_).
     ``PACMAN`` uses an temporally sorted indexing scheme. This program has 15 visits in total. So within ``PACMAN``, the first visit is referred to with index 0. Similarly, the last visit has index 14.
 
-`In the next step of the quickstart <https://pacmandocs.readthedocs.io/en/latest/astroquery_visits.html>`_, let's download the data using ``astroquery``.
+Next in :ref:`Before Running <before_running>`, we will create some important directories needed for the PACMAN analysis: the "data directory" and the "run directory".
