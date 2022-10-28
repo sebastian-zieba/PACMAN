@@ -1,5 +1,6 @@
 import sys, os
 import getopt
+import numpy as np
 #sys.path.insert(0, '/home/zieba/Desktop/Projects/Open_source/PACMAN/src/')
 import pacman.s00_table as s00
 import pacman.s01_horizons as s01
@@ -82,8 +83,11 @@ def main():
 
     if not run_s00:
         # list subdirectories in the run directory
-        dirs = [f.path for f in os.scandir('.') if f.is_dir()]
+        dirs = np.array([f.path for f in os.scandir('.') if f.is_dir()])
         # saves times when these subdirectories were created.
+        # makes sure they always start with "./run_"
+        dirs_bool = [i[:6] == './run_' for i in dirs]
+        dirs = dirs[dirs_bool]
         # They always have the following form: 'run_YYYY-MM-DD_HH-MM-SS_eventlabel'
         dirs_times = [i[6:25] for i in dirs]
         # sort the times

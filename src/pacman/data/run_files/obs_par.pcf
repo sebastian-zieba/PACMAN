@@ -69,33 +69,33 @@ bg_rmax                      400
 bg_cmin                      40
 bg_cmax                      100
 
-save_optextr_plot            False
+save_optextr_plot            True
 
-save_sp2d_plot               False                                              # save plot of 2d spectrum
+save_sp2d_plot               True                                              # save plot of 2d spectrum
 show_sp2d_plot               False
 
-save_trace_plot              False                                              # save plot of trace
+save_trace_plot              True                                              # save plot of trace
 show_trace_plot              False
 
-save_bkg_hist_plot           False                                              # save histogram of fluxes 
+save_bkg_hist_plot           True                                              # save histogram of fluxes
 show_bkg_hist_plot           False
 
-save_utr_plot                False                                              # save plot of individual up-the-ramps
+save_utr_plot                True                                              # save plot of individual up-the-ramps
 show_utr_plot                False
 
-save_sp1d_plot               False                                              # save plot of 1d spectrum
+save_sp1d_plot               True                                              # save plot of 1d spectrum
 show_sp1d_plot               False
 
 save_bkg_evo_plot            True                                               # save plot of the background flux over time
 show_bkg_evo_plot            False
 
-save_sp1d_diff_plot          False                                              # save difference plot of consecutive 1d spectra
+save_sp1d_diff_plot          True                                              # save difference plot of consecutive 1d spectra
 show_sp1d_diff_plot          False
 
 save_utr_aper_evo_plot       True                                               # save plot of aperture size over time
 show_utr_aper_evo_plot       False
 
-save_refspec_fit_plot        False                                              # save plot of fit of the 1d spectrum to the refspec
+save_refspec_fit_plot        True                                              # save plot of fit of the 1d spectrum to the refspec
 show_refspec_fit_plot        False
 
 save_drift_plot              True                                               # save plot of 1d spectrum drift over time
