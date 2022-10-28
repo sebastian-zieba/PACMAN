@@ -180,7 +180,7 @@ def my_round(num):
     Cutoff a decimal number after 2 decimal places without rounding.
     From: https://stackoverflow.com/questions/967661/python-truncate-after-a-hundreds
     """
-    return np.float("%.2f" % (int(num*100)/float(100)))
+    return float("%.2f" % (int(num*100)/float(100)))
 
 
 @pytest.mark.run(order=4)
@@ -488,7 +488,3 @@ def test_sessionfinish(capsys):
     print('deleted directories and files again')
 
     assert True
-
-
-
-
