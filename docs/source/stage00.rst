@@ -9,7 +9,7 @@ Stage 00
 
 .. topic:: Summary
 
-    - Make sure you followed the steps in Before Running!
+    - Make sure you followed the steps in :ref:`Before Running <before_running>`!
     - You should now have a run directory which include pacman_script.py, fit_par.txt and obs_par.pcf.
     - Make sure the path to run directory and data directory are set in the pcf
     - Navigate to the run directory and execute the pacman_script.py file using the --s00 flag and the --eventlabel argument

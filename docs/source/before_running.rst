@@ -58,10 +58,12 @@ These three files are `part of the package <https://github.com/sebastian-zieba/P
 
 This files have to be copied over to the run directory. You should then have the following:
 
-GJ1214_13021 (="run directory")
-        ├── pacman_script.py
-        ├── fit_par.txt
-        └── obs_par.pcf
+::
+
+	GJ1214_13021 (="run directory")
+	├── pacman_script.py
+	├── fit_par.txt
+	└── obs_par.pcf
 
 
 Set up the pcf
