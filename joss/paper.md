@@ -106,11 +106,12 @@ scans, $r_{\rm{1}}$ and $r_{\rm{2}}$ are parameters to account for the exponenti
 - **binning of the light spectrum**: The user can freely set the amount and locations of the bins. 
 \autoref{fig:figure1} (right panel) shows the resulting 1D spectrum and a user-defined binning.
 
+\autoref{fig:figure1} and \autoref{fig:figure2} show some figures created by PACMAN during a run using three HST visits of GJ 1214 b collected in [GO 13201](https://archive.stsci.edu/proposal_search.php?id=13021&mission=hst) [@Bean2012].
 
 
-![_Left panel_: Raw 2D spectrum with the expected position of the trace based on the direct image. _Right panel_: 1D spectrum after the use of optimal extraction including vertical lines showing the user-set binning to generate spectroscopic light curves.\label{fig:figure1}](figures/fig1.pdf "title-2"){ width=99% }
+![_Left panel_: a typical single exposure showing the raw 2D spectrum. _Right panel_: 1D spectrum after the use of optimal extraction including vertical dashed lines showing the user-set binning to generate spectroscopic light curves.\label{fig:figure1}](figures/fig1.pdf "title-2"){ width=99% }
 
-![_Left panel_: Raw spectroscopic light curve. One can clearly see the constant offset between two adjacent exposured due to the spatial scanning mode. _Right panel_: Light curve with the best astrophysical model fit using \autoref{eq:equation1}.\label{fig:figure2}](figures/joss5.jpeg "title-2"){ width=99% }
+![_panel A_: raw white light curves for each visit. One can clearly see the constant offset between two adjacent exposured due to the spatial scanning mode. _panel B_: white light curve with the best astrophysical model fit using \autoref{eq:equation1}. _panel C_: the transmission spectrum after fitting 11 spectroscopic light curves.\label{fig:figure2}](figures/tmpfig2.pdf "title-2"){ width=99% }
 
 
 # Dependencies
