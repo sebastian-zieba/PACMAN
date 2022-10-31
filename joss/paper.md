@@ -108,7 +108,7 @@ scans, $r_{\rm{1}}$ and $r_{\rm{2}}$ are parameters to account for the exponenti
 
 
 
-![_Left panel_: Raw 2D spectrum with the expected position of the trace based on the direct image. _Right panel_: 1D spectrum after the use of optimal extraction including vertical lines showing the user-set binning to generate spectroscopic light curves.\label{fig:figure1}](figures/figure1.png "title-2"){ width=99% }
+![_Left panel_: Raw 2D spectrum with the expected position of the trace based on the direct image. _Right panel_: 1D spectrum after the use of optimal extraction including vertical lines showing the user-set binning to generate spectroscopic light curves.\label{fig:figure1}](figures/fig1.pdf "title-2"){ width=99% }
 
 ![_Left panel_: Raw spectroscopic light curve. One can clearly see the constant offset between two adjacent exposured due to the spatial scanning mode. _Right panel_: Light curve with the best astrophysical model fit using \autoref{eq:equation1}.\label{fig:figure2}](figures/joss5.jpeg "title-2"){ width=99% }
 
