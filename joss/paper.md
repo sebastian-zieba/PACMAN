@@ -93,6 +93,7 @@ Here some examples for the currently implemented models for the instrument syste
     - sinusoids for phase curve fits
     - a constant offset which accounts for the upstream-downstream effect [@McCullough2012] caused by forward and reverse scanning
 
+A typical model to fit an exoplanet transit in HST data is the following (used for example in @Kreidberg2014a): 
 
     \begin{equation}
     \label{eq:equation1}
