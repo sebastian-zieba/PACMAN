@@ -54,7 +54,7 @@ This will enable easy comparison between different pipelines, and also lower the
 
 What sets `PACMAN` apart from other tools provided by the community, is that it was specifically designed to reduce and fit HST data.
 For example, there are several open-source tools which can fit time series observations 
-of stars to model events like transiting exoplanets (e.g., EXOFASTv2 [@Eastman2019], allesfitter [@Gunther2019; @Gunther2021], exoplanet [@Foreman-Mackey2021a; @Foreman-Mackey2021b], starry [@Luger2019]). 
+of stars to model events like transiting exoplanets (e.g., EXOFASTv2 [@Eastman2019], juliet [@Espinoza2019], allesfitter [@Gunther2019; @Gunther2021], exoplanet [@Foreman-Mackey2021a; @Foreman-Mackey2021b], starry [@Luger2019]). 
 `PACMAN`'s source code, however, includes fitting models which can model systematics which are characteristic to HST data 
 (like the orbit-long exponential ramps due to charge trapping or the upstream-downstream effect)
 which removes the need for the user to write this functions themselves.
@@ -100,6 +100,7 @@ A typical model to fit an exoplanet transit in HST data is the following (used f
     \label{eq:equation1}
     F(t) = T(t) \, (c\,S(t) + k\,t_{\rm{v}}) \, (1 - \exp(-r_1\,t_{\rm{orb}} - r_2 )),
     \end{equation}
+
 
 with _T(t)_ being the transit model, _c_ (_k_) a constant (slope), _S(t)_ a scale factor equal to 1 for exposures with spatial scanning in the forward direction and _s_ for reverse
 scans, $r_{\rm{1}}$ and $r_{\rm{2}}$ are parameters to account for the exponential ramps. $t_{\rm{v}}$ and $t_{\rm{orb}}$ are the times from the first exposure in the visit and in the orbit, respectively.
