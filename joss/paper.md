@@ -106,12 +106,12 @@ scans, $r_{\rm{1}}$ and $r_{\rm{2}}$ are parameters to account for the exponenti
 - **binning of the light spectrum**: The user can freely set the amount and locations of the bins. 
 \autoref{fig:figure1} (right panel) shows the resulting 1D spectrum and a user-defined binning.
 
-\autoref{fig:figure1} and \autoref{fig:figure2} show some figures created by PACMAN during a run using three HST visits of GJ 1214 b collected in [GO 13201](https://archive.stsci.edu/proposal_search.php?id=13021&mission=hst) [@Bean2012].
-An analysis of all visits was published in @Kreidberg2014.
+\autoref{fig:figure1} and \autoref{fig:figure2} show some figures created by `PACMAN` during a run using three HST visits of GJ 1214 b collected in [GO 13201](https://archive.stsci.edu/proposal_search.php?id=13021&mission=hst) [@Bean2012].
+An analysis of all 15 visits was published in @Kreidberg2014a. The analysis of three visits here using `PACMAN`, is consistent with the published results.
 
 ![_Left panel_: a typical single exposure showing the raw 2D spectrum. _Right panel_: 1D spectrum after the use of optimal extraction including vertical dashed lines showing the user-set binning to generate spectroscopic light curves.\label{fig:figure1}](figures/fig1.pdf "title-2"){ width=99.9% }
 
-![_panel A_: raw white light curves for each of the three visits. One can clearly see the constant offset between two adjacent exposures due to the spatial scanning mode. _panel B_: white light curve with the best astrophysical model fit using \autoref{eq:equation1}. _panel C_: the transmission spectrum after fitting 11 spectroscopic light curves reveiling the flat spectrum of GJ 1214 b as published in @Kreidberg2014.\label{fig:figure2}](figures/fig2.pdf "title-2"){ width=99.9% }
+![_panel A_: raw white light curves for each of the three visits. One can clearly see the constant offset between two adjacent exposures due to the spatial scanning mode. _panel B_: white light curve with the best astrophysical model fit using \autoref{eq:equation1}. _panel C_: the transmission spectrum after fitting 11 spectroscopic light curves reveiling the flat spectrum of GJ 1214 b as published in @Kreidberg2014a.\label{fig:figure2}](figures/fig2.pdf "title-2"){ width=99.9% }
 
 
 # Dependencies
@@ -146,13 +146,13 @@ Another model which can be added to fit the orbit-long ramps is the [RECTE syste
 
 It is planned to add a limb darkening calculation if the user wants to fix limb darkening parameters to theoretical models in the fitting stage.
 
-PACMAN could also be expanded by adding a WFC3/UVIS data reduction in the future.
+`PACMAN` could also be expanded by adding a WFC3/UVIS data reduction in the future.
 
 
 # Acknowledgements
 
-We acknowledge B. Zawadzki for the creation of the PACMAN logo.
-We also acknowledge the comments and contributions by I. Momcheva to PACMAN.
+We acknowledge B. Zawadzki for the creation of the `PACMAN` logo.
+We also acknowledge the comments and contributions by I. Momcheva to `PACMAN`.
 
 
 # References
