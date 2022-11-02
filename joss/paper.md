@@ -54,7 +54,7 @@ This will enable easy comparison between different pipelines, and also lower the
 
 What sets `PACMAN` apart from other tools provided by the community, is that it was specifically designed to reduce and fit HST data.
 For example, there are several open-source tools which can fit time series observations 
-of stars to model events like transiting exoplanets (e.g., EXOFASTv2 [@Eastman2019], juliet [@Espinoza2019], allesfitter [@Gunther2019; @Gunther2021], exoplanet [@Foreman-Mackey2021a; @Foreman-Mackey2021b], starry [@Luger2019]). 
+of stars to model events like transiting exoplanets (e.g., `EXOFASTv2` [@Eastman2019], `juliet` [@Espinoza2019], `allesfitter` [@Gunther2019; @Gunther2021], `exoplanet` [@Foreman-Mackey2021a; @Foreman-Mackey2021b], `starry` [@Luger2019]). 
 `PACMAN`'s source code, however, includes fitting models which can model systematics which are characteristic to HST data 
 (like the orbit-long exponential ramps due to charge trapping or the upstream-downstream effect)
 which removes the need for the user to write this functions themselves.
@@ -81,7 +81,7 @@ We also mask bad pixels that have been flagged by `calwf3` with data quality DQ 
 The _ima_ files taken in this observation mode consist of a number of nondestructive reads, also known as up-the-ramp samples, each of which we treat as an independent subexposure.
 \autoref{fig:figure1} (left panel) shows an example for the last subexposure when using the spatial scanning together with the expected position of the trace based on the direct image.
 
-- **Fitting models**: `PACMAN` contains several functions to fit models which are commently used with HST data. 
+- **Fitting models**: `PACMAN` contains several functions to fit models which are commonly used with HST data. 
 The user can fit models like in \autoref{eq:equation1} to the white light curve or to spectroscopic light curves. 
 An example for a raw spectroscopic light curve and fitting \autoref{eq:equation1} to it, can be found in \autoref{fig:figure2}.
 Here some examples for the currently implemented models for the instrument systematics and the astrophysical signal.
@@ -92,8 +92,10 @@ Here some examples for the currently implemented models for the instrument syste
     - transit and secondary eclipse curves as implemented in `batman`
     - sinusoids for phase curve fits
     - a constant offset which accounts for the upstream-downstream effect [@McCullough2012] caused by forward and reverse scanning
-    
-  A typical model to fit an exoplanet transit in HST data is the following (used for example in @Kreidberg2014a): 
+
+
+
+A typical model to fit an exoplanet transit in HST data is the following (used for example in @Kreidberg2014a):
 
 
     \begin{equation}
@@ -105,10 +107,10 @@ Here some examples for the currently implemented models for the instrument syste
 with _T(t)_ being the transit model, _c_ (_k_) a constant (slope), _S(t)_ a scale factor equal to 1 for exposures with spatial scanning in the forward direction and _s_ for reverse
 scans, $r_{\rm{1}}$ and $r_{\rm{2}}$ are parameters to account for the exponential ramps. $t_{\rm{v}}$ and $t_{\rm{orb}}$ are the times from the first exposure in the visit and in the orbit, respectively.
 
-- **parameter estimation**: The user has different options to estimate best fitting parameters and their uncertainies:
+- **parameter estimation**: The user has different options to estimate best fitting parameters and their uncertainties:
   - least square: `scipy.optimize`
-  - MCMC: `emcee`
-  - nested sampling: `dynesty`
+  - MCMC: `emcee` [@Foreman-Mackey2013]
+  - nested sampling: `dynesty` [@Speagle2020]
 
 - **multi-visit observations**
   - `PACMAN` has also an option to share parameters across visits.
@@ -121,7 +123,7 @@ An analysis of all 15 visits was published in @Kreidberg2014a. The analysis of t
 
 ![_Left panel_: a typical single exposure showing the raw 2D spectrum. _Right panel_: 1D spectrum after the use of optimal extraction including vertical dashed lines showing the user-set binning to generate spectroscopic light curves.\label{fig:figure1}](figures/fig1.pdf "title-2"){ width=99.9% }
 
-![_panel A_: raw white light curves for each of the three visits. One can clearly see the constant offset between two adjacent exposures due to the spatial scanning mode. _panel B_: white light curve with the best astrophysical model fit using \autoref{eq:equation1}. _panel C_: the transmission spectrum after fitting 11 spectroscopic light curves reveiling the flat spectrum of GJ 1214 b as published in @Kreidberg2014a.\label{fig:figure2}](figures/fig2.pdf "title-2"){ width=99.9% }
+![_panel A_: raw white light curves for each of the three visits. One can clearly see the constant offset between two adjacent exposures due to the spatial scanning mode. _panel B_: white light curve with the best astrophysical model fit using \autoref{eq:equation1}. _panel C_: the transmission spectrum after fitting 11 spectroscopic light curves revealing the flat spectrum of GJ 1214 b as published in @Kreidberg2014a.\label{fig:figure2}](figures/fig2.pdf "title-2"){ width=99.9% }
 
 
 # Dependencies
