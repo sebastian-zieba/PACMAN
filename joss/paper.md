@@ -52,6 +52,12 @@ The data analysis is challenging, and different pipelines have produced discrepa
 To facilitate reproducibility and transparency, the data reduction and analysis software should be open-source. 
 This will enable easy comparison between different pipelines, and also lower the barrier to entry for newcomers in the exoplanet atmosphere field.
 
+What sets `PACMAN` apart from other tools provided by the community, is that it was specifically designed to reduce and fit HST data.
+For example, there are several open-source tools which can fit time series observations 
+of stars to model events like transiting exoplanets (e.g., EXOFASTv2 [@Eastman2019], allesfitter [@Gunther2019; @Gunther2021], exoplanet [@Foreman-Mackey2021a; @Foreman-Mackey2021b], starry [@Luger2019]). 
+`PACMAN`'s source code, however, includes fitting models which can model systematics which are characteristic to HST (like the orbit-long exponential ramps due to charge trapping or the upstream-downstream effect).
+which removes the need for the user to write this functions themselves.
+`PACMAN` will also retrieve information from the header of the fits files, automatically detect HST orbits and visits and use this information in the fitting models.
 
 # Outline of the pipeline steps
 
