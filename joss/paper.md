@@ -96,10 +96,10 @@ Here some examples for the currently implemented models for the instrument syste
  A typical model to fit an exoplanet transit in HST data is the following (used for example in @Kreidberg2014a): 
 
 
-    \begin{equation}
-    \label{eq:equation1}
-    F(t) = T(t) \, (c\,S(t) + k\,t_{\rm{v}}) \, (1 - \exp(-r_1\,t_{\rm{orb}} - r_2 )),
-    \end{equation}
+        \begin{equation}
+        \label{eq:equation1}
+        F(t) = T(t) \, (c\,S(t) + k\,t_{\rm{v}}) \, (1 - \exp(-r_1\,t_{\rm{orb}} - r_2 )),
+        \end{equation}
 
 
 with _T(t)_ being the transit model, _c_ (_k_) a constant (slope), _S(t)_ a scale factor equal to 1 for exposures with spatial scanning in the forward direction and _s_ for reverse
