@@ -24,6 +24,10 @@ The main steps in the pipeline are:
 Check out the [docs](https://pacmandocs.readthedocs.io/en/latest/) for the latest instructions for how to install and use ``PACMAN``.
 
 
-## Having trouble?
+## Issues and Contributing
 
-Please take a look at the [issues page](https://github.com/sebastian-zieba/PACMAN/issues) to see if anyone else has encountered similar problems. If not, raise an issue and we will do our best to address it!
+If you are encountering issues with the code, please take a look at the [issues page](https://github.com/sebastian-zieba/PACMAN/issues) to see if anyone else has encountered similar problems (make sure you check both open and closed GitHub Issues!). 
+If not, raise an issue and we will do our best to address it! 
+When submitting an issues, please provide information like the current ``PACMAN`` version and the error message you are receiving in your terminal.
+Also, have a look at our [FAQ page](https://pacmandocs.readthedocs.io/en/latest/faq.html) where we collect frequently asked questions. 
+If you are thinking about contributing to ``PACMAN``, please also create an issue, so that we can make sure nobody else is already working on the same feature.

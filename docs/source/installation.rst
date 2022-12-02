@@ -8,8 +8,8 @@ ____________________________________________________
 
 There are several options to download and install ``PACMAN``:
 
-Using a conda environment
----------------------------------
+Using a conda environment (recommended)
+----------------------------------------
 
 We generally recommend installing PACMAN in a ``conda`` environment.  To install conda, follow these `instructions <https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html>`_.
 
@@ -26,6 +26,9 @@ Once you have Anaconda installed, navigate in a terminal to a directory where yo
 With these steps we created a conda environment called ``pacman`` and installed ``PACMAN`` and its dependencies there.
 
 .. note:: In this example, the conda environment was initialized with python v3.9.0. PACMAN was tested with python v3.7 to v3.10, so it is up to the user which version to use.
+
+.. note:: ``pip install -e .`` will only install the necessary dependencies. If you also want to install the dependencies to run the tests (using pytest) or work on the docs, you have to use the ``[test]`` or ``[docs]`` arguments respectively after ``pip install -e .``. See `Test Your Installation <https://pacmandocs.readthedocs.io/en/latest/installation.html#test-your-installation>`_ for an example.
+
 
 If you want to update your local installation with a new release, navigate to the PACMAN directory again and type:
 
@@ -75,7 +78,7 @@ There are two ways to do that:
 Using pip (PyPI)
 ---------------------------------
 
-Will be added ...
+Not implemented yet. Might be added in the future...
 
 
 Test your installation
@@ -85,9 +88,9 @@ To test if your installation was successful, navigate to your cloned PACMAN dire
 
 .. code-block:: console
 
-    pip install .[test]
+    pip install -e .[test]
 
-This will install PACMAN again and the dependencies (including the testing dependencies!).
+The ``[test]`` argument will also install the necessary dependencies to run pytest.
 
 You can now run pytest by typing the following line while (from inside the PACMAN directory):
 
@@ -95,7 +98,7 @@ You can now run pytest by typing the following line while (from inside the PACMA
 
     pytest tests/tests_all.py -s
 
-The -s flag will also output all print statements during the tests so that you can see what happens.
+The optional ``-s`` flag will also output all print statements during the tests so that you can see what happens.
 The tests might take a few minutes (depending on your internet connection speed).
 
 You have passed all tests if you get a message like this in the end:

@@ -3,7 +3,7 @@
 Stage 01
 ============
 
-.. topic:: TL;DR
+.. topic:: Summary
 
     - Navigate to the run directory and execute the pacman_script.py file using the --s01 flag
     - Continue with s02

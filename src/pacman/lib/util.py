@@ -810,7 +810,7 @@ def log_run_setup(meta):
     meta.bic_alt_list_mcmc = []
     meta.bic_alt_list_nested = []
 
-    if 'uncmulti' in meta.s30_myfuncs:
+    if ('uncmulti' in meta.s30_myfuncs)  or (meta.rescale_uncert):
         meta.chi2_notrescaled_list_lsq = []
         meta.chi2_notrescaled_list_mcmc = []
         meta.chi2_notrescaled_list_nested = []
@@ -827,8 +827,9 @@ def log_run_setup(meta):
         meta.bic_alt_notrescaled_list_mcmc = []
         meta.bic_alt_notrescaled_list_nested = []
 
-        meta.uncmulti_mcmc = []
-        meta.uncmulti_nested = []
+        if ('uncmulti' in meta.s30_myfuncs):
+            meta.uncmulti_mcmc = []
+            meta.uncmulti_nested = []
 
     return meta
 
@@ -862,19 +863,21 @@ def append_fit_output(fit, meta, fitter=None, medians=None):
         meta.bic_list_nested.append(round(fit.bic, precision))
         meta.bic_alt_list_nested.append(round(fit.bic_alt, precision))
 
-    if 'uncmulti' in meta.s30_myfuncs:
+    if ('uncmulti' in meta.s30_myfuncs) or (meta.rescale_uncert):
         if fitter == 'mcmc':
             meta.chi2_notrescaled_list_mcmc.append(round(fit.chi2_notrescaled, precision))
             meta.chi2red_notrescaled_list_mcmc.append(round(fit.chi2red_notrescaled, precision))
             meta.bic_notrescaled_list_mcmc.append(round(fit.bic_notrescaled, precision))
             meta.bic_alt_notrescaled_list_mcmc.append(round(fit.bic_alt_notrescaled, precision))
-            meta.uncmulti_mcmc.append(round(medians[-1], precision))
+            if ('uncmulti' in meta.s30_myfuncs):
+                meta.uncmulti_mcmc.append(round(medians[-1], precision))
         if fitter == 'nested':
             meta.chi2_notrescaled_list_nested.append(round(fit.chi2_notrescaled, precision))
             meta.chi2red_notrescaled_list_nested.append(round(fit.chi2red_notrescaled, precision))
             meta.bic_notrescaled_list_nested.append(round(fit.bic_notrescaled, precision))
             meta.bic_alt_notrescaled_list_nested.append(round(fit.bic_alt_notrescaled, precision))
-            meta.uncmulti_nested.append(round(medians[-1], precision))
+            if ('uncmulti' in meta.s30_myfuncs):
+                meta.uncmulti_nested.append(round(medians[-1], precision))
 
 
 def save_fit_output(fit, data, meta):
@@ -892,12 +895,13 @@ def save_fit_output(fit, data, meta):
         t['chi2red']  = meta.chi2red_list_mcmc
         t['bic']      = meta.bic_list_mcmc
         t['bic_alt']  = meta.bic_alt_list_mcmc
-        if 'uncmulti' in meta.s30_myfuncs:
+        if ('uncmulti' in meta.s30_myfuncs) or (meta.rescale_uncert):
             t['chi2_notrescaled'] = meta.chi2_notrescaled_list_mcmc
             t['chi2red_notrescaled'] = meta.chi2red_notrescaled_list_mcmc
             t['bic_notrescaled'] = meta.bic_notrescaled_list_mcmc
             t['bic_alt_notrescaled'] = meta.bic_alt_notrescaled_list_mcmc
-            t['uncmulti'] = meta.uncmulti_mcmc
+            if 'uncmulti' in meta.s30_myfuncs:
+                t['uncmulti'] = meta.uncmulti_mcmc
 
     if meta.run_nested:
         t['rms_pred'] = meta.rms_pred_list_nested
@@ -906,12 +910,13 @@ def save_fit_output(fit, data, meta):
         t['chi2red']  = meta.chi2red_list_nested
         t['bic']      = meta.bic_list_nested
         t['bic_alt']  = meta.bic_alt_list_nested
-        if 'uncmulti' in meta.s30_myfuncs:
+        if ('uncmulti' in meta.s30_myfuncs) or (meta.rescale_uncert):
             t['chi2_notrescaled'] = meta.chi2_notrescaled_list_nested
             t['chi2red_notrescaled'] = meta.chi2red_notrescaled_list_nested
             t['bic_notrescaled'] = meta.bic_notrescaled_list_nested
             t['bic_alt_notrescaled'] = meta.bic_alt_notrescaled_list_nested
-            t['uncmulti'] = meta.uncmulti_nested
+            if 'uncmulti' in meta.s30_myfuncs:
+                t['uncmulti'] = meta.uncmulti_nested
 
     if 'uncmulti' in meta.s30_myfuncs:
         t['uncmulti2'] = t['uncmulti'] ** 2

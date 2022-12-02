@@ -116,7 +116,11 @@ class Model:
             self.rms = 1.0e6 * np.sqrt(np.mean((self.resid / data.flux) ** 2))
             self.bic = -2. * self.ln_like + data.nfree_param * np.log(data.npoints)
             self.bic_alt = self.chi2 + data.nfree_param * np.log(data.npoints)
-        if 'uncmulti' in data.s30_myfuncs:
+        if ('uncmulti' in data.s30_myfuncs) or (data.err[0] != data.err_notrescaled[0]):
+            # We want to use err_notrescaled for the chi2_red and BIC calculation
+            # because the errors were scaled if one of the following applies:
+            # 1) the errorbars were rescaled so that chi2_red = 1
+            # 2) uncmulti is turned on and the errorbars were scaled at every step of the sampler
             self.chi2_notrescaled = np.sum((self.resid / data.err_notrescaled) ** 2)
             self.chi2red_notrescaled = self.chi2_notrescaled / (data.dof) # is uncmulti actually a free parameter?
             self.ln_like_notrescaled = (-0.5*(np.sum((self.resid/data.err_notrescaled)**2

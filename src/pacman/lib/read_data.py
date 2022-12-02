@@ -82,10 +82,16 @@ class Data:
 
         # t_delay will = 1 if it's the first orbit in a visit. Otherwise = 0
         t_delay = np.zeros(n)
-        if meta.remove_first_orb:
+        if meta.remove_first_orb and meta.remove_which_orb == [0]:
+            # if only the first orbit [0] is removed
             ind = (iorbit_sp == 1)
             t_delay[ind] = 1.
-        else:
+        elif meta.remove_first_orb and len(meta.remove_which_orb) != 1:
+            # if more than one orbit (eg [0,1]) is removed
+            max_orbit_remove = max(meta.remove_which_orb) + 1
+            ind = (iorbit_sp == max_orbit_remove)
+            t_delay[ind] = 1.
+        elif not meta.remove_first_orb:
             ind = (iorbit_sp == 0)
             t_delay[ind] = 1.
 

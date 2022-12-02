@@ -24,5 +24,3 @@ nbconvert
 ipython_genutils
 celerite
 exotic-ld
-
-
