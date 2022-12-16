@@ -30,14 +30,14 @@ bibliography: paper.bib
 The Hubble Space Telescope (HST) has become the preeminent workhorse facility for the characterization of extrasolar planets.
 Launched in 1990 and never designed for the observations of exoplanets, the STIS spectrograph on HST was used in 2002 to detect the first atmosphere ever discovered on a planet outside of our solar system [@Charbonneau2002].
 
-HST has currently the two most powerful operating tools in space to characterize exoplanets over a broad spectral range:
+HST has currently two of the most powerful operating tools in space to characterize exoplanets over a broad spectral range:
 The Space Telescope Imaging Spectrograph (STIS; installed in 1997) in the UV and the Wide Field Camera 3 (WFC3; installed in 2009) in the Near Infrared (NIR).
 With the introduction of a spatial scan mode on WFC3 [@McCullough2012; @Deming2012] where the star moves perpendicular to the dispersion direction during an exposure, WFC3 observations have become very efficient due to the reduction of overhead time and the possibility of longer exposures without saturation.
 
 For exoplanet characterization, WFC3 is used for transit and secondary eclipse spectroscopy and phase curve observations.
 The instrument has two different grisms: G102 with a spectral range from 800 nm to up to 1150 nm and G141 encompassing 1075 nm to about 1700 nm.
 The spectral range of WFC3/G141 is primarily sensitive to molecular absorption from water at approximately 1.4 microns.
-This lead to the successful detection of water in the atmosphere of over a dozen of exoplanets [e.g., @Deming2013; @Huitson2013; @Fraine2014; @Kreidberg2014b; @Evans2016].
+This led to the successful detection of water in the atmosphere of over a dozen of exoplanets [e.g., @Deming2013; @Huitson2013; @Fraine2014; @Kreidberg2014b; @Evans2016].
 The bluer part of WFC3, the G102 grism, is also sensitive to water and most notably led to the first detection of a helium exosphere [@Spake2018].
 
 Here we present `PACMAN`, an end-to-end pipeline developed to reduce and analyze HST/WFC3 data.
@@ -57,7 +57,7 @@ For example, there are several open-source tools which can fit time series obser
 of stars to model events like transiting exoplanets (e.g., `EXOFASTv2` [@Eastman2019], `juliet` [@Espinoza2019], `allesfitter` [@Gunther2019; @Gunther2021], `exoplanet` [@Foreman-Mackey2021a; @Foreman-Mackey2021b], `starry` [@Luger2019]). 
 `PACMAN`'s source code, however, includes fitting models which can model systematics which are characteristic to HST data 
 (like the orbit-long exponential ramps due to charge trapping or the upstream-downstream effect)
-which removes the need for the user to write this functions themselves.
+which removes the need for the user to write these functions themselves.
 `PACMAN` will also retrieve information from the header of the fits files, automatically detect HST orbits and visits and use this information in the fitting models.
 
 # Outline of the pipeline steps
@@ -77,14 +77,14 @@ This first exposure in the visit is then used as the template for the following 
 - **Optimal extraction and outlier removal**: `PACMAN` uses an optimal extraction algorithm as presented in @Horne1986 which iteratively masks bad pixels in the image. 
 We also mask bad pixels that have been flagged by `calwf3` with data quality DQ = 4 or 512\footnote{for a list of DQ flags see \url{https://wfc3tools.readthedocs.io/en/latest/wfc3tools/calwf3.html}}.
 
-- **Scanning of the detector**: The majority of exoplanetary HST/WFC3 observations use the spatial scanning technique [@McCullough2012] which spreads the light perpendicular to the dispersion direction during the exposure enabled longer integration times before saturation.
+- **Scanning of the detector**: The majority of exoplanetary HST/WFC3 observations use the spatial scanning technique [@McCullough2012] which spreads the light perpendicular to the dispersion direction during the exposure enabling longer integration times before saturation.
 The _ima_ files taken in this observation mode consist of a number of nondestructive reads, also known as up-the-ramp samples, each of which we treat as an independent subexposure.
-\autoref{fig:figure1} (left panel) shows an example for the last subexposure when using the spatial scanning together with the expected position of the trace based on the direct image.
+\autoref{fig:figure1} (left panel) shows an example of the last subexposure when using the spatial scanning together with the expected position of the trace based on the direct image.
 
 - **Fitting models**: `PACMAN` contains several functions to fit models which are commonly used with HST data. 
 The user can fit models like in \autoref{eq:equation1} to the white light curve or to spectroscopic light curves. 
-An example for a raw spectroscopic light curve and fitting \autoref{eq:equation1} to it, can be found in \autoref{fig:figure2}.
-Here some examples for the currently implemented models for the instrument systematics and the astrophysical signal.
+An example of a raw spectroscopic light curve and fitting \autoref{eq:equation1} to it, can be found in \autoref{fig:figure2}.
+Here are some examples of the currently implemented models for the instrument systematics and the astrophysical signal:
   - systematic models:
     - visit-long polynomials
     - orbit-long exponential ramps due to charge trapping: NIR detectors like HST/WFC3 can trap photoelectrons [@Smith2008], which will cause the number of recorded photoelectrons to increase exponentially, creating typical hook-like features in each orbit
@@ -102,11 +102,11 @@ Here some examples for the currently implemented models for the instrument syste
     \end{equation}
 
 
-  with _T(t)_ being the transit model, _c_ (_k_) a constant (slope), _S(t)_ a scale factor equal to 1 for exposures with spatial scanning in the forward direction and _s_ for reverse
+  with _T(t)_ being the transit model, _c_ (_k_) a constant (slope), _S(t)_ a scale factor equal to 1 for exposures with spatial scanning in the forward direction, and _s_ for reverse
   scans, $r_{\rm{1}}$ and $r_{\rm{2}}$ are parameters to account for the exponential ramps. $t_{\rm{v}}$ and $t_{\rm{orb}}$ are the times from the first exposure in the visit and in the orbit, respectively.
 
 - **parameter estimation**: The user has different options to estimate best fitting parameters and their uncertainties:
-  - least square: `scipy.optimize`
+  - least squared: `scipy.optimize`
   - MCMC: `emcee` [@Foreman-Mackey2013]
   - nested sampling: `dynesty` [@Speagle2020]
 
@@ -138,7 +138,7 @@ If the user decides to use a stellar spectrum for the wavelength calibration, `P
 # Documentation
 
 The documentation for `PACMAN` can be found at [pacmandocs.readthedocs.io](https://pacmandocs.readthedocs.io/en/latest/) hosted on [ReadTheDocs](https://readthedocs.org/).
-It includes most notably, a full explanation of every parameter in the _pacman control file_ (pcf), the API and an example on how to download, reduce and analyse observations of GJ 1214 b taken with HST/WFC3/G141.
+It includes most notably, a full explanation of every parameter in the _pacman control file_ (pcf), the API, and an example of how to download, reduce and analyze observations of GJ 1214 b taken with HST/WFC3/G141.
 
 # Similar tools
 
