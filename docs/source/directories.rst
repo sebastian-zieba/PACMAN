@@ -75,19 +75,19 @@ Nomenclature
 
 An example for a directory structure:
 
+::
+
 	user
 	└── Desktop
 		└── Projects
 			└── Observations
 				└── Hubble
-					└── "run directory"
+					└── GJ1214_13021 (="run directory")
 						├── pacman_script.py
 						├── fit_par.txt
-						├── obs_par.pcf
-						└── "work directory"
-
-		└── "data directory"
-			└── GJ1214_Hubble13021
+						└── obs_par.pcf
+		└── Data
+			└── GJ1214_Hubble13021 (="data directory")
                             ├── ibxy06d0q_ima.fits
                             ├── ...
                             └── ibxy07ryq_ima.fits

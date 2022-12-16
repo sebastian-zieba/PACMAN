@@ -494,6 +494,18 @@ Note: This only happens if chi2red < 1 after least squared fit.
 An alternative is to use uncmulti as a model in your fit. This will rescale the errorbars at every step of the sampler. The uncmulti value which the user will get after the sampling should be approximately the square root of the reduced chi square of the fit (i.e., uncmulti ~ sqrt(chi2_red)).
 
 
+rescale_uncert_smaller_1
+''''''''''''''''''''''''''''''''''''''''''''
+If this is True, PACMAN will also rescale the errorbars if chi2_red < 1, so that chi2_red = 1.
+This parameter was motivated by Colón+2020 (https://arxiv.org/abs/2005.05153):
+“For light curves where the best fit had a reduced chi-squared (chi2_red) greater than unity,
+we rescaled the per point uncertainties to achieve chi2_red = 1 before we ran the MCMC.”
+
+So if one wants the same setup as mentioned in Colon+2020,
+one has to set rescale_uncert to True and rescale_uncert_smaller_1 to False.
+
+
+
 run_clipiters
 ''''''''''''''''''''''''''''''''''''''''''''
 NOT TESTED

@@ -172,6 +172,12 @@ lib.sort_nicely
 
 
 
+lib.read_fit_par
+----------------
+.. automodule:: pacman.lib.read_fit_par
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 
 lib.read_data

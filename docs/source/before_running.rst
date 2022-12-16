@@ -80,6 +80,6 @@ E.g.,
 
 
 `In the next step of the quickstart <https://pacmandocs.readthedocs.io/en/latest/astroquery_visits.html>`_,
-we will download the data (fits files) needed for our analysis using ``astroquery``.
+we will download the data (fits files) needed for our analysis using the python package ``astroquery``.
 
 

@@ -12,7 +12,7 @@ Stage 00
     - Make sure you followed the steps in :ref:`Before Running <before_running>`!
     - You should now have a run directory which include pacman_script.py, fit_par.txt and obs_par.pcf.
     - Make sure the path to run directory and data directory are set in the pcf
-    - Navigate to the run directory and execute the pacman_script.py file using the --s00 flag and the --eventlabel argument
+    - Navigate to the run directory and execute the pacman_script.py file using the \-\-s00 flag and the \-\-eventlabel argument
     - Continue with s01
 
 
@@ -58,8 +58,8 @@ Stage 00
 
 		python pacman_script.py --s00 --eventlabel='GJ1214_Hubble13021'
 
-	Here, --s00 means we are going to run Stage 00 and --eventlabel will be used in the naming of files and directories.
-    The  --eventlabel argument is just needed when running --s00.
+	Here, \-\-s00 means we are going to run Stage 00 and \-\-eventlabel will be used in the naming of files and directories.
+    The  \-\-eventlabel argument is just needed when running \-\-s00.
 
 	When running s00, the first step creates a new subdirectory in rundir for the analysis which we will call the work directory (=workdir).
 

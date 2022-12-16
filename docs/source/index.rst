@@ -52,6 +52,7 @@ For a more detailed roadmap, see `Stages <https://pacmandocs.readthedocs.io/en/l
    stage20
    stage21
    stage30
+   outputs
 
 .. toctree::
    :maxdepth: 1
