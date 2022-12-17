@@ -928,7 +928,7 @@ def save_fit_output(fit, data, meta):
             t['chi2red_notrescaled'] = meta.chi2red_notrescaled_list_nested
             t['bic_notrescaled'] = meta.bic_notrescaled_list_nested
             #t['bic_alt_notrescaled'] = meta.bic_alt_notrescaled_list_nested
-            t['ln_like_notrescaled'] = meta.ln_like_notrescale_list_nested
+            t['ln_like_notrescaled'] = meta.ln_like_notrescaled_list_nested
             if 'uncmulti' in meta.s30_myfuncs:
                 t['uncmulti'] = meta.uncmulti_nested
 
