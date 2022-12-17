@@ -4,29 +4,7 @@ import emcee
 from multiprocessing import Pool
 from . import plots
 from . import util
-
-
-def get_step_size(params, meta, fit_par):
-    """
-    Get the step sizes which were set in the fit_par.txt file by the user
-    """
-    nvisit = int(meta.nvisit)
-    step_size = []
-
-    ii = 0
-    for i in range(int(len(params)/nvisit)):
-            if fit_par['fixed'][ii].lower() == "false":
-                    if str(fit_par['tied'][ii]) == "-1":
-                        step_size.append(fit_par['step_size'][ii])
-                        ii = ii + 1
-                    else:
-                        for j in range(nvisit):
-                            step_size.append(fit_par['step_size'][ii])
-                            ii = ii + 1
-            else:
-                ii = ii + 1
-
-    return np.array(step_size)
+from . import read_fit_par
 
 
 def mcmc_fit(data, model, params, file_name, meta, fit_par):
@@ -57,7 +35,7 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
 
     print('Run emcee...')
     sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args = l_args, pool=pool)
-    step_size = get_step_size(params, meta, fit_par)
+    step_size = read_fit_par.get_step_size(data, params, meta, fit_par)
     pos = [theta + np.array(step_size)*np.random.randn(ndim) for i in range(nwalkers)]
     sampler.run_mcmc(pos, meta.run_nsteps, progress=True)
 

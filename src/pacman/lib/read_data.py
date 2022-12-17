@@ -155,7 +155,7 @@ class Data:
         self.s30_myfuncs = meta.s30_myfuncs
         self.time = time[clip_mask]
         self.flux = flux[clip_mask]
-        print('median log10 raw flux:', np.log10(np.median(flux[clip_mask])))
+        print('median log10 raw flux of full light curve:', np.log10(np.median(flux[clip_mask])))
         self.err = err[clip_mask]
         self.err_notrescaled = err[clip_mask] # will store the original errorbars and wont be rescaled
         self.wavelength = meta.wavelength
@@ -190,6 +190,7 @@ class Data:
         for i in range(nvisit): self.vis_idx.append(self.vis_num == i)
         if ('divide_white' in meta.s30_myfuncs) and meta.s30_fit_spec:
             self.white_systematics = np.genfromtxt(meta.white_sys_path)
+        self.rescale_uncert = meta.rescale_uncert
 
 
 def remove_dupl(seq):

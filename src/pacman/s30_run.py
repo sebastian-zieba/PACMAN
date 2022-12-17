@@ -129,15 +129,26 @@ def run30(eventlabel, workdir, meta=None):
                 print('Saved white_systematics.txt file')
                 outfile.close()
 
-        meta.labels = labels_gen(params, meta, fit_par)
-        print(meta.labels) # TODO: isnt this the same as free_parnames?
+        meta.labels = data.free_parnames
 
         if meta.run_mcmc:
             print('\n*STARTS MCMC*')
             time.sleep(1.01)
             if meta.rescale_uncert:
                 ##rescale error bars so reduced chi-squared is one
-                if model.chi2red > 1:
+                print(f'rescale_uncert in the pcf was set to {meta.rescale_uncert}')
+                if model.chi2red < 1:
+                    print('After the first fit, you got chi2_red < 1')
+                    print(f'rescale_uncert_smaller_1 was set to {meta.rescale_uncert_smaller_1}')
+                    if meta.rescale_uncert_smaller_1:
+                        # also rescale if chi2red < 1
+                        print('We will therefore rescale the errorbars, so that chi2_red = 1')
+                        data.err *= np.sqrt(model.chi2red)
+                    else:
+                        print('chi2red < 1 and rescale_uncert_smaller_1 = False --> no rescaling')
+                elif model.chi2red >= 1:
+                    print('After the first fit, you got chi2_red >= 1')
+                    print('Errorbars are being rescaled so that chi2_red = 1')
                     data.err *= np.sqrt(model.chi2red)
             # if a least square hasnt been run yet or the uncertainies should be rescaled, to the lsq again
             if not meta.run_lsq or meta.rescale_uncert:
@@ -150,6 +161,7 @@ def run30(eventlabel, workdir, meta=None):
             time.sleep(1.01)
             if meta.rescale_uncert:
                 ##rescale error bars so reduced chi-squared is one
+                print('Errorbars are being rescaled so that chi2_red = 1')
                 if model.chi2red > 1:
                     data.err *= np.sqrt(model.chi2red)
             if not meta.run_lsq or meta.rescale_uncert:
@@ -209,21 +221,3 @@ def update_clips(clips_array):
     clips_new[0] + sum([i <= clips_new[0] for i in clips_old])
     clips_new_updated = [clips_new[ii] + sum([i <= clips_new[ii] for i in clips_old]) for ii in range(len(clips_new))]
     return np.concatenate((clips_old, clips_new_updated))
-
-
-def labels_gen(params, meta, fit_par):
-    nvisit = int(meta.nvisit)
-    labels = []
-    ii = 0
-    for i in range(int(len(params) / nvisit)):
-        if fit_par['fixed'][ii].lower() == "false":
-            if str(fit_par['tied'][ii]) == "-1":
-                labels.append(fit_par['parameter'][ii])
-                ii = ii + 1
-            else:
-                for j in range(nvisit):
-                    labels.append(fit_par['parameter'][ii] + str(j))
-                    ii = ii + 1
-        else:
-            ii = ii + 1
-    return labels

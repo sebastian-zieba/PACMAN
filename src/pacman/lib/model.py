@@ -52,12 +52,12 @@ class Model:
         self.chi2red = 0.
         self.rms = 0.
         self.rms_predicted = 1.0e6*np.sqrt(np.mean((data.err/data.flux)**2))
-        print(f'The predicted rms is {self.rms_predicted:.2f}')
+        print(f'The predicted rms is {self.rms_predicted:.2f} ppm')
         # self.rms_predicted = 1.0e6*np.sqrt(np.mean(np.sqrt((1./data.flux))**2))
         # wrong because we binned over several pixels
         self.ln_like = 0.
         self.bic = 0.
-        self.bic_alt = 0.
+        #self.bic_alt = 0.
         self.params = []
         self.myfuncs = Functions(data, myfuncs)
 
@@ -93,7 +93,7 @@ class Model:
                 # + np.log(2.0*np.pi*(data.err)**2)))
             )
             self.bic = -2. * self.ln_like + data.nfree_param * np.log(data.npoints)
-            self.bic_alt = self.chi2 + data.nfree_param * np.log(data.npoints)
+            #self.bic_alt = self.chi2 + data.nfree_param * np.log(data.npoints)
         else:
             self.ln_like = 0.
             for visit in range(data.nvisit):
@@ -115,8 +115,8 @@ class Model:
             self.chi2red = self.chi2 / data.dof
             self.rms = 1.0e6 * np.sqrt(np.mean((self.resid / data.flux) ** 2))
             self.bic = -2. * self.ln_like + data.nfree_param * np.log(data.npoints)
-            self.bic_alt = self.chi2 + data.nfree_param * np.log(data.npoints)
-        if ('uncmulti' in data.s30_myfuncs) or (data.err[0] != data.err_notrescaled[0]):
+            #self.bic_alt = self.chi2 + data.nfree_param * np.log(data.npoints)
+        if ('uncmulti' in data.s30_myfuncs) or (data.rescale_uncert): #(data.err[0] != data.err_notrescaled[0]):# or (meta.rescale_uncert): #old:hack so that we dont have to pass meta
             # We want to use err_notrescaled for the chi2_red and BIC calculation
             # because the errors were scaled if one of the following applies:
             # 1) the errorbars were rescaled so that chi2_red = 1
@@ -126,6 +126,6 @@ class Model:
             self.ln_like_notrescaled = (-0.5*(np.sum((self.resid/data.err_notrescaled)**2
                 + np.log(2.0 * np.pi) + 2 * np.log(data.err_notrescaled))))
             self.bic_notrescaled = -2. * self.ln_like_notrescaled + data.nfree_param * np.log(data.npoints)
-            self.bic_alt_notrescaled = self.chi2_notrescaled + data.nfree_param * np.log(data.npoints)
+            #self.bic_alt_notrescaled = self.chi2_notrescaled + data.nfree_param * np.log(data.npoints)
 
         return self

@@ -132,6 +132,7 @@ remove_first_orb             False
 remove_which_orb             []
 
 rescale_uncert               True
+rescale_uncert_smaller_1     False
 
 run_clipiters                0
 run_clipsigma                0
