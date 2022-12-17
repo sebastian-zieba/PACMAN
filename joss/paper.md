@@ -61,7 +61,7 @@ which removes the need for the user to write these functions themselves.
 `PACMAN` will also retrieve information from the header of the fits files, automatically detect HST orbits and visits and use this information in the fitting models.
 
 As mentioned above, there are several open-source codes that fit light curves but `PACMAN` also does data reduction. 
-Another code which can reduce HST/WFC3 observations is `Iraclis` [@Tsiaras2016] (more in Section  [Similar tools](#similar-tools)).
+Another code which can reduce HST/WFC3 observations is `Iraclis` [@Tsiaras2016] (see Section [Similar tools](#similar-tools) for more information).
 
 # Outline of the pipeline steps
 
