@@ -3,8 +3,8 @@ variables:
   formatted_doi: "10.5281/zenodo.6901368"
   repository: "https://github.com/sebastian-zieba/PACMAN"
   doi_batch_id: "xxxx"
-  editor_url: "xxx"
-  review_issue_url: "https://github.com/xxx"
+  editor_url: "https://juanjobazan.com/"
+  review_issue_url: "https://github.com/openjournals/joss-reviews/issues/4838"
   paper_url: "xxx"
   journal_name: "Journal of Open Source Software"
 
@@ -14,9 +14,9 @@ metadata:
   issue: "xxx"
   page: "xxx"
   volume: "xxx"
-  editor_name: "xxx"
+  editor_name: "Juanjo Bazán"
   published: "xxx"
   reviewers:
-    - "xxx"
-    - "xxx"
+    - "astrobel"
+    - "aureliocarnero"
   submitted: "25 July 2022"
