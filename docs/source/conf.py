@@ -23,11 +23,11 @@ sys.path.insert(0, os.path.abspath('../../src/'))
 # -- Project information -----------------------------------------------------
 
 project = 'PACMAN'
-copyright = '2022, Laura Kreidberg, Sebastian Zieba'
-author = 'Laura Kreidberg, Sebastian Zieba'
+copyright = '2022, Sebastian Zieba, Laura Kreidberg'
+author = 'Sebastian Zieba, Laura Kreidberg'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1.0'
+release = '0.2.0'
 
 
 # -- General configuration ---------------------------------------------------
