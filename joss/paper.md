@@ -1,5 +1,5 @@
 ---
-title: '`PACMAN`: A pipeline to reduce and analyze Hubble Wide Field Camera 3 IF Grism data'
+title: '`PACMAN`: A pipeline to reduce and analyze Hubble Wide Field Camera 3 IR Grism data'
 tags:
   - HST
   - python
@@ -53,20 +53,20 @@ To facilitate reproducibility and transparency, the data reduction and analysis 
 This will enable easy comparison between different pipelines, and also lower the barrier to entry for newcomers in the exoplanet atmosphere field.
 
 What sets `PACMAN` apart from other tools provided by the community, is that it was specifically designed to reduce and fit HST data.
-For example, there are several open-source tools which can fit time series observations 
+For example, there are several open-source tools that can fit time series observations 
 of stars to model events like transiting exoplanets (e.g., `EXOFASTv2` [@Eastman2019], `juliet` [@Espinoza2019], `allesfitter` [@Gunther2019; @Gunther2021], `exoplanet` [@Foreman-Mackey2021a; @Foreman-Mackey2021b], `starry` [@Luger2019]). 
-`PACMAN`'s source code, however, includes fitting models which can model systematics which are characteristic to HST data 
+`PACMAN`'s source code, however, includes fitting models that can model systematics which are characteristic to HST data 
 (like the orbit-long exponential ramps due to charge trapping or the upstream-downstream effect)
 which removes the need for the user to write these functions themselves.
 `PACMAN` will also retrieve information from the header of the fits files, automatically detect HST orbits and visits and use this information in the fitting models.
 
 As mentioned above, there are several open-source codes that fit light curves but `PACMAN` also does data reduction. 
-Another code which can reduce HST/WFC3 observations is `Iraclis` [@Tsiaras2016] (see Section [Similar tools](#similar-tools) for more information).
+Another code that can reduce HST/WFC3 observations is `Iraclis` [@Tsiaras2016] (see Section [Similar tools](#similar-tools) for more information).
 
 # Outline of the pipeline steps
 
-The pipeline starts with the _ima_ data products provided by the Space Telescope Science Institute which can be easily accessed from [MAST](https://mast.stsci.edu/search/hst).
-These files created by the WFC3 calibration pipeline, `calwf3`, have already several calibrations applied (dark subtraction, and linearity correction, flat-fielding) to each readout of the IR exposure.
+The pipeline starts with the _ima_ data products provided by the Space Telescope Science Institute that can be easily accessed from [MAST](https://mast.stsci.edu/search/hst).
+These files created by the WFC3 calibration pipeline, `calwf3`, have already several calibrations applied (dark subtraction, linearity correction, flat-fielding) to each readout of the IR exposure.
 
 In the following we highlight several steps in the reduction and fitting stages of the code which are typical for HST/WFC3 observations:
 
@@ -82,7 +82,7 @@ We also mask bad pixels that have been flagged by `calwf3` with data quality DQ 
 
 - **Scanning of the detector**: The majority of exoplanetary HST/WFC3 observations use the spatial scanning technique [@McCullough2012] which spreads the light perpendicular to the dispersion direction during the exposure enabling longer integration times before saturation.
 The _ima_ files taken in this observation mode consist of a number of nondestructive reads, also known as up-the-ramp samples, each of which we treat as an independent subexposure.
-\autoref{fig:figure1} (left panel) shows an example of the last subexposure when using the spatial scanning together with the expected position of the trace based on the direct image.
+\autoref{fig:figure1} (left panel) shows an example of the last subexposure when using spatial scanning together with the expected position of the trace based on the direct image.
 
 - **Fitting models**: `PACMAN` contains several functions to fit models which are commonly used with HST data. 
 The user can fit models like in \autoref{eq:equation1} to the white light curve or to spectroscopic light curves. 
@@ -94,7 +94,7 @@ Here are some examples of the currently implemented models for the instrument sy
   - astrophysical models:
     - transit and secondary eclipse curves as implemented in `batman`
     - sinusoids for phase curve fits
-    - a constant offset which accounts for the upstream-downstream effect [@McCullough2012] caused by forward and reverse scanning
+    - a constant offset that accounts for the upstream-downstream effect [@McCullough2012] caused by forward and reverse scanning
     
   A typical model to fit an exoplanet transit in HST data is the following (used for example in @Kreidberg2014a): 
 
@@ -147,7 +147,7 @@ It includes most notably, a full explanation of every parameter in the _pacman c
 
 The only other end-to-end open source pipeline\footnote{as far as we are aware of} specifically developed for the reduction and analysis of HST/WFC3 data is [`Iraclis`](https://github.com/ucl-exoplanets/Iraclis) [@Tsiaras2016].
 
-Another open-source pipeline which has been used as an independent check of recent results presented in @Mugnai2021 and @Carone2021 is [`CASCADe`](https://jbouwman.gitlab.io/CASCADe/) (Calibration of trAnsit Spectroscopy using CAusal Data).
+Another open-source pipeline that has been for example used as an independent check of recent results presented in @Mugnai2021 and @Carone2021 is [`CASCADe`](https://jbouwman.gitlab.io/CASCADe/) (Calibration of trAnsit Spectroscopy using CAusal Data).
 For a more detailed discussion of `CASCADe` see Appendix 1 in @Carone2021.
 
 
@@ -155,7 +155,7 @@ For a more detailed discussion of `CASCADe` see Appendix 1 in @Carone2021.
 
 Additional fitting models are planned to be added to `PACMAN` in the future like phase curves using the open-source python package `SPIDERMAN`. 
 
-Another model which can be added to fit the orbit-long ramps is the [RECTE systematic model](https://recte.readthedocs.io/en/latest/).
+Another model that can be added to fit the orbit-long ramps is the [RECTE systematic model](https://recte.readthedocs.io/en/latest/).
 
 It is planned to add a limb darkening calculation if the user wants to fix limb darkening parameters to theoretical models in the fitting stage.
 
