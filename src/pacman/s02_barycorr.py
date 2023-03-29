@@ -78,7 +78,7 @@ def run02(eventlabel, workdir, meta=None):
             iorbit = 0
             ivisit += 1
         # if two exposures are more than 10 min apart but less than an orbital period -> subsequent orbits
-        elif 10 < times_diff[i] * 24 * 60 <= 100:
+        elif 30 < times_diff[i] * 24 * 60 <= 100:
             iorbit_begin = i
             iorbit += 1
         # else: two exposures less than 10 mins apart -> same orbit and same visit

@@ -199,7 +199,7 @@ def run00(eventlabel, pcf_path='.'):
             ivisit += 1
             iexp_orb_counter = 0
         # if two exposures are more than 10 min apart but less than an orbital period -> subsequent orbits
-        elif 10 < times_diff[i] * 24 * 60 <= 100:
+        elif 30 < times_diff[i] * 24 * 60 <= 100:
             iorbit_begin = i
             iorbit += 1
             iexp_orb_counter = 0

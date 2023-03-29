@@ -163,15 +163,15 @@ run_nwalkers	             6
 run_nburn                    100
 
 #dynesty static
-run_dlogz                    10
-run_nlive                    5
+run_dlogz                    1
+run_nlive                    100
 
 #dynesty dynamic
 run_dynamic                  True
-run_dlogz_init               0.01
-run_nlive_init               10
-run_nlive_batch              10
-run_maxbatch                 50
+run_dlogz_init               0.1
+run_nlive_init               20
+run_nlive_batch              20
+run_maxbatch                 10
 
 run_bound                    multi
 run_sample                   rwalk

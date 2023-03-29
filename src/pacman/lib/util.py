@@ -134,7 +134,13 @@ def ancil(meta, s10=False, s20=False):
         if meta.iorbit_di[i + 1] != meta.iorbit_di[i]:
             c = c + 1
         meta.iorbit_di_cumulative[i + 1] = c
-
+    # TODO: this is a problem if there is one DI per visit. It will give us meta.iorbit_di_cumulative == [0,0,0,...]
+    # TODO: with as many zeros as visits
+    # TODO: I implemented a quick fix (29th march 2023):
+    # TODO: i check if there are as many DIs as visits and if the DIs have been taken same time apart.
+    t_bjd_di_tmp = filelist['t_mjd'][meta.mask_di].data
+    if (len(meta.iorbit_di) == (max(meta.ivisit_sp)+1)) and (np.all(np.diff(t_bjd_di_tmp)>1/24)):
+        meta.iorbit_di_cumulative = np.arange(len(meta.iorbit_di), dtype=int)
     meta.t_mjd_sp = filelist['t_mjd'][meta.mask_sp].data
 
     meta.t_orbit_sp = filelist['t_orbit'][meta.mask_sp].data
@@ -142,12 +148,19 @@ def ancil(meta, s10=False, s20=False):
 
     meta.platescale = 0.13  # IR detector has plate scale of 0.13 arcsec/pixel
 
-    meta.POSTARG1 = f[0].header['POSTARG1']  # x-coordinate of the observer requested target offset
-    meta.POSTARG2 = f[0].header['POSTARG2']  # y-coordinate of the observer requested target offset
-    meta.LTV1 = int(f[1].header['LTV1'])     # X offset to get into physical pixels
-    meta.LTV2 = int(f[1].header['LTV2'])     # Y offset to get into physical pixels
+    f_sp0 = fits.open(meta.files_sp[0])
+    meta.POSTARG1_sp = f_sp0[0].header['POSTARG1']  # x-coordinate of the observer requested target offset
+    meta.POSTARG2_sp = f_sp0[0].header['POSTARG2']  # y-coordinate of the observer requested target offset
+    meta.LTV1 = int(f_sp0[1].header['LTV1'])     # X offset to get into physical pixels
+    meta.LTV2 = int(f_sp0[1].header['LTV2'])     # Y offset to get into physical pixels
+    meta.subarray_size = f_sp0[1].header['SIZAXIS1']  # size of subarray
 
-    meta.subarray_size = f[1].header['SIZAXIS1']  # size of subarray
+    f_di0 = fits.open(meta.files_di[0])
+    meta.POSTARG1_di = f_di0[0].header['POSTARG1']  # x-coordinate of the observer requested target offset
+    meta.POSTARG2_di = f_di0[0].header['POSTARG2']  # y-coordinate of the observer requested target offset
+
+    meta.POSTARG1 = meta.POSTARG1_sp - meta.POSTARG1_di
+    meta.POSTARG2 = meta.POSTARG2_sp - meta.POSTARG2_di
 
     if meta.grism == 'G102':
         meta.BEAMA_i = 41
@@ -235,6 +248,7 @@ def di_reformat(meta):
 
     meta.ivisits_new_orbit = meta.iorbit_sp[meta.new_visit_idx_sp]
     meta.nvisits_in_orbit = np.diff(np.append(meta.iorbit_sp[meta.new_visit_idx_sp], np.array([max(meta.iorbit_sp) + 1])))
+    meta.norbits_in_visit = np.append(meta.iorbit_sp[meta.new_visit_idx_sp[1:]-1],meta.iorbit_sp[-1])+1
 
     # First case: Every orbit has just one DI
     if np.array_equal(reffile['iorbit_cumul'], control_one_per_orbit):
@@ -249,8 +263,8 @@ def di_reformat(meta):
         print('There is one DI per visit.')
         meta.refpix = []
         counter = 0
-        for i in range(len(meta.nvisits_in_orbit)):
-            for j in range(meta.nvisits_in_orbit[counter]):
+        for i in range(len(meta.norbits_in_visit)):
+            for j in range(meta.norbits_in_visit[counter]):
                 meta.refpix.append([reffile['t_bjd'][counter], reffile['pos1'][counter], reffile['pos2'][counter]])
             counter = counter + 1
         meta.refpix = np.array(meta.refpix)
