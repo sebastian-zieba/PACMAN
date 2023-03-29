@@ -169,8 +169,8 @@ run_nlive                    100
 #dynesty dynamic
 run_dynamic                  True
 run_dlogz_init               0.1
-run_nlive_init               20
-run_nlive_batch              20
+run_nlive_init               15
+run_nlive_batch              15
 run_maxbatch                 10
 
 run_bound                    multi
