@@ -232,9 +232,10 @@ rmin/rmax
 | Example: ``rmax  261``
 
 Can be set to remove rows from the top and bottom of the 2D array.
-E.g. If the frame have the size of 266x266 and the user wants to cut off the
+E.g. If the frame has the size of 266x266 and the user wants to cut off the
 upper and lower 5 pixels they can use the same settings as in the example above.
-
+Typically, for a 266x266 array, the user would set ``rmin  5`` and ``rmax  261``.
+For 522x522 array, ``rmin  5`` and ``rmax  517``.
 
 window
 ''''''''''''''''''''''''''''''''''''''''''''
@@ -246,7 +247,7 @@ Sets the size of the extraction window.  ``PACMAN`` adaptively determines the be
 
  2. add ``window`` additional rows above and below the rows identified in step 1 
 
-For example, if the biggest flux gradient occurs in row 35 and 55, and the user set ``window  10``,
+For example, if the biggest flux gradient occurs in row 35 and 55, and the user sets ``window  10``,
 the extraction aperture will be between rows 25 and 65. 
 
 
@@ -378,7 +379,7 @@ In this case the rows with the highest change in flux were either 7 or 8 pixels 
 save_refspec_fit_plot/show_refspec_fit_plot
 ''''''''''''''''''''''''''''''''''''''''''''
 The fit of the 1D spectrum compared to the reference spectrum.
-In the first exposure in a visit, this referecnce spectrum is the product of the stellar spectrum with the grism throughput.
+In the first exposure in a visit, this reference spectrum is the product of the stellar spectrum with the grism throughput.
 
 .. image:: media/s20/refspec_fit_0.png
 
@@ -491,7 +492,8 @@ rescale_uncert
 Rescales the uncertainties for the sampler (MCMC or nested sampling), so that the reduced chi2red = 1.
 Note: This only happens if chi2red < 1 after least squared fit.
 
-An alternative is to use uncmulti as a model in your fit. This will rescale the errorbars at every step of the sampler. The uncmulti value which the user will get after the sampling should be approximately the square root of the reduced chi square of the fit (i.e., uncmulti ~ sqrt(chi2_red)).
+An alternative is to use uncmulti as a model in your fit. This will rescale the errorbars at every step of the sampler.
+The uncmulti value which the user will get after the sampling should be approximately the square root of the reduced chi square of the fit (i.e., uncmulti ~ sqrt(chi2_red)).
 
 
 rescale_uncert_smaller_1
