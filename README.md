@@ -26,7 +26,7 @@ Check out the [docs](https://pacmandocs.readthedocs.io/en/latest/) for the lates
 
 ## Citing PACMAN
 Please cite ``Zieba & Kreidberg (2022)`` if you use ``PACMAN`` in your research. 
-The BibTeX entry for the paper is::
+The BibTeX entry for the paper is:
 
     @ARTICLE{2022JOSS....7.4838Z,
            author = {{Zieba}, Sebastian and {Kreidberg}, Laura},
