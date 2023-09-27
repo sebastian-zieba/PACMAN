@@ -10,4 +10,5 @@ docs/build/
 .idea/
 #run directory
 run/run_20*/
-
+# Mac/OSX
+.DS_Store
