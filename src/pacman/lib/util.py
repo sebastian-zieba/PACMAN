@@ -569,7 +569,11 @@ def read_fitfiles(meta):
         if meta.s30_most_recent_s20:
             lst_dir = os.listdir(meta.workdir + "/extracted_lc/")
             lst_dir = sn(lst_dir)
-            white_dir = lst_dir[-1]
+            # the following line makes sure that only directories starting with a "2" are considered
+            # this was implemented after issue #10 was raised (see issue for more info)
+            # this works because the dates will always start with a "2"
+            lst_dir_new = [lst_dir_i for lst_dir_i in lst_dir if lst_dir_i.startswith("2")]
+            white_dir = lst_dir_new[-1]
             files.append(meta.workdir + "/extracted_lc/" + white_dir + "/lc_white.txt")
             print('using most recent s20 run: {0}'.format(white_dir))
         else:

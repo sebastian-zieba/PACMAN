@@ -45,7 +45,11 @@ def run21(eventlabel, workdir, meta=None):
     if meta.s21_most_recent_s20:
         lst_dir = os.listdir(meta.workdir + "/extracted_lc/")
         lst_dir = sn.sort_nicely(lst_dir)
-        spec_dir = lst_dir[-1]
+        # the following line makes sure that only directories starting with a "2" are considered
+        # this was implemented after issue #10 was raised (see issue for more info)
+        # this works because the dates will always start with a "2"
+        lst_dir_new = [lst_dir_i for lst_dir_i in lst_dir if lst_dir_i.startswith("2")]
+        spec_dir = lst_dir_new[-1]
     else:
         spec_dir = meta.s21_spec_dir_path_s20
 
