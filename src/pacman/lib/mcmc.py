@@ -108,7 +108,7 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
     #print(f"Autocorrelation time: {tau}")
 
     # Print the Autocorrelation Time
-    tau = sampler.get_autocorr_time()
+    tau = sampler.get_autocorr_time(quiet=True)
     print("Autocorrelation time: ", tau)
 
     return medians, errors_lower, errors_upper, fit
