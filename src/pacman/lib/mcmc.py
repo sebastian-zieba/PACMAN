@@ -37,6 +37,8 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
     sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args = l_args, pool=pool)
     step_size = read_fit_par.get_step_size(data, params, meta, fit_par)
     pos = [theta + np.array(step_size)*np.random.randn(ndim) for i in range(nwalkers)]
+    pos = np.array(pos)
+
     sampler.run_mcmc(pos, meta.run_nsteps, progress=True)
 
     # Dump the samples into a file using pickle
@@ -97,6 +99,17 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
         for i in range(len(fit.all_sys)): print(fit.all_sys[i], file=outfile)
         print('Saved white_systematics.txt file for mcmc run')
         outfile.close()
+
+    #samples_auto1 = sampler.get_chain(discard=nburn, flat=True)
+    #tau = emcee.autocorr.integrated_time(samples_auto1, quiet=True)
+    #print(f"Autocorrelation time: {tau}")
+
+    #tau = sampler.get_autocorr_time(discard=nburn)
+    #print(f"Autocorrelation time: {tau}")
+
+    # Print the Autocorrelation Time
+    tau = sampler.get_autocorr_time()
+    print("Autocorrelation time: ", tau)
 
     return medians, errors_lower, errors_upper, fit
 
