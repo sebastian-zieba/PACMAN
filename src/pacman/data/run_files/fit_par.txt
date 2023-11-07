@@ -10,7 +10,6 @@ fp             True    -1     0.0         False    0.0       False    0.002    X
 u1             False   -1     0.29        True     0.0       True     0.6      U       0.0       1.0      0.01       
 u2             True    -1     0.0         False    0.0       False    0.0      X       0.0       0.0      0.0        
 ecc            True    -1     0.0         False    0.0       False    0.0      X       0.0       0.0      0.0        
-limb_dark      True    -1     2.0         False    0.0       False    0.0      X       0.0       0.0      0.0        
 c              False   0      8.37        True     6.0       True     8.9      X       6.7       7.0      0.001      
 c              False   1      8.37        True     6.0       True     8.9      X       6.7       7.0      0.001      
 v              False   0      -1e-06      False    -0.0001   False    -1e-08   X       -7e-06    -1e-06   1e-05      
