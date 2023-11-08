@@ -4,7 +4,8 @@ import pytest
 from astropy.io import ascii
 from astroquery.mast import Observations
 from astropy.io import fits
-sys.path.insert(0, '.' + os.path.sep + 'src')
+src_dir = os.path.join(os.getcwd(), 'src')
+sys.path.insert(0, src_dir)
 from pacman.lib import util
 from pacman import s00_table as s00
 from pacman import s01_horizons as s01

@@ -39,7 +39,7 @@ def run02(eventlabel, workdir, meta=None):
     print('Starting s02')
 
     if meta == None:
-        meta = me.loadevent(workdir + os.path.sep + 'WFC3_' + eventlabel + '_Meta_Save'))
+        meta = me.loadevent(workdir + os.path.sep + 'WFC3_' + eventlabel + '_Meta_Save')
 
     # read in filelist
     filelist_path = meta.workdir + os.path.sep + 'filelist.txt'
