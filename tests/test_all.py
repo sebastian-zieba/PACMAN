@@ -129,9 +129,9 @@ def test_s00(capsys):
 
     reload(s00)
 
-    if os.path.sep == '/':
+    if os.name == 'posix':
         pcf_path = test_path + os.path.sep + 'run_files_unix'
-    elif os.path.sep == '\':
+    elif os.name == 'nt':
         pcf_path = test_path + os.path.sep + 'run_files_windows'
 
     #run s00
