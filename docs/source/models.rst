@@ -214,24 +214,51 @@ Which files do I have to change?
 What do I have to do?
 ''''''''''''''''''''''''''''''''''
 
-As an example, we will create a new model which will fit the product of a 
-polynomial of 1. order and the upstream downstream effect.
-We will call this model ``polynomial1_full``. 
+As an example, we will create a new model which will fit a
+polynomial of third order to the whole visit.
+We will call this model ``polynomial3``. 
 
- 1) We create a new py file in src/pacman/lib/models/ called polynomial1_full.py
+ 1) We create a new py file in src/pacman/lib/models/ called polynomial3.py
 
 
  2) We create the code for this model which combines a fitting for the scale and 
 a linear polynomial over the visit:
 
 
-.. include:: media/models/polynomial1_full.py
+.. include:: media/models/polynomial3.py
    :literal:
  
-Note that we use the same function name (``def polynomial1_full(...)``) as file name.
+Note that we use the same function name (``def polynomial3(...)``) as file name.
+Our parameters for this model are therefore: ``v``, ``v2``, and ``v3``.
 
 
- 3) in work.......
+ 3) Add the model parameters into src/pacman/lib/formatter.py. Each parameter needs its own row. Below an example on how to do it with our new polynomial3.py model.
+
+.. include:: media/models/formatter_cutout.py
+   :literal:
+
+
+ 4) Next we add the model to src/pacman/lib/functions.py. First we have to import the function at the very top:
+
+.. include:: media/models/function_cutout1.py
+   :literal:
+
+Next, we have to add the model to the file. See an example here for our model.
+
+.. include:: media/models/function_cutout2.py
+   :literal:
+
+Note, that the model, which we are currently adding is on to fit for systematics. Thats why we use ``sys`` and ``sys_porder``. 
+If you are adding a new model fitting for an astrophysical effect you use instead ``astro`` and ``astro_porder``. See an example below for the transit model: 
+
+.. include:: media/models/function_cutout3.py
+   :literal:
+
+ 5) add to fit_par.txt
+
+ 6) add to obs_par.pcf
+
+
 
 
 
