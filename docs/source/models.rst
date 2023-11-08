@@ -229,7 +229,7 @@ a linear polynomial over the visit:
  
 Note that we use the same function name as file name.
 
-3) in work... 
+3) in work.....
 
 
 
