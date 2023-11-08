@@ -218,12 +218,10 @@ As an example, we will create a new model which will fit a
 polynomial of third order to the whole visit.
 We will call this model ``polynomial3``. 
 
- 1) We create a new py file in src/pacman/lib/models/ called polynomial3.py
+1. We create a new py file in src/pacman/lib/models/ called polynomial3.py
 
 
- 2) We create the code for this model which combines a fitting for the scale and 
-a linear polynomial over the visit:
-
+2. We create the code for this model which combines a fitting for the scale and a linear polynomial over the visit:
 
 .. include:: media/models/polynomial3.py
    :literal:
@@ -232,45 +230,38 @@ Note that we use the same function name (``def polynomial3(...)``) as file name.
 Our parameters for this model are therefore: ``v``, ``v2``, and ``v3``.
 
 
- 3) Add the model parameters into src/pacman/lib/formatter.py. Each parameter needs its own row. Below an example on how to do it with our new polynomial3.py model.
-
+3. Add the model parameters into src/pacman/lib/formatter.py. Each parameter needs its own row. Below an example on how to do it with our new polynomial3.py model.
 
 .. include:: media/models/formatter_cutout.py
    :literal:
 
- 4) Next we add the model to src/pacman/lib/functions.py. First we have to import the function at the very top:
 
+4. Next we add the model to src/pacman/lib/functions.py. First we have to import the function at the very top:
 
-.. include:: media/models/function_cutout1.py
+.. include:: media/models/functions_cutout1.py
    :literal:
 
-Next, we have to add the model to the file. See an example here for our model.
+5. Next, we have to add the model to the file. See an example here for our model.
 
-
-.. include:: media/models/function_cutout2.py
+.. include:: media/models/functions_cutout2.py
    :literal:
 
-Note, that the model, which we are currently adding is on to fit for systematics. Thats why we use ``sys`` and ``sys_porder``. 
-If you are adding a new model fitting for an astrophysical effect you use instead ``astro`` and ``astro_porder``. See an example below for the transit model: 
+6. Note, that the model, which we are currently adding is on to fit for systematics. Thats why we use ``sys`` and ``sys_porder``.  If you are adding a new model fitting for an astrophysical effect you use instead ``astro`` and ``astro_porder``. See an example below for the transit model: 
 
-
-.. include:: media/models/function_cutout3.py
+.. include:: media/models/functions_cutout3.py
    :literal:
 
- 5) Add the new lines with your model parameters to your fit_par.txt:
-
+7. Add the new lines with your model parameters to your fit_par.txt:
 
 .. include:: media/models/fit_par.txt
    :literal:
 
- 6) Add the new model to the list of models in s30_myfuncs in the obs_par.pcf:
-
+8. Add the new model to the list of models in s30_myfuncs in the obs_par.pcf:
 
 .. include:: media/models/obs_par.pcf
    :literal:
 
-
- 7) Run s30!
+9. Run s30!
 
 
 
