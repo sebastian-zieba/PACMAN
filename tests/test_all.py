@@ -453,7 +453,7 @@ def test_s30(capsys):
     meta = s30.run30(eventlabel, workdir)
 
     dirs = np.array([f.path for f in os.scandir(workdir) if f.is_dir()])
-    dirs_bool = np.array(['fit_' in i for i in dirs])
+    dirs_bool = np.array([b'fit_' in i for i in dirs])
     fit_dirs = dirs[dirs_bool]
     fit_dir = fit_dirs[0]
 
@@ -465,7 +465,7 @@ def test_s30(capsys):
     s30.run30(eventlabel, workdir, meta=meta)
 
     dirs = np.array([f.path for f in os.scandir(workdir) if f.is_dir()])
-    dirs_bool = np.array(['fit_' in i for i in dirs])
+    dirs_bool = np.array([b'fit_' in i for i in dirs])
 
     print('dirs_bool: ', dirs_bool)
 

@@ -42,7 +42,7 @@ def run01(eventlabel, workdir, meta=None):
     print('Starting s01')
 
     if meta == None:
-        meta = me.loadevent(workdir + os.path.sep + 'WFC3_' + eventlabel + "_Meta_Save")
+        meta = me.loadevent(os.path.join(workdir, 'WFC3_', eventlabel, "_Meta_Save"))
 
     # read in filelist
     filelist_path = meta.workdir + os.path.sep + 'filelist.txt'
@@ -87,8 +87,8 @@ def run01(eventlabel, workdir, meta=None):
         os.makedirs(meta.workdir + f'{os.path.sep}ancil')
 
     # save it in ./ancil/bjd_conversion/
-    if not os.path.exists(meta.workdir + f'{os.path.sep}ancil{os.path.sep}horizons{os.path.sep}'):
-        os.makedirs(meta.workdir + f'{os.path.sep}ancil{os.path.sep}horizons{os.path.sep}')
+    if not os.path.exists(os.path.join(meta.workdir, 'ancil', 'horizons')):
+        os.makedirs(os.path.join(meta.workdir, 'ancil', 'horizons'))
 
     # retrieve positions for every individual visit
     for i in tqdm(range(max(ivisit) + 1), desc='Retrieving Horizons file for every visit', ascii=True):
@@ -104,8 +104,8 @@ def run01(eventlabel, workdir, meta=None):
         # Full link
         settings_new = settings + '&' + set_start + '&' + set_end
 
-        # Location where to save the data
-        filename = meta.workdir + f'{os.path.sep}ancil{os.path.sep}horizons' + os.path.sep + 'horizons_results_v{0}.txt'.format(i)
+        # Location where to save the data   
+        filename = os.path.join(meta.workdir, 'ancil', 'horizons', 'horizons_results_v{0}.txt'.format(i))
 
         # Download data
         with urlopen(settings_new) as in_stream, open(filename, 'wb') as out_file:
@@ -113,7 +113,7 @@ def run01(eventlabel, workdir, meta=None):
 
     # Save results
     print('Saving Metadata')
-    me.saveevent(meta, meta.workdir + os.path.sep + 'WFC3_' + meta.eventlabel + "_Meta_Save", save=[])
+    me.saveevent(meta, os.path.join(meta.workdir, 'WFC3_', meta.eventlabel, '_Meta_Save'), save=[])
 
     print('Finished s01 \n')
 

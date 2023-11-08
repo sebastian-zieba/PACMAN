@@ -42,7 +42,7 @@ def run03(eventlabel, workdir, meta=None):
     print('Starting s03')
 
     if meta == None:
-        meta = me.loadevent(workdir + '/WFC3_' + eventlabel + "_Meta_Save")
+        meta = me.loadevent(os.path.join(workdir, 'WFC3_', eventlabel, "_Meta_Save"))
 
     ### Stellar Spectrum
     Teff, logg, MH = meta.Teff, meta.logg, meta.MH
@@ -106,7 +106,7 @@ def run03(eventlabel, workdir, meta=None):
 
     # Save results
     print('Saving Metadata')
-    me.saveevent(meta, meta.workdir + '/WFC3_' + meta.eventlabel + "_Meta_Save", save=[])
+    me.saveevent(meta, os.path.join(meta.workdir, 'WFC3_', meta.eventlabel, '_Meta_Save'), save=[])
 
     print('Finished s03 \n')
 
