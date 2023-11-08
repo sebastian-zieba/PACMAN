@@ -129,7 +129,10 @@ def test_s00(capsys):
 
     reload(s00)
 
-    pcf_path = test_path + os.path.sep + 'run_files'
+    if os.path.sep == '/':
+        pcf_path = test_path + os.path.sep + 'run_files_unix'
+    elif os.path.sep == '\':
+        pcf_path = test_path + os.path.sep + 'run_files_windows'
 
     #run s00
     meta = s00.run00(eventlabel, pcf_path)
