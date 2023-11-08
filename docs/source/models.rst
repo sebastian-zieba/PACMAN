@@ -216,20 +216,22 @@ What do I have to do?
 
 As an example, we will create a new model which will fit the product of a 
 polynomial of 1. order and the upstream downstream effect.
-We will call this model ''polynomial1_full''. 
+We will call this model ``polynomial1_full``. 
 
-1) We create a new py file in src/pacman/lib/models/ called polynomial1_full.py
+ 1) We create a new py file in src/pacman/lib/models/ called polynomial1_full.py
 
-2) We create the code for this model which combines a fitting for the scale and 
+
+ 2) We create the code for this model which combines a fitting for the scale and 
 a linear polynomial over the visit:
 
 
 .. include:: media/models/polynomial1_full.py
    :literal:
  
-Note that we use the same function name as file name.
+Note that we use the same function name (``def polynomial1_full(...)``) as file name.
 
-3) in work.......
+
+ 3) in work.......
 
 
 
