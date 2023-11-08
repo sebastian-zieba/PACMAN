@@ -238,7 +238,6 @@ Our parameters for this model are therefore: ``v``, ``v2``, and ``v3``.
 .. include:: media/models/formatter_cutout.py
    :literal:
 
-
  4) Next we add the model to src/pacman/lib/functions.py. First we have to import the function at the very top:
 
 
