@@ -258,7 +258,7 @@ def run00(eventlabel, pcf_path='.'):
 
     # Save results
     print('Saving Metadata')
-    me.saveevent(meta, os.path.join(meta.workdir, 'WFC3_', meta.eventlabel, '_Meta_Save'), save=[])
+    me.saveevent(meta, meta.workdir + '/WFC3_' + meta.eventlabel + "_Meta_Save", save=[])
 
     print('Finished s00 \n')
 
