@@ -26,7 +26,7 @@ Once you have Anaconda installed, navigate in a terminal to a directory where yo
 With these steps, we created a conda environment called ``pacman`` and installed ``PACMAN`` and its dependencies there.
 We also installed the code in the edit mode with ``-e``, giving you the option to edit the source code.
 
-.. note:: In this example, the conda environment was initialized with python v3.9.0. PACMAN was tested with python v3.8 to v3.12, so it is up to the user which version to use. Python 3.7 reached end of life in `June 2023 <https://devguide.python.org/versions/>`_. We therefore stopped supporting it.
+.. note:: In this example, the conda environment was initialized with python v3.9.0. PACMAN was tested with python v3.8 to v3.11, so it is up to the user which version to use. Python 3.7 reached end of life in `June 2023 <https://devguide.python.org/versions/>`_. We therefore stopped supporting it.
 
 .. note:: ``pip install -e .`` will only install the necessary dependencies. If you also want to install the dependencies to run the tests (using pytest) or work on the docs, you have to use the ``[test]`` or ``[docs]`` arguments respectively after ``pip install -e .``. See `Test Your Installation <https://pacmandocs.readthedocs.io/en/latest/installation.html#test-your-installation>`_ for an example.
 
