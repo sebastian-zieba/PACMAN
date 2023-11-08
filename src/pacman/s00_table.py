@@ -83,7 +83,7 @@ def run00(eventlabel, pcf_path='.'):
     meta.eventlabel = eventlabel
 
     # Load PACMAN control file (which is in the run directory) and store values in Event object
-    pcffile = pcf_path + os.sep + 'obs_par.pcf'
+    pcffile = pcf_path + os.path.sep + 'obs_par.pcf'
     pcf = rd.read_pcf(pcffile)
     rd.store_pcf(meta, pcf)
 
@@ -111,18 +111,18 @@ def run00(eventlabel, pcf_path='.'):
     #print(run_files_dir)
     #onlyfiles = [f for f in os.listdir(run_files_dir) if os.path.isfile(os.path.join(run_files_dir, f))]
     #print(onlyfiles)
-    meta.workdir = meta.rundir + os.sep + 'run_' + datetime + '_' + meta.eventlabel + os.sep
+    meta.workdir = meta.rundir + os.path.sep + 'run_' + datetime + '_' + meta.eventlabel + os.path.sep
     if not os.path.exists(meta.workdir):
         os.makedirs(meta.workdir)
     print('Location of the new work directory:', meta.workdir)
 
     #Create a figure directory
-    if not os.path.exists(meta.workdir + os.sep + "figs"):
-        os.makedirs(meta.workdir + os.sep + "figs")
+    if not os.path.exists(meta.workdir + os.path.sep + "figs"):
+        os.makedirs(meta.workdir + os.path.sep + "figs")
 
     # Copy pcf and fit_par.txt
     shutil.copy(pcffile, meta.workdir)
-    fit_parfile = pcf_path + os.sep + 'fit_par.txt'
+    fit_parfile = pcf_path + os.path.sep + 'fit_par.txt'
     shutil.copy(fit_parfile, meta.workdir)
     print('pcf and fit_par files copied to the new work directory', meta.workdir)
 
@@ -158,7 +158,7 @@ def run00(eventlabel, pcf_path='.'):
 
     # files are chronologically sorted
     tsort = np.argsort(times)
-    files = np.array([i.split(os.sep)[-1] for i in files])[tsort]
+    files = np.array([i.split(os.path.sep)[-1] for i in files])[tsort]
     #files = np.array(files)
     #files = files[tsort]
     times = times[tsort]
@@ -254,11 +254,11 @@ def run00(eventlabel, pcf_path='.'):
     table = QTable([files, instr, ivisits, iorbits, iexp_orb, times, tvs, tos, scans, exp],
                names=('filenames', 'instr', 'ivisit', 'iorbit', 'iexp_orb', 't_mjd', 't_visit', 't_orbit',
                       'scan', 'exp'))# scan: (0: forward - lower flux, 1: reverse - higher flux, -1: Direct Image)
-    ascii.write(table, meta.workdir + os.sep + 'filelist.txt', format='rst', overwrite=True)
+    ascii.write(table, meta.workdir + os.path.sep + 'filelist.txt', format='rst', overwrite=True)
 
     # Save results
     print('Saving Metadata')
-    me.saveevent(meta, meta.workdir + os.sep + 'WFC3_' + meta.eventlabel + "_Meta_Save", save=[])
+    me.saveevent(meta, meta.workdir + os.path.sep + 'WFC3_' + meta.eventlabel + "_Meta_Save", save=[])
 
     print('Finished s00 \n')
 
