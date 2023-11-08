@@ -234,16 +234,19 @@ Our parameters for this model are therefore: ``v``, ``v2``, and ``v3``.
 
  3) Add the model parameters into src/pacman/lib/formatter.py. Each parameter needs its own row. Below an example on how to do it with our new polynomial3.py model.
 
+
 .. include:: media/models/formatter_cutout.py
    :literal:
 
 
  4) Next we add the model to src/pacman/lib/functions.py. First we have to import the function at the very top:
 
+
 .. include:: media/models/function_cutout1.py
    :literal:
 
 Next, we have to add the model to the file. See an example here for our model.
+
 
 .. include:: media/models/function_cutout2.py
    :literal:
@@ -251,13 +254,24 @@ Next, we have to add the model to the file. See an example here for our model.
 Note, that the model, which we are currently adding is on to fit for systematics. Thats why we use ``sys`` and ``sys_porder``. 
 If you are adding a new model fitting for an astrophysical effect you use instead ``astro`` and ``astro_porder``. See an example below for the transit model: 
 
+
 .. include:: media/models/function_cutout3.py
    :literal:
 
- 5) add to fit_par.txt
+ 5) Add the new lines with your model parameters to your fit_par.txt:
 
- 6) add to obs_par.pcf
 
+.. include:: media/models/fit_par.txt
+   :literal:
+
+ 6) Add the new model to the list of models in s30_myfuncs in the obs_par.pcf:
+
+
+.. include:: media/models/obs_par.pcf
+   :literal:
+
+
+ 7) Run s30!
 
 
 
