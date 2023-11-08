@@ -79,7 +79,7 @@ def run03(eventlabel, workdir, meta=None):
     print('Using {0} grism.'.format(grism))
 
     #Read in bandpass for the used grism
-    bp_wvl, bp_val = np.loadtxt(meta.pacmandir + '/data/bandpass/bandpass_{0}.txt'.format(grism)).T
+    bp_wvl, bp_val = np.loadtxt(os.path.join(meta.pacmandir, 'data', 'bandpass', 'bandpass_{0}.txt'.format(grism))).T
 
     ### Creating the reference spectrum
     bp_wvl = bp_wvl * 1e-10
@@ -87,7 +87,7 @@ def run03(eventlabel, workdir, meta=None):
     #sm_flux = sm_flux #* sm_wvl  # in order to convert from W/m^3/sr units to W/m^2/sr
     #sm_flux = sm_flux / max(sm_flux)
 
-    meta.refspecdir = meta.workdir + '/ancil/refspec/'
+    meta.refspecdir = os.path.join(meta.workdir, 'ancil', 'refspec')
     if not os.path.exists(meta.refspecdir):
         os.mkdir(meta.refspecdir)
 
@@ -99,7 +99,7 @@ def run03(eventlabel, workdir, meta=None):
     ref_flux = ref_flux / max(ref_flux)
 
     # Save reference spectrum
-    np.savetxt(meta.refspecdir + '/refspec.txt', list(zip(ref_wvl, ref_flux)))
+    np.savetxt(os.path.join(meta.refspecdir, 'refspec.txt'), list(zip(ref_wvl, ref_flux)))
 
     if meta.save_refspec_plot or meta.show_refspec_plot:
         plots.refspec(bp_wvl, bp_val, sm_wvl, sm_flux, ref_wvl, ref_flux, meta)

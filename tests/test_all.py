@@ -4,13 +4,8 @@ import pytest
 from astropy.io import ascii
 from astroquery.mast import Observations
 from astropy.io import fits
-#sys.path.insert(0, '../src')
-sys.path.insert(0, './src')
-#sys.path.insert(0, '/home/zieba/Desktop/Projects/Open_source/PACMAN/src/')
-#print(sys.path)
-
+sys.path.insert(0, '.' + os.path.sep + 'src')
 from pacman.lib import util
-
 from pacman import s00_table as s00
 from pacman import s01_horizons as s01
 from pacman import s02_barycorr as s02
@@ -28,7 +23,7 @@ from astropy.table import Table
 from photutils.datasets import (make_noise_image, make_gaussian_sources_image)
 
 
-test_path = os.path.dirname(os.path.realpath(__file__)) + '/'
+test_path = os.path.dirname(os.path.realpath(__file__)) + os.path.sep
 eventlabel='GJ1214_13021'
 
 
@@ -45,7 +40,7 @@ def workdir_finder():
 
     # saves times when these subdirectories were created. 
     # They always have the following form: 'run_YYYY-MM-DD_HH-MM-SS_eventlabel'
-    dirs_bool = np.array(['/run_2' in i for i in dirs])
+    dirs_bool = np.array([os.path.sep + 'run_2' in i for i in dirs])
     dirs = dirs[dirs_bool]
 
     eventlabel_len = len(eventlabel)
@@ -86,14 +81,14 @@ def test_sessionstart(capsys):
 
     eventlabel='GJ1214_13021'
     dirs = np.array([f.path for f in os.scandir(test_path) if f.is_dir()])
-    dirs_bool = np.array(['/run_2' in i for i in dirs])
+    dirs_bool = np.array([os.path.sep + 'run_2' in i for i in dirs])
     dirs = dirs[dirs_bool]
     for diri in dirs:
         delete_dir(diri)
 
     # delete old data dir
-    data_dir = test_dir + '/data'
-    mast_dir = test_dir + '/mastDownload' # Specify root directory to be searched for .sav files.
+    data_dir = test_dir + os.path.sep + 'data'
+    mast_dir = test_dir + os.path.sep + 'mastDownload' # Specify root directory to be searched for .sav files.
     delete_dir(data_dir)
     delete_dir(mast_dir)
 
@@ -117,8 +112,8 @@ def test_sessionstart(capsys):
     for tree,fol,fils in os.walk(mast_dir):
         filelist.extend([os.path.join(tree,fil) for fil in fils if fil.endswith('.fits')])
     for fil in filelist:
-        name = fil.split('/')[-1]
-        os.rename(fil, data_dir + '/' + name)
+        name = fil.split(os.path.sep)[-1]
+        os.rename(fil, data_dir + os.path.sep + name)
     os.system("rm -r {0}".format(mast_dir))
 
     assert True
@@ -133,18 +128,18 @@ def test_s00(capsys):
 
     reload(s00)
 
-    pcf_path = test_path + '/run_files'
+    pcf_path = test_path + os.path.sep + 'run_files'
 
     #run s00
     meta = s00.run00(eventlabel, pcf_path)
-    workdir = meta.workdir + '/'
+    workdir = meta.workdir + os.path.sep
     time.sleep(1)
 
     # run assertions
     assert os.path.exists(workdir)
-    assert os.path.exists(workdir+'/figs')
+    assert os.path.exists(workdir + os.path.sep + 'figs')
 
-    filelist_file = workdir + '/filelist.txt'
+    filelist_file = workdir + os.path.sep + 'filelist.txt'
     assert os.path.exists(filelist_file)
     filelist = ascii.read(filelist_file)
 
@@ -169,7 +164,7 @@ def test_s01(capsys):
     #run s01
     meta = s01.run01(eventlabel, workdir)
 
-    horizons_file = workdir+'/ancil/horizons/horizons_results_v0.txt' 
+    horizons_file = os.path.join(workdir,'ancil','horizons','horizons_results_v0.txt' )
 
     # run assertions
     assert os.path.exists(horizons_file)
@@ -191,7 +186,7 @@ def test_horizons(capsys):
 
     workdir, eventlabel = workdir_finder()
 
-    horizons_file = workdir+'/ancil/horizons/horizons_results_v0.txt' 
+    horizons_file = os.path.join(workdir,'ancil','horizons','horizons_results_v0.txt' )
 
     start_data = '$$SOE'
     end_data = '$$EOE'
@@ -239,7 +234,7 @@ def test_s02(capsys):
     #run s02
     meta = s02.run02(eventlabel, workdir)
 
-    filelist_file = workdir + '/filelist.txt'
+    filelist_file = workdir + os.path.sep + 'filelist.txt'
     assert os.path.exists(filelist_file)
     filelist = ascii.read(filelist_file)
 
@@ -261,8 +256,7 @@ def test_s03(capsys):
 
     #run s03
     meta = s03.run03(eventlabel, workdir)
-
-    sm_file = workdir +  '/ancil/stellar_models/k93models/kp03_3500.fits'
+    sm_file = os.path.join(workdir,'ancil','stellar_models','k93models','kp03_3500.fits' )
 
     assert os.path.exists(sm_file)
 
@@ -275,7 +269,7 @@ def test_s03(capsys):
     assert np.all(flux >= 0)
 
     #check the refspec_file
-    refspec_file = workdir + '/ancil/refspec/refspec.txt'
+    refspec_file = os.path.join(workdir,'ancil','refspec','refspec.txt')
 
     assert os.path.exists(refspec_file)
 
@@ -302,7 +296,7 @@ def test_s10(capsys):
     #run s10
     meta = s10.run10(eventlabel, workdir)
 
-    xrefyref_file = workdir + '/xrefyref.txt'
+    xrefyref_file = workdir + os.path.sep + 'xrefyref.txt'
 
     assert os.path.exists(xrefyref_file)
 
@@ -361,12 +355,12 @@ def test_s20(capsys):
     #run s20
     meta = s20.run20(eventlabel, workdir)
 
-    extracted_lc_dir_path = workdir + '/extracted_lc'
+    extracted_lc_dir_path = workdir + os.path.sep + 'extracted_lc'
 
     s20_dir = np.array([f.path for f in os.scandir(extracted_lc_dir_path) if f.is_dir()])[0]
 
-    s20_lc_spec_file = s20_dir + '/lc_spec.txt'
-    s20_lc_white_file = s20_dir + '/lc_white.txt'
+    s20_lc_spec_file = s20_dir + os.path.sep + 'lc_spec.txt'
+    s20_lc_white_file = s20_dir + os.path.sep + 'lc_white.txt'
 
     #Check if the files were created
     assert os.path.exists(s20_lc_spec_file)
@@ -414,11 +408,11 @@ def test_s21(capsys):
     #run s21
     meta = s21.run21(eventlabel, workdir)
 
-    extracted_sp_dir_path = workdir + '/extracted_sp'
+    extracted_sp_dir_path = workdir + os.path.sep + 'extracted_sp'
 
     s21_dir = np.array([f.path for f in os.scandir(extracted_sp_dir_path) if f.is_dir()])[0]
 
-    s21_wvl_table_file = s21_dir + '/wvl_table.dat'
+    s21_wvl_table_file = s21_dir + os.path.sep + 'wvl_table.dat'
     assert os.path.exists(s21_wvl_table_file)
     s21_wvl_table = ascii.read(s21_wvl_table_file)
 
@@ -481,7 +475,7 @@ def test_sessionfinish(capsys):
     workdir, eventlabel = workdir_finder()
     file_path = os.path.realpath(__file__)
     test_dir = os.path.dirname(file_path)
-    data_dir = test_dir + '/data'
+    data_dir = test_dir + os.path.sep + 'data'
     os.system("rm -r {0}".format(data_dir))
     os.system("rm -r {0}".format(workdir))
 
