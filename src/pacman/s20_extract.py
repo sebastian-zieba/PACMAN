@@ -1,26 +1,29 @@
-import os, sys
+import sys
+import shutil
+from datetime import datetime
+from pathlib import Path
+
 import numpy as np
 from astropy.io import ascii, fits
-import shutil
-#from numpy import *
-#from pylab import *
-from .lib import optextr
-from datetime import datetime
 from astropy.table import QTable
+# from numpy import *
+# from pylab import *
 from tqdm import tqdm
+
 from .lib import manageevent as me
-from .lib import util
+from .lib import optextr
 from .lib import plots
+from .lib import util
 
-def run20(eventlabel, workdir, meta=None):
-    """
-    This function extracts the spectrum and saves the total flux and the flux as a function of wavelength into files.
-    """
 
+def run20(eventlabel, workdir: Path, meta=None):
+    """This function extracts the spectrum and saves the total flux and the
+    flux as a function of wavelength into files.
+    """
     print('Starting s20')
 
-    if meta == None:
-        meta = me.loadevent(workdir + '/WFC3_' + eventlabel + "_Meta_Save")
+    if meta is None:
+        meta = me.loadevent(workdir / f'WFC3_{eventlabel}_Meta_Save')
 
     # load in more information into meta
     meta = util.ancil(meta, s20=True)
@@ -29,15 +32,16 @@ def run20(eventlabel, workdir, meta=None):
     #STEP 0: Set up files and directories
     ###############################################################################################################################################################
 
-    dirname = meta.workdir + "/extracted_lc/" + datetime.strftime(datetime.now(), '%Y-%m-%d_%H-%M-%S')
-    if not os.path.exists(dirname): os.makedirs(dirname)
+    dirname = meta.workdir / "extracted_lc" / datetime.strftime(datetime.now(), '%Y-%m-%d_%H-%M-%S')
+    if not dirname.exists():
+        dirname.mkdir(parents=True)
 
     # Let's have a copy of the pcf in the extracted_lc directory
     # This copy is just for the user to know what parameters they used when running s20
-    shutil.copy(meta.workdir + '/obs_par.pcf', dirname)
+    shutil.copy(meta.workdir / 'obs_par.pcf', dirname)
 
     # initialize the astropy tables where we will save the extracted spectra
-    if meta.output == True:
+    if meta.output:
         table_white = QTable(names=('t_mjd', 't_bjd', 't_visit','t_orbit', 'ivisit', 'iorbit', 'scan', 'spec_opt', 'var_opt', 'spec_box', 'var_box'))
         table_spec = QTable(names=('t_mjd', 't_bjd', 't_visit','t_orbit', 'ivisit', 'iorbit', 'scan', 'spec_opt', 'var_opt', 'template_waves'))
         table_diagnostics = QTable(names=('nspectra', 't_mjd', 'numoutliers', 'skymedian', "# nans"))
@@ -270,11 +274,11 @@ def run20(eventlabel, workdir, meta=None):
 
     # Save results in the astropy tables
     if meta.output == True:
-        ascii.write(table_white, dirname + '/lc_white.txt', format='ecsv', overwrite=True)
-        ascii.write(table_spec, dirname + '/lc_spec.txt', format='ecsv', overwrite=True)
-        ascii.write(table_diagnostics, dirname + '/diagnostics.txt', format='ecsv', overwrite=True)
+        ascii.write(table_white, dirname / 'lc_white.txt', format='ecsv', overwrite=True)
+        ascii.write(table_spec, dirname / 'lc_spec.txt', format='ecsv', overwrite=True)
+        ascii.write(table_diagnostics, dirname / 'diagnostics.txt', format='ecsv', overwrite=True)
     print('Saving Metadata')
-    me.saveevent(meta, meta.workdir + '/WFC3_' + meta.eventlabel + "_Meta_Save", save=[])
+    me.saveevent(meta, meta.workdir / f'WFC3_{meta.eventlabel}_Meta_Save', save=[])
 
     # Make Plots
     if meta.save_bkg_evo_plot or meta.show_bkg_evo_plot:

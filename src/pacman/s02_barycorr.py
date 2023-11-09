@@ -1,49 +1,50 @@
-import os
+from pathlib import Path
+
 import numpy as np
 from astropy.io import ascii
 from astropy.table import Column
 from tqdm import tqdm
+
 from .lib import suntimecorr
 from .lib import util
 from .lib import manageevent as me
 
 
-def run02(eventlabel, workdir, meta=None):
-    """
-	Performs the barycentric correction of the observation times
+def run02(eventlabel, workdir: Path, meta=None):
+    """Performs the barycentric correction of the observation times
 
-	- performs the barycentric correction based on the t_mjd in filelist.txt.
-	- Adds another column to filelist.txt called t_bjd
-	- Plots will be saved in ./run/run_2021-01-01_12-34-56_eventname/ancil/horizons
+    - performs the barycentric correction based on the t_mjd in filelist.txt.
+    - Adds another column to filelist.txt called t_bjd
+    - Plots will be saved in ./run/run_2021-01-01_12-34-56_eventname/ancil/horizons
 
-	Parameters
-	----------
-	eventlabel : str
-		the label given to the event in the run script. Will determine the name of the run directory
-	workdir : str
-		the name of the work directory.
-	meta
-		the name of the metadata file
+    Parameters
+    ----------
+    eventlabel : str
+        the label given to the event in the run script. Will determine the name of the run directory
+    workdir : str
+        the name of the work directory.
+    meta
+        the name of the metadata file
 
-	Returns
-	-------
-	meta
-		meta object with all the meta data stored in s01
+    Returns
+    -------
+    meta
+        meta object with all the meta data stored in s01
 
     Notes:
-    ----------
+        ----------
     History:
         Written by Sebastian Zieba      December 2021
-	"""
+    """
 
     print('Starting s02')
 
-    if meta == None:
-        meta = me.loadevent(workdir + os.path.sep + 'WFC3_' + eventlabel + '_Meta_Save')
+    if meta is None:
+        meta = me.loadevent(workdir / f'WFC3_{eventlabel}_Meta_Save')
 
     # read in filelist
-    filelist_path = meta.workdir + os.path.sep + 'filelist.txt'
-    if os.path.exists(filelist_path):
+    filelist_path = meta.workdir / 'filelist.txt'
+    if filelist_path.exists():
         filelist = ascii.read(filelist_path)
 
     ivisit = filelist['ivisit']
@@ -101,8 +102,7 @@ def run02(eventlabel, workdir, meta=None):
 
     # Save results
     print('Saving Metadata')
-    me.saveevent(meta, meta.workdir + os.path.sep + 'WFC3_' + meta.eventlabel + '_Meta_Save', save=[])
+    me.saveevent(meta, meta.workdir / f'WFC3_{meta.eventlabel}_Meta_Save', save=[])
 
     print('Finished s02 \n')
-
     return meta

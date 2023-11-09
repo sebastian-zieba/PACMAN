@@ -1,13 +1,15 @@
-import os
+from pathlib import Path
+from shutil import copyfileobj
+from urllib.request import urlopen
+
 import numpy as np
 from astropy.io import ascii
 from tqdm import tqdm
-from urllib.request import urlopen
-from shutil import copyfileobj
+
 from .lib import manageevent as me
 
 
-def run01(eventlabel, workdir, meta=None):
+def run01(eventlabel, workdir: Path, meta=None):
     """
     This function downloads the location of HST during the observations.
 
@@ -38,15 +40,13 @@ def run01(eventlabel, workdir, meta=None):
     History:
         Written by Sebastian Zieba      December 2021
     """
-
     print('Starting s01')
-
-    if meta == None:
-        meta = me.loadevent(workdir + os.path.sep + 'WFC3_' + eventlabel + '_Meta_Save')
+    if meta is None:
+        meta = me.loadevent(workdir / f'WFC3_{eventlabel}_Meta_Save')
 
     # read in filelist
-    filelist_path = meta.workdir + os.path.sep + 'filelist.txt'
-    if os.path.exists(filelist_path):
+    filelist_path = meta.workdir / 'filelist.txt'
+    if filelist_path.exists():
         filelist = ascii.read(filelist_path)
 
     t_mjd = filelist['t_mjd']
@@ -72,7 +72,7 @@ def run01(eventlabel, workdir, meta=None):
         "VEC_TABLE= 3"]
 
     # Replacing symbols for URL encoding
-    for i, setting in enumerate(settings):
+    for i, _ in enumerate(settings):
         settings[i] = settings[i].replace(" =", "=").replace("= ", "=")
         settings[i] = settings[i].replace(" ", "%20")
         settings[i] = settings[i].replace("&", "%26")
@@ -82,13 +82,10 @@ def run01(eventlabel, workdir, meta=None):
     settings = '&'.join(settings)
     settings = 'https://ssd.jpl.nasa.gov/horizons_batch.cgi?batch=1&' + settings
 
-    print(meta.workdir)
-    if not os.path.exists(meta.workdir + f'{os.path.sep}ancil'):
-        os.makedirs(meta.workdir + f'{os.path.sep}ancil')
-
     # save it in ./ancil/bjd_conversion/
-    if not os.path.exists(os.path.join(meta.workdir, 'ancil', 'horizons')):
-        os.makedirs(os.path.join(meta.workdir, 'ancil', 'horizons'))
+    horizons_dir = meta.workdir / 'ancil' / 'horizons'
+    if not horizons_dir.exists():
+        horizons_dir.mkdir(parents=True)
 
     # retrieve positions for every individual visit
     for i in tqdm(range(max(ivisit) + 1), desc='Retrieving Horizons file for every visit', ascii=True):
@@ -104,8 +101,8 @@ def run01(eventlabel, workdir, meta=None):
         # Full link
         settings_new = settings + '&' + set_start + '&' + set_end
 
-        # Location where to save the data   
-        filename = os.path.join(meta.workdir, 'ancil', 'horizons', 'horizons_results_v{0}.txt'.format(i))
+        # Location where to save the data
+        filename = horizons_dir / f'horizons_results_v{i}.txt'
 
         # Download data
         with urlopen(settings_new) as in_stream, open(filename, 'wb') as out_file:
@@ -113,8 +110,7 @@ def run01(eventlabel, workdir, meta=None):
 
     # Save results
     print('Saving Metadata')
-    me.saveevent(meta, meta.workdir + os.path.sep + 'WFC3_' + meta.eventlabel + '_Meta_Save', save=[])
+    me.saveevent(meta, meta.workdir / f'WFC3_{meta.eventlabel}_Meta_Save', save=[])
 
     print('Finished s01 \n')
-
     return meta
