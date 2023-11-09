@@ -179,9 +179,9 @@ def ancil(meta, s10=False, s20=False):
     if s20:
         meta.rdnoise = 22.0 #read noise
         if meta.grism == 'G102':
-            meta.flat = os.path.join(meta.pacmandir + 'data', 'flats', 'WFC3.IR.G102.flat.2.fits')
+            meta.flat = os.path.join(meta.pacmandir, 'data', 'flats', 'WFC3.IR.G102.flat.2.fits')
         elif meta.grism == 'G141':
-            meta.flat = os.path.join(meta.pacmandir + 'data', 'flats', 'WFC3.IR.G141.flat.2.fits')
+            meta.flat = os.path.join(meta.pacmandir, 'data', 'flats', 'WFC3.IR.G141.flat.2.fits')
 
     return meta
 
