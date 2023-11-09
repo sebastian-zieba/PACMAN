@@ -792,6 +792,10 @@ def create_res_dir(meta):
     print('H22', meta.fitdir)
     print('H33', os.path.join(meta.workdir, meta.fitdir, 'lsq_res'))
     print('DOES IT EXIST', os.path.isdir(os.path.join(meta.workdir, meta.fitdir, 'lsq_res')))
+    print('DOES IT EXIST', os.path.isdir(meta.workdir + '/' + meta.fitdir + '/' + 'lsq_res'))
+    os.makedirs(meta.workdir + '/' + meta.fitdir + '/' + 'lsq_res')
+    print('DOES THIS STILL RUN?')
+    os.makedirs(os.path.join(meta.workdir, meta.fitdir, 'lsq_res'))
     if meta.run_lsq:
         if not os.path.isdir(os.path.join(meta.workdir, meta.fitdir, 'lsq_res')):
             os.makedirs(os.path.join(meta.workdir, meta.fitdir, 'lsq_res'))
