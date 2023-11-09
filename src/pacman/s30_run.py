@@ -33,23 +33,23 @@ def run30(eventlabel, workdir, meta=None):
 
     # Create a directory for the white or the spectroscopic fit
     if  meta.s30_fit_white:
-        meta.fitdir = f'/fit_white/fit_{datetime}_{meta.eventlabel}'
+        meta.fitdir = f'{os.path.sep}fit_white{os.path.sep}fit_{datetime}_{meta.eventlabel}'
     elif meta.s30_fit_spec:
-        meta.fitdir = f'/fit_spec/fit_{datetime}_{meta.eventlabel}'
+        meta.fitdir = f'{os.path.sep}fit_spec{os.path.sep}fit_{datetime}_{meta.eventlabel}'
 
     if not os.path.exists(meta.workdir + meta.fitdir):
         os.makedirs(meta.workdir + meta.fitdir, exist_ok=True)
 
     # Make fit_par nicer by lining up the columns
-    nice_fit_par.nice_fit_par(meta.workdir + "/fit_par.txt")
+    nice_fit_par.nice_fit_par(meta.workdir + os.path.sep + "fit_par.txt")
 
     # Copy pcf and fit_par files into the new fitdirectory
-    shutil.copy(meta.workdir + "/obs_par.pcf", meta.workdir + meta.fitdir)
-    shutil.copy(meta.workdir + "/fit_par.txt", meta.workdir + meta.fitdir)
+    shutil.copy(meta.workdir + os.path.sep + "obs_par.pcf", meta.workdir + meta.fitdir)
+    shutil.copy(meta.workdir + os.path.sep + "fit_par.txt", meta.workdir + meta.fitdir)
 
     # Reads in fit parameters from the fit_par file
     #TODO: Check that fit_par is configured correctly. Eg initial value has to be within boundaries!
-    fit_par = ascii.read(meta.workdir + "/fit_par.txt", Reader=ascii.CommentedHeader)
+    fit_par = ascii.read(meta.workdir + os.path.sep + "fit_par.txt", Reader=ascii.CommentedHeader)
 
     # Read in the user wanted fit functions
     myfuncs = meta.s30_myfuncs

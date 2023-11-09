@@ -34,7 +34,7 @@ Instrument Systematics
 
 * `exponential_visit.py <https://pacmandocs.readthedocs.io/en/latest/_modules/pacman/lib/models/exponential_visit.html#exponential_visit>`_
 
-  Exponential trend over the whole visit (free parameters: exp1, exp12)
+  Exponential trend over the whole visit (free parameters: exp1, exp2)
 
 * `logarithmic_visit.py <https://pacmandocs.readthedocs.io/en/latest/_modules/pacman/lib/models/logarithmic_visit.html#logarithmic_visit>`_
 
