@@ -26,7 +26,7 @@ def run30(eventlabel, workdir, meta=None):
     print('Starting s30')
 
     if meta == None:
-        meta = me.loadevent(workdir + '/WFC3_' + eventlabel + "_Meta_Save")
+        meta = me.loadevent(workdir + os.path.sep + 'WFC3_' + eventlabel + '_Meta_Save')
 
     # Create directories for Stage 3 processing
     datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
