@@ -144,7 +144,7 @@ def run00(eventlabel, pcf_path='.'):
     for i, file in enumerate(tqdm(files, desc='Reading in files and their headers', ascii=True)):
         ima = fits.open(file)
         #the header "instr" tells us if the observation used a Filter (-> Direct Image) or a Grism (-> Spectrum)
-      #  print(repr(ima[0].header))
+        #print(repr(ima[0].header))
         instr[i] = ima[0].header['filter']
         exp[i] = ima[0].header['exptime']
         times[i] = (ima[0].header['expstart'] + ima[0].header['expend'])/(2.0) # mid exposure time

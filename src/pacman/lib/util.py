@@ -39,7 +39,7 @@ def readfiles(meta):
     meta.segment_list = []
     for fname in os.listdir(str(meta.datadir)):
         if fname.endswith(meta.suffix + '.fits'):
-            meta.segment_list.append(str(meta.datadir) +'/'+ fname)
+            meta.segment_list.append(str(meta.datadir) + os.path.sep + fname)
     return meta
 
 
@@ -81,7 +81,7 @@ def ancil(meta, s10=False, s20=False):
         Written by Sebastian Zieba      December 2021
     """
 
-    filelist = ascii.read(meta.workdir + '/filelist.txt')
+    filelist = ascii.read(meta.workdir + os.path.sep + 'filelist.txt')
 
     aa = filelist['iorbit'].data
     bb = np.diff(aa)
@@ -89,8 +89,8 @@ def ancil(meta, s10=False, s20=False):
 
     meta.mask_sp = np.array([i[0] for i in filelist['instr']]) == 'G'
     meta.mask_di = np.array([i[0] for i in filelist['instr']]) == 'F'
-    meta.files_sp = [meta.datadir + '/' + i for i in filelist['filenames'][meta.mask_sp].data]
-    meta.files_di = [meta.datadir + '/' + i for i in filelist['filenames'][meta.mask_di].data]
+    meta.files_sp = [meta.datadir + os.path.sep + i for i in filelist['filenames'][meta.mask_sp].data]
+    meta.files_di = [meta.datadir + os.path.sep + i for i in filelist['filenames'][meta.mask_di].data]
 
     f = fits.open(meta.files_sp[0])
 
@@ -99,7 +99,7 @@ def ancil(meta, s10=False, s20=False):
 
     meta.coordtable = []  # table of spacecraft coordinates
     for i in range(max(filelist['ivisit']) + 1): meta.coordtable.append(
-        meta.workdir + '/ancil/horizons/' + "/horizons_results_v" + str(i) + ".txt")
+        os.path.join(meta.workdir, 'ancil', 'horizons', 'horizons_results_v' + str(i) + '.txt'))
 
     ###
     # 03
@@ -179,9 +179,9 @@ def ancil(meta, s10=False, s20=False):
     if s20:
         meta.rdnoise = 22.0 #read noise
         if meta.grism == 'G102':
-            meta.flat = meta.pacmandir + '/data/flats/WFC3.IR.G102.flat.2.fits'
+            meta.flat = os.path.join(meta.pacmandir + 'data', 'flats', 'WFC3.IR.G102.flat.2.fits')
         elif meta.grism == 'G141':
-            meta.flat = meta.pacmandir + '/data/flats/WFC3.IR.G141.flat.2.fits'
+            meta.flat = os.path.join(meta.pacmandir + 'data', 'flats', 'WFC3.IR.G141.flat.2.fits')
 
     return meta
 
@@ -197,7 +197,7 @@ def gaussian_kernel(meta, x, y):
     resolution = min(len(x), 3000)
 
     x_eval = np.linspace(min(x), max(x), resolution)
-    sigma = meta.smooth_sigma * 1e-10 /5
+    sigma = meta.smooth_sigma * 1e-10 / 5
 
     delta_x = x_eval[:, None] - x
     weights = np.exp(-delta_x*delta_x / (2*sigma*sigma)) / (np.sqrt(2*np.pi) * sigma)
@@ -243,8 +243,7 @@ def di_reformat(meta):
     ivisit_max = max(meta.ivisit_sp)
     control_one_per_orbit = np.arange(iorbit_max + 1)
     control_one_per_visit = np.arange(ivisit_max + 1)
-    reffile = ascii.read(meta.workdir + '/xrefyref.txt')
-    #f = open(meta.workdir + "/xrefyref.txt", 'w')
+    reffile = ascii.read(meta.workdir + os.path.sep + 'xrefyref.txt')
 
     meta.ivisits_new_orbit = meta.iorbit_sp[meta.new_visit_idx_sp]
     meta.nvisits_in_orbit = np.diff(np.append(meta.iorbit_sp[meta.new_visit_idx_sp], np.array([max(meta.iorbit_sp) + 1])))
@@ -382,7 +381,7 @@ def read_refspec(meta):
     """
     Reads in the reference spectrum
     """
-    refspec = np.loadtxt(meta.workdir + '/ancil/refspec/refspec.txt').T
+    refspec = np.loadtxt(os.path.join(meta.workdir, 'ancil', 'refspec', 'refspec.txt')).T
     x_refspec, y_refspec = refspec[0]*1e10, refspec[1]/max(refspec[1])
 
 
@@ -574,7 +573,7 @@ def read_fitfiles(meta):
             # this works because the dates will always start with a "2"
             lst_dir_new = [lst_dir_i for lst_dir_i in lst_dir if lst_dir_i.startswith("2")]
             white_dir = lst_dir_new[-1]
-            files.append(meta.workdir + "/extracted_lc/" + white_dir + "/lc_white.txt")
+            files.append(os.path.sep(meta.workdir, "extracted_lc", white_dir, "lc_white.txt"))
             print('using most recent s20 run: {0}'.format(white_dir))
         else:
             files.append(meta.s30_white_file_path)
@@ -589,8 +588,8 @@ def read_fitfiles(meta):
         print('Spectroscopic light curve fit(s) will be performed')
         if meta.s30_most_recent_s21:
             # find most recent bins directory
-            lst_dir = np.array([f.path for f in os.scandir(meta.workdir + "/extracted_sp/") if f.is_dir()])
-            dirs_bool = np.array(['/bins' in i for i in lst_dir])
+            lst_dir = np.array([f.path for f in os.scandir(meta.workdir + os.path.sep + "extracted_sp" + os.path.sep) if f.is_dir()])
+            dirs_bool = np.array([os.path.sep + 'bins' in i for i in lst_dir])
             lst_dir = lst_dir[dirs_bool]
             dirs_times = [i[-19:] for i in lst_dir] # there are 19 digits in the typical '%Y-%m-%d_%H-%M-%S' format
             # sort the times
@@ -612,7 +611,7 @@ def read_fitfiles(meta):
             files = sn(files)
 
             print('using user set spectroscopic directory: '.format(meta.s30_spec_dir_path))
-        spec_dir_wvl_file = spec_dir_full + '/wvl_table.dat'
+        spec_dir_wvl_file = spec_dir_full + os.path.sep + 'wvl_table.dat'
         meta.wavelength_list = ascii.read(spec_dir_wvl_file)['wavelengths']
     else:
         print('Neither s30_fit_white nor s30_fit_spec are True!')
@@ -735,7 +734,7 @@ def make_lsq_rprs_txt(vals, errs, idxs, meta):
     """
     Saves the rprs vs wvl as a txt file as resulting from the lsq.
     """
-    f_lsq = open(meta.workdir + meta.fitdir + '/lsq_res' + "/lsq_rprs.txt", 'w')
+    f_lsq = open(os.path.join(meta.workdir, meta.fitdir, 'lsq_res', "lsq_rprs.txt"), 'w')
     rp_idx = np.where(np.array(meta.labels) == 'rp')[0][0]
     rprs_vals_lsq = [vals[ii][idxs[0][rp_idx]] for ii in range(len(vals))]
     rprs_errs_lsq = [errs[ii][idxs[0][rp_idx]] for ii in range(len(errs))]
@@ -755,14 +754,14 @@ def make_rprs_txt(vals, errs_lower, errs_upper, meta, fitter=None):
     errors_lower = np.array(errs_lower).T[rp_idx]
     errors_upper = np.array(errs_upper).T[rp_idx]
     if fitter == 'mcmc':
-        f_mcmc = open(meta.workdir + meta.fitdir + '/mcmc_res' + "/mcmc_rprs.txt", 'w')
+        f_mcmc = open(os.path.join(meta.workdir, meta.fitdir, 'mcmc_res', "mcmc_rprs.txt"), 'w')
         file_header = ['wavelength (micron)', 'rprs', 'rprs_err_lower', 'rprs_err_upper']
         print("#{: <24} {: <25} {: <25} {: <25}".format(*file_header), file=f_mcmc)
         for row in zip(meta.wavelength_list, medians, errors_lower, errors_upper):
             print("{: <25} {: <25} {: <25} {: <25}".format(*row), file=f_mcmc)
         f_mcmc.close()
     if fitter == 'nested':
-        f_nested = open(meta.workdir + meta.fitdir + '/nested_res' + "/nested_rprs.txt", 'w')
+        f_nested = open(os.path.join(meta.workdir, meta.fitdir, 'nested_res', "nested_rprs.txt"), 'w')
         file_header = ['wavelength (micron)', 'rprs', 'rprs_err_lower', 'rprs_err_upper']
         print("#{: <24} {: <25} {: <25} {: <25}".format(*file_header), file=f_nested)
         for row in zip(meta.wavelength_list, medians, errors_lower, errors_upper):
@@ -790,14 +789,14 @@ def create_res_dir(meta):
     Creates the result directory depending on which fitters were used.
     """
     if meta.run_lsq:
-        if not os.path.isdir(meta.workdir + meta.fitdir + '/lsq_res'):
-            os.makedirs(meta.workdir + meta.fitdir + '/lsq_res')
+        if not os.path.isdir(os.path.join(meta.workdir, meta.fitdir, 'lsq_res')):
+            os.makedirs(os.path.join(meta.workdir, meta.fitdir, 'lsq_res'))
     if meta.run_mcmc:
-        if not os.path.isdir(meta.workdir + meta.fitdir + '/mcmc_res'):
-            os.makedirs(meta.workdir + meta.fitdir + '/mcmc_res')
+        if not os.path.isdir(os.path.join(meta.workdir, meta.fitdir, 'mcmc_res')):
+            os.makedirs(os.path.join(meta.workdir, meta.fitdir, 'mcmc_res'))
     if meta.run_nested:
-        if not os.path.isdir(meta.workdir + meta.fitdir + '/nested_res'):
-            os.makedirs(meta.workdir + meta.fitdir + '/nested_res')
+        if not os.path.isdir(os.path.join(meta.workdir, meta.fitdir, 'nested_res')):
+            os.makedirs(os.path.join(meta.workdir, meta.fitdir, 'nested_res'))
 
 
 def log_run_setup(meta):
@@ -958,7 +957,7 @@ def save_fit_output(fit, data, meta):
     t['nfree_param'] = [data.nfree_param] * meta.nfits
     t['dof'] = [data.dof] * meta.nfits
 
-    ascii.write(t, meta.workdir + meta.fitdir + '/fit_results.txt', format='rst', overwrite=True)
+    ascii.write(t, os.path.join(meta.workdir, meta.fitdir, 'fit_results.txt'), format='rst', overwrite=True)
     print('Saved fit_results.txt file')
 
 
@@ -973,14 +972,14 @@ def save_allandata(binsz, rms, stderr, meta, fitter=None):
     t['stderr'] = stderr
 
     if fitter == 'nested':
-        dname = '/nested_res'
-        fname = dname + '/corr_data_bin{0}_wvl{1:0.3f}.txt'.format(meta.s30_file_counter, meta.wavelength)
+        dname = os.path.sep + 'nested_res'
+        fname = dname + os.path.sep + 'corr_data_bin{0}_wvl{1:0.3f}.txt'.format(meta.s30_file_counter, meta.wavelength)
     elif fitter == 'mcmc':
-        dname = '/mcmc_res'
-        fname = dname + '/corr_data_bin{0}_wvl{1:0.3f}.txt'.format(meta.s30_file_counter, meta.wavelength)
+        dname = os.path.sep + 'mcmc_res'
+        fname = dname + os.path.sep + 'corr_data_bin{0}_wvl{1:0.3f}.txt'.format(meta.s30_file_counter, meta.wavelength)
     elif fitter == 'lsq':
-        dname = '/lsq_res'
-        fname = dname + '/corr_data_bin{0}_wvl{1:0.3f}.txt'.format(meta.s30_file_counter, meta.wavelength)
+        dname = os.path.sep + 'lsq_res'
+        fname = dname + os.path.sep + 'corr_data_bin{0}_wvl{1:0.3f}.txt'.format(meta.s30_file_counter, meta.wavelength)
 
     ascii.write(t, meta.workdir + meta.fitdir + fname, format='rst', overwrite=True)
 
