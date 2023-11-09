@@ -788,6 +788,9 @@ def create_res_dir(meta):
     """
     Creates the result directory depending on which fitters were used.
     """
+    print(meta.workdir)
+    print(meta.fitdir)
+    print(os.path.join(meta.workdir, meta.fitdir, 'lsq_res'))
     if meta.run_lsq:
         if not os.path.isdir(os.path.join(meta.workdir, meta.fitdir, 'lsq_res')):
             os.makedirs(os.path.join(meta.workdir, meta.fitdir, 'lsq_res'))
