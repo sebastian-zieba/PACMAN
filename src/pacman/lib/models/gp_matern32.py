@@ -1,9 +1,11 @@
 import sys
-sys.path.insert(0,'..')
+
 import celerite
-from celerite import terms
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+from celerite import terms
+
+sys.path.insert(0, '..')
 
 
 def gp_matern32(idx, data, resid, params):
@@ -13,7 +15,7 @@ def gp_matern32(idx, data, resid, params):
     t = data.t_vis[idx]/60/60
     kernel = terms.Matern32Term(log_rho=log_rho, log_sigma=log_sigma)
 
-    gp = celerite.GP(kernel, fit_mean = True) 
+    gp = celerite.GP(kernel, fit_mean = True)
     gp.compute(t, err, check_sorted = False)   #t must be ascending!
 
     mu = gp.predict(resid, t, return_cov = False)

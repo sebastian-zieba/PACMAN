@@ -1,13 +1,17 @@
-import numpy as np
 import os
-from urllib.request import urlopen
 import os.path
+import urllib.request
+from pathlib import Path
+from urllib.request import urlopen
+
+import numpy as np
 from astropy.io import fits
 
 
 def get_bb(user_teff):
     """
-    Creates a blackbody spectrum for a given stellar effective temperature, Teff.
+    Creates a blackbody spectrum for a given stellar effective
+    temperature, Teff.
 
     Parameters
     ------------
@@ -34,20 +38,14 @@ def get_bb(user_teff):
 
 
 def downloader(url):
-    """
-    This function downloads a file from the given url using urllib.request.
-
-    """
-    import urllib.request
-
+    """This function downloads a file from the given url using urllib.request."""
     file_name = url.split('/')[-1]
     print('\t      + Downloading file {:s} from {:s}.'.format(file_name, url))
     urllib.request.urlretrieve(url, file_name)
 
 
 def find_nearest(array, value):
-    """
-    Finds nearest element to a value in an array.
+    """Finds nearest element to a value in an array.
 
     Taken from https://stackoverflow.com/questions/2566412/find-nearest-value-in-numpy-array
     """
@@ -57,8 +55,8 @@ def find_nearest(array, value):
 
 
 def get_sm(meta, user_met, user_logg, user_teff):
-    """
-    Creates a Kurucz 1994, Castelli and Kurucz 2004 or Phoenix stellar spectrum for a given stellar effective temperature, metallicity and log g.
+    """Creates a Kurucz 1994, Castelli and Kurucz 2004 or Phoenix stellar
+    spectrum for a given stellar effective temperature, metallicity and log g.
 
     Parameters
     ------------
@@ -85,18 +83,22 @@ def get_sm(meta, user_met, user_logg, user_teff):
     """
     rooturl = 'https://archive.stsci.edu/hlsps/reference-atlases/cdbs/grid/'
     sm = meta.sm
-    if sm =='k93models':
+    if sm == 'k93models':
         label = 'k'
-        possible_mets = np.array([1.0, 0.5, 0.3, 0.2, 0.1, 0.0, -0.1, -0.2, -0.3, -0.5, -1.0, -1.5,
-                         -2.0, -2.5,-3.0, -3.5, -4.0, -4.5, -5.0])
+        possible_mets = np.array(
+                [1.0, 0.5, 0.3, 0.2, 0.1, 0.0, -0.1,
+                 -0.2, -0.3, -0.5, -1.0, -1.5, -2.0,
+                 -2.5, -3.0, -3.5, -4.0, -4.5, -5.0])
 
     if sm == 'ck04models':
         label = 'ck'
-        possible_mets = np.array([0.0, -0.5, -1.0, -1.5, -2.0, -2.5, +0.5, +0.2])
+        possible_mets = np.array([0.0, -0.5, -1.0, -1.5,
+                                  -2.0, -2.5, +0.5, +0.2])
 
     if sm == 'phoenix':
         label = 'phoenix'
-        possible_mets = np.array([0.0, -0.5, -1.0, -1.5, -2.0, -2.5, -3.0, -3.5, -4.0, +0.5, +0.3])
+        possible_mets = np.array([0.0, -0.5, -1.0, -1.5, -2.0,
+                                  -2.5, -3.0, -3.5, -4.0, +0.5, +0.3])
 
     chosen_met = find_nearest(possible_mets, user_met)
     if user_met not in possible_mets:
@@ -121,48 +123,37 @@ def get_sm(meta, user_met, user_logg, user_teff):
 
     # e.g., M/H = 0.5 --> 05
     # e.g., M/H = 2.0 --> 20
-    l1 = str(abs(chosen_met)).replace(".","")
+    l1 = str(abs(chosen_met)).replace(".", "")
 
-    met_url = label + l0 + l1 #e.g., ckp05
+    met_url = label + l0 + l1  # e.g., ckp05
     full_url = rooturl + sm + '/' + met_url
 
-    sm_dir_run = meta.workdir + 'ancil/stellar_models/'
-    if not os.path.exists(sm_dir_run):
-        os.mkdir(sm_dir_run)
+    sm_dir_run = meta.workdir / 'ancil' / 'stellar_models'
+    if not sm_dir_run.exists():
+        sm_dir_run.mkdir(parents=True)
 
-    if sm =='k93models':
-        sm_dir_run = meta.workdir + 'ancil/stellar_models/{0}/'.format(sm)
-        if not os.path.exists(sm_dir_run):
-            os.mkdir(sm_dir_run)
+    sm_dir_run = sm_dir_run / sm
+    if not sm_dir_run.exists():
+        sm_dir_run.mkdir(parents=True)
 
-    if sm == 'ck04models':
-        sm_dir_run = meta.workdir + 'ancil/stellar_models/{0}/'.format(sm)
-        if not os.path.exists(sm_dir_run):
-            os.mkdir(sm_dir_run)
-
-    if sm == 'phoenix':
-        sm_dir_run = meta.workdir + 'ancil/stellar_models/{0}/'.format(sm)
-        if not os.path.exists(sm_dir_run):
-            os.mkdir(sm_dir_run)
-
-    sm_dir_pkg = meta.pacmandir + '/data/stellar_models/{0}/'.format(sm)
-    if not os.path.exists(sm_dir_pkg):
-        os.mkdir(sm_dir_pkg)
+    sm_dir_pkg = meta.pacmandir / 'data' / 'stellar_models' / sm
+    if not sm_dir_pkg.exists():
+        sm_dir_pkg.mkdir(parents=True)
 
     # check if a list of all downloadable files exists. If not create it.
-    file_list_path = sm_dir_pkg + '/file_list.txt'
-    if not os.path.exists(file_list_path):
-        #inspired by code in:
+    file_list_path = sm_dir_pkg / 'file_list.txt'
+    if not file_list_path.exists():
+        # inspired by code in:
         # https://stackoverflow.com/questions/40543200/want-to-get-all-links-in-a-webpage-using-urllib-request
         # https://github.com/nespinoza/limb-darkening/blob/master/get_lds.py
 
         html = str(urlopen(full_url).read())
 
-        #hyperlinks in html have the following form, e.g.,:
-        #<a href="kp00_5000.fits">kp00_5000.fits</a>
-        #so we first look for <a
-        #then take the label between "> and <\a>
-        #finally check that the label includes .fits in the name
+        # hyperlinks in html have the following form, e.g.,:
+        # <a href="kp00_5000.fits">kp00_5000.fits</a>
+        # so we first look for <a
+        # then take the label between "> and <\a>
+        # finally check that the label includes .fits in the name
         all_files = []
         while True:
             idx1 = html.find('<a ')
@@ -184,7 +175,7 @@ def get_sm(meta, user_met, user_logg, user_teff):
     else:
         all_files = np.loadtxt(file_list_path, dtype=str).T
 
-    #determine the possible temperature from the filenames
+    # Determine the possible temperature from the filenames
     possible_teffs = np.array([float(i.split('_')[1].split('.')[0]) for i in all_files])
     chosen_teff = find_nearest(possible_teffs, user_teff)
     if user_teff not in possible_teffs:
@@ -201,7 +192,7 @@ def get_sm(meta, user_met, user_logg, user_teff):
     # If the file wasnt downloaded yet, download it. Then move it into meta.workdir + 'ancil/stellar_models/{0}/'.format(sm)
     filepath = sm_dir_run + filename
     print('Was the stellar model fits file called {0} already downloaded?:'.format(filename), os.path.exists(filepath), '\n')
-    if not os.path.exists(filepath):
+    if not filepath.exists():
         downloader(full_url)
         os.rename(filename, filepath)
 
@@ -227,11 +218,9 @@ def get_sm(meta, user_met, user_logg, user_teff):
     chosen_logg_name = 'g' + str(chosen_logg)[0] + str(chosen_logg)[2]
     wvl = hdul[1].data['WAVELENGTH']*1e-10
     flux = hdul[1].data[chosen_logg_name]*1e-7*1e4/1e-10/np.pi
-    #flux = flux * wvl
+    # flux = flux * wvl
     hdul.close()
     return wvl, flux
-
-
 
 # def get_phoenix_spiderman(Teff, logg, MH):
 #     PHOENIX_DIR = '/home/zieba/Documents/PHOENIX-ACES-AGSS-COND-2011_R10000FITS_Z-0.0'

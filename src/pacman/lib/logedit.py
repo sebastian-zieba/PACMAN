@@ -1,12 +1,9 @@
-
-
 class Logedit:
-  """
-    This object handles writing text outputs into a log file and to
+    """This object handles writing text outputs into a log file and to
     the screen as well.
 
     Class methods:
-    --------------
+        --------------
     init(logname, read=None):
         Creates a log instance into file logname.
         If read specified copies it's content into log.
@@ -21,7 +18,7 @@ class Logedit:
         Prints message to terminal and to log, then closes the log file.
 
     Examples:
-    ---------
+        ---------
     >>> from logedit import Logedit
     >>> message1 = 'This message will be logged and displayed.'
     >>> message2 = 'This message too.'
@@ -68,12 +65,12 @@ class Logedit:
   """
 
   def __init__(self, logname, read=None):
-    """
+      """
       Creates a new log file with name logname. If a logfile is
       specified in read, copies the content from that log.
 
       Parameters:
-      -----------
+          -----------
       logname: String
                The name of the file where to save the log.
       read:    String
@@ -83,41 +80,41 @@ class Logedit:
     # Read from previous log
     content = []
     if read != None:
-      try:
-        old = open(read, 'r')
+        try:
+            old = open(read, 'r')
         content = old.readlines()
         old.close()
       except:
-        pass
+          pass
 
     # Initiate log
     self.log = open(logname, 'w')
 
     # Append content if there is something
     if content != []:
-      self.log.writelines(content)
+        self.log.writelines(content)
 
 
   def writelog(self, message, mute=False):
-    """
+      """
       Prints message in the terminal and stores it in the log file.
     """
     # print to screen:
     if not mute:
-      print(message)
+        print(message)
     # print to file:
     print(message, file=self.log)
 
 
   def closelog(self):
-    """
+      """
       Closes an existing log file.
     """
     self.log.close()
 
 
   def writeclose(self, message):
-    """
+      """
       Print message in terminal and log, then close log.
     """
     self.writelog(message)

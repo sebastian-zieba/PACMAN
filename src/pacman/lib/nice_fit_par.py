@@ -33,4 +33,3 @@ def nice_fit_par(fit_par_file):
     for row in file_rows:
         print("{: <{}} {: <{}} {: <{}} {: <{}} {: <{}} {: <{}} {: <{}} {: <{}} {: <{}} {: <{}} {: <{}} {: <{}}".format(*row), file=f)
     f.close()
-

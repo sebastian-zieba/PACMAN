@@ -1,12 +1,4 @@
-import h5py as h5
-
-try:
-    import cPickle as pickle
-except:
-    import _pickle as pickle
-
-"""
-  Name
+"""Name
   ----
   Manage Event
 
@@ -31,12 +23,12 @@ except:
 
 
   Examples:
-  ---------
+      ---------
   >>> from manageevent import *
   >>> # Save  hd209bs51_ini.dat and hd209bs51_ini.h5 files.
 
   >>> saveevent(event, 'd209bs51_ini', save=['data', 'head','uncd',
-                                          'bdmskd'])
+                                             'bdmskd'])
 
   >>> # Load the event and its data frames
   >>> event = loadevent('hd209bs51_ini', ['data'])
@@ -51,6 +43,12 @@ except:
                         updateevent added.
   2010-11-12  patricio  reimplemented using exec()
 """
+import h5py as h5
+
+try:
+    import cPickle as pickle
+except:
+    import _pickle as pickle
 
 
 def saveevent(event, filename, save=[], delete=[], protocol=3):
@@ -105,23 +103,22 @@ def saveevent(event, filename, save=[], delete=[], protocol=3):
             exec('del(event.pre' + param + ', event.post' + param + ')')
 
     # Pickle-Save the event
-    handle = open(filename + '.dat', 'wb')
+    handle = open(f'{filename}.dat', 'wb')
     pickle.dump(event, handle, protocol)
     handle.close()
 
 
 def loadevent(filename, load=[], loadfilename=None):
-    """
-    Loads an event stored in .dat and .h5 files.
+    """Loads an event stored in .dat and .h5 files.
 
     Parameters
     ----------
     filename : String
-               The string contains the name of the event file.
-    load     : String tuple
-               The elements of this tuple contain the parameters to read.
-               We usually use the values: 'data', 'uncd', 'head', 'bdmskd',
-               'brmskd' or 'mask'.
+        The string contains the name of the event file.
+    load : String tuple
+        The elements of this tuple contain the parameters to read.
+        We usually use the values: 'data', 'uncd', 'head', 'bdmskd',
+        'brmskd' or 'mask'.
 
     Notes
     -----
@@ -140,7 +137,7 @@ def loadevent(filename, load=[], loadfilename=None):
     2010-07-10  patricio  Added documentation.     pcubillos@fulbrightmail.org
     """
     from astropy.io import fits
-    handle = open(filename + '.dat', 'rb')
+    handle = open(f'{filename}.dat', 'rb')
     event = pickle.load(handle, encoding='latin1')
     handle.close()
 
@@ -148,7 +145,7 @@ def loadevent(filename, load=[], loadfilename=None):
         loadfilename = filename
 
     if load != []:
-        handle = h5.File(loadfilename + '.h5', 'r')
+        handle = h5.File(f'{loadfilename}.h5', 'r')
         for param in load:
             exec('event.' + param + ' = handle["' + param + '"][:]')
             # calibration data:
@@ -157,23 +154,21 @@ def loadevent(filename, load=[], loadfilename=None):
                 exec('event.post' + param + ' = handle["post' + param + '"][:]')
 
         handle.close()
-
     return event
 
 
 def updateevent(event, filename, add):
-    """
-    Adds parameters given by add from filename to event.
+    """Adds parameters given by add from filename to event.
 
     Parameters
     ----------
-    event    : An Event instance.
+    event : An Event instance.
     filename : String
-               The string contains the name of the event file.
-    add      : String tuple
-               The elements of this tuple contain the parameters to
-               add.  We usually use the values: 'data', 'uncd', 'head',
-               'bdmskd', 'brmaskd' or 'mask'.
+        The string contains the name of the event file.
+    add : String tuple
+        The elements of this tuple contain the parameters to
+        add.  We usually use the values: 'data', 'uncd', 'head',
+        'bdmskd', 'brmaskd' or 'mask'.
 
     Notes
     -----

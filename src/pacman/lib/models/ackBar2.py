@@ -1,7 +1,4 @@
 # ! /usr/bin/env python
-
-import numpy as np
-import itertools
 """ramp effect model
 2 means two types of traps
 
@@ -16,9 +13,10 @@ mode observations for staring mode, the detector receive flux in the
 same rate during overhead time as that during exposure
 precise mathematics forms are included
 
-Version 0.1: Adapted original IDL code to python by Yifan Zhou
-
+Version 0.1: Adapted original IDL code to python by Yifan Zhou.
 """
+import numpy as np
+import itertools
 
 
 def ackBar2(

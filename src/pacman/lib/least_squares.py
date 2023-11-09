@@ -1,11 +1,13 @@
-import numpy as np
 import os
+
+import numpy as np
+from astropy.stats import sigma_clip
+
 from . import mpfit
 from . import plots
-from .formatter import PrintParams
-from astropy.stats import sigma_clip
 from . import util
 from . import read_fit_par
+from .formatter import PrintParams
 
 
 def residuals(params, data, model, fjac=None):
@@ -63,14 +65,15 @@ def lsq_fit(fit_par, data, meta, model, myfuncs, noclip=False):
     if m.errmsg: print("MPFIT error message", m.errmsg)
 
     if meta.run_verbose:
-        f_lsq = open(os.path.join(meta.workdir, meta.fitdir, 'lsq_res', "lsq_res_bin{0}_wvl{1:0.3f}.txt".format(meta.s30_file_counter, meta.wavelength)), 'w')
+        f_lsq = open(meta.workdir / meta.fitdir / 'lsq_res' /\
+                f"lsq_res_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt", 'w')
         PrintParams(m, data, savefile=f_lsq)
         f_lsq.close()
         PrintParams(m, data)
 
     if meta.save_fit_lc_plot:
-        if not os.path.isdir(os.path.join(meta.workdir, meta.fitdir, 'fit_lc')):
-            os.makedirs(os.path.join(meta.workdir, meta.fitdir, 'fit_lc'))
+        if not (meta.workdir / meta.fitdir / 'fit_lc').exists():
+           (meta.workdir / meta.fitdir / 'fit_lc').mkdir(parents=True)
         plots.plot_fit_lc2(data, model, meta)
         plots.plot_fit_lc3(data, model, meta)
         plots.save_plot_raw_data(data, meta)

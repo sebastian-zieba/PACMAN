@@ -1,8 +1,9 @@
 import sys
-sys.path.insert(0,'..')
-import numpy as np
 
-def polynomial2(t, data, params, visit = 0):
+sys.path.insert(0,'..')
+
+
+def polynomial2(t, data, params, visit: float = 0.):
     v, v2 = params
     v = v[visit]
     v2 = v2[visit]

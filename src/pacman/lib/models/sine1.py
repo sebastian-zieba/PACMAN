@@ -1,6 +1,8 @@
 import sys
-sys.path.insert(0,'..')
 import numpy as np
+
+sys.path.insert(0,'..')
+
 
 def sine1(t, data, params):
     a1, omega1, phi1  = params

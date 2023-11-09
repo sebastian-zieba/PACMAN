@@ -1,27 +1,28 @@
 import sys
-sys.path.insert(0,'..')
+
 import celerite
-from celerite import terms
 import numpy as np
-import matplotlib.pyplot as plt
+from celerite import terms
+
+sys.path.insert(0,'..')
 
 
 def gp_sho(idx, data, resid, params):
     logQ, logw, logS, log_jit = params
     err = data.err/data.flux
     #logerr = np.log(np.median(err))
-    logerr = log_jit 
+    logerr = log_jit
 
     #print "logQ, logw, logS", logQ, logw, logS
 
     mean_resid = np.mean(resid)
     #resid -= mean_resid
-    
+
     t = data.t_vis[idx]/60/60
-    
+
     kernel = (terms.SHOTerm(log_S0 = logS, log_Q = logQ, log_omega0 = logw) + 
               terms.JitterTerm(log_sigma = logerr)
-             )
+              )
 
     gp = celerite.GP(kernel, fit_mean = True) 
     gp.compute(t, err, check_sorted = False)   #t must be ascending!

@@ -6,14 +6,6 @@ gaussfitter
 
 Latest version available at <http://code.google.com/p/agpy/source/browse/trunk/agpy/gaussfitter.py>
 
-"""
-import numpy
-from numpy.ma import median
-from numpy import pi
-#from scipy import optimize,stats,pi
-from . import mpfit
-
-""" 
 Note about mpfit/leastsq: 
 I switched everything over to the Markwardt mpfit routine for a few reasons,
 but foremost being the ability to set limits on parameters, not just force them
@@ -26,15 +18,19 @@ The version of mpfit I use can be found here:
     -turn into a class instead of a collection of objects
     -implement WCS-based gaussian fitting with correct coordinates
 """
+import numpy
+from numpy.ma import median
+from numpy import pi
+from . import mpfit
 
-def moments(data,circle,rotate,vheight,estimator=median,**kwargs):
-    """
-    Returns (height, amplitude, x, y, width_x, width_y, rotation angle)
+
+def moments(data, circle, rotate, vheight, estimator=median, **kwargs):
+    """Returns (height, amplitude, x, y, width_x, width_y, rotation angle)
     the gaussian parameters of a 2D distribution by calculating its
-    moments.  Depending on the input parameters, will only output 
+    moments.  Depending on the input parameters, will only output
     a subset of the above.
-    
-    If using masked arrays, pass estimator=numpy.ma.median
+
+    If using masked arrays, pass estimator=numpy.ma.median.
     """
     total = numpy.abs(data).sum()
     Y, X = numpy.indices(data.shape) # python convention: reverse x,y numpy.indices
@@ -48,17 +44,17 @@ def moments(data,circle,rotate,vheight,estimator=median,**kwargs):
     width = ( width_x + width_y ) / 2.
     height = estimator(data.ravel())
     amplitude = data.max()-height
-    mylist = [amplitude,x,y]
+    mylist = [amplitude, x, y]
     if numpy.isnan(width_y) or numpy.isnan(width_x) or numpy.isnan(height) or numpy.isnan(amplitude):
         raise ValueError("something is nan")
-    if vheight==1:
+    if vheight == 1:
         mylist = [height] + mylist
-    if circle==0:
+    if circle == 0:
         mylist = mylist + [width_x,width_y]
-        if rotate==1:
-            mylist = mylist + [0.] #rotation "moment" is just zero...
+        if rotate == 1:
+            mylist = mylist + [0.]  # rotation "moment" is just zero...
             # also, circles don't rotate.
-    else:  
+    else:
         mylist = mylist + [width]
     return mylist
 
@@ -549,4 +545,3 @@ def collapse_gaussfit(cube,xax=None,axis=2,negamp=False,usemoments=True,nsigcut=
         return width_arr,offset_arr,amp_arr,width_err,offset_err,amp_err,chi2_arr
     else:
         return width_arr,offset_arr,amp_arr,chi2_arr
-

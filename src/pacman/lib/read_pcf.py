@@ -1,7 +1,4 @@
-import numpy as np
-
-"""
-    This class loads a PACMAN control file (pcf) and lets you
+"""This class loads a PACMAN control file (pcf) and lets you
     querry the parameters and values.
 
     Constructor Parameters:
@@ -25,7 +22,7 @@ import numpy as np
     >>> pcf = rd.Pcffile('/home/patricio/ast/esp01/anal/wa011bs11/run/wa011bs11.pcf')
 
     >>> Each parameter has the attribute value, wich is a ndarray:
-    >>> pcf.planet.value
+        >>> pcf.planet.value
     array(['wa011b'],
           dtype='|S6')
 
@@ -52,7 +49,6 @@ import numpy as np
     >>> pcf.sigma.getarr()
     array([4.0, 4.0], dtype=object)
 
-
     Modification History:
     --------------------
     2009-01-02 chris      Initial Version.
@@ -62,8 +58,8 @@ import numpy as np
     2010-10-27 patricio   Docstring updated
     2011-02-12 patricio   Merged with ccampo's tepclass.py
     December 2021   Sebastian Zieba     Updated for PACMAN usage
-
 """
+import numpy as np
 
 
 # each parameter is an instance of this class
@@ -133,7 +129,7 @@ def read_pcf(file):
         # Strip off comments:
         try:
             line = line[0:line.index('#')].strip()
-        except:
+        except Exception:
             line = line.strip()
 
         # Keep only useful lines:
@@ -209,7 +205,7 @@ def read_pcf(file):
         return pcf
 
 
-def store_pcf(meta, pcf):
+def store_pcf(meta, pcf) -> None:
     """
     Store values from PACMAN control file as parameters in Meta object.
     """
@@ -221,4 +217,3 @@ def store_pcf(meta, pcf):
                 exec('meta.' + key + ' = pcf.' + key + '.getarr(0)', locals())
             except:
                 print("Unable to store parameter: " + key)
-    return

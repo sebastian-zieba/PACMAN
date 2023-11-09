@@ -1,21 +1,22 @@
-# $Author: carthik $
-# $Revision: 267 $
-# $Date: 2010-06-08 22:33:22 -0400 (Tue, 08 Jun 2010) $
-# $HeadURL: file:///home/esp01/svn/code/python/branches/patricio/photpipe/lib/suntimecorr.py $
-# $Id: suntimecorr.py 267 2010-06-09 02:33:22Z carthik $
-
-
-import numpy as np
+"""
+Author: carthik
+Revision: 267
+Date: 2010-06-08 22:33:22 -0400 (Tue, 08 Jun 2010)
+HeadURL: file:///home/esp01/svn/code/python/branches/patricio/photpipe/lib/suntimecorr.py
+Id: suntimecorr.py 267 2010-06-09 02:33:22Z carthik
+"""
 import re
-from scipy.constants import c
-from .splinterp import splinterp
+
 import astropy.time
+import numpy as np
+from scipy.constants import c
+
 from . import plots
+from .splinterp import splinterp
 
 
 def getcoords(file):
-    """
-    Use regular expressions to extract X,Y,Z, and time values from the
+    """Use regular expressions to extract X,Y,Z, and time values from the
     horizons file.
 
     Parameters
@@ -32,12 +33,12 @@ def getcoords(file):
     -------
     start_data = '$$SOE'
     end_data   = '$$EOE'
-    
+
     # Read in whole table as an list of strings, one string per line
     ctable = open('/home/esp01/ancil/horizons/all_spitzer.vec', 'r')
     wholetable = ctable.readlines()
     ctable.close()
-    
+
     # Find start and end line
     i = 0
     while wholetable[i].find(end_data) == -1:
@@ -57,28 +58,26 @@ def getcoords(file):
     --------------------
     2010-11-01  patricio  Written by Patricio Cubillos.
                         pcubillos@fulbrightmail.org
-
     """
     x, y, z, time = [], [], [], []
     for i in np.arange(len(file)):
         # Use regular expressions to match strings enclosed between X,
         # Y, Z and end of line
         m = re.search(' X =(.*)Y =(.*) Z =(.*)\n', file[i])
-        if m != None:
+        if m is not None:
             x.append(np.double(m.group(1)))
             y.append(np.double(m.group(2)))
             z.append(np.double(m.group(3)))
         # Match first word which is followed by ' = A'
         t = re.search('(.+) = A', file[i])
-        if t != None:
+        if t is not None:
             time.append(np.double(t.group(1)))
     # return numpy arrays
     return np.array(x), np.array(y), np.array(z), np.array(time)
 
 
 def suntimecorr(meta, obst, coordtable, verbose=False):
-    """
-    This function calculates the light-travel time correction from
+    """This function calculates the light-travel time correction from
     observer to a standard location.  It uses the 2D coordinates (RA
     and DEC) of the object being observed and the 3D position of the
     observer relative to the standard location.  The latter (and the
@@ -89,18 +88,17 @@ def suntimecorr(meta, obst, coordtable, verbose=False):
     ----------
     meta
                  includes ra, dec and other information
-    obst :       Float or Numpy Float array
-                 Time of observation in Julian Date (may be a vector)
-    coordtable : String 
-                 Filename of output table from JPL HORIZONS specifying
-                 the position of the observatory relative to the
-                 standard position.  
-    verbose :    Boolean
-                 If True, print X,Y,Z coordinates.
+    obst : float or numpy.ndarray
+        Time of observation in Julian Date (may be a vector)
+    coordtable : str
+        Filename of output table from JPL HORIZONS specifying
+        the position of the observatory relative to the
+        standard position.
+    verbose : bool
+        If True, print X,Y,Z coordinates.
 
     Returns
     -------
-
     This function returns the time correction in seconds to be ADDED
     to the observation time to get the time when the observed photons
     would have reached the plane perpendicular to their travel and
@@ -108,7 +106,6 @@ def suntimecorr(meta, obst, coordtable, verbose=False):
 
     Notes
     -----
-
     The position vectors from coordtable are given in the following
     coordinate system:
     Reference epoch: J2000.0
@@ -149,14 +146,14 @@ def suntimecorr(meta, obst, coordtable, verbose=False):
      EMAIL_ADDR = 'shl35@cornell.edu'      ! Send output to this address
                                            !  (can be blank for auto-reply)
      COMMAND    = '-79'                  ! Target body, closest apparition
-    
+
      OBJ_DATA   = 'YES'                    ! No summary of target body data
      MAKE_EPHEM = 'YES'                    ! Make an ephemeris
-    
+
      START_TIME  = '2005-Aug-24 06:00'     ! Start of table (UTC default)
      STOP_TIME   = '2005-Aug-25 02:00'     ! End of table
      STEP_SIZE   = '1 hour'                 ! Table step-size
-    
+
      TABLE_TYPE = 'VECTOR'            ! Specify VECTOR ephemeris table type
      CENTER     = '@10'                 ! Set observer (coordinate center)
      REF_PLANE  = 'FRAME'                  ! J2000 equatorial plane
@@ -178,20 +175,19 @@ def suntimecorr(meta, obst, coordtable, verbose=False):
     >>> # the north ecliptic pole should hit the observatory and the sun at
     >>> # about the same time.
 
-
     >>> import suntimecorr as sc
     >>> ra  = 18.0 * np.pi /  12 # ecliptic north pole coordinates in radians
     >>> dec = 66.5 * np.pi / 180 # "
     >>> obst = np.array([2453607.078])       # Julian date of 2005-08-24 14:00
     >>> print( sc.suntimecorr(ra, dec, obst, '/home/esp01/ancil/horizons/cs41_spitzer.vec') )
     1.00810877 # about 1 sec, close to zero
-    
+
     >>> # If the object has the RA and DEC of Spitzer, light time should be
     >>> # about 8 minutes to the sun.
     >>> obs  = np.array([111093592.8346969, -97287023.315796047, -42212080.826677799])
     >>> # vector to the object
     >>> obst = np.array([2453602.5])
-    
+
     >>> print( np.sqrt(np.sum(obs**2.0)) )
     153585191.481 # about 1 AU, good
     >>> raobs  = np.arctan(obs[1]/ obs[0])
@@ -201,26 +197,24 @@ def suntimecorr(meta, obst, coordtable, verbose=False):
     >>> print( sc.suntimecorr(raobs, decobs, obst, '/home/esp01/ancil/horizons/cs41_spitzer.vec') / 60.0)
     8.5228630 # good, about 8 minutes light time to travel 1 AU
 
-
     Modification History
     --------------------
     2005-12-01 statia   Written by Statia Luszcz.
     2006-03-09 jh	Corrected 90deg error in algorithm, renamed,
-			updated header, made Coordtable a positional
-			arg since it's required, switched to radians.
+            updated header, made Coordtable a positional
+            arg since it's required, switched to radians.
     2007-06-28 jh	Renamed to suntimecorr since we now use
-			barycentric Julian date.
+            barycentric Julian date.
     2009-01-28 jh       Change variables to long, use spline instead
-			of linfit so we can use one HORIZONS file for
-			the whole mission.
+            of linfit so we can use one HORIZONS file for
+            the whole mission.
     2009-02-22 jh       Reshape spline results to shape of obst.  Make
-			it handle unsorted unput data properly.
-			Header update.
+            it handle unsorted unput data properly.
+            Header update.
     2010-07-10 patricio Converted to python. (pcubillos@fulbrightmail.org)
     2010-11-01 patricio Docstring updated.
     December 2021  SZ   Added meta file dependence, check if observations are in vector file and make plots
     """
-
     ra = meta.ra
     dec = meta.dec
 
