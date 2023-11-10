@@ -62,60 +62,49 @@ class Logedit:
     2010-07-10  patricio   Writen by Patricio Cubillos.
                            pcubillos@fulbrightmail.org
     2010-11-24  patricio   logedit converted to a class.
-  """
-
-  def __init__(self, logname, read=None):
-      """
-      Creates a new log file with name logname. If a logfile is
-      specified in read, copies the content from that log.
-
-      Parameters:
-          -----------
-      logname: String
-               The name of the file where to save the log.
-      read:    String
-               Name of an existing logfile. If specified, its content
-               will be written to the log.
     """
-    # Read from previous log
-    content = []
-    if read != None:
-        try:
-            old = open(read, 'r')
-        content = old.readlines()
-        old.close()
-      except:
-          pass
+    def __init__(self, logname, read=None):
+        """Creates a new log file with name logname. If a logfile is
+        specified in read, copies the content from that log.
 
-    # Initiate log
-    self.log = open(logname, 'w')
+        Parameters:
+        -----------
+        logname : str
+            The name of the file where to save the log.
+        read : str
+            Name of an existing logfile. If specified, its content
+            will be written to the log.
+        """
+        # Read from previous log
+        content = []
+        if read is not None:
+            try:
+                old = open(read, 'r')
+                content = old.readlines()
+                old.close()
+            except Exception:
+                pass
 
-    # Append content if there is something
-    if content != []:
-        self.log.writelines(content)
+        # Initiate log
+        self.log = open(logname, 'w')
 
+        # Append content if there is something
+        if content != []:
+            self.log.writelines(content)
 
-  def writelog(self, message, mute=False):
-      """
-      Prints message in the terminal and stores it in the log file.
-    """
-    # print to screen:
-    if not mute:
-        print(message)
-    # print to file:
-    print(message, file=self.log)
+    def writelog(self, message, mute=False):
+        """Prints message in the terminal and stores it in the log file."""
+        # print to screen:
+        if not mute:
+            print(message)
+        # print to file:
+        print(message, file=self.log)
 
+    def closelog(self):
+        """Closes an existing log file."""
+        self.log.close()
 
-  def closelog(self):
-      """
-      Closes an existing log file.
-    """
-    self.log.close()
-
-
-  def writeclose(self, message):
-      """
-      Print message in terminal and log, then close log.
-    """
-    self.writelog(message)
-    self.closelog()
+    def writeclose(self, message):
+        """Print message in terminal and log, then close log."""
+        self.writelog(message)
+        self.closelog()

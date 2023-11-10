@@ -9,12 +9,12 @@ from .lib import manageevent as me
 from .lib import util
 
 
-def run03(eventlabel, workdir: Path, meta=None):
-    """
-    Retrieves the bandpass (G102 or G141) and the stellar spectrum and takes the product to create a reference spectrum.
+def run03(eventlabel: str, workdir: Path, meta=None):
+    """Retrieves the bandpass (G102 or G141) and the stellar spectrum and
+    takes the product to create a reference spectrum.
 
     Options for the stellar model:
-        - Blackbody
+    - Blackbody
     - k93models
     - ck04models
     - phoenix
@@ -24,26 +24,26 @@ def run03(eventlabel, workdir: Path, meta=None):
     Parameters
     ----------
     eventlabel : str
-       the label given to the event in the run script. Will determine the name of the run directory
+       The label given to the event in the run script.
+       Will determine the name of the run directory
     workdir : str
-       the name of the work directory.
-    meta
-       the name of the metadata file
+       The name of the work directory.
+    meta :
+       The name of the metadata file.
 
     Returns
     -------
-    meta
-       meta object with all the meta data stored in s02
+    meta :
+       Meta object with all the meta data stored in s02.
 
-    Notes:
-        ----------
+    Notes
+    -----
     History:
         Written by Sebastian Zieba      December 2021
     """
-
     print('Starting s03')
 
-    if meta == None:
+    if meta is None:
         meta = me.loadevent(workdir / f'WFC3_{eventlabel}_Meta_Save')
 
     ### Stellar Spectrum

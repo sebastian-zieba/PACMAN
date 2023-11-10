@@ -1,5 +1,5 @@
 import re
-from typing import List
+from typing import List, Union
 from pathlib import Path
 
 
@@ -16,7 +16,7 @@ def alphanum_key(string: str) -> str:
     return [tryint(c) for c in re.split('([0-9]+)', string)]
 
 
-def sort_nicely(list1: List[Path]):
+def sort_nicely(input_list: List[Union[str, Path]]) -> List[Union[str, Path]]:
     """Sort the given list in the way that humans expect."""
-    list1.sort(key=lambda x: alphanum_key(x.name))
-    return list1
+    return sorted(input_list, key=lambda x: alphanum_key(
+        x.name if isinstance(x, Path) else x))

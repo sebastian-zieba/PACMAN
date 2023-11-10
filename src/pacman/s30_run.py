@@ -1,4 +1,3 @@
-import os
 import time
 import shutil
 from pathlib import Path
@@ -18,7 +17,7 @@ from .lib import plots
 from .lib import util
 
 
-def run30(eventlabel, workdir: Path, meta=None):
+def run30(eventlabel: str, workdir: Path, meta=None):
     """This functions reads in the spectroscopic or white light curve(s) and
     fits a model to them."""
     print('Starting s30')

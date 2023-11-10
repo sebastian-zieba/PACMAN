@@ -15,8 +15,8 @@ from .lib import sort_nicely as sn
 
 
 def run21(eventlabel, workdir: Path, meta=None):
-    """
-    This function reads in the lc_spec.txt file with the flux as a funtion of wavelength and bins it into light curves.
+    """This function reads in the lc_spec.txt file with the flux as a
+    function of wavelength and bins it into light curves.
     """
     print('Starting s21\n')
 

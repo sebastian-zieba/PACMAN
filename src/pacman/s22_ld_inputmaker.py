@@ -5,7 +5,7 @@ import numpy as np
 from .lib import manageevent as me
 
 
-def run22(eventlabel, workdir: Path, meta=None):
+def run22(eventlabel: str, workdir: Path, meta=None):
     if meta is None:
         meta = me.loadevent(workdir / f'WFC3_{eventlabel}_Meta_Save')
 

@@ -605,28 +605,28 @@ class mpfit:
                  rescale=0, autoderivative=1, quiet=0,
                  diag=None, epsfcn=None, debug=0):
         """
-  Inputs:
-      fcn:
-          The function to be minimized.  The function should return the weighted
-       deviations between the model and the data, as described above.
+      Inputs:
+          fcn:
+              The function to be minimized.  The function should return the weighted
+           deviations between the model and the data, as described above.
 
-    xall:
-        An array of starting values for each of the parameters of the model.
-       The number of parameters should be fewer than the number of measurements.
+        xall:
+            An array of starting values for each of the parameters of the model.
+           The number of parameters should be fewer than the number of measurements.
 
-       This parameter is optional if the parinfo keyword is used (but see
-                                                                  parinfo).  The parinfo keyword provides a mechanism to fix or constrain
-       individual parameters.
+           This parameter is optional if the parinfo keyword is used (but see
+                                                                      parinfo).  The parinfo keyword provides a mechanism to fix or constrain
+           individual parameters.
 
-  Keywords:
+      Keywords:
 
-      autoderivative:
-          If this is set, derivatives of the function will be computed
-        automatically via a finite differencing procedure.  If not set, then
-        fcn must provide the (analytical) derivatives.
-           Default: set (=1)
-           NOTE: to supply your own analytical derivatives,
-                 explicitly pass autoderivative=0
+          autoderivative:
+              If this is set, derivatives of the function will be computed
+            automatically via a finite differencing procedure.  If not set, then
+            fcn must provide the (analytical) derivatives.
+               Default: set (=1)
+               NOTE: to supply your own analytical derivatives,
+                     explicitly pass autoderivative=0
 
      ftol:
          A nonnegative input variable. Termination occurs when both the actual
@@ -980,7 +980,7 @@ class mpfit:
         # Check input parameters for errors
         if (n < 0) or (ftol <= 0) or (xtol <= 0) or (gtol <= 0) \
                 or (maxiter < 0) or (factor <= 0):
-                    self.errmsg = 'ERROR: input keywords are inconsistent'
+            self.errmsg = 'ERROR: input keywords are inconsistent'
             return
 
 
@@ -1358,15 +1358,15 @@ class mpfit:
 
         self.covar = None
         self.perror = None
-        # (very carefully) set the covariance matrix COVAR
-        if (self.status > 0) and (nocovar==0) and (n is not None) \
-                and (fjac is not None) and (ipvt is not None):
-                    sz = fjac.shape
-            if (n > 0) and (sz[0] >= n) and (sz[1] >= n) \
-                    and (len(ipvt) >= n):
 
-                        catch_msg = 'computing the covariance matrix'
-                cv = self.calc_covar(fjac[0:n,0:n], ipvt[0:n])
+        # (very carefully) set the covariance matrix COVAR
+        if (self.status > 0) and (nocovar == 0) and (n is not None) \
+                and (fjac is not None) and (ipvt is not None):
+            sz = fjac.shape
+            if (n > 0) and (sz[0] >= n) and (sz[1] >= n)\
+                    and (len(ipvt) >= n):
+                catch_msg = 'computing the covariance matrix'
+                cv = self.calc_covar(fjac[0:n, 0:n], ipvt[0:n])
                 cv.shape = [n, n]
                 nn = len(xall)
 
@@ -2337,5 +2337,3 @@ class machar:
         self.minlog = numpy.log(self.minnum)
         self.rdwarf = numpy.sqrt(self.minnum*1.5) * 10
         self.rgiant = numpy.sqrt(self.maxnum) * 0.1
-
-

@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from typing import List
 
 import corner
 import gc
@@ -134,7 +135,7 @@ def obs_times(meta, times, ivisits, iorbits, updated=False):
 
 
 # 02
-def barycorr(x, y, z, time, obsx, obsy, obsz, coordtable, meta):
+def barycorr(x, y, z, time, obsx, obsy, obsz, coordtable: List[Path], meta):
     """This function plots the vectorfile positions of HST and where
     the observations where taken
 
@@ -154,7 +155,7 @@ def barycorr(x, y, z, time, obsx, obsy, obsz, coordtable, meta):
         Y position of observations.
     obsz: array
         Z position of observations.
-    coordtable
+    coordtable : list of pathlib.Path
         a list of files containing the vector information of HST
         downloaded in s01.
     meta
@@ -192,7 +193,7 @@ def barycorr(x, y, z, time, obsx, obsy, obsz, coordtable, meta):
         barycorr_dir = meta.workdir / 'figs' / 's02_barycorr'
         if not barycorr_dir.exists():
             barycorr_dir.mkdir(parents=True)
-        plt.savefig(barycorr_dir / f'bjdcorr_{coordtable.split('/')[-1].split('.')[0]}.png',
+        plt.savefig(barycorr_dir / f"bjdcorr_{coordtable.name.split('.')[0]}.png",
                     bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
         plt.clf()
@@ -416,7 +417,7 @@ def badmask_2d(array1, array2, array3, meta, i):
     ax[3].imshow(array1 | array2 | array3, cmap='Greys')
     ax[0].set_xlabel('ncol')
     ax[0].set_ylabel('nrow')
-    s20_badmask_dir = meta.workdir + 'figs' / 's20_badmask'
+    s20_badmask_dir = meta.workdir / 'figs' / 's20_badmask'
     if not s20_badmask_dir.exists():
         s20_badmask_dir.mkdir(parents=True)
     plt.savefig(s20_badmask_dir / f'badmask_{i}.png',
@@ -445,7 +446,7 @@ def trace(d, meta, visnum, orbnum, i):
     plt.plot(tracex, tracey, color='yellow', linewidth=2)                #plots trace on raw image frame
     plt.title(f'Spectrum w/ trace (line), visit {meta.ivisit_sp[i]}, orbit {meta.iorbit_sp[i]}')
     if meta.save_trace_plot:
-        s20_trace_dir = meta.workdir + 'figs' / 's20_trace'
+        s20_trace_dir = meta.workdir / 'figs' / 's20_trace'
         if not s20_trace_dir.exists():
             s20_trace_dir.mkdir(parents=True)
         plt.savefig(s20_trace_dir / f'trace_{i}.png',

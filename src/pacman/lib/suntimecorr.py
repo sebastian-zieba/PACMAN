@@ -6,6 +6,8 @@ HeadURL: file:///home/esp01/svn/code/python/branches/patricio/photpipe/lib/sunti
 Id: suntimecorr.py 267 2010-06-09 02:33:22Z carthik
 """
 import re
+from typing import List
+from pathlib import Path
 
 import astropy.time
 import numpy as np
@@ -76,7 +78,7 @@ def getcoords(file):
     return np.array(x), np.array(y), np.array(z), np.array(time)
 
 
-def suntimecorr(meta, obst, coordtable, verbose=False):
+def suntimecorr(meta, obst, coordtable: List[Path], verbose=False):
     """This function calculates the light-travel time correction from
     observer to a standard location.  It uses the 2D coordinates (RA
     and DEC) of the object being observed and the 3D position of the
@@ -287,7 +289,7 @@ def suntimecorr(meta, obst, coordtable, verbose=False):
     #  print(obstime[ti], time, x)
 
     if meta.save_barycorr_plot or meta.show_barycorr_plot:
-        plots.barycorr(x,y,z,time, obsx, obsy, obsz, coordtable, meta)
+        plots.barycorr(x, y, z, time, obsx, obsy, obsz, coordtable, meta)
 
     if verbose:
         print('X, Y, Z = ', obsx, obsy, obsz)

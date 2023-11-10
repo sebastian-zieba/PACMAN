@@ -29,10 +29,11 @@ def run20(eventlabel, workdir: Path, meta=None):
     meta = util.ancil(meta, s20=True)
 
     ###############################################################################################################################################################
-    #STEP 0: Set up files and directories
+    # STEP 0: Set up files and directories
     ###############################################################################################################################################################
 
-    dirname = meta.workdir / "extracted_lc" / datetime.strftime(datetime.now(), '%Y-%m-%d_%H-%M-%S')
+    dirname = meta.workdir / "extracted_lc" /\
+        datetime.strftime(datetime.now(), '%Y-%m-%d_%H-%M-%S')
     if not dirname.exists():
         dirname.mkdir(parents=True)
 

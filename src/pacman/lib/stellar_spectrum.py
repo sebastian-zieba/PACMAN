@@ -1,4 +1,3 @@
-import os
 import os.path
 import urllib.request
 from pathlib import Path
@@ -6,20 +5,20 @@ from urllib.request import urlopen
 
 import numpy as np
 from astropy.io import fits
+from numpy.typing import ArrayLike
 
 
 def get_bb(user_teff):
-    """
-    Creates a blackbody spectrum for a given stellar effective
+    """Creates a blackbody spectrum for a given stellar effective
     temperature, Teff.
 
     Parameters
-    ------------
+    ----------
     user_teff: float
         stellar effective temperature
 
     Returns
-    ----------
+    -------
     wvl: numpy array
         wavelength np.linspace(0.1, 6, 1000) / 1e6
     flux: numpy array
@@ -37,14 +36,15 @@ def get_bb(user_teff):
     return wvls, flux
 
 
-def downloader(url):
-    """This function downloads a file from the given url using urllib.request."""
-    file_name = url.split('/')[-1]
-    print('\t      + Downloading file {:s} from {:s}.'.format(file_name, url))
+def downloader(url: str) -> None:
+    """This function downloads a file from the given url using
+    urllib.request."""
+    file_name = Path(url).name
+    print(f'\t      + Downloading file {file_name} from {url}.')
     urllib.request.urlretrieve(url, file_name)
 
 
-def find_nearest(array, value):
+def find_nearest(array: ArrayLike, value: float):
     """Finds nearest element to a value in an array.
 
     Taken from https://stackoverflow.com/questions/2566412/find-nearest-value-in-numpy-array
@@ -54,27 +54,27 @@ def find_nearest(array, value):
     return array[idx]
 
 
-def get_sm(meta, user_met, user_logg, user_teff):
+def get_sm(meta, user_met, user_logg: float, user_teff: float):
     """Creates a Kurucz 1994, Castelli and Kurucz 2004 or Phoenix stellar
     spectrum for a given stellar effective temperature, metallicity and log g.
 
     Parameters
     ------------
-    meta:
-        a metadata instance
-    user_met: float
-        stellar metallicity
-    user_logg: float
-        stellar logg
-    user_teff: float
-        stellar effective temperature
+    meta :
+        a metadata instance.
+    user_met : float
+        stellar metallicity.
+    user_logg : float
+        stellar logg.
+    user_teff : float
+        stellar effective temperature.
 
     Returns
     ----------
-    wvl: numpy array
-        wavelength np.linspace(0.1, 6, 1000) / 1e6
-    flux: numpy array
-        stellar flux in units of W/sr/m^3
+    wvl : numpy array
+        wavelength np.linspace(0.1, 6, 1000) / 1e6.
+    flux : numpy array
+        stellar flux in units of W/sr/m^3.
 
     Notes:
     ----------
@@ -125,8 +125,8 @@ def get_sm(meta, user_met, user_logg, user_teff):
     # e.g., M/H = 2.0 --> 20
     l1 = str(abs(chosen_met)).replace(".", "")
 
-    met_url = label + l0 + l1  # e.g., ckp05
-    full_url = rooturl + sm + '/' + met_url
+    met_url = f'{label}{l0}{l1}'  # e.g., ckp05
+    full_url = f'{rooturl}{sm}/{met_url}'
 
     sm_dir_run = meta.workdir / 'ancil' / 'stellar_models'
     if not sm_dir_run.exists():
@@ -179,22 +179,22 @@ def get_sm(meta, user_met, user_logg, user_teff):
     possible_teffs = np.array([float(i.split('_')[1].split('.')[0]) for i in all_files])
     chosen_teff = find_nearest(possible_teffs, user_teff)
     if user_teff not in possible_teffs:
-        print('Possible effective temperatures: {0}'.format(possible_teffs))
-        print('For input effective temperature {}, closest temperature is {}.\n'.format(user_teff, chosen_teff))
+        print(f'Possible effective temperatures: {possible_teffs}')
+        print(f'For input effective temperature {user_teff}, closest temperature is {chosen_teff}.\n')
     elif user_teff in possible_teffs:
-        print('Possible effective temperatures: {0}'.format(possible_teffs))
-        print('Using input effective temperature of {}.\n'.format(user_teff))
+        print(f'Possible effective temperatures: {possible_teffs}')
+        print(f'Using input effective temperature of {user_teff}.\n')
 
     #we now know the metallicity and temperature and can download the needed file (it wont download it again if it already exists)
-    filename = met_url + '_' + '{0}'.format(int(chosen_teff)) + '.fits'
-    full_url = full_url + '/' + filename
+    filename = f'{met_url}_{int(chosen_teff)}.fits'
+    full_url = f'{full_url}/{filename}'
 
     # If the file wasnt downloaded yet, download it. Then move it into meta.workdir + 'ancil/stellar_models/{0}/'.format(sm)
-    filepath = sm_dir_run + filename
-    print('Was the stellar model fits file called {0} already downloaded?:'.format(filename), os.path.exists(filepath), '\n')
+    filepath = sm_dir_run / filename
+    print(f'Was the stellar model fits file called {filename} already downloaded?:', filepath.exists(), '\n')
     if not filepath.exists():
         downloader(full_url)
-        os.rename(filename, filepath)
+        Path(filename).rename(filepath)
 
     # the files contains all available log g for a specific metallicity and temperature
     hdul = fits.open(filepath)
@@ -209,13 +209,13 @@ def get_sm(meta, user_met, user_logg, user_teff):
     possible_loggs = np.array(possible_loggs)
     chosen_logg = find_nearest(possible_loggs, user_logg)
     if user_logg not in possible_loggs:
-        print('Possible logg: {0}'.format(possible_loggs))
-        print('For input logg {}, closest logg is {}.\n'.format(user_logg, chosen_logg))
+        print(f'Possible logg: {possible_loggs}'.format(possible_loggs))
+        print(f'For input logg {user_logg}, closest logg is {chosen_logg}.\n')
     elif user_logg in possible_loggs:
-        print('Possible logg: {0}'.format(possible_loggs))
-        print('Using input logg of {}.\n'.format(user_logg))
+        print(f'Possible logg: {possible_loggs}')
+        print(f'Using input logg of {user_logg}.\n')
 
-    chosen_logg_name = 'g' + str(chosen_logg)[0] + str(chosen_logg)[2]
+    chosen_logg_name = f'g{str(chosen_logg)[0]}{str(chosen_logg)[2]}'
     wvl = hdul[1].data['WAVELENGTH']*1e-10
     flux = hdul[1].data[chosen_logg_name]*1e-7*1e4/1e-10/np.pi
     # flux = flux * wvl

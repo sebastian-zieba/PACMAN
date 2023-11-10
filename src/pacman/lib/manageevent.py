@@ -43,6 +43,9 @@
                         updateevent added.
   2010-11-12  patricio  reimplemented using exec()
 """
+from pathlib import Path
+from typing import List, Optional
+
 import h5py as h5
 
 try:
@@ -51,29 +54,26 @@ except:
     import _pickle as pickle
 
 
-def saveevent(event, filename, save=[], delete=[], protocol=3):
-    """
-    Saves an event in .dat (using cpickle) and .h5 (using h5py) files.
+def saveevent(event, filename: Path, save: Optional[List[str]] = [],
+              delete: Optional[List[str]] = [], protocol: Optional[int] = 3):
+    """Saves an event in .dat (using cpickle) and .h5 (using h5py) files.
 
     Parameters
     ----------
-    event    : An Event instance.
-    filename : String
-               The string contains the name of the event file.
-    save     : String tuple
-               The elements of this tuple contain the parameters to save.
-               We usually use the values: 'data', 'uncd', 'head', 'bdmskd',
-               'brmksd' or 'mask'.
-    delete   : String tuple
-               Parameters to be deleted.
+    event : An Event instance.
+    filename : pathlib.Path
+        Path to the event file.
+    save : list of str, optional
+        The elements of this tuple contain the parameters to save.
+        We usually use the values: 'data', 'uncd', 'head', 'bdmskd',
+        'brmksd' or 'mask'.
+    delete : list of str, optional
+        Parameters to be deleted.
 
     Notes
     -----
     The input filename should not have the .dat nor the .h5 extentions.
     Side effect: This routine deletes all parameters except 'event' after saving it.
-
-    Returns
-    -------
 
     Examples
     --------
@@ -83,9 +83,8 @@ def saveevent(event, filename, save=[], delete=[], protocol=3):
     ---------
     2010-07-10  patricio  Added documentation.     pcubillos@fulbrightmail.org
     """
-
     if save != []:
-        handle = h5.File(filename + '.h5', 'w')
+        handle = h5.File(f'{filename}.h5', 'w')
         for param in save:
             exec('handle["' + param + '"] = event.' + param)
             exec('del(event.' + param + ')')
@@ -108,14 +107,15 @@ def saveevent(event, filename, save=[], delete=[], protocol=3):
     handle.close()
 
 
-def loadevent(filename, load=[], loadfilename=None):
+def loadevent(filename: Path, load: Optional[List[str]] = [],
+              loadfilename: Optional[bool] = None):
     """Loads an event stored in .dat and .h5 files.
 
     Parameters
     ----------
-    filename : String
-        The string contains the name of the event file.
-    load : String tuple
+    filename : pathlib.Path
+        Path to the event file.
+    load : list of str
         The elements of this tuple contain the parameters to read.
         We usually use the values: 'data', 'uncd', 'head', 'bdmskd',
         'brmskd' or 'mask'.
@@ -136,7 +136,6 @@ def loadevent(filename, load=[], loadfilename=None):
     ---------
     2010-07-10  patricio  Added documentation.     pcubillos@fulbrightmail.org
     """
-    from astropy.io import fits
     handle = open(f'{filename}.dat', 'rb')
     event = pickle.load(handle, encoding='latin1')
     handle.close()
@@ -157,15 +156,15 @@ def loadevent(filename, load=[], loadfilename=None):
     return event
 
 
-def updateevent(event, filename, add):
+def updateevent(event, filename: Path, add: List[str]):
     """Adds parameters given by add from filename to event.
 
     Parameters
     ----------
     event : An Event instance.
-    filename : String
-        The string contains the name of the event file.
-    add : String tuple
+    filename : pathlib.Path
+        Path to the event file.
+    add : list of str
         The elements of this tuple contain the parameters to
         add.  We usually use the values: 'data', 'uncd', 'head',
         'bdmskd', 'brmaskd' or 'mask'.
@@ -190,9 +189,9 @@ def updateevent(event, filename, add):
 
     for param in add:
         exec('event.' + param + ' = event2.' + param)
-        # calibration data
+
+        # Calibration data
         if event.havecalaor:
             exec('event.pre' + param + ' = event2.pre' + param)
             exec('event.post' + param + ' = event2.post' + param)
-
     return event

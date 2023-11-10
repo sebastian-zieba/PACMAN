@@ -1,6 +1,5 @@
 import os
 import math
-import glob
 from pathlib import Path
 from typing import Optional
 
@@ -85,8 +84,8 @@ def ancil(meta, s10: Optional[bool] = False, s20: Optional[bool] = False):
 
     meta.mask_sp = np.array([i[0] for i in filelist['instr']]) == 'G'
     meta.mask_di = np.array([i[0] for i in filelist['instr']]) == 'F'
-    meta.files_sp = [meta.datadir / i for i in filelist['filenames'][meta.mask_sp].data]
-    meta.files_di = [meta.datadir / i for i in filelist['filenames'][meta.mask_di].data]
+    meta.files_sp = [Path(meta.datadir) / i for i in filelist['filenames'][meta.mask_sp].data]
+    meta.files_di = [Path(meta.datadir) / i for i in filelist['filenames'][meta.mask_di].data]
 
     f = fits.open(meta.files_sp[0])
     meta.ra = f[0].header['ra_targ'] * math.pi / 180.0  # stores right ascension
@@ -536,17 +535,18 @@ def read_fitfiles(meta):
         print('Spectroscopic light curve fit(s) will be performed')
         if meta.s30_most_recent_s21:
             # find most recent bins directory
-            lst_dir = np.array([f.path for f in (meta.workdir / "extracted_sp").walk() if f.is_dir()])
-            dirs_bool = np.array([Path('bins') in i for i in lst_dir])
+            lst_dir = np.array([path for path in (meta.workdir / "extracted_sp").iterdir()
+                                if path.is_dir()])
+            dirs_bool = np.array(['bins' in i.name for i in lst_dir])
             lst_dir = lst_dir[dirs_bool]
-            dirs_times = [i[-19:] for i in lst_dir] # there are 19 digits in the typical '%Y-%m-%d_%H-%M-%S' format
+            dirs_times = [i.name[-19:] for i in lst_dir]  # There are 19 digits in the typical '%Y-%m-%d_%H-%M-%S' format
             # sort the times
             times_sorted = sn(dirs_times)
             # most recent time
             recent_time = times_sorted[-1]
             idx = 0
             for i in range(len(lst_dir)):
-                if lst_dir[i][-19:] == recent_time:
+                if lst_dir[i].name[-19:] == recent_time:
                     idx = i
             spec_dir_full = lst_dir[idx]
             #spec_dir_full = meta.workdir + "/extracted_sp/" + spec_dir
@@ -564,6 +564,7 @@ def read_fitfiles(meta):
 
     print('Identified file(s) for fitting:', files)
     meta.nfits = len(files)
+    breakpoint()
     return files, meta
 
 

@@ -55,7 +55,7 @@ def diagnostics_plot(D, M, indmax, outlier_array, f_opt, profile, i, ii, meta):
     opextr_dir = meta.workdir / 'figs' / 's20_optextr'
     if not opextr_dir.exists():
         opextr_dir.mkdir(parents=True)
-    plt.savefig(opextr_dir / f'optextr{i}-{ii}.png', ii,
+    plt.savefig(opextr_dir / f'optextr{i}-{ii}.png',
                 dpi=120, bbox_inches='tight', pad_inches=0.05)
     plt.close('all')
     plt.clf()

@@ -10,8 +10,7 @@ from .lib import manageevent as me
 
 
 def run01(eventlabel, workdir: Path, meta=None):
-    """
-    This function downloads the location of HST during the observations.
+    """This function downloads the location of HST during the observations.
 
     - Retrieves vector data of Hubble from JPL's HORIZONS system on https://ssd.jpl.nasa.gov/horizons_batch.cgi (see Web interface on https://ssd.jpl.nasa.gov/horizons.cgi)
       Based on a perl script found on https://renenyffenegger.ch/notes/Wissenschaft/Astronomie/Ephemeriden/JPL-Horizons
