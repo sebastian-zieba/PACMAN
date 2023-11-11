@@ -133,16 +133,13 @@ def test_s00(capsys):
     and the filelist file.
     """
     reload(s00)
-
-    if os.name == 'posix':
-        pcf_path = test_path / 'run_files_unix'
-    elif os.name == 'nt':
-        pcf_path = test_path / 'run_files_windows'
+    pcf_path = test_path / 'run_files'
 
     # Run s00
     meta = s00.run00(eventlabel, pcf_path)
     workdir = meta.workdir
     time.sleep(1)
+    breakpoint()
 
     # run assertions
     assert workdir.exists()
