@@ -91,7 +91,7 @@ class Param:
 
 
 class Pcf:
-    def __init__(self, params: np.ndarray[str, Any]) -> None:
+    def __init__(self, params: np.ndarray) -> None:
         """The class's constructor."""
         for parname in params:
             value = None
