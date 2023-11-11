@@ -167,10 +167,9 @@ def get_sm(meta, user_met, user_logg: float, user_teff: float):
                     all_files.append(html[idx2 + 2:idx3])
             html = html[idx3 + 4:]
 
-        f = open(file_list_path, 'w')
-        for file in all_files:
-            f.write(file + '\n')
-        f.close()
+        with file_list_path.open('w') as f:
+            for file in all_files:
+                f.write(file + '\n')
     else:
         all_files = np.loadtxt(file_list_path, dtype=str).T
 

@@ -18,7 +18,6 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable, axes_size
 
 from .formatter import FormatParams
 from .model import calc_astro
-from .sort_nicely import sort_nicely as sn
 from ..lib import util
 
 sns.set_context("talk")

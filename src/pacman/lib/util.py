@@ -1,4 +1,3 @@
-import os
 import math
 from pathlib import Path
 from typing import Optional
@@ -36,9 +35,9 @@ def readfiles(meta):
         Written by Sebastian Zieba      December 2021
     """
     meta.segment_list = []
-    for fname in os.listdir(str(meta.datadir)):
-        if fname.endswith(meta.suffix + '.fits'):
-            meta.segment_list.append(str(meta.datadir) + os.path.sep + fname)
+    for fname in meta.datadir.iterdir():
+        if fname.name.endswith(f'{meta.suffix}.fits'):
+            meta.segment_list.append(meta.datadir / fname)
     return meta
 
 
@@ -672,15 +671,14 @@ def format_params_for_sampling(params, meta, fit_par):
 
 def make_lsq_rprs_txt(vals, errs, idxs, meta):
     """Saves the rprs vs wvl as a txt file as resulting from the lsq."""
-    f_lsq = open(os.path.join(meta.workdir, meta.fitdir, 'lsq_res', "lsq_rprs.txt"), 'w')
-    rp_idx = np.where(np.array(meta.labels) == 'rp')[0][0]
-    rprs_vals_lsq = [vals[ii][idxs[0][rp_idx]] for ii in range(len(vals))]
-    rprs_errs_lsq = [errs[ii][idxs[0][rp_idx]] for ii in range(len(errs))]
-    file_header = ['wavelength (micron)', 'rprs', 'rprs_err']
-    print("#{: <24} {: <25} {: <25}".format(*file_header), file=f_lsq)
-    for row in zip(meta.wavelength_list, rprs_vals_lsq, rprs_errs_lsq):
-        print("{: <25} {: <25} {: <25}".format(*row), file=f_lsq)
-    f_lsq.close()
+    with (meta.workdir / meta.fitdir / 'lsq_res'/ "lsq_rprs.txt").open('w') as f_lsq:
+        rp_idx = np.where(np.array(meta.labels) == 'rp')[0][0]
+        rprs_vals_lsq = [vals[ii][idxs[0][rp_idx]] for ii in range(len(vals))]
+        rprs_errs_lsq = [errs[ii][idxs[0][rp_idx]] for ii in range(len(errs))]
+        file_header = ['wavelength (micron)', 'rprs', 'rprs_err']
+        print("#{: <24} {: <25} {: <25}".format(*file_header), file=f_lsq)
+        for row in zip(meta.wavelength_list, rprs_vals_lsq, rprs_errs_lsq):
+            print("{: <25} {: <25} {: <25}".format(*row), file=f_lsq)
 
 
 def make_rprs_txt(vals, errs_lower, errs_upper, meta, fitter=None):
@@ -690,19 +688,17 @@ def make_rprs_txt(vals, errs_lower, errs_upper, meta, fitter=None):
     errors_lower = np.array(errs_lower).T[rp_idx]
     errors_upper = np.array(errs_upper).T[rp_idx]
     if fitter == 'mcmc':
-        f_mcmc = open(os.path.join(meta.workdir, meta.fitdir, 'mcmc_res', "mcmc_rprs.txt"), 'w')
-        file_header = ['wavelength (micron)', 'rprs', 'rprs_err_lower', 'rprs_err_upper']
-        print("#{: <24} {: <25} {: <25} {: <25}".format(*file_header), file=f_mcmc)
-        for row in zip(meta.wavelength_list, medians, errors_lower, errors_upper):
-            print("{: <25} {: <25} {: <25} {: <25}".format(*row), file=f_mcmc)
-        f_mcmc.close()
+        with (meta.workdir / meta.fitdir / 'mcmc_res' / "mcmc_rprs.txt").open('w') as f_mcmc:
+            file_header = ['wavelength (micron)', 'rprs', 'rprs_err_lower', 'rprs_err_upper']
+            print("#{: <24} {: <25} {: <25} {: <25}".format(*file_header), file=f_mcmc)
+            for row in zip(meta.wavelength_list, medians, errors_lower, errors_upper):
+                print("{: <25} {: <25} {: <25} {: <25}".format(*row), file=f_mcmc)
     if fitter == 'nested':
-        f_nested = open(os.path.join(meta.workdir, meta.fitdir, 'nested_res', "nested_rprs.txt"), 'w')
-        file_header = ['wavelength (micron)', 'rprs', 'rprs_err_lower', 'rprs_err_upper']
-        print("#{: <24} {: <25} {: <25} {: <25}".format(*file_header), file=f_nested)
-        for row in zip(meta.wavelength_list, medians, errors_lower, errors_upper):
-            print("{: <25} {: <25} {: <25} {: <25}".format(*row), file=f_nested)
-        f_nested.close()
+        with (meta.workdir / meta.fitdir / 'nested_res' / "nested_rprs.txt").open('w') as f_nested:
+            file_header = ['wavelength (micron)', 'rprs', 'rprs_err_lower', 'rprs_err_upper']
+            print("#{: <24} {: <25} {: <25} {: <25}".format(*file_header), file=f_nested)
+            for row in zip(meta.wavelength_list, medians, errors_lower, errors_upper):
+                print("{: <25} {: <25} {: <25} {: <25}".format(*row), file=f_nested)
 
 
 def quantile(x, q):

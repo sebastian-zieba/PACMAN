@@ -6,7 +6,7 @@ import scipy.signal
 def smooth(x, nsmooth):
     """Applies a boxcar smooth of length nsmooth to the vector x.
     Returns the smoothed vector."""
-    #interpolates over masked values
+    # Interpolates over masked values
     if (sum(x == 0) > 0) & (sum(x) > 0):
         bpix = x == 0.0
         gpix = ~bpix

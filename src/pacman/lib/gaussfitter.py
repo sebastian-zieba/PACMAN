@@ -5,10 +5,10 @@
 
    Latest version available at <http://code.google.com/p/agpy/source/browse/trunk/agpy/gaussfitter.py>
 
-   Note about mpfit/leastsq: 
+   Note about mpfit/leastsq:
    I switched everything over to the Markwardt mpfit routine for a few reasons,
    but foremost being the ability to set limits on parameters, not just force them
-   to be fixed.  As far as I can tell, leastsq does not have that capability.  
+   to be fixed.  As far as I can tell, leastsq does not have that capability.
 
    The version of mpfit I use can be found here:
        http://code.google.com/p/agpy/source/browse/trunk/mpfit

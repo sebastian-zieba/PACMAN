@@ -44,8 +44,8 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
     sampler.run_mcmc(pos, meta.run_nsteps, progress=True)
 
     # Dump the samples into a file using pickle
-    with open(meta.workdir / meta.fitdir / 'mcmc_res' /
-              f'mcmc_out_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.p', "wb") as pickle_file:
+    with (meta.workdir / meta.fitdir / 'mcmc_res' /
+          f'mcmc_out_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.p').open("wb") as pickle_file:
         pickle.dump([data, params, sampler.chain], pickle_file)
     nburn = meta.run_nburn
 
@@ -82,11 +82,10 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
         errors_upper.append(abs(q[2] - q[1]))
 
     # Saving sampling results into txt files
-    f_mcmc = open(meta.workdir / meta.fitdir / 'mcmc_res' /
-                  f"mcmc_res_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt", 'w')
-    for row in zip(errors_lower, medians, errors_upper, labels):
-        print(f'{row[3]: >8}: {row[1]: >24} {row[0]: >24} {row[2]: >24} ', file=f_mcmc)
-    f_mcmc.close()
+    with (meta.workdir / meta.fitdir / 'mcmc_res' /
+     f"mcmc_res_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt").open('w') as f_mcmc:
+        for row in zip(errors_lower, medians, errors_upper, labels):
+            print(f'{row[3]: >8}: {row[1]: >24} {row[0]: >24} {row[2]: >24} ', file=f_mcmc)
 
     updated_params = util.format_params_for_Model(medians, params, nvisit, fixed_array, tied_array, free_array)
     fit = model.fit(data, updated_params)
@@ -97,11 +96,10 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
     plots.rmsplot(model, data, meta, fitter='mcmc')
 
     if meta.s30_fit_white:
-        outfile = open(meta.workdir / meta.fitdir / 'white_systematics_mcmc.txt', "w")
-        for i in range(len(fit.all_sys)):
-            print(fit.all_sys[i], file=outfile)
-        print('Saved white_systematics.txt file for mcmc run')
-        outfile.close()
+        with (meta.workdir / meta.fitdir / 'white_systematics_mcmc.txt').open("w") as outfile:
+            for i in range(len(fit.all_sys)):
+                print(fit.all_sys[i], file=outfile)
+            print('Saved white_systematics.txt file for mcmc run')
 
     #samples_auto1 = sampler.get_chain(discard=nburn, flat=True)
     #tau = emcee.autocorr.integrated_time(samples_auto1, quiet=True)

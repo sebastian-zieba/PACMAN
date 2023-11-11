@@ -67,10 +67,10 @@ def workdir_finder():
     return workdir, eventlabel
 
 
-def delete_dir(dir_name):
-    if os.path.exists(dir_name):
+def delete_dir(dir_name: Path) -> None:
+    if dir_name.exists():
         print('Old dir found and deleted')
-        os.system("rm -r {0}".format(dir_name))
+        os.system(f"rm -r {dir_name}")
 
 
 @pytest.mark.run(order=1)
@@ -79,8 +79,6 @@ def test_sessionstart(capsys):
     used in this test using astroquery.
     """
     test_dir = Path(__file__).parent
-
-    eventlabel = 'GJ1214_13021'
     dirs = np.array([path for path in test_path.iterdir() if path.is_dir()])
     dirs_bool = np.array(['run_2' in dir.name for dir in dirs])
     dirs = dirs[dirs_bool]
@@ -116,7 +114,7 @@ def test_sessionstart(capsys):
                                    download_dir=str(test_dir))
 
     filelist = []
-    for tree, fol, fils in os.walk(mast_dir):
+    for tree, _, fils in os.walk(mast_dir):
         filelist.extend([Path(tree) / fil for fil in fils if fil.endswith('.fits')])
 
     for fil in filelist:
@@ -160,10 +158,10 @@ def test_s01(capsys):
     workdir, eventlabel = workdir_finder()
 
     # Run s01
-    meta = s01.run01(eventlabel, workdir)
+    _ = s01.run01(eventlabel, workdir)
     horizons_file = workdir / 'ancil' / 'horizons' / 'horizons_results_v0.txt'
 
-    # run assertions
+    # Run assertions
     assert horizons_file.exists()
 
 
@@ -177,23 +175,22 @@ def my_round(num):
 @pytest.mark.run(order=4)
 def test_horizons(capsys):
     """Check the shape of the HORIZONS file."""
-    workdir, eventlabel = workdir_finder()
+    workdir, _ = workdir_finder()
 
-    horizons_file = os.path.join(workdir,'ancil','horizons','horizons_results_v0.txt' )
+    horizons_file = workdir / 'ancil' / 'horizons' / 'horizons_results_v0.txt'
 
     start_data = '$$SOE'
     end_data = '$$EOE'
 
     # Read in whole table as an list of strings, one string per line
-    ctable = open(horizons_file, 'r')
-    wholetable = ctable.readlines()
-    ctable.close()
+    with horizons_file.open('r') as ctable:
+        wholetable = ctable.readlines()
 
     # Find start and end line
     i = 0
-    # while end has not been found:
+    # While end has not been found:
     while wholetable[i].find(end_data) == -1:
-        # if start is found get the index of next line:
+        # If start is found get the index of next line:
         if wholetable[i].find(start_data) != -1:
             start = i + 1
         i += 1
@@ -221,7 +218,7 @@ def test_s02(capsys):
     workdir, eventlabel = workdir_finder()
 
     # Run s02
-    meta = s02.run02(eventlabel, workdir)
+    _ = s02.run02(eventlabel, workdir)
 
     filelist_file = workdir / 'filelist.txt'
     assert filelist_file.exists()
@@ -241,7 +238,7 @@ def test_s03(capsys):
     workdir, eventlabel = workdir_finder()
 
     # Run s03
-    meta = s03.run03(eventlabel, workdir)
+    _ = s03.run03(eventlabel, workdir)
     sm_file = workdir / 'ancil' / 'stellar_models' / 'k93models' / 'kp03_3500.fits'
     assert sm_file.exists()
 
@@ -275,7 +272,7 @@ def test_s10(capsys):
     workdir, eventlabel = workdir_finder()
 
     # Run s10
-    meta = s10.run10(eventlabel, workdir)
+    _ = s10.run10(eventlabel, workdir)
 
     xrefyref_file = workdir / 'xrefyref.txt'
     assert xrefyref_file.exists()
@@ -361,7 +358,9 @@ def test_s20(capsys):
     spec_box_0 = 15 * 10
     var_box_0 = 1
 
-    [f_opt_0, var_opt_0, numoutliers] = optextr.optextr(spectrum, err, spec_box_0, var_box_0, Mnew, meta.nsmooth, meta.sig_cut, meta.save_optextr_plot, 0, 0, meta)
+    [f_opt_0, _, numoutliers] = optextr.optextr(
+            spectrum, err, spec_box_0, var_box_0, Mnew,
+            meta.nsmooth, meta.sig_cut, meta.save_optextr_plot, 0, 0, meta)
 
     assert np.round(np.sum(f_opt_0), 0) == np.round(np.sum(spectrum), 0) #optimal extraction flux should be the same as the total flux in the array 
     assert numoutliers == 0  # We didnt introduce any outliers

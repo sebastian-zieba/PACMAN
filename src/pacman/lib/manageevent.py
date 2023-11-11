@@ -101,9 +101,8 @@ def saveevent(event, filename: Path, save: Optional[List[str]] = [],
             exec('del(event.pre' + param + ', event.post' + param + ')')
 
     # Pickle-Save the event
-    handle = open(f'{filename}.dat', 'wb')
-    pickle.dump(event, handle, protocol)
-    handle.close()
+    with Path(f'{filename}.dat').open('wb') as handle:
+        pickle.dump(event, handle, protocol)
 
 
 def loadevent(filename: Path, load: Optional[List[str]] = [],
@@ -135,9 +134,8 @@ def loadevent(filename: Path, load: Optional[List[str]] = [],
     ---------
     2010-07-10  patricio  Added documentation.     pcubillos@fulbrightmail.org
     """
-    handle = open(f'{filename}.dat', 'rb')
-    event = pickle.load(handle, encoding='latin1')
-    handle.close()
+    with Path(f'{filename}.dat').open('rb') as handle:
+        event = pickle.load(handle, encoding='latin1')
 
     if loadfilename == None:
         loadfilename = filename

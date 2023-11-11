@@ -102,16 +102,14 @@ class Pcf:
             setattr(self, parname[0], Param(value))
 
     def make_file(self, name: Path) -> None:
-        file = open(name, 'w')
+        with name.open('w') as file:
+            attrib = vars(self)
+            keys = attrib.keys()
 
-        attrib = vars(self)
-        keys = attrib.keys()
-
-        file.write(f"@ {self.pcfname.get()}\n")
-        for key in keys:
-            if key != "pcfname":
-                file.write(f"{key} {attrib.get(key).value[0]}\n")
-        file.close()
+            file.write(f"@ {self.pcfname.get()}\n")
+            for key in keys:
+                if key != "pcfname":
+                    file.write(f"{key} {attrib.get(key).value[0]}\n")
 
 
 def read_pcf(file: Path) -> None:
@@ -120,7 +118,7 @@ def read_pcf(file: Path) -> None:
     pcfsets = []
 
     # NOTE: Read the file
-    with open(file, 'r') as f:
+    with file.open('r') as f:
         lines = f.readlines()
 
     cleanlines = []     # List with only the important lines

@@ -1,7 +1,6 @@
 import sys
 
 import celerite
-import matplotlib.pyplot as plt
 import numpy as np
 from celerite import terms
 

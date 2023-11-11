@@ -76,8 +76,8 @@ def nested_sample(data, model, params, file_name, meta, fit_par):
         pool.join()
 
     # Dump the samples into a file using pickle
-    with open(meta.workdir / meta.fitdir / 'nested_res' /
-              f'nested_out_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.p', "wb") as pickle_file:
+    with (meta.workdir / meta.fitdir / 'nested_res' /
+          f'nested_out_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.p').open("wb") as pickle_file:
         pickle.dump(results, pickle_file)
     #results.summary()
 
@@ -102,12 +102,11 @@ def nested_sample(data, model, params, file_name, meta, fit_par):
         errors_upper.append(abs(q[2] - q[1]))
 
     # Saving sampling results into txt files
-    f_mcmc = open(meta.workdir / meta.fitdir / 'nested_res' /
-                  f"nested_res_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt", 'w')
-    for row in zip(errors_lower, medians, errors_upper, labels):
-        print('{0: >8}: '.format(row[3]), '{0: >24} '.format(row[1]),
-              '{0: >24} '.format(row[0]), '{0: >24} '.format(row[2]), file=f_mcmc)
-    f_mcmc.close()
+    with (meta.workdir / meta.fitdir / 'nested_res' /
+          f"nested_res_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt").open('w') as f_mcmc:
+        for row in zip(errors_lower, medians, errors_upper, labels):
+            print('{0: >8}: '.format(row[3]), '{0: >24} '.format(row[1]),
+                  '{0: >24} '.format(row[0]), '{0: >24} '.format(row[2]), file=f_mcmc)
 
     updated_params = util.format_params_for_Model(medians, params, nvisit, fixed_array, tied_array, free_array)
     fit = model.fit(data, updated_params)
@@ -118,11 +117,10 @@ def nested_sample(data, model, params, file_name, meta, fit_par):
     plots.rmsplot(model, data, meta, fitter='nested')
 
     if meta.s30_fit_white:
-        outfile = open(meta.workdir / meta.fitdir / 'white_systematics_nested.txt', "w")
-        for i in range(len(fit.all_sys)):
-            print(fit.all_sys[i], file=outfile)
+        with (meta.workdir / meta.fitdir / 'white_systematics_nested.txt').open("w") as outfile:
+            for i in range(len(fit.all_sys)):
+                print(fit.all_sys[i], file=outfile)
         print('Saved white_systematics.txt file for nested sampling run')
-        outfile.close()
     return medians, errors_lower, errors_upper, fit
 
 

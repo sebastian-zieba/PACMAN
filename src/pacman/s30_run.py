@@ -122,10 +122,10 @@ def run30(eventlabel: str, workdir: Path, meta=None):
 
             # Save white systematics file if it was a white fit
             if meta.s30_fit_white == True:
-                outfile = open(fit_dir / 'white_systematics.txt', "w")
-                for i in range(len(model.all_sys)): print(model.all_sys[i], file = outfile)
-                print('Saved white_systematics.txt file')
-                outfile.close()
+                with (fit_dir / 'white_systematics.txt').open("w") as outfile:
+                    for i in range(len(model.all_sys)):
+                        print(model.all_sys[i], file=outfile)
+                    print('Saved white_systematics.txt file')
 
         meta.labels = data.free_parnames
 

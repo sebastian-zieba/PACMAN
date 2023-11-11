@@ -223,9 +223,8 @@ def suntimecorr(meta, obst, coordtable: List[Path], verbose=False):
     end_data = '$$EOE'
 
     # Read in whole table as an list of strings, one string per line
-    ctable = open(coordtable, 'r')
-    wholetable = ctable.readlines()
-    ctable.close()
+    with coordtable.open('r') as ctable:
+        wholetable = ctable.readlines()
 
     # Find start and end line
     i = 0

@@ -26,14 +26,14 @@ def run22(eventlabel: str, workdir: Path, meta=None):
         if not dirname.exists():
             dirname.mkdir(parents=True)
 
-        f = open(meta.workdir / "extracted_sp" / f'ld_inputfile_bins{wvl_bins}.txt', 'w')
-
-        for i in range(wvl_bins-1):
-            params = [i, Teff, logg, MH, '-1', grism, 'P100', wave_bins[i], wave_bins[i+1]]
-            params_bin = '\t'.join(map(str,params))
-            #print(params_bin)
-            print(params_bin, file = f)
-        f.close()
+        with (meta.workdir / "extracted_sp" /
+              f'ld_inputfile_bins{wvl_bins}.txt').open('w') as f:
+            for i in range(wvl_bins-1):
+                params = [i, Teff, logg, MH, '-1', grism, 'P100',
+                          wave_bins[i], wave_bins[i+1]]
+                params_bin = '\t'.join(map(str, params))
+                # print(params_bin)
+                print(params_bin, file=f)
 
     print('Finished s21 \n')
     return meta

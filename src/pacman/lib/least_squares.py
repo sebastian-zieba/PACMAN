@@ -62,11 +62,9 @@ def lsq_fit(fit_par, data, meta, model, myfuncs, noclip=False):
     if m.errmsg: print("MPFIT error message", m.errmsg)
 
     if meta.run_verbose:
-        f_lsq = open(meta.workdir / meta.fitdir / 'lsq_res' /
-                     f"lsq_res_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt",
-                     'w')
-        PrintParams(m, data, savefile=f_lsq)
-        f_lsq.close()
+        with (meta.workdir / meta.fitdir / 'lsq_res' /
+              f"lsq_res_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt").open("w") as f_lsq:
+            PrintParams(m, data, savefile=f_lsq)
         PrintParams(m, data)
 
     if meta.save_fit_lc_plot:
