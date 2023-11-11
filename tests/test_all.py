@@ -137,15 +137,13 @@ def test_s00(capsys):
 
     # Run s00
     meta = s00.run00(eventlabel, pcf_path)
-    workdir = meta.workdir
     time.sleep(1)
-    breakpoint()
 
     # run assertions
-    assert workdir.exists()
-    assert (workdir / 'figs').exists()
+    assert meta.workdir.exists()
+    assert (meta.workdir / 'figs').exists()
 
-    filelist_file = workdir / 'filelist.txt'
+    filelist_file = meta.workdir / 'filelist.txt'
     assert filelist_file.exists()
     filelist = ascii.read(filelist_file)
 
