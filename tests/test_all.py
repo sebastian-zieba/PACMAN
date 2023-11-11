@@ -393,7 +393,7 @@ def test_s21(capsys):
     assert meta.wvl_bins == len(wvl_s21)
 
     # Number of light curves should be the same as meta.wvl_bins
-    extracted_sp_lcs_files = s21_dir.glob("*.txt")
+    extracted_sp_lcs_files = list(s21_dir.glob("*.txt"))
     assert meta.wvl_bins == len(extracted_sp_lcs_files)
 
     # There should be 10 columns as for the /lc_spec.txt file which was generated after running s20.
