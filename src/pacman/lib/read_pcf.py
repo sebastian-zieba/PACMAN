@@ -83,14 +83,10 @@ class Param:
             return self.value[index]
 
     def getarr(self):
-        """
-
-        """
         length = np.size(self.value)
         ret = np.zeros(length, dtype='object')
         for i in np.arange(length):
             ret[i] = self.get(i)
-        breakpoint()
         return ret
 
 
@@ -105,7 +101,7 @@ class Pcf:
                 value = parname[1:]
             setattr(self, parname[0], Param(value))
 
-    def make_file(self, name):
+    def make_file(self, name: Path) -> None:
         file = open(name, 'w')
 
         attrib = vars(self)
@@ -118,19 +114,17 @@ class Pcf:
         file.close()
 
 
-def read_pcf(file):
+def read_pcf(file: Path) -> None:
     """Function to read the file."""
     # NOTE: List containing the set of parameters:
     pcfsets = []
 
     # NOTE: Read the file
-    file = open(file, 'r')
-    lines = file.readlines()
-    file.close()
+    with open(file, 'r') as f:
+        lines = f.readlines()
 
     cleanlines = []     # List with only the important lines
     block = []          # Blocks separator
-
     # NOTE: Clean the lines:
     for i in np.arange(len(lines)):
         line = lines[i]

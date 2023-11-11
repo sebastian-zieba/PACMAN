@@ -171,9 +171,9 @@ def ancil(meta, s10: Optional[bool] = False, s20: Optional[bool] = False):
     if s20:
         meta.rdnoise = 22.0  # read noise
         if meta.grism == 'G102':
-            meta.flat = os.path.join(meta.pacmandir, 'data', 'flats', 'WFC3.IR.G102.flat.2.fits')
+            meta.flat = meta.pacmandir / 'data' / 'flats' / 'WFC3.IR.G102.flat.2.fits'
         elif meta.grism == 'G141':
-            meta.flat = os.path.join(meta.pacmandir, 'data', 'flats', 'WFC3.IR.G141.flat.2.fits')
+            meta.flat = meta.pacmandir / 'data' / 'flats' / 'WFC3.IR.G141.flat.2.fits'
     return meta
 
 # 03
@@ -243,7 +243,7 @@ def di_reformat(meta):
         meta.refpix = np.zeros((iorbit_max + 1, 3))
         for i in range(iorbit_max + 1):
             meta.refpix[i] = [reffile['t_bjd'][i], reffile['pos1'][i], reffile['pos2'][i]]
-            #print(reffile['t_bjd'][i], reffile['pos1'][i], reffile['pos2'][i], file=f)
+            # print(reffile['t_bjd'][i], reffile['pos1'][i], reffile['pos2'][i], file=f)
         # f.close()
 
     # Second case: Every visit has just one DI
@@ -564,7 +564,6 @@ def read_fitfiles(meta):
 
     print('Identified file(s) for fitting:', files)
     meta.nfits = len(files)
-    breakpoint()
     return files, meta
 
 
@@ -723,21 +722,24 @@ def create_res_dir(meta):
     """Creates the result directory depending on which fitters were used."""
     print('H11', meta.workdir)
     print('H22', meta.fitdir)
-    print('H33', os.path.join(meta.workdir, meta.fitdir, 'lsq_res'))
-    print('DOES IT EXIST', os.path.isdir(os.path.join(meta.workdir, meta.fitdir, 'lsq_res')))
-    print('DOES IT EXIST', os.path.isdir(meta.workdir + '/' + meta.fitdir + '/' + 'lsq_res'))
-    os.makedirs(meta.workdir + '/' + meta.fitdir + '/' + 'lsq_res')
+
+    lsq_res_dir = meta.workdir / meta.fitdir / 'lsq_res'
+    print('H33', lsq_res_dir)
+    print('DOES IT EXIST', lsq_res_dir.exists())
+    if not lsq_res_dir.exists():
+        lsq_res_dir.mkdir(parents=True)
     print('DOES THIS STILL RUN?')
-    os.makedirs(os.path.join(meta.workdir, meta.fitdir, 'lsq_res'))
+    mcmc_res_dir = meta.workdir / meta.fitdir / 'mcmc_res'
+    nested_res_dir = meta.workdir / meta.fitdir / 'nested_res'
     if meta.run_lsq:
-        if not os.path.isdir(os.path.join(meta.workdir, meta.fitdir, 'lsq_res')):
-            os.makedirs(os.path.join(meta.workdir, meta.fitdir, 'lsq_res'))
+        if not lsq_res_dir.exists():
+            lsq_res_dir.mkdir(parents=True)
     if meta.run_mcmc:
-        if not os.path.isdir(os.path.join(meta.workdir, meta.fitdir, 'mcmc_res')):
-            os.makedirs(os.path.join(meta.workdir, meta.fitdir, 'mcmc_res'))
+        if not mcmc_res_dir.exists():
+            mcmc_res_dir.mkdir(parents=True)
     if meta.run_nested:
-        if not os.path.isdir(os.path.join(meta.workdir, meta.fitdir, 'nested_res')):
-            os.makedirs(os.path.join(meta.workdir, meta.fitdir, 'nested_res'))
+        if not nested_res_dir.exists():
+            nested_res_dir.mkdir(parents=True)
 
 
 def log_run_setup(meta):

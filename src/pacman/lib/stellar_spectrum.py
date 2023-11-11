@@ -1,4 +1,3 @@
-import os.path
 import urllib.request
 from pathlib import Path
 from urllib.request import urlopen

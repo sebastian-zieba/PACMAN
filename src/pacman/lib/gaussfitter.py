@@ -1,26 +1,26 @@
-"""
-===========
-gaussfitter
-===========
-.. codeauthor:: Adam Ginsburg <adam.g.ginsburg@gmail.com> 3/17/08
+"""===========
+   Gaussfitter
+   ===========
+   .. codeauthor:: Adam Ginsburg <adam.g.ginsburg@gmail.com> 3/17/08
 
-Latest version available at <http://code.google.com/p/agpy/source/browse/trunk/agpy/gaussfitter.py>
+   Latest version available at <http://code.google.com/p/agpy/source/browse/trunk/agpy/gaussfitter.py>
 
-Note about mpfit/leastsq: 
-I switched everything over to the Markwardt mpfit routine for a few reasons,
-but foremost being the ability to set limits on parameters, not just force them
-to be fixed.  As far as I can tell, leastsq does not have that capability.  
+   Note about mpfit/leastsq: 
+   I switched everything over to the Markwardt mpfit routine for a few reasons,
+   but foremost being the ability to set limits on parameters, not just force them
+   to be fixed.  As far as I can tell, leastsq does not have that capability.  
 
-The version of mpfit I use can be found here:
-    http://code.google.com/p/agpy/source/browse/trunk/mpfit
+   The version of mpfit I use can be found here:
+       http://code.google.com/p/agpy/source/browse/trunk/mpfit
 
-.. todo::
-    -turn into a class instead of a collection of objects
-    -implement WCS-based gaussian fitting with correct coordinates
+   .. todo::
+       -turn into a class instead of a collection of objects
+       -implement WCS-based gaussian fitting with correct coordinates
 """
 import numpy
 from numpy.ma import median
 from numpy import pi
+
 from . import mpfit
 
 

@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 from typing import List
 
@@ -755,7 +754,7 @@ def refspec_fit(modelx, modely, p0, datax, datay, leastsq_res, meta, i):
         s20_refspec_fit_dir = meta.workdir / 'figs' / 's20_refspec_fit'
         if not s20_refspec_fit_dir.exists():
             s20_refspec_fit_dir.mkdir(parents=True)
-        plt.savefig(s20_refspec_fit_dir / f'/refspec_fit_{i}.png',
+        plt.savefig(s20_refspec_fit_dir / f'refspec_fit_{i}.png',
                     bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
         plt.clf()
@@ -1096,9 +1095,9 @@ def plot_fit_lc3(data, fit, meta, mcmc=False):
 
     plt.tight_layout()
     # plt.show()
-    fit_lc_dir = meta.workdir + meta.fitdir + 'fit_lc'
-    if not os.path.isdir(fit_lc_dir):
-        os.makedirs(fit_lc_dir)
+    fit_lc_dir = meta.workdir / meta.fitdir / 'fit_lc'
+    if not fit_lc_dir.exists():
+        fit_lc_dir.mkdir(parents=True)
     if mcmc:
         plt.savefig(fit_lc_dir / f'newmcmc_lc_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png')
     else:
@@ -1127,9 +1126,9 @@ def save_astrolc_data(data, fit, meta):
     table_nosys['time_nosys'] = np.array(data.time, dtype=np.float64)
     table_nosys['flux_nosys'] = np.array(fit.data_nosys, dtype=np.float64)
 
-    fit_lc_dir = meta.workdir + meta.fitdir + 'fit_lc'
-    if not os.path.isdir(fit_lc_dir):
-        os.makedirs(fit_lc_dir)
+    fit_lc_dir = meta.workdir / meta.fitdir / 'fit_lc'
+    if not fit_lc_dir.exists():
+        fit_lc_dir.mkdir(parents=True)
     ascii.write(table_model, fit_lc_dir / f'fit_lc_data_model_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt',
                 format='rst', overwrite=True)
     ascii.write(table_nosys, fit_lc_dir / f'fit_lc_data_nosys_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt',

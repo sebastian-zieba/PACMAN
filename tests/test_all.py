@@ -12,7 +12,6 @@ from astropy.table import Table
 from importlib import reload
 from photutils.datasets import make_noise_image, make_gaussian_sources_image
 
-from pacman.lib import util
 from pacman import s00_table as s00
 from pacman import s01_horizons as s01
 from pacman import s02_barycorr as s02
@@ -415,7 +414,7 @@ def test_s30(capsys):
     meta = s30.run30(eventlabel, workdir)
 
     dirs = np.array([path for path in workdir.iterdir() if path.is_dir()])
-    dirs_bool = np.array([b'fit_' in i.name for i in dirs])
+    dirs_bool = np.array(['fit_' in dir.name for dir in dirs])
     fit_dirs = dirs[dirs_bool]
     fit_dir = fit_dirs[0]
     assert fit_dir.exists()
@@ -426,7 +425,7 @@ def test_s30(capsys):
     s30.run30(eventlabel, workdir, meta=meta)
 
     dirs = np.array([path for path in workdir.iterdir() if path.is_dir()])
-    dirs_bool = np.array([b'fit_' in i.name for i in dirs])
+    dirs_bool = np.array(['fit_' in dir.name for dir in dirs])
 
     print('dirs_bool: ', dirs_bool)
     assert True
@@ -437,7 +436,7 @@ def test_sessionfinish(capsys):
     """Called after whole test run finished. It will delete the created
     work directory and the downloaded HST files.
     """
-    workdir, eventlabel = workdir_finder()
+    workdir, _ = workdir_finder()
     test_dir = Path(__file__).parent
     data_dir = test_dir / 'data'
     os.system(f"rm -r {data_dir}")

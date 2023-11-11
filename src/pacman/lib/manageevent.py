@@ -22,18 +22,17 @@
       Adds parameters given by add from filename to event.
 
 
-  Examples:
-      ---------
+  Examples
+  --------
   >>> from manageevent import *
-  >>> # Save  hd209bs51_ini.dat and hd209bs51_ini.h5 files.
+  # Save  hd209bs51_ini.dat and hd209bs51_ini.h5 files.
+  >>> saveevent(event, 'd209bs51_ini',
+                save=['data', 'head','uncd', 'bdmskd'])
 
-  >>> saveevent(event, 'd209bs51_ini', save=['data', 'head','uncd',
-                                             'bdmskd'])
-
-  >>> # Load the event and its data frames
+  # Load the event and its data frames
   >>> event = loadevent('hd209bs51_ini', ['data'])
 
-  >>> # Load uncd and bdmsk into event:
+  # Load uncd and bdmsk into event:
   >>> updateevent(event, 'hd209bs51_ini', ['uncd', 'bdmskd'])
 
   Revisions
@@ -50,7 +49,7 @@ import h5py as h5
 
 try:
     import cPickle as pickle
-except:
+except Exception:
     import _pickle as pickle
 
 

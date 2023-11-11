@@ -1,4 +1,3 @@
-import os
 import time
 import pkg_resources
 import shutil
@@ -139,31 +138,31 @@ def run00(eventlabel: str, pcf_path: Optional[Path] = Path.cwd()):
     times = np.zeros(len(files))
     exp = np.zeros(len(files))
     instr = np.zeros(len(files), object)
-    scans = np.zeros(len(files), dtype=int) #stores scan directions
+    scans = np.zeros(len(files), dtype=int)  # Stores scan directions
 
     postarg2 = np.zeros(len(files))
 
     # Will create a table with the properties of all _ima.fits files at the first run
     for i, file in enumerate(tqdm(files, desc='Reading in files and their headers', ascii=True)):
         ima = fits.open(file)
-        #the header "instr" tells us if the observation used a Filter (-> Direct Image) or a Grism (-> Spectrum)
-        #print(repr(ima[0].header))
+        # The header "instr" tells us if the observation used a Filter (-> Direct Image) or a Grism (-> Spectrum)
+        # print(repr(ima[0].header))
         instr[i] = ima[0].header['filter']
         exp[i] = ima[0].header['exptime']
         times[i] = (ima[0].header['expstart'] + ima[0].header['expend'])/(2.0) # mid exposure time
-        #scan direction
-        # scan: (0: forward - lower flux, 1: reverse - higher flux, -1: Filter)
+        # Scan direction
+        # Scan: (0: forward - lower flux, 1: reverse - higher flux, -1: Filter)
         scans[i] = 0  # sets scan direction
         if ima[0].header['postarg2'] < 0: scans[i] = 1
         if instr[i][0] == 'F': scans[i]= -1
         postarg2[i] = ima[0].header['postarg2']
         ima.close()
 
-    # files are chronologically sorted
+    # Files are chronologically sorted
     tsort = np.argsort(times)
-    files = np.array([i.split(os.path.sep)[-1] for i in files])[tsort]
-    #files = np.array(files)
-    #files = files[tsort]
+    files = np.array([Path(file).name for file in files])[tsort]
+    # files = np.array(files)
+    # files = files[tsort]
     times = times[tsort]
     exp = exp[tsort]
     instr = instr[tsort]
