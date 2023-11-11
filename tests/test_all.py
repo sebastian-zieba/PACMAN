@@ -1,7 +1,6 @@
 import time
 import os
 import sys
-import glob
 from pathlib import Path
 
 import numpy as np
@@ -381,7 +380,8 @@ def test_s21(capsys):
 
     extracted_sp_dir_path = workdir / 'extracted_sp'
 
-    s21_dir = np.array([path for path in extracted_sp_dir_path.iterdir() if path.is_dir()])[0]
+    s21_dir = np.array([path for path in extracted_sp_dir_path.iterdir()
+                        if path.is_dir()])[0]
     s21_wvl_table_file = s21_dir / 'wvl_table.dat'
     assert s21_wvl_table_file.exists()
     s21_wvl_table = ascii.read(s21_wvl_table_file)
@@ -393,7 +393,7 @@ def test_s21(capsys):
     assert meta.wvl_bins == len(wvl_s21)
 
     # Number of light curves should be the same as meta.wvl_bins
-    extracted_sp_lcs_files = glob.glob(os.path.join(s21_dir, "*.txt"))
+    extracted_sp_lcs_files = s21_dir.glob("*.txt")
     assert meta.wvl_bins == len(extracted_sp_lcs_files)
 
     # There should be 10 columns as for the /lc_spec.txt file which was generated after running s20.
