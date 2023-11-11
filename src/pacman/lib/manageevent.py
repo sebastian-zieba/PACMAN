@@ -25,6 +25,7 @@
   Examples
   --------
   >>> from manageevent import *
+
   # Save  hd209bs51_ini.dat and hd209bs51_ini.h5 files.
   >>> saveevent(event, 'd209bs51_ini',
                 save=['data', 'head','uncd', 'bdmskd'])
@@ -59,7 +60,8 @@ def saveevent(event, filename: Path, save: Optional[List[str]] = [],
 
     Parameters
     ----------
-    event : An Event instance.
+    event :
+        An Event instance.
     filename : pathlib.Path
         Path to the event file.
     save : list of str, optional
@@ -82,25 +84,28 @@ def saveevent(event, filename: Path, save: Optional[List[str]] = [],
     ---------
     2010-07-10  patricio  Added documentation.     pcubillos@fulbrightmail.org
     """
+    filename = filename.stem if isinstance(filename, Path) else filename
     if save != []:
-        handle = h5.File(f'{filename}.h5', 'w')
-        for param in save:
-            exec('handle["' + param + '"] = event.' + param)
-            exec('del(event.' + param + ')')
-            # calibration data
-            if event.havecalaor:
-                exec('handle["pre' + param + '"] = event.pre' + param)
-                exec('handle["post' + param + '"] = event.post' + param)
-                exec('del(event.pre' + param + ', event.post' + param + ')')
-        handle.close()
+        with h5.File(f'{filename}.h5', 'w') as handle:
+            for param in save:
+                handle[param] = getattr(event, param)
+                delattr(event, param)
 
-    # delete if requested
+                # NOTE: Calibration data
+                if event.havecalaor:
+                    handle[f"pre{param}"] = getattr(event, f"pre{param}")
+                    handle[f"post{param}"] = getattr(event, f"post{param}")
+                    delattr(event, f"pre{param}")
+                    delattr(event, f"post{param}")
+
+    # NOTE: Delete if requested
     for param in delete:
-        exec('del(event.' + param + ')')
+        delattr(event, param)
         if event.havecalaor:
-            exec('del(event.pre' + param + ', event.post' + param + ')')
+            delattr(event, f"pre{param}")
+            delattr(event, f"post{param}")
 
-    # Pickle-Save the event
+    # NOTE: Pickle-Save the event
     with Path(f'{filename}.dat').open('wb') as handle:
         pickle.dump(event, handle, protocol)
 
@@ -134,22 +139,22 @@ def loadevent(filename: Path, load: Optional[List[str]] = [],
     ---------
     2010-07-10  patricio  Added documentation.     pcubillos@fulbrightmail.org
     """
+    filename = filename.stem if isinstance(filename, Path) else filename
     with Path(f'{filename}.dat').open('rb') as handle:
         event = pickle.load(handle, encoding='latin1')
 
-    if loadfilename == None:
+    if loadfilename is None:
         loadfilename = filename
 
-    if load != []:
-        handle = h5.File(f'{loadfilename}.h5', 'r')
-        for param in load:
-            exec('event.' + param + ' = handle["' + param + '"][:]')
-            # calibration data:
-            if event.havecalaor:
-                exec('event.pre' + param + ' = handle["pre' + param + '"][:]')
-                exec('event.post' + param + ' = handle["post' + param + '"][:]')
+    if load:
+        with h5.File(f'{loadfilename}.h5', 'r') as handle:
+            for param in load:
+                setattr(event, param, handle[param][:])
 
-        handle.close()
+                # NOTE: Calibration data
+                if event.havecalaor:
+                    setattr(even, f"pre{param}", handle[f"pre{param}"][:])
+                    setattr(even, f"post{param}", handle[f"post{param}"][:])
     return event
 
 
@@ -183,12 +188,11 @@ def updateevent(event, filename: Path, add: List[str]):
     2010-07-10  patricio  Created.     pcubillos@fulbrightmail.org
     """
     event2 = loadevent(filename, load=add)
-
     for param in add:
-        exec('event.' + param + ' = event2.' + param)
+        setattr(event, param, getattr(event2, param))
 
-        # Calibration data
+        # NOTE: Calibration data
         if event.havecalaor:
-            exec('event.pre' + param + ' = event2.pre' + param)
-            exec('event.post' + param + ' = event2.post' + param)
+            setattr(event, f"pre{param}", getattr(event2, f"pre{param}"))
+            setattr(event, f"post{param}", getattr(event2, f"post{param}"))
     return event
