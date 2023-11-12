@@ -118,12 +118,13 @@ def run30(eventlabel: str, workdir: Path, meta=None):
                             clip_idxs = update_clips(clip_idxs)
                             print(clip_idxs)
 
-            if meta.run_verbose == True:
+            if meta.run_verbose:
                 print("rms, chi2red = ", model.rms, model.chi2red)
 
             # Save white systematics file if it was a white fit
-            if meta.s30_fit_white == True:
-                with (fit_dir / 'white_systematics.txt').open("w", encoding=OPTIONS["encoding"]) as outfile:
+            if meta.s30_fit_white:
+                with (fit_dir / 'white_systematics.txt')\
+                        .open("w", encoding="ascii") as outfile:
                     for i in range(len(model.all_sys)):
                         print(model.all_sys[i], file=outfile)
                     print('Saved white_systematics.txt file')
@@ -134,7 +135,7 @@ def run30(eventlabel: str, workdir: Path, meta=None):
             print('\n*STARTS MCMC*')
             time.sleep(1.01)
             if meta.rescale_uncert:
-                ##rescale error bars so reduced chi-squared is one
+                # NOTE: Rescale error bars so reduced chi-squared is one
                 print(f'rescale_uncert in the pcf was set to {meta.rescale_uncert}')
                 if model.chi2red < 1:
                     print('After the first fit, you got chi2_red < 1')

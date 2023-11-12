@@ -7,7 +7,7 @@ from .options import OPTIONS
 
 def nice_fit_par(fit_par_file: Path) -> None:
     fit_par = ascii.read(fit_par_file, Reader=ascii.CommentedHeader)
-    with fit_par_file.open('w', encoding=OPTIONS["encoding"]) as f:
+    with fit_par_file.open('w', encoding='ascii') as f:
         col_size = []
         for i in range(len(fit_par.colnames)):
             data = [str(ii) for ii in fit_par[fit_par.colnames[i]]]
