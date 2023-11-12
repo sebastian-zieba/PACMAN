@@ -27,6 +27,9 @@ from pacman.lib import optextr
 src_dir = Path.cwd() / 'src'
 sys.path.insert(0, src_dir)
 
+# HACK: Sets the encoding to utf-8 for the Github tests.
+sys.stdout.reconfigure(encoding='utf-8')
+
 test_path = Path(__file__).parent
 eventlabel = 'GJ1214_13021'
 
