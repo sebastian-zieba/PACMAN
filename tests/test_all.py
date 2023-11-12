@@ -118,6 +118,10 @@ def test_sessionstart(capsys):
         filelist.extend([Path(tree) / fil for fil in fils if fil.endswith('.fits')])
 
     for fil in filelist:
+        # HACK: On windows file will be not overwritten
+        # so if it exists we remove it
+        if (data_dir / fil.name).exists():
+            os.remove(data_dir / fil.name)
         fil.rename(data_dir / fil.name)
     os.system(f"rm -r {mast_dir}")
     assert True
