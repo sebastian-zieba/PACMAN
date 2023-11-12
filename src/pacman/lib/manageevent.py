@@ -48,6 +48,8 @@ from typing import List, Optional
 
 import h5py as h5
 
+from .options import OPTIONS
+
 try:
     import cPickle as pickle
 except Exception:
@@ -141,7 +143,7 @@ def loadevent(filename: Path, load: Optional[List[str]] = [],
     """
     filename = filename.stem if isinstance(filename, Path) else filename
     with Path(f'{filename}.dat').open('rb') as handle:
-        event = pickle.load(handle, encoding='latin1')
+        event = pickle.load(handle, encoding=OPTIONS["encoding"])
 
     if loadfilename is None:
         loadfilename = filename

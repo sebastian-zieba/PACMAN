@@ -35,7 +35,6 @@ def run10(eventlabel, workdir: Path, meta=None):
 
     #iterate over the direct images
     for i, file in enumerate(tqdm(meta.files_di, desc='Determining Source Positions for Direct Images', ascii=True)):
-
         ima = fits.open(file)
 
         LTV1 = ima[1].header['LTV1']					#X offset to get into physical pixels

@@ -1,6 +1,8 @@
 from pathlib import Path
 from typing import Optional
 
+from .options import OPTIONS
+
 
 class Logedit:
     """This object handles writing text outputs into a log file and to
@@ -86,20 +88,19 @@ class Logedit:
         """
         self.logname = logname
 
-        # Read from previous log
+        # NOTE: Read from previous log
         content = []
         if read is not None:
             try:
-                with read.open('r') as f:
+                with read.open('r', encoding=OPTIONS["encoding"]) as f:
                     content = f.readlines()
             except Exception:
                 pass
 
-        # Append content if there is something
+        # NOTE: Append content if there is something
         if content != []:
-            with logname.open('w') as log:
+            with logname.open('w', encoding=OPTIONS["encoding"]) as log:
                 log.writelines(content)
-        breakpoint()
 
     def writelog(self, message, mute=False):
         """Prints message in the terminal and stores it in the log file."""
@@ -108,7 +109,7 @@ class Logedit:
             print(message)
 
         # NOTE: Print to file
-        self.logname.write_text(f"{message}\n")
+        self.logname.write_text(f"{message}\n", encoding=OPTIONS["encoding"])
 
     def writeclose(self, message):
         """Print message in terminal and log, then close log."""

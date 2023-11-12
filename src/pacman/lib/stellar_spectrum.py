@@ -6,6 +6,8 @@ import numpy as np
 from astropy.io import fits
 from numpy.typing import ArrayLike
 
+from .options import OPTIONS
+
 
 def get_bb(user_teff):
     """Creates a blackbody spectrum for a given stellar effective
@@ -167,7 +169,7 @@ def get_sm(meta, user_met, user_logg: float, user_teff: float):
                     all_files.append(html[idx2 + 2:idx3])
             html = html[idx3 + 4:]
 
-        with file_list_path.open('w') as f:
+        with file_list_path.open('w', encoding=OPTIONS["encoding"]) as f:
             for file in all_files:
                 f.write(file + '\n')
     else:

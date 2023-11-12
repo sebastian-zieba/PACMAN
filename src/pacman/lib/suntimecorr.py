@@ -13,6 +13,7 @@ import numpy as np
 from scipy.constants import c
 
 from . import plots
+from .options import OPTIONS
 from .splinterp import splinterp
 
 
@@ -223,7 +224,7 @@ def suntimecorr(meta, obst, coordtable: List[Path], verbose=False):
     end_data = '$$EOE'
 
     # Read in whole table as an list of strings, one string per line
-    with coordtable.open('r') as ctable:
+    with coordtable.open('r', encoding=OPTIONS["encoding"]) as ctable:
         wholetable = ctable.readlines()
 
     # Find start and end line

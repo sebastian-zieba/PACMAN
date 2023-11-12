@@ -8,6 +8,7 @@ from scipy.stats import norm
 
 from . import plots
 from . import util
+from .options import OPTIONS
 
 
 def transform_uniform(x, a, b):
@@ -77,7 +78,8 @@ def nested_sample(data, model, params, file_name, meta, fit_par):
 
     # Dump the samples into a file using pickle
     with (meta.workdir / meta.fitdir / 'nested_res' /
-          f'nested_out_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.p').open("wb") as pickle_file:
+          f'nested_out_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.p')\
+            .open("wb") as pickle_file:
         pickle.dump(results, pickle_file)
     #results.summary()
 
@@ -103,7 +105,8 @@ def nested_sample(data, model, params, file_name, meta, fit_par):
 
     # Saving sampling results into txt files
     with (meta.workdir / meta.fitdir / 'nested_res' /
-          f"nested_res_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt").open('w') as f_mcmc:
+          f"nested_res_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt")\
+            .open('w', encoding=OPTIONS["encoding"]) as f_mcmc:
         for row in zip(errors_lower, medians, errors_upper, labels):
             print('{0: >8}: '.format(row[3]), '{0: >24} '.format(row[1]),
                   '{0: >24} '.format(row[0]), '{0: >24} '.format(row[2]), file=f_mcmc)
@@ -117,7 +120,8 @@ def nested_sample(data, model, params, file_name, meta, fit_par):
     plots.rmsplot(model, data, meta, fitter='nested')
 
     if meta.s30_fit_white:
-        with (meta.workdir / meta.fitdir / 'white_systematics_nested.txt').open("w") as outfile:
+        with (meta.workdir / meta.fitdir / 'white_systematics_nested.txt')\
+                .open("w", encoding=OPTIONS["encoding"]) as outfile:
             for i in range(len(fit.all_sys)):
                 print(fit.all_sys[i], file=outfile)
         print('Saved white_systematics.txt file for nested sampling run')

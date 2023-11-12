@@ -7,6 +7,7 @@ from astropy.io import ascii
 from tqdm import tqdm
 
 from .lib import manageevent as me
+from .lib.options import OPTIONS
 
 
 def run01(eventlabel, workdir: Path, meta=None):
@@ -104,7 +105,7 @@ def run01(eventlabel, workdir: Path, meta=None):
         filename = horizons_dir / f'horizons_results_v{i}.txt'
 
         # Download data
-        with urlopen(settings_new) as in_stream, open(filename, 'wb') as out_file:
+        with urlopen(settings_new) as in_stream, filename.open('wb') as out_file:
             copyfileobj(in_stream, out_file)
 
     # Save results

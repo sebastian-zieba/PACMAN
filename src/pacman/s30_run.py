@@ -6,15 +6,16 @@ import numpy as np
 from astropy.io import ascii
 
 from .lib import manageevent as me
-from .lib.read_data import Data
-from .lib.model import Model
-from .lib.least_squares import lsq_fit
-from .lib.mcmc import mcmc_fit
-from .lib.nested import nested_sample
-from .lib.formatter import ReturnParams
 from .lib import nice_fit_par
 from .lib import plots
 from .lib import util
+from .lib.formatter import ReturnParams
+from .lib.least_squares import lsq_fit
+from .lib.mcmc import mcmc_fit
+from .lib.model import Model
+from .lib.nested import nested_sample
+from .lib.options import OPTIONS
+from .lib.read_data import Data
 
 
 def run30(eventlabel: str, workdir: Path, meta=None):
@@ -122,7 +123,7 @@ def run30(eventlabel: str, workdir: Path, meta=None):
 
             # Save white systematics file if it was a white fit
             if meta.s30_fit_white == True:
-                with (fit_dir / 'white_systematics.txt').open("w") as outfile:
+                with (fit_dir / 'white_systematics.txt').open("w", encoding=OPTIONS["encoding"]) as outfile:
                     for i in range(len(model.all_sys)):
                         print(model.all_sys[i], file=outfile)
                     print('Saved white_systematics.txt file')

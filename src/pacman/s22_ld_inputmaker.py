@@ -3,6 +3,7 @@ from pathlib import Path
 import numpy as np
 
 from .lib import manageevent as me
+from .lib.options import OPTIONS
 
 
 def run22(eventlabel: str, workdir: Path, meta=None):
@@ -17,8 +18,8 @@ def run22(eventlabel: str, workdir: Path, meta=None):
     Teff, logg, MH = meta.Teff, meta.logg, meta.MH
 
     for wvl_bins in meta.wvl_bins:
-        #what bins do you want?
-        #wave_bins = np.linspace(1.125, 1.65, 22)*1e4
+        # What bins do you want?
+        # Wave_bins = np.linspace(1.125, 1.65, 22)*1e4
         wave_bins = np.linspace(meta.wvl_min, meta.wvl_max, wvl_bins)*1e4
         print(wave_bins)
 
@@ -27,7 +28,7 @@ def run22(eventlabel: str, workdir: Path, meta=None):
             dirname.mkdir(parents=True)
 
         with (meta.workdir / "extracted_sp" /
-              f'ld_inputfile_bins{wvl_bins}.txt').open('w') as f:
+              f'ld_inputfile_bins{wvl_bins}.txt').open('w', encoding=OPTIONS["encoding"]) as f:
             for i in range(wvl_bins-1):
                 params = [i, Teff, logg, MH, '-1', grism, 'P100',
                           wave_bins[i], wave_bins[i+1]]

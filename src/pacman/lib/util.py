@@ -10,6 +10,7 @@ from scipy.interpolate import interp1d
 from scipy.optimize import leastsq
 from scipy.signal import find_peaks
 
+from .options import OPTIONS
 from .sort_nicely import sort_nicely as sn
 from ..lib import plots
 
@@ -671,7 +672,8 @@ def format_params_for_sampling(params, meta, fit_par):
 
 def make_lsq_rprs_txt(vals, errs, idxs, meta):
     """Saves the rprs vs wvl as a txt file as resulting from the lsq."""
-    with (meta.workdir / meta.fitdir / 'lsq_res'/ "lsq_rprs.txt").open('w') as f_lsq:
+    with (meta.workdir / meta.fitdir / 'lsq_res'/ "lsq_rprs.txt")\
+            .open('w', encoding=OPTIONS["encoding"]) as f_lsq:
         rp_idx = np.where(np.array(meta.labels) == 'rp')[0][0]
         rprs_vals_lsq = [vals[ii][idxs[0][rp_idx]] for ii in range(len(vals))]
         rprs_errs_lsq = [errs[ii][idxs[0][rp_idx]] for ii in range(len(errs))]
@@ -688,13 +690,15 @@ def make_rprs_txt(vals, errs_lower, errs_upper, meta, fitter=None):
     errors_lower = np.array(errs_lower).T[rp_idx]
     errors_upper = np.array(errs_upper).T[rp_idx]
     if fitter == 'mcmc':
-        with (meta.workdir / meta.fitdir / 'mcmc_res' / "mcmc_rprs.txt").open('w') as f_mcmc:
+        with (meta.workdir / meta.fitdir / 'mcmc_res' / "mcmc_rprs.txt")\
+                .open('w', encoding=OPTIONS["encoding"]) as f_mcmc:
             file_header = ['wavelength (micron)', 'rprs', 'rprs_err_lower', 'rprs_err_upper']
             print("#{: <24} {: <25} {: <25} {: <25}".format(*file_header), file=f_mcmc)
             for row in zip(meta.wavelength_list, medians, errors_lower, errors_upper):
                 print("{: <25} {: <25} {: <25} {: <25}".format(*row), file=f_mcmc)
     if fitter == 'nested':
-        with (meta.workdir / meta.fitdir / 'nested_res' / "nested_rprs.txt").open('w') as f_nested:
+        with (meta.workdir / meta.fitdir / 'nested_res' / "nested_rprs.txt")\
+                .open('w', encoding=OPTIONS["encoding"]) as f_nested:
             file_header = ['wavelength (micron)', 'rprs', 'rprs_err_lower', 'rprs_err_upper']
             print("#{: <24} {: <25} {: <25} {: <25}".format(*file_header), file=f_nested)
             for row in zip(meta.wavelength_list, medians, errors_lower, errors_upper):

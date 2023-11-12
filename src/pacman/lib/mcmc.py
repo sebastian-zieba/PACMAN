@@ -7,6 +7,7 @@ import numpy as np
 from . import plots
 from . import util
 from . import read_fit_par
+from .options import OPTIONS
 
 
 def mcmc_fit(data, model, params, file_name, meta, fit_par):
@@ -45,7 +46,8 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
 
     # Dump the samples into a file using pickle
     with (meta.workdir / meta.fitdir / 'mcmc_res' /
-          f'mcmc_out_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.p').open("wb") as pickle_file:
+          f'mcmc_out_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.p')\
+            .open("wb") as pickle_file:
         pickle.dump([data, params, sampler.chain], pickle_file)
     nburn = meta.run_nburn
 
@@ -83,7 +85,8 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
 
     # Saving sampling results into txt files
     with (meta.workdir / meta.fitdir / 'mcmc_res' /
-     f"mcmc_res_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt").open('w') as f_mcmc:
+            f"mcmc_res_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt")\
+            .open('w', encoding=OPTIONS["encoding"]) as f_mcmc:
         for row in zip(errors_lower, medians, errors_upper, labels):
             print(f'{row[3]: >8}: {row[1]: >24} {row[0]: >24} {row[2]: >24} ', file=f_mcmc)
 
@@ -96,7 +99,8 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
     plots.rmsplot(model, data, meta, fitter='mcmc')
 
     if meta.s30_fit_white:
-        with (meta.workdir / meta.fitdir / 'white_systematics_mcmc.txt').open("w") as outfile:
+        with (meta.workdir / meta.fitdir / 'white_systematics_mcmc.txt')\
+                .open("w", encoding=OPTIONS["encoding"]) as outfile:
             for i in range(len(fit.all_sys)):
                 print(fit.all_sys[i], file=outfile)
             print('Saved white_systematics.txt file for mcmc run')

@@ -67,6 +67,8 @@ from typing import Any
 
 import numpy as np
 
+from .options import OPTIONS
+
 
 # NOTE: Each parameter is an instance of this class
 class Param:
@@ -102,7 +104,7 @@ class Pcf:
             setattr(self, parname[0], Param(value))
 
     def make_file(self, name: Path) -> None:
-        with name.open('w') as file:
+        with name.open('w', encoding=OPTIONS["encoding"]) as file:
             attrib = vars(self)
             keys = attrib.keys()
 
@@ -118,7 +120,7 @@ def read_pcf(file: Path) -> None:
     pcfsets = []
 
     # NOTE: Read the file
-    with file.open('r') as f:
+    with file.open('r', encoding=OPTIONS["encoding"]) as f:
         lines = f.readlines()
 
     cleanlines = []     # List with only the important lines
