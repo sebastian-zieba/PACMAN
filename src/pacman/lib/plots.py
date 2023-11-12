@@ -985,32 +985,35 @@ def plot_fit_lc2(data, fit, meta, mcmc=False, nested=False):
     plt.clf()
     fig, ax = plt.subplots(2, 1)
 
-    p = FormatParams(fit.params, data)  # FIXME
+    # FIXME:
+    p = FormatParams(fit.params, data)
     sns.set_palette("muted")
     palette = sns.color_palette("muted", data.nvisit)
 
     # ind = model.phase > 0.5
     # model.phase[ind] -= 1.
     # calculate a range of times at higher resolution to make model look nice
-    phase_hr = np.linspace(fit.phase.min() - 0.05, fit.phase.max() + 0.05, 1000)
+    phase_hr = np.linspace(fit.phase.min() - 0.05,
+                           fit.phase.max() + 0.05, 1000)
     t_hr = phase_hr * p.per[0] + p.t0[0] + data.toffset
 
-    # plot data
-    # plot best fit model from first visit
+    # NOTE: Plot data and best fit model from first visit
     ax[0].plot(phase_hr, calc_astro(t_hr, fit.params, data, fit.myfuncs, 0))
 
-    # plot systematics removed data
+    # NOTE: Plot systematics removed data
     for i in range(data.nvisit):
         ind = data.vis_num == i
-        ax[0].plot(fit.phase[ind], fit.data_nosys[ind], color=palette[i], marker='o', markersize=3, linestyle="none")
+        ax[0].plot(fit.phase[ind], fit.data_nosys[ind],
+                   color=palette[i], marker='o',
+                   markersize=3, linestyle="none")
 
-    # add labels/set axes
+    # NOTE: Add labels/set axes
     # xlo, xhi = np.min(model.phase)*0.9, np.max(model.phase)*1.1
     xlo, xhi = -0.1, 0.1
     ax[0].set_xlim(xlo, xhi)
     ax[0].set_ylabel("Relative Flux")
 
-    # annotate plot with fit diagnostics
+    # NOTE: Annotate plot with fit diagnostics
     # ax = plt.gca()
     ax[0].text(0.85, 0.29,
                r'$\chi^2_{\nu}$:    ' + '{0:0.2f}'.format(fit.chi2red) + '\n'
@@ -1019,26 +1022,29 @@ def plot_fit_lc2(data, fit, meta, mcmc=False, nested=False):
                verticalalignment='top', horizontalalignment='left',
                transform=ax[0].transAxes, fontsize=12)
 
-    # plot fit residuals
+    # NOTE: Plot fit residuals
     ax[1].axhline(0, zorder=1, color='0.2', linestyle='dashed')
 
     for i in range(data.nvisit):
         ind = data.vis_num == i
         ax[1].plot(fit.phase[ind], 1.0e6 * fit.norm_resid[ind],
-                   color=palette[i], marker='o', markersize=3,
-                   linestyle="none")
+                   color=palette[i], marker='o',
+                   markersize=3, linestyle="none")
 
-    # add labels/set axes
+    # NOTE: Add labels/set axes
     ax[1].set_xlim(xlo, xhi)
     ax[1].set_ylabel("Residuals (ppm)")
     ax[1].set_xlabel("Orbital phase")
 
     if mcmc:
-        fig.suptitle(f'MCMC, {meta.wavelength:0.3f} micron', fontsize=15, y=0.998)
+        fig.suptitle(f'MCMC, {meta.wavelength:0.3f} micron',
+                     fontsize=15, y=0.998)
     elif nested:
-        fig.suptitle(f'Nested Sampling, {meta.wavelength:0.3f} micron', fontsize=15, y=0.998)
+        fig.suptitle(f'Nested Sampling, {meta.wavelength:0.3f} micron',
+                     fontsize=15, y=0.998)
     else:
-        fig.suptitle(f'LSQ, {meta.wavelength:0.3f} micron', fontsize=15, y=0.998)
+        fig.suptitle(f'LSQ, {meta.wavelength:0.3f} micron',
+                     fontsize=15, y=0.998)
 
     plt.tight_layout()
 

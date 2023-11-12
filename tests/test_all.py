@@ -92,7 +92,7 @@ def test_sessionstart(capsys):
     delete_dir(mast_dir)
 
     # Create a data dir
-    data_dir.mkdir(parents=True)
+    data_dir.mkdir(parents=True, exist_ok=True)
 
     # Search for the HST data
     proposal_obs = Observations.query_criteria(proposal_id=13021,
