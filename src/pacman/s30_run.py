@@ -1,55 +1,54 @@
-import sys
-import numpy as np
-import glob
-import os
-from astropy.io import ascii
-import getopt
 import time
 import shutil
-import time as pythontime
+from pathlib import Path
+
+import numpy as np
+from astropy.io import ascii
+
 from .lib import manageevent as me
-from .lib.read_data import Data
-from .lib.model import Model
-from .lib.least_squares import lsq_fit
-from .lib.mcmc import mcmc_fit
-from .lib.nested import nested_sample
-from .lib.formatter import ReturnParams
 from .lib import nice_fit_par
 from .lib import plots
 from .lib import util
+from .lib.formatter import ReturnParams
+from .lib.least_squares import lsq_fit
+from .lib.mcmc import mcmc_fit
+from .lib.model import Model
+from .lib.nested import nested_sample
+from .lib.options import OPTIONS
+from .lib.read_data import Data
 
 
-def run30(eventlabel, workdir, meta=None):
-    """
-    This functions reads in the spectroscopic or white light curve(s) and fits a model to them.
-    """
+def run30(eventlabel: str, workdir: Path, meta=None):
+    """This functions reads in the spectroscopic or white light curve(s) and
+    fits a model to them."""
     print('Starting s30')
 
-    if meta == None:
-        meta = me.loadevent(workdir + os.path.sep + 'WFC3_' + eventlabel + '_Meta_Save')
+    if meta is None:
+        meta = me.loadevent(workdir / f'WFC3_{eventlabel}_Meta_Save')
 
     # Create directories for Stage 3 processing
     datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
 
     # Create a directory for the white or the spectroscopic fit
-    if  meta.s30_fit_white:
-        meta.fitdir = f'{os.path.sep}fit_white{os.path.sep}fit_{datetime}_{meta.eventlabel}'
+    if meta.s30_fit_white:
+        meta.fitdir = Path('fit_white') / f'fit_{datetime}_{meta.eventlabel}'
     elif meta.s30_fit_spec:
-        meta.fitdir = f'{os.path.sep}fit_spec{os.path.sep}fit_{datetime}_{meta.eventlabel}'
+        meta.fitdir = Path('fit_spec') / f'fit_{datetime}_{meta.eventlabel}'
 
-    if not os.path.exists(meta.workdir + meta.fitdir):
-        os.makedirs(meta.workdir + meta.fitdir, exist_ok=True)
+    fit_dir = meta.workdir / meta.fitdir
+    if not fit_dir.exists():
+        fit_dir.mkdir(parents=True, exist_ok=True)
 
     # Make fit_par nicer by lining up the columns
-    nice_fit_par.nice_fit_par(meta.workdir + os.path.sep + "fit_par.txt")
+    nice_fit_par.nice_fit_par(meta.workdir / "fit_par.txt")
 
     # Copy pcf and fit_par files into the new fitdirectory
-    shutil.copy(meta.workdir + os.path.sep + "obs_par.pcf", meta.workdir + meta.fitdir)
-    shutil.copy(meta.workdir + os.path.sep + "fit_par.txt", meta.workdir + meta.fitdir)
+    shutil.copy(meta.workdir / "obs_par.pcf", fit_dir)
+    shutil.copy(meta.workdir / "fit_par.txt", fit_dir)
 
     # Reads in fit parameters from the fit_par file
     #TODO: Check that fit_par is configured correctly. Eg initial value has to be within boundaries!
-    fit_par = ascii.read(meta.workdir + os.path.sep + "fit_par.txt", Reader=ascii.CommentedHeader)
+    fit_par = ascii.read(meta.workdir / "fit_par.txt", Reader=ascii.CommentedHeader)
 
     # Read in the user wanted fit functions
     myfuncs = meta.s30_myfuncs
@@ -119,15 +118,16 @@ def run30(eventlabel, workdir, meta=None):
                             clip_idxs = update_clips(clip_idxs)
                             print(clip_idxs)
 
-            if meta.run_verbose == True:
+            if meta.run_verbose:
                 print("rms, chi2red = ", model.rms, model.chi2red)
 
             # Save white systematics file if it was a white fit
-            if meta.s30_fit_white == True:
-                outfile = open(meta.workdir + meta.fitdir + '/white_systematics.txt', "w")
-                for i in range(len(model.all_sys)): print(model.all_sys[i], file = outfile)
-                print('Saved white_systematics.txt file')
-                outfile.close()
+            if meta.s30_fit_white:
+                with (fit_dir / 'white_systematics.txt')\
+                        .open("w", encoding="ascii") as outfile:
+                    for i in range(len(model.all_sys)):
+                        print(model.all_sys[i], file=outfile)
+                    print('Saved white_systematics.txt file')
 
         meta.labels = data.free_parnames
 
@@ -135,7 +135,7 @@ def run30(eventlabel, workdir, meta=None):
             print('\n*STARTS MCMC*')
             time.sleep(1.01)
             if meta.rescale_uncert:
-                ##rescale error bars so reduced chi-squared is one
+                # NOTE: Rescale error bars so reduced chi-squared is one
                 print(f'rescale_uncert in the pcf was set to {meta.rescale_uncert}')
                 if model.chi2red < 1:
                     print('After the first fit, you got chi2_red < 1')

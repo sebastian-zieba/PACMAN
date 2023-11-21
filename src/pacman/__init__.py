@@ -1,3 +1,8 @@
+import sys
+
+# HACK: Sets the global encoding to utf-8 for output
+sys.stdout.reconfigure(encoding='utf-8')
+
 from . import lib
 from . import s00_table
 from . import s01_horizons

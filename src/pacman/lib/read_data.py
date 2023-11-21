@@ -1,7 +1,6 @@
 import numpy as np
-import matplotlib.pyplot as plt
 from astropy.io import ascii
-import itertools
+
 from .get_ld import get_ld
 
 

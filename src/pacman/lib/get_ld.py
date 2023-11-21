@@ -1,9 +1,10 @@
+from pathlib import Path
+
 import numpy as np
-from exotic_ld import StellarLimbDarkening
-import os
 from astropy.table import QTable
-from tqdm import tqdm
 from astropy.io import ascii
+from exotic_ld import StellarLimbDarkening
+from tqdm import tqdm
 
 
 def get_ld(meta):
@@ -11,7 +12,8 @@ def get_ld(meta):
     ld_model = '1D'
 
     # Path to the installed data.
-    ld_data_path = '/home/zieba/Downloads/exotic-ld_data'
+    # FIXME: This should not be a local path.
+    ld_data_path = Path('/home/zieba/Downloads/exotic-ld_data')
 
     sld = StellarLimbDarkening(meta.MH, meta.Teff, meta.logg, ld_model, ld_data_path)
 
@@ -26,10 +28,9 @@ def get_ld(meta):
 
     all_lds = []
 
-    ld_dir_run = meta.workdir + 'ancil/limb_darkening/'
-    if not os.path.exists(ld_dir_run):
-        os.mkdir(ld_dir_run)
-
+    ld_dir_run = meta.workdir / 'ancil' / 'limb_darkening'
+    if not ld_dir_run.exists():
+        ld_dir_run.mkdir(parents=True)
 
     if meta.ld_model == 2:
         table_ld = QTable(names=('wave_lower', 'wave_mid', 'wave_upper', 'u1', 'u2'))
@@ -50,8 +51,6 @@ def get_ld(meta):
             all_lds.append((c1, c2, c3, c4))
             table_ld.add_row([wave_edges[i], wave_mid, wave_edges[i+1], c1, c2, c3, c4])
 
-    ld_path = ld_dir_run + 'ld_file.txt'
-
+    ld_path = ld_dir_run / 'ld_file.txt'
     ascii.write(table_ld, ld_path, format='rst', overwrite=True)
-
     return ld_path
