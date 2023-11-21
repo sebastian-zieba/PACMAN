@@ -1,10 +1,13 @@
-import numpy as np
 import pickle
-import emcee
 from multiprocessing import Pool
+
+import emcee
+import numpy as np
+
 from . import plots
 from . import util
 from . import read_fit_par
+from .options import OPTIONS
 
 
 def mcmc_fit(data, model, params, file_name, meta, fit_par):
@@ -42,8 +45,9 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
     sampler.run_mcmc(pos, meta.run_nsteps, progress=True)
 
     # Dump the samples into a file using pickle
-    with open(meta.workdir + meta.fitdir + '/mcmc_res/' +
-              '/mcmc_out_bin{0}_wvl{1:0.3f}.p'.format(meta.s30_file_counter, meta.wavelength), "wb") as pickle_file:
+    with (meta.workdir / meta.fitdir / 'mcmc_res' /
+          f'mcmc_out_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.p')\
+            .open("wb") as pickle_file:
         pickle.dump([data, params, sampler.chain], pickle_file)
     nburn = meta.run_nburn
 
@@ -53,7 +57,7 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
     # This was introduced as the run would break when saving the plot due to its big size
     if meta.run_nsteps * meta.run_nwalkers > 1000000:
         thin_corner = int((meta.run_nsteps - meta.run_nburn) * meta.run_nwalkers // 100000)
-        print('Note: Big Corner plot with many steps. Thinning Plot by factor: {0}'.format(thin_corner))
+        print(f'Note: Big Corner plot with many steps. Thinning Plot by factor: {thin_corner}')
     else:
         thin_corner = 1
 
@@ -80,11 +84,11 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
         errors_upper.append(abs(q[2] - q[1]))
 
     # Saving sampling results into txt files
-    f_mcmc = open(meta.workdir + meta.fitdir + '/mcmc_res/' +
-                  "/mcmc_res_bin{0}_wvl{1:0.3f}.txt".format(meta.s30_file_counter, meta.wavelength), 'w')
-    for row in zip(errors_lower, medians, errors_upper, labels):
-        print(f'{row[3]: >8}: {row[1]: >24} {row[0]: >24} {row[2]: >24} ', file=f_mcmc)
-    f_mcmc.close()
+    with (meta.workdir / meta.fitdir / 'mcmc_res' /
+            f"mcmc_res_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt")\
+            .open('w', encoding=OPTIONS["encoding"]) as f_mcmc:
+        for row in zip(errors_lower, medians, errors_upper, labels):
+            print(f'{row[3]: >8}: {row[1]: >24} {row[0]: >24} {row[2]: >24} ', file=f_mcmc)
 
     updated_params = util.format_params_for_Model(medians, params, nvisit, fixed_array, tied_array, free_array)
     fit = model.fit(data, updated_params)
@@ -95,10 +99,11 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
     plots.rmsplot(model, data, meta, fitter='mcmc')
 
     if meta.s30_fit_white:
-        outfile = open(meta.workdir + meta.fitdir + '/white_systematics_mcmc.txt', "w")
-        for i in range(len(fit.all_sys)): print(fit.all_sys[i], file=outfile)
-        print('Saved white_systematics.txt file for mcmc run')
-        outfile.close()
+        with (meta.workdir / meta.fitdir / 'white_systematics_mcmc.txt')\
+                .open("w", encoding=OPTIONS["encoding"]) as outfile:
+            for i in range(len(fit.all_sys)):
+                print(fit.all_sys[i], file=outfile)
+            print('Saved white_systematics.txt file for mcmc run')
 
     #samples_auto1 = sampler.get_chain(discard=nburn, flat=True)
     #tau = emcee.autocorr.integrated_time(samples_auto1, quiet=True)
@@ -121,20 +126,18 @@ def lnprior(theta, data):
     lnprior_prob = 0.
     n = len(data.prior)
     for i in range(n):
-        if data.prior[i][0] == 'U': 
-            if np.logical_or(theta[i] < data.prior[i][1], 
+        if data.prior[i][0] == 'U':
+            if np.logical_or(theta[i] < data.prior[i][1],
               theta[i] > data.prior[i][2]): lnprior_prob += - np.inf
-        if data.prior[i][0] == 'N': 
-            lnprior_prob -= 0.5*(np.sum(((theta[i] - 
-              data.prior[i][1])/data.prior[i][2])**2 + 
+        if data.prior[i][0] == 'N':
+            lnprior_prob -= 0.5*(np.sum(((theta[i] -
+              data.prior[i][1])/data.prior[i][2])**2 +
               np.log(2.0*np.pi*(data.prior[i][2])**2)))
     return lnprior_prob
 
 
 def lnprob(theta, params, data, model, nvisit, fixed_array, tied_array, free_array):
-    """
-    Calculates the log-likelihood.
-    """
+    """Calculates the log-likelihood."""
     updated_params = util.format_params_for_Model(theta, params, nvisit, fixed_array, tied_array, free_array)
     if 'uncmulti' in data.s30_myfuncs:
         data.err = updated_params[-1] * data.err_notrescaled
@@ -143,14 +146,3 @@ def lnprob(theta, params, data, model, nvisit, fixed_array, tied_array, free_arr
         return lp
     fit = model.fit(data, updated_params)
     return fit.ln_like + lp
-
-
-#ORDER
-#mcmc_fit
-#format_params_for_mcmc
-#mcmc_fit
-#lnprob
-#format_params_for_Model
-#lnprob
-#lnprior
-#lnprob
