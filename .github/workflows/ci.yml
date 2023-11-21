@@ -39,4 +39,12 @@ jobs:
 
       - name: Upload coverage reports to Codecov with GitHub Action
         uses: codecov/codecov-action@v3
+        run: |
+          curl -Os https://uploader.codecov.io/latest/linux/codecov
+          chmod +x codecov
+          ./codecov -t ${215e671d-3fc3-4469-9cd9-078373fae11c}
+        env_vars: OS,PYTHON
+        files: ./coverage.xml
+        fail_ci_if_error: true
+        verbose: true
 
