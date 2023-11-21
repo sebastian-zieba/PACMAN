@@ -1,8 +1,11 @@
 import sys
-sys.path.insert(0,'..')
+
 import numpy as np
 
-def logarithmic_visit(t, data, params, visit = 0):
+sys.path.insert(0,'..')
+
+
+def logarithmic_visit(t, data, params, visit: float = 0.):
     log1, log2 = params
     log1 = log1[visit]
     log2 = log2[visit]
