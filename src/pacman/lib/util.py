@@ -154,6 +154,7 @@ def ancil(meta, s10=False, s20=False):
     meta.LTV1 = int(f_sp0[1].header['LTV1'])     # X offset to get into physical pixels
     meta.LTV2 = int(f_sp0[1].header['LTV2'])     # Y offset to get into physical pixels
     meta.subarray_size = f_sp0[1].header['SIZAXIS1']  # size of subarray
+    f_sp0.close()
 
     f_di0 = fits.open(meta.files_di[0])
     meta.POSTARG1_di = f_di0[0].header['POSTARG1']  # x-coordinate of the observer requested target offset
@@ -168,7 +169,7 @@ def ancil(meta, s10=False, s20=False):
     elif meta.grism == 'G141':
         meta.BEAMA_i = 15
         meta.BEAMA_f = 196
-
+    f_di0.close()
 
     if s10:
         if 't_bjd' in filelist.keys():
