@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def constants_cj(t, data, params, visit = 0):
     """
     Example:

@@ -2,7 +2,7 @@ import batman
 import numpy as np
 
 
-def transit(t, data, params, visit = 0):
+def transit(t, data, params, visit: float = 0.):
     p = batman.TransitParams()
 
     t0, per, rp, a, inc, ecc, w, u1, u2 = params
