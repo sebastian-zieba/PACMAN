@@ -614,10 +614,10 @@ def sp1d(template_waves, spec_box, meta, i, spec_opt=False):
     plt.title(f'sp1d, visit {meta.ivisit_sp[i]}, orbit {meta.iorbit_sp[i]}')
     plt.tight_layout()
     if meta.save_sp1d_plot:
-        s29_sp1d_dir = meta.workdir / 'figs' / 's29_sp1d'
-        if not s29_sp1d_dir.exists():
-            s29_sp1d_dir.mkdir(parents=True)
-        plt.savefig(s29_sp1d_dir / f'sp1d_{i}.png',
+        s20_sp1d_dir = meta.workdir / 'figs' / 's20_sp1d'
+        if not s20_sp1d_dir.exists():
+            s20_sp1d_dir.mkdir(parents=True)
+        plt.savefig(s20_sp1d_dir / f'sp1d_{i}.png',
                     bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
         plt.clf()

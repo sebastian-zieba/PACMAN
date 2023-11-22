@@ -1,7 +1,7 @@
 import sys, os
 import getopt
 import numpy as np
-#sys.path.insert(0, '/home/zieba/Desktop/Projects/Open_source/PACMAN/src/')
+from pathlib import Path
 import pacman.s00_table as s00
 import pacman.s01_horizons as s01
 import pacman.s02_barycorr as s02
@@ -79,30 +79,34 @@ def main():
 
     if run_s00:
         meta = s00.run00(eventlabel)
-        workdir = meta.workdir + '/'
+        workdir = meta.workdir
 
     if not run_s00:
+        script_path = Path(__file__).parent
         # list subdirectories in the run directory
-        dirs = np.array([f.path for f in os.scandir('.') if f.is_dir()])
+        dirs = np.array([path for path in script_path.iterdir() if path.is_dir()])
         # saves times when these subdirectories were created.
         # makes sure they always start with "./run_"
-        dirs_bool = [i[:6] == './run_' for i in dirs]
+        dirs_bool = np.array(['run_' in dir.name for dir in dirs])
         dirs = dirs[dirs_bool]
-        # They always have the following form: 'run_YYYY-MM-DD_HH-MM-SS_eventlabel'
-        dirs_times = [i[6:25] for i in dirs]
-        # sort the times
+        dirs_times = [i.name[4:23] for i in dirs]
+
+        # Sort the times
         times_sorted = sn.sort_nicely(dirs_times)
-        # most recent time
+        print('all directories in script directory:', times_sorted)
+
+        # Most recent time
         recent_time = times_sorted[-1]
-        # find the directory with that most recent time
+        print('most recent directory time:', recent_time)
+
+        # Find the directory with that most recent time
         idx = 0
         for i in range(len(dirs)):
-            if dirs[i][6:25] == recent_time:
+            if dirs[i].name[4:23] == recent_time:
                 idx = i
         workdir = dirs[idx]
         #save the eventlabel which is in the directory name too
-        eventlabel = workdir[26:]
-        workdir = workdir + '/'
+        eventlabel = workdir.name[24:]
         print('workdir: ', workdir)
         print('eventlabel: ', eventlabel)
 

@@ -86,7 +86,7 @@ def saveevent(event, filename: Path, save: Optional[List[str]] = [],
     ---------
     2010-07-10  patricio  Added documentation.     pcubillos@fulbrightmail.org
     """
-    filename = filename.stem if isinstance(filename, Path) else filename
+    filename = filename if isinstance(filename, Path) else filename
     if save != []:
         with h5.File(f'{filename}.h5', 'w') as handle:
             for param in save:
@@ -141,7 +141,7 @@ def loadevent(filename: Path, load: Optional[List[str]] = [],
     ---------
     2010-07-10  patricio  Added documentation.     pcubillos@fulbrightmail.org
     """
-    filename = filename.stem if isinstance(filename, Path) else filename
+    filename = filename if isinstance(filename, Path) else filename
     with Path(f'{filename}.dat').open('rb') as handle:
         event = pickle.load(handle, encoding=OPTIONS["encoding"])
 
