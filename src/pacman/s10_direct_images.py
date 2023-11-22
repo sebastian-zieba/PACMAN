@@ -34,15 +34,15 @@ def run10(eventlabel, workdir: Path, meta=None):
     pos2_all = np.zeros(len(meta.files_di))
 
     files_sp = meta.files_sp     # spectra files
-	sp = fits.open(files_sp[0])  # opens first spectral file
-    
+    sp = fits.open(files_sp[0])  # opens first spectral file
+
     #iterate over the direct images
     for i, file in enumerate(tqdm(meta.files_di, desc='Determining Source Positions for Direct Images', ascii=True)):
         ima = fits.open(file)
 
         #NEW: account for difference in CRPIX1 between direct image and spectroscopic images
-		LTV1 = ima[1].header['LTV1'] + int(abs(ima[1].header['CRPIX1'] - sp[1].header['CRPIX1']))					#X offset to get into physical pixels + difference in CRPIX1 between direct and spectral image 
-		LTV2 = ima[1].header['LTV2'] + int(abs(ima[1].header['CRPIX1'] - sp[1].header['CRPIX1']))					#Y offset to get to physical pixels + difference in CRPIX1 between direct and spectral image
+        LTV1 = ima[1].header['LTV1'] + int(abs(ima[1].header['CRPIX1'] - sp[1].header['CRPIX1']))					#X offset to get into physical pixels + difference in CRPIX1 between direct and spectral image 
+        LTV2 = ima[1].header['LTV2'] + int(abs(ima[1].header['CRPIX1'] - sp[1].header['CRPIX1']))					#Y offset to get to physical pixels + difference in CRPIX1 between direct and spectral image
  
         dat = ima[1].data[meta.di_rmin:meta.di_rmax, meta.di_cmin:meta.di_cmax]				#cuts out stamp around the target star
         err = ima[2].data[meta.di_rmin:meta.di_rmax, meta.di_cmin:meta.di_cmax]
