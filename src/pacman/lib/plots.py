@@ -1140,6 +1140,33 @@ def save_astrolc_data(data, fit, meta):
                 format='rst', overwrite=True)
 
 
+def save_astrolc_data_nested(data, fit, meta):
+    """Saves the data used to plot the astrophysical model (without the systematics)
+    and the data (without the systematics) not phase folded.
+    """
+    table_model = Table()
+    table_nosys = Table()
+
+    p = FormatParams(fit.params, data)
+
+    time_model = np.linspace(data.time.min() - p.per[0]/2, data.time.max() + p.per[0]/2, 10000)
+    flux_model = calc_astro(time_model, fit.params, data, fit.myfuncs, 0)
+
+    table_model['time_model'] = np.array(time_model, dtype=np.float64)
+    table_model['flux_model'] = np.array(flux_model, dtype=np.float64)
+
+    table_nosys['time_nosys'] = np.array(data.time, dtype=np.float64)
+    table_nosys['flux_nosys'] = np.array(fit.data_nosys, dtype=np.float64)
+
+    fit_lc_dir = meta.workdir / meta.fitdir / 'nested_res'
+    if not fit_lc_dir.exists():
+        fit_lc_dir.mkdir(parents=True)
+    ascii.write(table_model, fit_lc_dir / f'fit_lc_data_model_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt',
+                format='rst', overwrite=True)
+    ascii.write(table_nosys, fit_lc_dir / f'fit_lc_data_nosys_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt',
+                format='rst', overwrite=True)
+
+
 # def plot_fit_lc4(data, fit, meta, mcmc=False):
 #     #datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
 #     plt.clf()
