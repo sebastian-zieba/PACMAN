@@ -3,11 +3,10 @@ on: [push, pull_request]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8"]
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
 
     steps:
       - name: Checkout
@@ -34,9 +33,25 @@ jobs:
 
       - name: Test with pytest
         run: |
-          pytest tests/test_all.py --cov=src/pacman -s  --cov-report xml
+          pytest tests/test_all.py --cov=./src/pacman -s  --cov-report=xml
+
+
+      #- name: Upload coverage reports to Codecov with GitHub Action
+      #  uses: codecov/codecov-action@v3
+      #  with:
+      #    env_vars: OS,PYTHON
+      #    files: ./coverage.xml
+      #    fail_ci_if_error: true
+      #    verbose: true
 
 
       - name: Upload coverage reports to Codecov with GitHub Action
         uses: codecov/codecov-action@v3
-
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          env_vars: OS,PYTHON
+          files: ./coverage.xml # optional
+          #flags: unittests # optional
+          #name: codecov-umbrella # optional
+          fail_ci_if_error: false # optional (default = false)
+          verbose: true # optional (default = false)

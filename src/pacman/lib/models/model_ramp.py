@@ -1,8 +1,10 @@
 import sys
-sys.path.insert(0,'..')
 import numpy as np
 
-def model_ramp(t, data, params, visit = 0):
+sys.path.insert(0,'..')
+
+
+def model_ramp(t, data, params, visit: float = 0.):
     r1, r2, r3 = params
     r1 = r1[visit]
     r2 = r2[visit]

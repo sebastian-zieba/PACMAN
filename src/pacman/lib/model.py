@@ -1,6 +1,9 @@
 import sys
+
 import numpy as np
+
 from ..lib.functions import Functions
+
 sys.path.insert(0, './models')
 
 

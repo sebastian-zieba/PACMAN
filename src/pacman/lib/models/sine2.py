@@ -1,7 +1,9 @@
 import sys
-sys.path.insert(0,'..')
+
 import numpy as np
-#import matplotlib.pyplot as plt
+
+sys.path.insert(0,'..')
+
 
 def sine2(t, data, params, visit):
     a1, omega1, phi1, a2, omega2, phi2, a3, omega3, phi3, a12, omega12, phi12, a22, omega22, phi22, a32, omega32, phi32 = params

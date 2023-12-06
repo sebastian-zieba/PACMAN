@@ -6,7 +6,7 @@ Installation
 Options
 ____________________________________________________
 
-There are several options to download and install the most recent, stable release of ``PACMAN`` that is v0.3.1:
+There are several options to download and install the most recent, stable release of ``PACMAN`` that is v0.4.0:
 
 Using a conda environment (recommended)
 ----------------------------------------
@@ -19,14 +19,14 @@ Once you have Anaconda installed, navigate in a terminal to a directory where yo
 
     conda create -n pacman python==3.9
     conda activate pacman
-    git clone -b v0.3.1 https://github.com/sebastian-zieba/PACMAN
+    git clone -b v0.4.0 https://github.com/sebastian-zieba/PACMAN
     cd PACMAN
     pip install -e .
 
 With these steps, we created a conda environment called ``pacman`` and installed ``PACMAN`` and its dependencies there.
 We also installed the code in the edit mode with ``-e``, giving you the option to edit the source code.
 
-.. note:: In this example, the conda environment was initialized with python v3.9.0. PACMAN was tested with python v3.8 to v3.11, so it is up to the user which version to use. Python 3.7 reached end of life in `June 2023 <https://devguide.python.org/versions/>`_. We therefore stopped supporting it.
+.. note:: In this example, the conda environment was initialized with python v3.9.0. PACMAN was tested with python v3.8 to v3.11 on linux and v3.11 on Windows, so it is up to the user which version to use. Python 3.7 reached end of life in `June 2023 <https://devguide.python.org/versions/>`_. We therefore stopped supporting it.
 
 .. note:: ``pip install -e .`` will only install the necessary dependencies. If you also want to install the dependencies to run the tests (using pytest) or work on the docs, you have to use the ``[test]`` or ``[docs]`` arguments respectively after ``pip install -e .``. See `Test Your Installation <https://pacmandocs.readthedocs.io/en/latest/installation.html#test-your-installation>`_ for an example.
 
@@ -50,7 +50,7 @@ You can install ``PACMAN`` using ``pip`` by entering the following line into a t
 
     conda create -n pacman python==3.9
     conda activate pacman
-    pip install 'pacman@git+https://github.com/sebastian-zieba/PACMAN.git@v0.3.1'
+    pip install 'pacman@git+https://github.com/sebastian-zieba/PACMAN.git@v0.4.0'
 
 
 Directly from GitHub
