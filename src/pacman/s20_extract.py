@@ -138,13 +138,24 @@ def run20(eventlabel, workdir: Path, meta=None):
                 if meta.save_utr_aper_evo_plot or meta.show_utr_aper_evo_plot:
                     peaks_all.append(peaks)
 
-                bg_rmin, bg_rmax, bg_cmin, bg_cmax = int(meta.bg_rmin), int(meta.bg_rmax), int(meta.bg_cmin), int(meta.bg_cmax),
-                skymedian = np.median(fullframe[bg_rmin:bg_rmax, bg_cmin:bg_cmax].flatten())
-                if meta.save_bkg_evo_plot or meta.show_bkg_evo_plot:
-                    bkg_evo.append(skymedian)
-                skyvar = util.median_abs_dev(fullframe[bg_rmin:bg_rmax, bg_cmin:bg_cmax].flatten())
+                ### BACKGROUND SUBTRACTION
+                if not meta.background_box:
+                    below_threshold = fullframe < meta.background_thld # mask with all pixels below the user defined threshold
+                    skymedian = np.median(fullframe[below_threshold].flatten())  # estimates the background counts by taking the flux median of the pixels below the flux threshold
+                    if meta.save_bkg_evo_plot or meta.show_bkg_evo_plot:
+                        bkg_evo.append(skymedian)
+                    skyvar = util.median_abs_dev(fullframe[below_threshold].flatten())  # variance for the background count estimate
+                    if meta.save_bkg_hist_plot or meta.show_bkg_hist_plot:
+                        plots.bkg_hist(fullframe, skymedian, meta, i, ii)
+                else:
+                    bg_rmin, bg_rmax, bg_cmin, bg_cmax = int(meta.bg_rmin), int(meta.bg_rmax), int(meta.bg_cmin), int(meta.bg_cmax),
+                    skymedian = np.median(fullframe[bg_rmin:bg_rmax, bg_cmin:bg_cmax].flatten())
+                    if meta.save_bkg_evo_plot or meta.show_bkg_evo_plot:
+                        bkg_evo.append(skymedian)
+                    skyvar = util.median_abs_dev(fullframe[bg_rmin:bg_rmax, bg_cmin:bg_cmax].flatten())
 
-                frame = frame - skymedian
+                frame = frame - skymedian 
+
                 spectrum = frame[max(min(peaks) - meta.window, 0):min(max(peaks) + meta.window, rmax), :]
 
                 err = np.zeros_like(spectrum) + float(meta.rdnoise) ** 2 + skyvar
