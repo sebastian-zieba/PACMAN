@@ -746,9 +746,11 @@ def rowshift_fit(modelx, modely, datax, datay, leastsq_res, meta, i):
     plt.legend()
     plt.tight_layout()
     if meta.save_rowshift_plot:
-        if not os.path.isdir(meta.workdir + '/figs/s20_rowshift/'):
-            os.makedirs(meta.workdir + '/figs/s20_rowshift/')
-        plt.savefig(meta.workdir + '/figs/s20_rowshift/rowshift_{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
+        s20_rowshift_dir = meta.workdir / 'figs' / 's20_rowshift'
+        if not s20_rowshift_dir.exists():
+            s20_rowshift_dir.mkdir(parents=True)
+        plt.savefig(s20_rowshift_dir / f'rowshift_{i}.png',
+                    bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
         plt.clf()
         gc.collect()
@@ -770,10 +772,12 @@ def stretch_fit(modelx, modely, datax, datay, leastsq_res, meta, i):
     ax.set_ylabel('rel. Flux')
     plt.legend()
     plt.tight_layout()
-    if save_rowshift_stretch_plot:
-        if not os.path.isdir(meta.workdir + '/figs/s20_stretch/'):
-            os.makedirs(meta.workdir + '/figs/s20_stretch/')
-        plt.savefig(meta.workdir + '/figs/s20_stretch/stretch_{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
+    if meta.save_rowshift_stretch_plot:        
+        s20_stretch_dir = meta.workdir / 'figs' / 's20_stretch'
+        if not s20_stretch_dir.exists():
+            s20_stretch_dir.mkdir(parents=True)
+        plt.savefig(s20_stretch_dir / f'stretch_{i}.png',
+                    bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
         plt.clf()
         gc.collect()
@@ -786,23 +790,24 @@ def stretch_fit(modelx, modely, datax, datay, leastsq_res, meta, i):
 
 def rowshift_stretch(meta):
     fig, ax = plt.subplots(1,1, figsize=(9,6))
-    marker_iterator = cycle(['o','^','s','v','D','x','2','<','>'])
-    color_iterator1 = cycle(['tab:blue','tab:cyan','tab:green','tab:olive'])
-    color_iterator2 = cycle(['tab:orange','tab:red','tab:brown','tab:pink'])
+    marker_iterator = np.array(['o','^','s','v','D','x','2','<','>'])
+    color_iterator1 = np.array(['tab:blue','tab:cyan','tab:green','tab:olive'])
+    color_iterator2 = np.array(['tab:orange','tab:red','tab:brown','tab:pink'])
     for visit_plot in set(meta.ivisit_sp):
-        marker = next(marker_iterator)
-        if (visit_plot%9) == 0:
-            color1=next(color_iterator1)
-            color2=next(color_iterator2)
+        marker = marker_iterator[visit_plot%len(marker_iterator)]
+        color1 = color_iterator1[int(visit_plot/len(marker_iterator))]
+        color2 = color_iterator2[int(visit_plot/len(marker_iterator))]
         ax.scatter(meta.rowshift[(meta.scans_sp==0) & (meta.ivisit_sp==visit_plot)], meta.stretch[(meta.scans_sp==0) & (meta.ivisit_sp==visit_plot)], marker=marker, color=color1, label='forward, visit {0}'.format(visit_plot))
         ax.scatter(meta.rowshift[(meta.scans_sp==1) & (meta.ivisit_sp==visit_plot)], meta.stretch[(meta.scans_sp==1) & (meta.ivisit_sp==visit_plot)], marker=marker, color=color2, label='reverse, visit {0}'.format(visit_plot))
     ax.set_xlabel('rowshift / px')
     ax.set_ylabel('Stretch Scaling Factor')
     plt.legend(fontsize="xx-small")
     if meta.save_rowshift_stretch_plot:
-        if not os.path.isdir(meta.workdir + '/figs/s20_rowshift_stretch/'):
-            os.makedirs(meta.workdir + '/figs/s20_rowshift_stretch/')
-        plt.savefig(meta.workdir + '/figs/s20_rowshift_stretch/rowshift_stretch.png', bbox_inches='tight', pad_inches=0.05, dpi=120)
+        s20_rowshift_stretch_dir = meta.workdir / 'figs' / 's20_rowshift_stretch'
+        if not s20_rowshift_stretch_dir.exists():
+            s20_rowshift_stretch_dir.mkdir(parents=True)
+        plt.savefig(s20_rowshift_stretch_dir / f'rowshift_stretch.png',
+                    bbox_inches='tight', pad_inches=0.05, dpi=120)
         plt.close('all')
         plt.clf()
         gc.collect()

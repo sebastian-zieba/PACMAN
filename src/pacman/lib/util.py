@@ -406,7 +406,7 @@ def get_boxspat(meta,i,d,rmin,rmax,cmin,cmax,imageIndex):#,x_ref, y_ref,x_data, 
     r_array = np.linspace(rmin,rmax+1,rmax-rmin) #array with row indexes
     spat_box_0_first = spat_box_0_first/np.nanmax(spat_box_0_first)
     
-    r_array = r_array[~np.isnan(s_opt_0)]
+    r_array = r_array[~np.isnan(spat_box_0_first)]
     spat_box_0_first = spat_box_0_first[~np.isnan(spat_box_0_first)]
     
     # NOTE: interpolate spectrum for fit
@@ -427,7 +427,7 @@ def calculate_stretch(meta,x_ref, y_ref,x_data, y_data,i):
     #all np arrays f(a+b*x2)*c
     p0 = [0,1,1]  # initial guess for least squares
     leastsq_res = leastsq(residuals2, p0, args=(x_ref, y_ref,x_data, y_data))[0]
-    if meta.save_rowshift_stretch_plot or show_rowshift_stretch_plot: 
+    if meta.save_rowshift_stretch_plot or meta.show_rowshift_stretch_plot:
         plots.stretch_fit(x_ref, y_ref, p0, x_data, y_data, leastsq_res, meta,i)
     return leastsq_res[1]#float
 
