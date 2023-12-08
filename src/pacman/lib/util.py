@@ -428,7 +428,7 @@ def calculate_stretch(meta,x_ref, y_ref,x_data, y_data,i):
     p0 = [0,1,1]  # initial guess for least squares
     leastsq_res = leastsq(residuals2, p0, args=(x_ref, y_ref,x_data, y_data))[0]
     if meta.save_rowshift_stretch_plot or meta.show_rowshift_stretch_plot:
-        plots.stretch_fit(x_ref, y_ref, p0, x_data, y_data, leastsq_res, meta,i)
+        plots.stretch_fit(x_ref, y_ref, x_data, y_data, leastsq_res, meta,i)
     return leastsq_res[1]#float
 
 def correct_wave_shift_fct_0(meta, orbnum, cmin, cmax, spec_opt, i):
