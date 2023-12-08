@@ -388,6 +388,48 @@ def residuals2_lin(params, x1, y1, x2, y2):
     fit = f(a+x2)*c
     return fit - y2
 
+def get_boxspat(meta,i,d,rmin,rmax,cmin,cmax,imageIndex):#,x_ref, y_ref,x_data, y_data,i,direction='y'):
+    fullframe_first = d[imageIndex].data[rmin:rmax,cmin:cmax] #first non-destructive exposure
+                
+    # NOTE: Background subtraction
+    if not meta.background_box:
+        below_threshold = fullframe_first < meta.background_thld # mask with all pixels below the user defined threshold
+        skymedian_first = np.median(fullframe_first[below_threshold].flatten())  # estimates the background counts by taking the flux median of the pixels below the flux threshold
+    else:
+        bg_rmin, bg_rmax, bg_cmin, bg_cmax = int(meta.bg_rmin), int(meta.bg_rmax), int(meta.bg_cmin), int(meta.bg_cmax),
+        skymedian_first = np.median(fullframe_first[bg_rmin:bg_rmax, bg_cmin:bg_cmax].flatten())
+
+    spectrum_first = fullframe_first - skymedian_first
+    spat_box_0_first = spectrum_first.sum(axis = 1)                            #box-extracted spatial profile, sums along dispersion direction (sums columns in a row)   
+    
+    # NOTE: norm profile and remove nans.
+    r_array = np.linspace(rmin,rmax+1,rmax-rmin) #array with row indexes
+    spat_box_0_first = spat_box_0_first/np.nanmax(spat_box_0_first)
+    
+    r_array = r_array[~np.isnan(s_opt_0)]
+    spat_box_0_first = spat_box_0_first[~np.isnan(spat_box_0_first)]
+    
+    # NOTE: interpolate spectrum for fit
+    r_array_interp = np.linspace(rmin,rmax+1,(rmax-rmin)*1000)
+    spat_box_0_first_interp = np.interp(r_array_interp, r_array, spat_box_0_first)
+    
+    return r_array_interp, spat_box_0_first_interp
+
+
+def calculate_rowshift(meta,x_ref, y_ref,x_data, y_data,i):
+    p0 = [0,1]  # initial guess for least squares
+    leastsq_res = leastsq(residuals2_lin, p0, args=(x_ref, y_ref,x_data, y_data))[0]
+    if meta.save_rowshift_plot or meta.show_rowshift_plot:
+        plots.rowshift_fit(x_ref, y_ref, x_data, y_data, leastsq_res, meta,i)
+    return leastsq_res[0]#float
+    
+def calculate_stretch(meta,x_ref, y_ref,x_data, y_data,i):
+    #all np arrays f(a+b*x2)*c
+    p0 = [0,1,1]  # initial guess for least squares
+    leastsq_res = leastsq(residuals2, p0, args=(x_ref, y_ref,x_data, y_data))[0]
+    if meta.save_rowshift_stretch_plot or show_rowshift_stretch_plot: 
+        plots.stretch_fit(x_ref, y_ref, p0, x_data, y_data, leastsq_res, meta,i)
+    return leastsq_res[1]#float
 
 def correct_wave_shift_fct_0(meta, orbnum, cmin, cmax, spec_opt, i):
     """Use the reference spectrum for the wave cal."""

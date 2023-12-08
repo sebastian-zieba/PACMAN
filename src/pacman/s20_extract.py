@@ -182,6 +182,41 @@ def run20(eventlabel, workdir: Path, meta=None):
                 var_box += var_box_0
 
         elif len(set(meta.scans_sp)) == 2:
+            # NOTE: If needed: Calculate spectrum shift in spatial direction (rows) with respect to the first exposure in the data-set (i.e. first visit, first orbit, first exposure)
+            if meta.calculate_rowshift:
+                #get spatial profile of exposure of first readout
+                row_spat, flux_spat = get_boxspat(meta,i,d,rmin,rmax,cmin,cmax,11) #row_spat is always np.linspace(rmin,rmax+1,(rmax-rmin)*1000)
+                # NOTE: determine rowshift and store it in meta
+                if i == 0:
+                    #initialize arrays
+                    meta.refprofile_rowshift = np.zeros((2,len(rows_spat)))
+                    meta.rowshift = np.zeros(meta.nexp)
+
+                if i < 2:
+                    #store reference profiles of the first exposures
+                    meta.refprofile_rowshift[meta.scans_sp[i]] = flux_spat    
+                else:
+                    #fit spatial profiles to reference profiles
+                    rowshift_exp = calculate_rowshift(meta,row_spat, meta.refprofile_rowshift[meta.scans_sp[i]],row_spat[10000:-10000], flux_spat[10000:-10000],i):  
+                    meta.rowshift[i] = rowshift_exp
+                
+                # NOTE: calculate stretch of last readout with respect to first exposure in the data-set 
+                if save_rowshift_stretch_plot or show_rowshift_stretch_plot:
+                    row_spat, flux_spat = get_boxspat(meta,i,d,rmin,rmax,cmin,cmax,1) #row_spat is always np.linspace(rmin,rmax+1,(rmax-rmin)*1000)
+                    # NOTE: determine rowshift and store it in meta
+                    if i == 0:
+                        #initialize arrays
+                        meta.refprofile_stretch = np.zeros((2,len(rows_spat)))
+                        meta.stretch = np.zeros(meta.nexp)
+
+                    if i < 2:
+                        #store reference profiles of the first exposures
+                        meta.refprofile_stretch[meta.scans_sp[i]] = flux_spat    
+                    else:
+                        #fit spatial profiles to reference profiles
+                        stretch_exp = calculate_stretch(meta,row_spat, meta.refprofile_stretch[meta.scans_sp[i]],row_spat[10000:-10000], flux_spat[10000:-10000],i):  
+                        meta.stretch[i] = stretch_exp
+
             for ii in tqdm(np.arange(d[0].header['nsamp']-2, dtype=int), desc='--- Looping over up-the-ramp-samples', leave=True, position=0):
                 diff = d[ii*5 + 1].data[rmin:rmax,cmin:cmax] - d[ii*5 + 6].data[rmin:rmax,cmin:cmax]    # Creates image that is the difference between successive scans
 
@@ -314,6 +349,9 @@ def run20(eventlabel, workdir: Path, meta=None):
 
     if meta.save_drift_plot or meta.show_drift_plot:
         plots.drift(leastsq_res_all, meta)
+
+    if save_rowshift_stretch_plot or show_rowshift_stretch_plot:
+        plots.rowshift_stretch(meta)
 
     print('Finished s20 \n')
     return meta

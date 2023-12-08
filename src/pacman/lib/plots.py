@@ -732,6 +732,87 @@ def utr_aper_evo(peaks_all, meta):
         gc.collect()
 
 
+def rowshift_fit(modelx, modely, datax, datay, leastsq_res, meta, i):
+    fig, ax = plt.subplots(1,1, figsize=(9,6))
+    plt.suptitle('rowshift_fit {0}, visit {1}, orbit {2}'.format(i, meta.ivisit_sp[i], meta.iorbit_sp[i]))
+    ax.plot(modelx, modely/max(modely), label='first exposure')
+    ax.plot((leastsq_res[0] + datax), datay/max(datay),
+             label='profile fit = ({0:.5g}+x)*{1:.5g}'.format(leastsq_res[0],leastsq_res[1]))
+    ax.plot(datax, datay/max(datay), label='profile before fit')
+    peakx = modelx[np.argmax(modely)]
+    ax.set_xlim(peakx-20, peakx+20)
+    ax.set_xlabel('row / px')
+    ax.set_ylabel('rel. Flux')
+    plt.legend()
+    plt.tight_layout()
+    if meta.save_rowshift_plot:
+        if not os.path.isdir(meta.workdir + '/figs/s20_rowshift/'):
+            os.makedirs(meta.workdir + '/figs/s20_rowshift/')
+        plt.savefig(meta.workdir + '/figs/s20_rowshift/rowshift_{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
+        plt.close('all')
+        plt.clf()
+        gc.collect()
+    else:
+        plt.show()
+        plt.close('all')
+        plt.clf()
+        gc.collect()
+
+
+def stretch_fit(modelx, modely, datax, datay, leastsq_res, meta, i):
+    fig, ax = plt.subplots(1,1, figsize=(9,6))
+    plt.suptitle('length_fit {0}, visit {1}, orbit {2}'.format(i, meta.ivisit_sp[i], meta.iorbit_sp[i]))
+    ax.plot(modelx, modely/max(modely), label='first exposure')
+    ax.plot((leastsq_res[0] + leastsq_res[1]*datax), datay/max(datay),
+             label='profile fit = ({0:.5g}+x*{1:.5g})*{2:.5g}'.format(leastsq_res[0],leastsq_res[1],leastsq_res[2]))
+    ax.plot(datax, datay/max(datay), label='profile before fit')
+    ax.set_xlabel('row / px')
+    ax.set_ylabel('rel. Flux')
+    plt.legend()
+    plt.tight_layout()
+    if save_rowshift_stretch_plot:
+        if not os.path.isdir(meta.workdir + '/figs/s20_stretch/'):
+            os.makedirs(meta.workdir + '/figs/s20_stretch/')
+        plt.savefig(meta.workdir + '/figs/s20_stretch/stretch_{0}.png'.format(i), bbox_inches='tight', pad_inches=0.05, dpi=120)
+        plt.close('all')
+        plt.clf()
+        gc.collect()
+    else:
+        plt.show()
+        plt.close('all')
+        plt.clf()
+        gc.collect()
+
+
+def rowshift_stretch(meta):
+    fig, ax = plt.subplots(1,1, figsize=(9,6))
+    marker_iterator = cycle(['o','^','s','v','D','x','2','<','>'])
+    color_iterator1 = cycle(['tab:blue','tab:cyan','tab:green','tab:olive'])
+    color_iterator2 = cycle(['tab:orange','tab:red','tab:brown','tab:pink'])
+    for visit_plot in set(meta.ivisit_sp):
+        marker = next(marker_iterator)
+        if (visit_plot%9) == 0:
+            color1=next(color_iterator1)
+            color2=next(color_iterator2)
+        ax.scatter(meta.rowshift[(meta.scans_sp==0) & (meta.ivisit_sp==visit_plot)], meta.stretch[(meta.scans_sp==0) & (meta.ivisit_sp==visit_plot)], marker=marker, color=color1, label='forward, visit {0}'.format(visit_plot))
+        ax.scatter(meta.rowshift[(meta.scans_sp==1) & (meta.ivisit_sp==visit_plot)], meta.stretch[(meta.scans_sp==1) & (meta.ivisit_sp==visit_plot)], marker=marker, color=color2, label='reverse, visit {0}'.format(visit_plot))
+    ax.set_xlabel('rowshift / px')
+    ax.set_ylabel('Stretch Scaling Factor')
+    plt.legend(fontsize="xx-small")
+    if meta.save_rowshift_stretch_plot:
+        if not os.path.isdir(meta.workdir + '/figs/s20_rowshift_stretch/'):
+            os.makedirs(meta.workdir + '/figs/s20_rowshift_stretch/')
+        plt.savefig(meta.workdir + '/figs/s20_rowshift_stretch/rowshift_stretch.png', bbox_inches='tight', pad_inches=0.05, dpi=120)
+        plt.close('all')
+        plt.clf()
+        gc.collect()
+    else:
+        plt.show()
+        plt.close('all')
+        plt.clf()
+        gc.collect()
+
+
 def refspec_fit(modelx, modely, p0, datax, datay, leastsq_res, meta, i):
     fig, ax = plt.subplots(1, 1, figsize=(9, 6))
     plt.suptitle(f'refspec_fit {i}, visit {meta.ivisit_sp[i]}, orbit {meta.iorbit_sp[i]}')

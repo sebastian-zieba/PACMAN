@@ -17,6 +17,7 @@ from ..lib.models.gp_sho import gp_sho
 from ..lib.models.gp_matern32 import gp_matern32
 from ..lib.models.constants_cj import constants_cj
 from ..lib.models.uncmulti import uncmulti
+from ..lib.models.model_rowshift import model_rowshift
 
 sys.path.insert(0, './models')
 
@@ -38,6 +39,12 @@ class Functions:
             elif f == "upstream_downstream":
                 self.sys.append(upstream_downstream)
                 self.sys_porder.append([data.par_order['scale']*data.nvisit])
+            elif f == "model_rowshift":
+                self.sys.append(model_rowshift)
+                self.sys_porder.append([
+                    data.par_order['rowshift_vf']*data.nvisit,
+                    data.par_order['rowshift_vr']*data.nvisit
+                ])
             elif f == "polynomial1":
                 self.sys.append(polynomial1)
                 self.sys_porder.append([data.par_order['v']*data.nvisit])
