@@ -84,29 +84,17 @@ class Data:
             rowshift = meta.rowshift
             # Remove first exposure from each orbit:
             if meta.remove_first_exp:
-                leave_ind = np.ones(len(rowshift), bool)
-                leave_ind[meta.new_orbit_idx_sp] = False
-                rowshift = rowshift[leave_ind]
-                print(f'Removed {sum(~leave_ind)} exposures from rowshift because they were the first exposures in the orbit.')
+                leave_ind_r = np.ones(len(rowshift), bool) #remove first exposure without overwriting previously calculated orbit-mask
+                leave_ind_r[meta.new_orbit_idx_sp] = False
+                rowshift = rowshift[leave_ind_r]
+                print(f'Removed {sum(~leave_ind_r)} exposures from rowshift because they were the first exposures in the orbit.')
             else:
                 print('Leaving the first exposures from rowshift in every orbit.')
             #
-            # Remove first or chosen orbit of each visit:
-            if len(meta.remove_which_orb) == 1:
-            # Removes first orbit
-                if meta.remove_first_orb:
-                    leave_ind = meta.iorbit_sp != 0
-                    rowshift = rowshift[leave_ind]
-                    print(f'Removed {sum(~leave_ind)} exposures from rowshift because they were the first orbit in the visit.')
-            elif len(meta.remove_which_orb) != 1 and meta.remove_first_orb:
-            # Removes chosen orbits from each orbit
-                if meta.remove_first_orb:
-                    masks_orb = []
-                    for i in range(len(meta.remove_which_orb)):
-                        masks_orb.append(meta.iorbit_sp != meta.remove_which_orb[i])
-                    leave_ind = np.bitwise_and(*masks_orb)
-                    rowshift = rowshift[leave_ind]
-                    print(f'Removed {sum(~leave_ind)} exposures from rowshift because they were the first orbit in the visit.')
+            # Remove first or chosen orbit of each visit (leave_ind is unchanged from above):
+            if meta.remove_first_orb:
+                rowshift = rowshift[leave_ind]
+                print(f'Removed {sum(~leave_ind)} exposures from rowshift because they were the first orbit in the visit.')
             else:
                 print('Leaving the first orbit of rowshift in every visit.')
         elif ('model_rowshift' in meta.s30_myfuncs) and not meta.calculate_rowshift:

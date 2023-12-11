@@ -207,7 +207,7 @@ def run20(eventlabel, workdir: Path, meta=None):
                     if i == 0:
                         #initialize arrays
                         meta.refprofile_stretch = np.zeros((2,len(row_spat)))
-                        meta.stretch = np.zeros(meta.nexp)
+                        meta.stretch = np.ones(meta.nexp)
 
                     if i < 2:
                         #store reference profiles of the first exposures
