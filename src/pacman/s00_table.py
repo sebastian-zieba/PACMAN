@@ -78,7 +78,6 @@ def run00(eventlabel: str, pcf_path: Optional[Path] = Path.cwd()):
         Written by Sebastian Zieba      December 2021
     """
     print('\nStarting s00')
-    print('TEST: am I on the correct branch? If I see this - YES')
     # Initialize metadata object
     meta = MetaClass()
     meta.eventlabel = eventlabel
