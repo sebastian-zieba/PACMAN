@@ -213,7 +213,7 @@ class Data:
         if ('divide_white' in meta.s30_myfuncs) and meta.s30_fit_spec:
             self.white_systematics = np.genfromtxt(meta.white_sys_path)
         if meta.calculate_rowshift and ('model_rowshift' in meta.s30_myfuncs):
-            self.rowshift = rowshift[clip_mask]    
+            self.rowshift = rowshift[clip_mask]
         self.rescale_uncert = meta.rescale_uncert
 
 
