@@ -629,9 +629,26 @@ def return_free_array(nvisit, fixed_array, tied_array):
     free_array = np.array(free_array)
     return free_array
 
+def return_untied_array(nvisit, fixed_array, tied_array):
+    """Reads in the fit_par.txt and determines which parameters are untied."""
+    untied_array = []
+    for i in range(len(fixed_array)):
+        if fixed_array[i].lower() == 'true' and tied_array[i] == -1:
+            for ii in range(nvisit):
+                untied_array.append(False)
+        if fixed_array[i].lower() == 'true' and not tied_array[i] == -1:
+            untied_array.append(True)
+        if fixed_array[i].lower() == 'false' and tied_array[i] == -1:
+            untied_array.append(False)
+            for ii in range(nvisit-1):
+                untied_array.append(False)
+        if fixed_array[i].lower() == 'false' and not tied_array[i] == -1:
+            untied_array.append(True)
+    untied_array = np.array(untied_array)
+    return untied_array
 
 def format_params_for_Model(theta, params, nvisit,
-                            fixed_array, tied_array, free_array):
+                            fixed_array, tied_array, free_array, untied_array):
     nvisit = int(nvisit)
     params_updated = []
 
@@ -648,9 +665,14 @@ def format_params_for_Model(theta, params, nvisit,
     #     array_new2 = np.array([item for sublist in array_new for item in sublist])
     #     return array_new2
 
+    #new function that copies parameters of visit 0 in visits>0 if tied=-1.:
     theta_new = np.copy(theta)
     params_updated = np.copy(params)
     params_updated[free_array] = theta_new
+    for i_p in range(0,len(untied_array), nvisit):
+        if not untied_array[i_p]:
+            for ii_p in range(1,nvisit):
+                params_updated[i_p+ii_p] = params_updated[i_p]
     # print('free_array', free_array)
     # print('params_updated', params_updated)
     return np.array(params_updated)
@@ -764,15 +786,15 @@ def weighted_mean(data, err):
 
 def create_res_dir(meta):
     """Creates the result directory depending on which fitters were used."""
-    print('H11', meta.workdir)
-    print('H22', meta.fitdir)
+    #print('H11', meta.workdir)
+    #print('H22', meta.fitdir)
 
     lsq_res_dir = meta.workdir / meta.fitdir / 'lsq_res'
-    print('H33', lsq_res_dir)
-    print('DOES IT EXIST', lsq_res_dir.exists())
+    #print('H33', lsq_res_dir)
+    #print('DOES IT EXIST', lsq_res_dir.exists())
     if not lsq_res_dir.exists():
         lsq_res_dir.mkdir(parents=True)
-    print('DOES THIS STILL RUN?')
+    #print('DOES THIS STILL RUN?')
     mcmc_res_dir = meta.workdir / meta.fitdir / 'mcmc_res'
     nested_res_dir = meta.workdir / meta.fitdir / 'nested_res'
     if meta.run_lsq:
