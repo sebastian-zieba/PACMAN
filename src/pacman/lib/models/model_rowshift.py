@@ -1,7 +1,7 @@
 import sys
 sys.path.insert(0,'..')
 
-def model_rowshift(t, data, params, visit = 0):
+def model_rowshift(t, data, params, visit):
     rowshift_vf, rowshift_vr = params
     rowshift_vf = rowshift_vf[visit]#slope for forward scans
     rowshift_vr = rowshift_vr[visit]#slope for reverse scans
