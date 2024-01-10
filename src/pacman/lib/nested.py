@@ -41,7 +41,8 @@ def nested_sample(data, model, params, file_name, meta, fit_par):
     fixed_array = np.array(fit_par['fixed'])
     tied_array = np.array(fit_par['tied'])
     free_array = util.return_free_array(nvisit, fixed_array, tied_array)
-    l_args = [params, data, model, nvisit, fixed_array, tied_array, free_array]
+    untied_array = util.return_untied_array(nvisit, fixed_array, tied_array)
+    l_args = [params, data, model, nvisit, fixed_array, tied_array, free_array, untied_array]
     p_args = [data]
 
     # Setting up multiprocessing
@@ -111,7 +112,7 @@ def nested_sample(data, model, params, file_name, meta, fit_par):
             print('{0: >8}: '.format(row[3]), '{0: >24} '.format(row[1]),
                   '{0: >24} '.format(row[0]), '{0: >24} '.format(row[2]), file=f_mcmc)
 
-    updated_params = util.format_params_for_Model(medians, params, nvisit, fixed_array, tied_array, free_array)
+    updated_params = util.format_params_for_Model(medians, params, nvisit, fixed_array, tied_array, free_array, untied_array)
     fit = model.fit(data, updated_params)
     util.append_fit_output(fit, meta, fitter='nested', medians=medians)
 
@@ -142,9 +143,9 @@ def ptform(u, data):
 
 
 def loglike(x, params, data, model, nvisit,
-            fixed_array, tied_array, free_array):
+            fixed_array, tied_array, free_array, untied_array):
     """Calculates the log-likelihood."""
-    updated_params = util.format_params_for_Model(x, params, nvisit, fixed_array, tied_array, free_array)
+    updated_params = util.format_params_for_Model(x, params, nvisit, fixed_array, tied_array, free_array, untied_array)
     if 'uncmulti' in data.s30_myfuncs:
         data.err = updated_params[-1] * data.err_notrescaled
     fit = model.fit(data, updated_params)
