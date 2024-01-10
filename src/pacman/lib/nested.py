@@ -113,6 +113,8 @@ def nested_sample(data, model, params, file_name, meta, fit_par):
                   '{0: >24} '.format(row[0]), '{0: >24} '.format(row[2]), file=f_mcmc)
 
     updated_params = util.format_params_for_Model(medians, params, nvisit, fixed_array, tied_array, free_array, untied_array)
+    if 'uncmulti' in data.s30_myfuncs:
+        data.err = updated_params[-1] * data.err_notrescaled
     fit = model.fit(data, updated_params)
     util.append_fit_output(fit, meta, fitter='nested', medians=medians)
 
