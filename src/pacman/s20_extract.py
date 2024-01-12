@@ -185,7 +185,7 @@ def run20(eventlabel, workdir: Path, meta=None):
             # NOTE: If needed: Calculate spectrum shift in spatial direction (rows) with respect to the first exposure in the data-set (i.e. first visit, first orbit, first exposure)
             if meta.calculate_rowshift:
                 #get spatial profile of exposure of first readout
-                row_spat, flux_spat = util.get_boxspat(meta,i,d,rmin,rmax,cmin,cmax,11) #row_spat is always np.linspace(rmin,rmax+1,(rmax-rmin)*1000)
+                row_spat, flux_spat = util.get_boxspat(meta,i,d,rmin,rmax,cmin,cmax,(d[0].header['nsamp']-1)*5+1) #row_spat is always np.linspace(rmin,rmax+1,(rmax-rmin)*1000)
                 # NOTE: determine rowshift and store it in meta
                 if i == 0:
                     #initialize arrays
