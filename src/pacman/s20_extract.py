@@ -124,6 +124,38 @@ def run20(eventlabel, workdir: Path, meta=None):
         # leave=True, position=0
         # source: https://stackoverflow.com/questions/41707229/tqdm-printing-to-newline
         if len(set(meta.scans_sp)) == 1:
+            if meta.calculate_rowshift:
+                #get spatial profile of exposure of first readout
+                row_spat, flux_spat = util.get_boxspat(meta,i,d,rmin,rmax,cmin,cmax,(d[0].header['nsamp']-1)*5+1) #row_spat is always np.linspace(rmin,rmax+1,(rmax-rmin)*1000)
+                # NOTE: determine rowshift and store it in meta
+                if i == 0:
+                    #initialize arrays
+                    meta.refprofile_rowshift = np.zeros((1,len(row_spat)))
+                    meta.rowshift = np.zeros(meta.nexp)
+
+                    #store reference profiles of the first exposures
+                    meta.refprofile_rowshift[0] = flux_spat    
+                else:
+                    #fit spatial profiles to reference profiles
+                    rowshift_exp = util.calculate_rowshift(meta,row_spat, meta.refprofile_rowshift[0],row_spat[10000:-10000], flux_spat[10000:-10000],i)
+                    meta.rowshift[i] = rowshift_exp
+                
+                # NOTE: calculate stretch of last readout with respect to first exposure in the data-set 
+                if meta.save_rowshift_stretch_plot or meta.show_rowshift_stretch_plot:
+                    row_spat, flux_spat = util.get_boxspat(meta,i,d,rmin,rmax,cmin,cmax,1) #row_spat is always np.linspace(rmin,rmax+1,(rmax-rmin)*1000)
+                    # NOTE: determine rowshift and store it in meta
+                    if i == 0:
+                        #initialize arrays
+                        meta.refprofile_stretch = np.zeros((1,len(row_spat)))
+                        meta.stretch = np.ones(meta.nexp)
+
+                        #store reference profiles of the first exposures
+                        meta.refprofile_stretch[0] = flux_spat    
+                    else:
+                        #fit spatial profiles to reference profiles
+                        stretch_exp = util.calculate_stretch(meta,row_spat, meta.refprofile_stretch[0],row_spat[10000:-10000], flux_spat[10000:-10000],i)  
+                        meta.stretch[i] = stretch_exp
+
             for ii in tqdm(np.arange(d[0].header['nsamp']-1, dtype=int), desc='--- Looping over up-the-ramp-samples',
                            leave=True, position=0):
 
