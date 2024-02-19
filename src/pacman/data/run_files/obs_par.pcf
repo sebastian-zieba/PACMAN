@@ -139,8 +139,8 @@ run_clipsigma                0
 white_sys_path               None
 
 ld_model                     1
-fix_ld                       False
-ld_file                      /home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/wfc3_reduction/limb-darkening/results/ld_outputfile.txt
+use_ld_file                  False
+ld_file_path                 /home/zieba/Data/ld_outputfile.txt
 
 toffset                      2456365
 
