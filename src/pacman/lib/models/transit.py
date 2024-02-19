@@ -12,7 +12,7 @@ def transit(t, data, params, visit = 0):
     else: 
         print("unsupported limb darkening parameter")
         return 0
-
+    #print(params)
     p.t0 = t0[visit] + data.toffset
     p.per = per[visit]
     p.rp = rp[visit]
@@ -29,6 +29,6 @@ def transit(t, data, params, visit = 0):
         u2_quad = np.sqrt(u1[visit]) * (1 - 2 * u2[visit])  # Eq. 16 in Kipping 2013
         p.u = np.array([u1_quad, u2_quad])
     m = batman.TransitModel(
-        p, t, supersample_factor=3, exp_time = data.exp_time/24./60./60.
+        p, t, supersample_factor=5, exp_time = data.exp_time/24./60./60.
     )
     return m.light_curve(p)
