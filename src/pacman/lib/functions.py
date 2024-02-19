@@ -2,9 +2,13 @@ import sys
 sys.path.insert(0, './models')
 from ..lib.models.constant import constant
 from ..lib.models.polynomial1 import polynomial1
+from ..lib.models.polynomial1_full import polynomial1_full
 from ..lib.models.polynomial2 import polynomial2
+from ..lib.models.polynomial2_full import polynomial2_full
 from ..lib.models.logarithmic_visit import logarithmic_visit
+from ..lib.models.logarithmic_visit_full import logarithmic_visit_full
 from ..lib.models.exponential_visit import exponential_visit
+from ..lib.models.exponential_visit_full import exponential_visit_full
 from ..lib.models.sine1 import sine1
 from ..lib.models.sine2 import sine2
 from ..lib.models.upstream_downstream import upstream_downstream
@@ -39,9 +43,24 @@ class Functions:
             elif f == "polynomial1":
                 self.sys.append(polynomial1)
                 self.sys_porder.append([data.par_order['v']*data.nvisit])
+            elif f == "polynomial1_full":
+                self.sys.append(polynomial1_full)
+                self.sys_porder.append([
+                    data.par_order['scale']*data.nvisit,
+                    data.par_order['c']*data.nvisit,
+                    data.par_order['v']*data.nvisit
+                ])
             elif f == "polynomial2":
                 self.sys.append(polynomial2)
                 self.sys_porder.append([
+                    data.par_order['v']*data.nvisit,
+                    data.par_order['v2']*data.nvisit
+                ])
+            elif f == "polynomial2_full":
+                self.sys.append(polynomial2_full)
+                self.sys_porder.append([
+                    data.par_order['scale']*data.nvisit,
+                    data.par_order['c']*data.nvisit,
                     data.par_order['v']*data.nvisit,
                     data.par_order['v2']*data.nvisit
                 ])
@@ -51,9 +70,25 @@ class Functions:
                     data.par_order['log1']*data.nvisit,
                     data.par_order['log2']*data.nvisit
                 ])
+            elif f == "logarithmic_visit_full":
+                self.sys.append(logarithmic_visit_full)
+                self.sys_porder.append([
+                    data.par_order['scale']*data.nvisit,
+                    data.par_order['c']*data.nvisit,
+                    data.par_order['log1']*data.nvisit,
+                    data.par_order['log2']*data.nvisit
+                ])
             elif f == "exponential_visit":
                 self.sys.append(exponential_visit)
                 self.sys_porder.append([
+                    data.par_order['exp1']*data.nvisit,
+                    data.par_order['exp2']*data.nvisit
+                ])
+            elif f == "exponential_visit_full":
+                self.sys.append(exponential_visit_full)
+                self.sys_porder.append([
+                    data.par_order['scale']*data.nvisit,
+                    data.par_order['c']*data.nvisit,
                     data.par_order['exp1']*data.nvisit,
                     data.par_order['exp2']*data.nvisit
                 ])
