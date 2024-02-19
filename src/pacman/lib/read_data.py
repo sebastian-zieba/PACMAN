@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import ascii
 import itertools
-from .get_ld import get_ld
+#from .get_ld import get_ld
 
 
 class Data:
@@ -69,12 +69,12 @@ class Data:
                 for i in range(len(meta.remove_which_orb)):
                     masks_orb.append(iorbit_sp != meta.remove_which_orb[i])
                 # Removes chosen orbits from each orbit
-                leave_ind = np.bitwise_and(*masks_orb)
+                leave_ind = np.bitwise_and.reduce(masks_orb)
                 d = d[leave_ind]
                 # Remove first orbit from meta.iorbit_sp too
                 iorbit_sp = iorbit_sp[leave_ind]
                 iexp_orb_sp = iexp_orb_sp[leave_ind]
-                print(f'Removed {sum(~leave_ind)} exposures because they were the first orbit in the visit.')
+                print(f'Removed {sum(~leave_ind)} exposures because they were in "meta.remove_which_orb".')
         else:
             print('Leaving the first orbit in every visit.')
 
@@ -88,7 +88,8 @@ class Data:
             t_delay[ind] = 1.
         elif meta.remove_first_orb and len(meta.remove_which_orb) != 1:
             # if more than one orbit (eg [0,1]) is removed
-            max_orbit_remove = max(meta.remove_which_orb) + 1
+            max_orbit_remove = find_lowest_missing_integer(meta.remove_which_orb)
+            #max_orbit_remove = max(meta.remove_which_orb) + 1
             ind = (iorbit_sp == max_orbit_remove)
             t_delay[ind] = 1.
         elif not meta.remove_first_orb:
@@ -120,21 +121,50 @@ class Data:
         else:
             meta.wavelength = d['wave'].value[0]
 
+        print('Current wavelength: ', meta.wavelength, ' microns')
         # fixes limb darkening if "fix_ld" parameter is set to True in obs_par.pcf
         # TODO: Not tested!
-        if meta.fix_ld == True:
-            ld_path = get_ld(meta)
-            ld_file = ascii.read(ld_path)
-            
-            i = 0
-            while(meta.wavelength*1e4 > ld_file['wave_mid'][i]): i += 1
-            
-            u1 = ld_file['u1'][i]
-            u2 = ld_file['u2'][i]
-            fit_par['value'][np.where(fit_par['parameter']=='u1')] = u1
-            fit_par['fixed'][np.where(fit_par['parameter']=='u1')] = "true"
-            fit_par['value'][np.where(fit_par['parameter']=='u2')] = u2
-            fit_par['fixed'][np.where(fit_par['parameter']=='u2')] = "true"
+        if meta.use_ld_file:
+            #ld_path = get_ld(meta)
+            #ld_file = ascii.read(ld_path)
+            #i = 0
+            #while(meta.wavelength*1e4 > ld_file['wave_mid'][i]): i += 1
+            #u1 = ld_file['u1'][i]
+            #u2 = ld_file['u2'][i]
+            #fit_par['value'][np.where(fit_par['parameter']=='u1')] = u1
+            #fit_par['fixed'][np.where(fit_par['parameter']=='u1')] = "true"
+            #fit_par['value'][np.where(fit_par['parameter']=='u2')] = u2
+            #fit_par['fixed'][np.where(fit_par['parameter']=='u2')] = "true"
+
+            loaded_ld = np.loadtxt(meta.ld_file_path)
+            if meta.ld_model == 1:
+                ld_dim = 1
+            elif (meta.ld_model == 2) or (meta.ld_model == 'kipping2013'):
+                ld_dim = 2
+            if len(loaded_ld.shape) != ld_dim:
+                print('columns of ld_file do not agree with ld model chosen!')
+                print(f'ld_file has {len(loaded_ld.shape)} column(s) but you chose an ld_model with {ld_dim} parameter(s)')
+            if ld_dim == 1:
+                u1 = loaded_ld[s30_file_counter]
+                fit_par['value'][np.where(fit_par['parameter']=='u1')] = u1
+                fit_par['fixed'][np.where(fit_par['parameter']=='u1')] = True
+            elif ld_dim == 2:
+                u1 = loaded_ld[s30_file_counter, 0]
+                u2 = loaded_ld[s30_file_counter, 1]
+                fit_par['value'][np.where(fit_par['parameter']=='u1')] = u1
+                fit_par['value'][np.where(fit_par['parameter']=='u2')] = u2
+                fit_par['fixed'][np.where(fit_par['parameter']=='u1')] = True
+                fit_par['fixed'][np.where(fit_par['parameter']=='u2')] = True
+
+            #ld_tmp = loaded_ld[:,[np.where(loaded_ld[0] == meta.wavelength)[0][0]]]
+            #fit_par['prior'][np.where(fit_par['parameter']=='u1')] = 'N'
+            #fit_par['p1'][np.where(fit_par['parameter']=='u1')]    = ld_tmp[1][0]
+            #fit_par['p2'][np.where(fit_par['parameter']=='u1')]    = ld_tmp[2][0]
+            #fit_par['prior'][np.where(fit_par['parameter']=='u2')] = 'N'
+            #fit_par['p1'][np.where(fit_par['parameter']=='u2')]    = ld_tmp[3][0]
+            #fit_par['p2'][np.where(fit_par['parameter']=='u2')]    = ld_tmp[4][0]
+
+            print(fit_par)
 
         nfree_param = 0
         free_parnames = []
@@ -218,3 +248,13 @@ def new_time(array):
                 current_offset = array_i
                 time_offset[idx] = current_offset
     return array - time_offset
+
+def find_lowest_missing_integer(arr):
+    arr = set(arr)  # Convert the list to a set for faster membership checking
+    lowest = 0
+
+    while True:
+        if lowest not in arr:
+            return lowest
+        lowest += 1
+
