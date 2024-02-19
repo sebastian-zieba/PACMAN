@@ -26,6 +26,6 @@ def eclipse(t, data, params, visit = 0.):
     p.u = [0.1, 0.2]
     
     m = batman.TransitModel(
-        p, t, transittype = "secondary", supersample_factor=3, exp_time = data.exp_time/24./60./60.
+        p, t, transittype = "secondary", supersample_factor=5, exp_time = data.exp_time/24./60./60.
     )
     return m.light_curve(p)
