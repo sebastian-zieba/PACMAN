@@ -30,13 +30,32 @@ class FormatParams:
             self.c = params[data.par_order['c']*data.nvisit:(1 + data.par_order['c'])*data.nvisit]
         elif 'polynomial1' in data.s30_myfuncs:
             self.v = params[data.par_order['v'] * data.nvisit:(1 + data.par_order['v']) * data.nvisit]
+        elif 'polynomial1_full' in data.s30_myfuncs:
+            self.scale = params[data.par_order['scale']*data.nvisit:(1 + data.par_order['scale'])*data.nvisit]
+            self.c = params[data.par_order['c']*data.nvisit:(1 + data.par_order['c'])*data.nvisit]
+            self.v = params[data.par_order['v'] * data.nvisit:(1 + data.par_order['v']) * data.nvisit]
         elif 'polynomial2' in data.s30_myfuncs:
             self.v = params[data.par_order['v']*data.nvisit:(1 + data.par_order['v'])*data.nvisit]
+            self.v2 = params[data.par_order['v2']*data.nvisit:(1 + data.par_order['v2'])*data.nvisit]
+        elif 'polynomial2_full' in data.s30_myfuncs:
+            self.scale = params[data.par_order['scale']*data.nvisit:(1 + data.par_order['scale'])*data.nvisit]
+            self.c = params[data.par_order['c']*data.nvisit:(1 + data.par_order['c'])*data.nvisit]
+            self.v = params[data.par_order['v'] * data.nvisit:(1 + data.par_order['v']) * data.nvisit]
             self.v2 = params[data.par_order['v2']*data.nvisit:(1 + data.par_order['v2'])*data.nvisit]
         elif 'logarithmic_visit' in data.s30_myfuncs:
             self.log1 = params[data.par_order['log1']*data.nvisit:(1 + data.par_order['log1'])*data.nvisit]
             self.log2 = params[data.par_order['log2']*data.nvisit:(1 + data.par_order['log2'])*data.nvisit]
+        elif 'logarithmic_visit_full' in data.s30_myfuncs:
+            self.scale = params[data.par_order['scale']*data.nvisit:(1 + data.par_order['scale'])*data.nvisit]
+            self.c = params[data.par_order['c']*data.nvisit:(1 + data.par_order['c'])*data.nvisit]
+            self.exp1 = params[data.par_order['log1']*data.nvisit:(1 + data.par_order['log1'])*data.nvisit]
+            self.exp2 = params[data.par_order['log2']*data.nvisit:(1 + data.par_order['log2'])*data.nvisit]
         elif 'exponential_visit' in data.s30_myfuncs:
+            self.exp1 = params[data.par_order['exp1']*data.nvisit:(1 + data.par_order['exp1'])*data.nvisit]
+            self.exp2 = params[data.par_order['exp2']*data.nvisit:(1 + data.par_order['exp2'])*data.nvisit]
+        elif 'exponential_visit_full' in data.s30_myfuncs:
+            self.scale = params[data.par_order['scale']*data.nvisit:(1 + data.par_order['scale'])*data.nvisit]
+            self.c = params[data.par_order['c']*data.nvisit:(1 + data.par_order['c'])*data.nvisit]
             self.exp1 = params[data.par_order['exp1']*data.nvisit:(1 + data.par_order['exp1'])*data.nvisit]
             self.exp2 = params[data.par_order['exp2']*data.nvisit:(1 + data.par_order['exp2'])*data.nvisit]
         elif 'model_ramp' in data.s30_myfuncs:
