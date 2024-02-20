@@ -11,3 +11,4 @@ def exponential_visit(t, data, params, visit = 0):
     t_vis = data.t_vis[data.vis_idx[visit]]
 
     return (1. - exp1 * np.exp(-t_vis/exp2))
+    #return (1. - np.exp(-exp1 * t_vis - exp2)) # alternative parametrization
