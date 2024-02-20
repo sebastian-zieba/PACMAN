@@ -20,7 +20,7 @@ def run20(eventlabel, workdir, meta=None):
     print('Starting s20')
 
     if meta == None:
-        meta = me.loadevent(workdir + '/WFC3_' + eventlabel + "_Meta_Save")
+        meta = me.loadevent(workdir + os.path.sep + 'WFC3_' + eventlabel + '_Meta_Save')
 
     # load in more information into meta
     meta = util.ancil(meta, s20=True)
@@ -41,6 +41,7 @@ def run20(eventlabel, workdir, meta=None):
         table_white = QTable(names=('t_mjd', 't_bjd', 't_visit','t_orbit', 'ivisit', 'iorbit', 'scan', 'spec_opt', 'var_opt', 'spec_box', 'var_box'))
         table_spec = QTable(names=('t_mjd', 't_bjd', 't_visit','t_orbit', 'ivisit', 'iorbit', 'scan', 'spec_opt', 'var_opt', 'template_waves'))
         table_diagnostics = QTable(names=('nspectra', 't_mjd', 'numoutliers', 'skymedian', "# nans"))
+        table_background = QTable(names=('t_mjd', 't_bjd', 'ivisit', 'iorbit', 'scan', 'n_sample', 'skymedian'))
 
     files_sp = meta.files_sp     # spectra files
     nspectra = 0                 # iterator variable to track number of spectra reduced
@@ -174,15 +175,19 @@ def run20(eventlabel, workdir, meta=None):
                 #estimates sky background and variance
                 fullframe_diff = d[ii*5 + 1].data - d[ii*5 + 6].data                                       #fullframe difference between successive scans
 
+
                 ### BACKGROUND SUBTRACTION
                 if not meta.background_box:
-                    below_threshold = fullframe_diff < meta.background_thld # mask with all pixels below the user defined threshold
-                    skymedian = np.median(fullframe_diff[below_threshold].flatten())  # estimates the background counts by taking the flux median of the pixels below the flux threshold
+                    # we remove the columns which have the trace in them for the background estimation 
+                    # we also add another buffer of 10 pixels to avoid including significant target flux
+                    fullframe_diff_wo_spec = np.concatenate((fullframe_diff[:,:(cmin-10)], fullframe_diff[:,(cmax+10):]), axis=1)
+                    below_threshold = fullframe_diff_wo_spec < meta.background_thld # mask with all pixels below the user defined threshold
+                    skymedian = np.median(fullframe_diff_wo_spec[below_threshold].flatten())  # estimates the background counts by taking the flux median of the pixels below the flux threshold
                     if meta.save_bkg_evo_plot or meta.show_bkg_evo_plot:
                         bkg_evo.append(skymedian)
-                    skyvar = util.median_abs_dev(fullframe_diff[below_threshold].flatten())  # variance for the background count estimate
+                    skyvar = util.median_abs_dev(fullframe_diff_wo_spec[below_threshold].flatten())  # variance for the background count estimate
                     if meta.save_bkg_hist_plot or meta.show_bkg_hist_plot:
-                        plots.bkg_hist(fullframe_diff, skymedian, meta, i, ii)
+                        plots.bkg_hist(fullframe_diff_wo_spec, skymedian, meta, i, ii)
                 else:
                     bg_rmin, bg_rmax, bg_cmin, bg_cmax = int(meta.bg_rmin), int(meta.bg_rmax), int(meta.bg_cmin), int(meta.bg_cmax),
                     skymedian = np.median(fullframe_diff[bg_rmin:bg_rmax, bg_cmin:bg_cmax].flatten())
@@ -191,6 +196,7 @@ def run20(eventlabel, workdir, meta=None):
                     skyvar = util.median_abs_dev(fullframe_diff[bg_rmin:bg_rmax, bg_cmin:bg_cmax].flatten())
 
                 diff = diff - skymedian                                    #subtracts the background
+                table_background.add_row([meta.t_mjd_sp[i], meta.t_bjd_sp[i], visnum, orbnum, scan, ii, skymedian])
 
                 #print(peaks[0]-peaks[1])
 
@@ -273,8 +279,11 @@ def run20(eventlabel, workdir, meta=None):
         ascii.write(table_white, dirname + '/lc_white.txt', format='ecsv', overwrite=True)
         ascii.write(table_spec, dirname + '/lc_spec.txt', format='ecsv', overwrite=True)
         ascii.write(table_diagnostics, dirname + '/diagnostics.txt', format='ecsv', overwrite=True)
+        ascii.write(table_background, dirname + '/background.txt', format='ecsv', overwrite=True)
+
+    # Save results
     print('Saving Metadata')
-    me.saveevent(meta, meta.workdir + '/WFC3_' + meta.eventlabel + "_Meta_Save", save=[])
+    me.saveevent(meta, meta.workdir + os.path.sep + 'WFC3_' + meta.eventlabel + '_Meta_Save', save=[])
 
     # Make Plots
     if meta.save_bkg_evo_plot or meta.show_bkg_evo_plot:

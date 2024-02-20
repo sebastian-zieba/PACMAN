@@ -18,7 +18,7 @@ def run10(eventlabel, workdir, meta=None):
 	print('Starting s10')
 
 	if meta == None:
-		meta = me.loadevent(workdir + '/WFC3_' + eventlabel + "_Meta_Save")
+		meta = me.loadevent(workdir + os.path.sep + 'WFC3_' + eventlabel + '_Meta_Save')
 
 	#f = open(meta.workdir + '/xrefyref.txt', 'w')						#opens file to store positions of reference pixels
 	table = Table() # creates table to store positions of reference pixels
@@ -91,7 +91,7 @@ def run10(eventlabel, workdir, meta=None):
 
 	# Save results
 	print('Saving Metadata')
-	me.saveevent(meta, meta.workdir + '/WFC3_' + meta.eventlabel + "_Meta_Save", save=[])
+	me.saveevent(meta, meta.workdir + os.path.sep + 'WFC3_' + meta.eventlabel + '_Meta_Save', save=[])
 
 	print('Finished s10 \n')
 
