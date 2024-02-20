@@ -843,7 +843,7 @@ def plot_wvl_bins(w_hires, f_interp, wave_bins, wvl_bins, dirname):
     Plot of a 1D spectrum and the bins
     """
     plt.plot(w_hires, f_interp)
-    for wave in wave_bins: plt.axvline(wave, color='0.5')
+    for wave in wave_bins.flatten(): plt.axvline(wave, color='0.5')
     plt.ylabel("Photelectrons")
     plt.xlabel("Wavelength (angstroms)")
     plt.tight_layout()
@@ -1082,6 +1082,33 @@ def plot_fit_lc3(data, fit, meta, mcmc=False):
     plt.close('all')
     plt.clf()
     gc.collect()
+
+
+
+def save_astrolc_data_nested(data, fit, meta):
+    """
+    Saves the data used to plot the astrophysical model (without the systematics) and the data (without the systematics) not phase folded.
+    """
+
+    table_model = Table()
+    table_nosys = Table()
+
+    p = FormatParams(fit.params, data)
+    # FIXME: the next is not great when there are more then one visit which are separated by a big time gap.
+    # same is true for plot_fit_lc3
+    time_model = np.linspace(data.time.min() - p.per[0]/2, data.time.max() + p.per[0]/2, 10000)
+    flux_model = calc_astro(time_model, fit.params, data, fit.myfuncs, 0)
+
+    table_model['time_model'] = np.array(time_model, dtype=np.float64)
+    table_model['flux_model'] = np.array(flux_model, dtype=np.float64)
+
+    table_nosys['time_nosys'] = np.array(data.time, dtype=np.float64)
+    table_nosys['flux_nosys'] = np.array(fit.data_nosys, dtype=np.float64)
+
+    if not os.path.isdir(meta.workdir + meta.fitdir + '/nested_res'):
+        os.makedirs(meta.workdir + meta.fitdir + '/nested_res')
+    ascii.write(table_model, meta.workdir + meta.fitdir +  '/nested_res/fit_lc_data_model_bin{0}_wvl{1:0.3f}.txt'.format(meta.s30_file_counter, meta.wavelength), format='rst', overwrite=True)
+    ascii.write(table_nosys, meta.workdir + meta.fitdir +  '/nested_res/fit_lc_data_nosys_bin{0}_wvl{1:0.3f}.txt'.format(meta.s30_file_counter, meta.wavelength), format='rst', overwrite=True)
 
 
 def save_astrolc_data(data, fit, meta):

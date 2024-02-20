@@ -115,6 +115,7 @@ def nested_sample(data, model, params, file_name, meta, fit_par):
     # Saving plots
     plots.plot_fit_lc2(data, fit, meta, nested=True)
     plots.rmsplot(model, data, meta, fitter='nested')
+    plots.save_astrolc_data_nested(data, model, meta)
 
     if meta.s30_fit_white:
         outfile = open(meta.workdir + meta.fitdir + '/white_systematics_nested.txt', "w")
