@@ -31,6 +31,7 @@ jobs:
 #          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
 #          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
+
       - name: Test with pytest
         run: |
           pytest tests/test_all.py --cov=./src/pacman -s  --cov-report=xml
@@ -43,6 +44,13 @@ jobs:
       #    files: ./coverage.xml
       #    fail_ci_if_error: true
       #    verbose: true
+
+      - name: Upload coverage to codecov
+        uses: codecov/codecov-action@v3
+        if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
+        with:
+          file: ./coverage.xml
+
 
 
       - name: Upload coverage reports to Codecov with GitHub Action

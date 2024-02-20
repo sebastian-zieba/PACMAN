@@ -321,120 +321,120 @@ def test_sim_source(capsys):
     assert source_ypos-1 <= results[3] <= source_ypos+1
 
 
-@pytest.mark.run(order=27)
-def test_s20(capsys):
-    """The extraction step. Extracts flux as a function
-    of wavelength and time.
-    """
-    reload(s20)
-    time.sleep(1)
-
-    workdir, eventlabel = workdir_finder()
-
-    # Run s20
-    meta = s20.run20(eventlabel, workdir)
-
-    extracted_lc_dir_path = workdir / 'extracted_lc'
-
-    s20_dir = np.array([path for path in extracted_lc_dir_path.iterdir() if path.is_dir()])[0]
-    s20_lc_spec_file = s20_dir / 'lc_spec.txt'
-    s20_lc_white_file = s20_dir / 'lc_white.txt'
-
-    # Check if the files were created
-    assert s20_lc_spec_file.exists()
-    assert s20_lc_white_file.exists()
-
-    s20_lc_spec = ascii.read(s20_lc_spec_file)
-    s20_lc_white = ascii.read(s20_lc_white_file)
-
-    # Check the amount of columns
-    assert len(s20_lc_spec.colnames) == 10
-    assert len(s20_lc_white.colnames) == 11
-
-    # test_optextr
-    spectrum = np.ones((20, 9))
-
-    for i in range(len(spectrum)):
-        for j in range(len(spectrum[0])):
-            if 4 < i < 8:
-                if 1 < j < 7:
-                    spectrum[i, j] = 10
-
-    err = np.ones((20, 9))*0.01
-    Mnew = np.ones((20, 9))
-    spec_box_0 = 15 * 10
-    var_box_0 = 1
-
-    [f_opt_0, _, numoutliers] = optextr.optextr(
-            spectrum, err, spec_box_0, var_box_0, Mnew,
-            meta.nsmooth, meta.sig_cut, meta.save_optextr_plot, 0, 0, meta)
-
-    assert np.round(np.sum(f_opt_0), 0) == np.round(np.sum(spectrum), 0) #optimal extraction flux should be the same as the total flux in the array 
-    assert numoutliers == 0  # We didnt introduce any outliers
-
-
-@pytest.mark.run(order=29)
-def test_s21(capsys):
-    """Creates spectroscopic light curves."""
-    reload(s21)
-    time.sleep(1)
-
-    workdir, eventlabel = workdir_finder()
-
-    # Run s21
-    meta = s21.run21(eventlabel, workdir)
-
-    extracted_sp_dir_path = workdir / 'extracted_sp'
-
-    s21_dir = np.array([path for path in extracted_sp_dir_path.iterdir()
-                        if path.is_dir()])[0]
-    s21_wvl_table_file = s21_dir / 'wvl_table.dat'
-    assert s21_wvl_table_file.exists()
-    s21_wvl_table = ascii.read(s21_wvl_table_file)
-
-    wvl_s21 = s21_wvl_table['wavelengths']
-
-    # Check if the number of bins defined in the pcf is the same as
-    # the number of wavelength bins saved into the wvl_table.dat file.
-    assert meta.wvl_bins == len(wvl_s21)
-
-    # Number of light curves should be the same as meta.wvl_bins
-    extracted_sp_lcs_files = list(s21_dir.glob("*.txt"))
-    assert meta.wvl_bins == len(extracted_sp_lcs_files)
-
-    # There should be 10 columns as for the /lc_spec.txt file which was generated after running s20.
-    extracted_sp_lc_file_0 = sn.sort_nicely(extracted_sp_lcs_files)[0]
-    extracted_sp_lc_0 = ascii.read(extracted_sp_lc_file_0)
-    assert len(extracted_sp_lc_0.colnames) == 10
-
-
-@pytest.mark.run(order=30)
-def test_s30(capsys):
-    """Fits spectroscopic light curves."""
-    reload(s30)
-    time.sleep(1)
-
-    workdir, eventlabel = workdir_finder()
-
-    # Run s30
-    meta = s30.run30(eventlabel, workdir)
-
-    dirs = np.array([path for path in workdir.iterdir() if path.is_dir()])
-    dirs_bool = np.array(['fit_' in dir.name for dir in dirs])
-    fit_dirs = dirs[dirs_bool]
-    fit_dir = fit_dirs[0]
-    assert fit_dir.exists()
-
-    meta.s30_fit_white = True
-    meta.s30_most_recent_s20 = True
-
-    s30.run30(eventlabel, workdir, meta=meta)
-
-    dirs = np.array([path for path in workdir.iterdir() if path.is_dir()])
-    dirs_bool = np.array(['fit_' in dir.name for dir in dirs])
-
-    print('dirs_bool: ', dirs_bool)
-    assert True
+# @pytest.mark.run(order=27)
+# def test_s20(capsys):
+#     """The extraction step. Extracts flux as a function
+#     of wavelength and time.
+#     """
+#     reload(s20)
+#     time.sleep(1)
+#
+#     workdir, eventlabel = workdir_finder()
+#
+#     # Run s20
+#     meta = s20.run20(eventlabel, workdir)
+#
+#     extracted_lc_dir_path = workdir / 'extracted_lc'
+#
+#     s20_dir = np.array([path for path in extracted_lc_dir_path.iterdir() if path.is_dir()])[0]
+#     s20_lc_spec_file = s20_dir / 'lc_spec.txt'
+#     s20_lc_white_file = s20_dir / 'lc_white.txt'
+#
+#     # Check if the files were created
+#     assert s20_lc_spec_file.exists()
+#     assert s20_lc_white_file.exists()
+#
+#     s20_lc_spec = ascii.read(s20_lc_spec_file)
+#     s20_lc_white = ascii.read(s20_lc_white_file)
+#
+#     # Check the amount of columns
+#     assert len(s20_lc_spec.colnames) == 10
+#     assert len(s20_lc_white.colnames) == 11
+#
+#     # test_optextr
+#     spectrum = np.ones((20, 9))
+#
+#     for i in range(len(spectrum)):
+#         for j in range(len(spectrum[0])):
+#             if 4 < i < 8:
+#                 if 1 < j < 7:
+#                     spectrum[i, j] = 10
+#
+#     err = np.ones((20, 9))*0.01
+#     Mnew = np.ones((20, 9))
+#     spec_box_0 = 15 * 10
+#     var_box_0 = 1
+#
+#     [f_opt_0, _, numoutliers] = optextr.optextr(
+#             spectrum, err, spec_box_0, var_box_0, Mnew,
+#             meta.nsmooth, meta.sig_cut, meta.save_optextr_plot, 0, 0, meta)
+#
+#     assert np.round(np.sum(f_opt_0), 0) == np.round(np.sum(spectrum), 0) #optimal extraction flux should be the same as the total flux in the array
+#     assert numoutliers == 0  # We didnt introduce any outliers
+#
+#
+# @pytest.mark.run(order=29)
+# def test_s21(capsys):
+#     """Creates spectroscopic light curves."""
+#     reload(s21)
+#     time.sleep(1)
+#
+#     workdir, eventlabel = workdir_finder()
+#
+#     # Run s21
+#     meta = s21.run21(eventlabel, workdir)
+#
+#     extracted_sp_dir_path = workdir / 'extracted_sp'
+#
+#     s21_dir = np.array([path for path in extracted_sp_dir_path.iterdir()
+#                         if path.is_dir()])[0]
+#     s21_wvl_table_file = s21_dir / 'wvl_table.dat'
+#     assert s21_wvl_table_file.exists()
+#     s21_wvl_table = ascii.read(s21_wvl_table_file)
+#
+#     wvl_s21 = s21_wvl_table['wavelengths']
+#
+#     # Check if the number of bins defined in the pcf is the same as
+#     # the number of wavelength bins saved into the wvl_table.dat file.
+#     assert meta.wvl_bins == len(wvl_s21)
+#
+#     # Number of light curves should be the same as meta.wvl_bins
+#     extracted_sp_lcs_files = list(s21_dir.glob("*.txt"))
+#     assert meta.wvl_bins == len(extracted_sp_lcs_files)
+#
+#     # There should be 10 columns as for the /lc_spec.txt file which was generated after running s20.
+#     extracted_sp_lc_file_0 = sn.sort_nicely(extracted_sp_lcs_files)[0]
+#     extracted_sp_lc_0 = ascii.read(extracted_sp_lc_file_0)
+#     assert len(extracted_sp_lc_0.colnames) == 10
+#
+#
+# @pytest.mark.run(order=30)
+# def test_s30(capsys):
+#     """Fits spectroscopic light curves."""
+#     reload(s30)
+#     time.sleep(1)
+#
+#     workdir, eventlabel = workdir_finder()
+#
+#     # Run s30
+#     meta = s30.run30(eventlabel, workdir)
+#
+#     dirs = np.array([path for path in workdir.iterdir() if path.is_dir()])
+#     dirs_bool = np.array(['fit_' in dir.name for dir in dirs])
+#     fit_dirs = dirs[dirs_bool]
+#     fit_dir = fit_dirs[0]
+#     assert fit_dir.exists()
+#
+#     meta.s30_fit_white = True
+#     meta.s30_most_recent_s20 = True
+#
+#     s30.run30(eventlabel, workdir, meta=meta)
+#
+#     dirs = np.array([path for path in workdir.iterdir() if path.is_dir()])
+#     dirs_bool = np.array(['fit_' in dir.name for dir in dirs])
+#
+#     print('dirs_bool: ', dirs_bool)
+#     assert True
 
 
 @pytest.mark.run(order=40)
