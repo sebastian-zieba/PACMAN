@@ -164,8 +164,6 @@ class Data:
             #fit_par['p1'][np.where(fit_par['parameter']=='u2')]    = ld_tmp[3][0]
             #fit_par['p2'][np.where(fit_par['parameter']=='u2')]    = ld_tmp[4][0]
 
-            print(fit_par)
-
         nfree_param = 0
         free_parnames = []
         # TODO: IMPORTANT!
@@ -174,6 +172,8 @@ class Data:
             if fit_par['fixed'][i].lower() == "false":
                 nfree_param += 1
                 free_parnames.append(fit_par['parameter'][i].lower())
+
+        print('Read in fit_par.pcf file: \n', fit_par)
 
         # The following is for removal of sigma clipped data in the light curve
         # Running this part the first time; clip_idx will always be emtpy
@@ -185,7 +185,7 @@ class Data:
         self.s30_myfuncs = meta.s30_myfuncs
         self.time = time[clip_mask]
         self.flux = flux[clip_mask]
-        print('median log10 raw flux of full light curve:', np.log10(np.median(flux[clip_mask])))
+        print('Median log10 raw flux of full light curve: ', np.log10(np.median(flux[clip_mask])))
         self.err = err[clip_mask]
         self.err_notrescaled = err[clip_mask] # will store the original errorbars and wont be rescaled
         self.wavelength = meta.wavelength
