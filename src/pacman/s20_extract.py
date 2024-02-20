@@ -180,6 +180,7 @@ def run20(eventlabel, workdir, meta=None):
                 if not meta.background_box:
                     # we remove the columns which have the trace in them for the background estimation 
                     # we also add another buffer of 10 pixels to avoid including significant target flux
+                    # fullframe_diff_wo_spec is therefore the difference frame without the spectrum including the 10 pixel buffer
                     fullframe_diff_wo_spec = np.concatenate((fullframe_diff[:,:(cmin-10)], fullframe_diff[:,(cmax+10):]), axis=1)
                     below_threshold = fullframe_diff_wo_spec < meta.background_thld # mask with all pixels below the user defined threshold
                     skymedian = np.median(fullframe_diff_wo_spec[below_threshold].flatten())  # estimates the background counts by taking the flux median of the pixels below the flux threshold

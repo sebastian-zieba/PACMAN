@@ -430,9 +430,20 @@ The `wvl_bins` parameter sets the number of wavelength channels.
 use_wvl_list/wvl_edge_list
 ''''''''''''''''''''''''''''''''''''''''''''
 | Example: ``use_wvl_list   True``
-| Example: ``wvl_edge_list  [1.1, 1.3, 1.5, 1.7]``
+| Example: ``wvl_edge_list  [1.1,1.3,1.5,1.7]``
 
 If the user wants to use a custom wavelength list for the binning,  set ``use_wvl_list`` to ``True``.
+The units here are always microns.
+
+There are two formats for a custom ``wvl_edge_list``:
+
+If entering a 1D array like ``wvl_edge_list  [1.1,1.3,1.5,1.7]``, PACMAN will always create NON-OVERLAPPING bins. In this example, you would get 3 bins covering the following ranges: 1.1-1.3, 1.3-1.5, 1.5-1.7.
+
+If entering a 2D array like ``wvl_edge_list  [[1.0579,1.0677],[1.0604,1.0701],[1.0628,1.0726]]``, you will get the following three bins: 1.0579-1.0677, 1.0604-1.0701, 1.0628-1.0726.
+This might be useful if you want to create OVERLAPPING bins. An example for that is searching for Helium with the G102 grism around 1083 nm, like in `Spake et al., 2018 <https://ui.adsabs.harvard.edu/abs/2018Natur.557...68S/abstract>`_.
+
+Make sure you do not use spaces in any of these lists, otherwise it's not readable to the code.
+
 
 
 Stage 30
