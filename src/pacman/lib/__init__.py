@@ -27,7 +27,6 @@ from . import optextr
 ## s30
 from . import formatter
 from . import functions
-from . import get_ld
 from . import least_squares
 from . import mcmc
 from . import model

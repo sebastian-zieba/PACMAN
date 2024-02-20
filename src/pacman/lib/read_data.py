@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from astropy.io import ascii
 import itertools
-#from .get_ld import get_ld
 
 
 class Data:
@@ -125,8 +124,6 @@ class Data:
         # fixes limb darkening if "fix_ld" parameter is set to True in obs_par.pcf
         # TODO: Not tested!
         if meta.use_ld_file:
-            #ld_path = get_ld(meta)
-            #ld_file = ascii.read(ld_path)
             #i = 0
             #while(meta.wavelength*1e4 > ld_file['wave_mid'][i]): i += 1
             #u1 = ld_file['u1'][i]
