@@ -26,7 +26,7 @@ def run30(eventlabel, workdir, meta=None):
     print('Starting s30')
 
     if meta == None:
-        meta = me.loadevent(workdir + '/WFC3_' + eventlabel + "_Meta_Save")
+        meta = me.loadevent(workdir + os.path.sep + 'WFC3_' + eventlabel + '_Meta_Save')
 
     # Create directories for Stage 3 processing
     datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
@@ -34,8 +34,10 @@ def run30(eventlabel, workdir, meta=None):
     # Create a directory for the white or the spectroscopic fit
     if  meta.s30_fit_white:
         meta.fitdir = f'/fit_white/fit_{datetime}_{meta.eventlabel}'
+        print(f'new directory in fit_white: fit_{datetime}_{meta.eventlabel}')
     elif meta.s30_fit_spec:
         meta.fitdir = f'/fit_spec/fit_{datetime}_{meta.eventlabel}'
+        print(f'new directory in fit_spec: fit_{datetime}_{meta.eventlabel}')
 
     if not os.path.exists(meta.workdir + meta.fitdir):
         os.makedirs(meta.workdir + meta.fitdir, exist_ok=True)
