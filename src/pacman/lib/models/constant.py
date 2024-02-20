@@ -1,6 +1,8 @@
 import sys
-sys.path.insert(0,'..')
 import numpy as np
+
+
+sys.path.insert(0,'..')
 
 
 def constant(t, data, params, visit = 0):

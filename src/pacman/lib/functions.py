@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0, './models')
+
 from ..lib.models.constant import constant
 from ..lib.models.polynomial1 import polynomial1
 from ..lib.models.polynomial1_full import polynomial1_full
@@ -22,8 +22,10 @@ from ..lib.models.gp_matern32 import gp_matern32
 from ..lib.models.constants_cj import constants_cj
 from ..lib.models.uncmulti import uncmulti
 
+sys.path.insert(0, './models')
 
-#need to automate appending parameters to functions
+
+# TODO: Need to automate appending parameters to functions
 class Functions:
     def __init__(self, data, funcs):
         self.astro = []
@@ -98,7 +100,7 @@ class Functions:
                     data.par_order['a1']*data.nvisit,
                     data.par_order['omega1']*data.nvisit,
                     data.par_order['phi1']*data.nvisit
-                ]) 
+                    ])
             elif f == "sine2":
                 self.sys.append(sine2)
                 self.sys_porder.append([
@@ -120,14 +122,14 @@ class Functions:
                     data.par_order['a32']*data.nvisit,
                     data.par_order['omega32']*data.nvisit,
                     data.par_order['phi32']*data.nvisit
-                ]) 
+                    ])
             elif f == "model_ramp":
                 self.sys.append(model_ramp)
                 self.sys_porder.append([
                     data.par_order['r1']*data.nvisit,
                     data.par_order['r2']*data.nvisit,
                     data.par_order['r3']*data.nvisit
-                ]) 
+                    ])
             elif f == "ackbar":
                 self.sys.append(ackbar)
                 self.sys_porder.append([
@@ -135,7 +137,7 @@ class Functions:
                     data.par_order['trap_pop_f']*data.nvisit,
                     data.par_order['dTrap_s']*data.nvisit,
                     data.par_order['dTrap_f']*data.nvisit
-                ]) 
+                    ])
             elif f == "divide_white":
                 self.sys.append(divide_white)
                 self.sys_porder.append([])
@@ -143,25 +145,25 @@ class Functions:
                 self.astro.append(transit)
                 self.astro_porder.append([
                     data.par_order['t0']*data.nvisit,
-                    data.par_order['per']*data.nvisit, 
-                    data.par_order['rp']*data.nvisit, 
-                    data.par_order['a']*data.nvisit, 
-                    data.par_order['inc']*data.nvisit, 
-                    data.par_order['ecc']*data.nvisit, 
-                    data.par_order['w']*data.nvisit, 
-                    data.par_order['u1']*data.nvisit, 
+                    data.par_order['per']*data.nvisit,
+                    data.par_order['rp']*data.nvisit,
+                    data.par_order['a']*data.nvisit,
+                    data.par_order['inc']*data.nvisit,
+                    data.par_order['ecc']*data.nvisit,
+                    data.par_order['w']*data.nvisit,
+                    data.par_order['u1']*data.nvisit,
                     data.par_order['u2']*data.nvisit
                     ])
             elif f == "eclipse":
                 self.astro.append(eclipse)
                 self.astro_porder.append([
                     data.par_order['t_secondary']*data.nvisit,
-                    data.par_order['per']*data.nvisit, 
-                    data.par_order['rp']*data.nvisit, 
-                    data.par_order['fp']*data.nvisit, 
-                    data.par_order['a']*data.nvisit, 
-                    data.par_order['inc']*data.nvisit, 
-                    data.par_order['ecc']*data.nvisit, 
+                    data.par_order['per']*data.nvisit,
+                    data.par_order['rp']*data.nvisit,
+                    data.par_order['fp']*data.nvisit,
+                    data.par_order['a']*data.nvisit,
+                    data.par_order['inc']*data.nvisit,
+                    data.par_order['ecc']*data.nvisit,
                     data.par_order['w']*data.nvisit
                     ])
             elif f == "gp_sho":
@@ -189,11 +191,7 @@ class Functions:
                 self.sys.append(uncmulti)
                 self.sys_porder.append([
                     data.par_order['uncmulti_val'] * data.nvisit
-                ])
+                    ])
             else:
-                #FIXME return error here
+                # FIXME: Return error here
                 return 0
-
-
-    #def modelramp(self, t, params):
-                    

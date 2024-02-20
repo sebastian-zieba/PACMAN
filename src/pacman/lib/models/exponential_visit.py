@@ -1,8 +1,9 @@
 import sys
-sys.path.insert(0,'..')
 import numpy as np
 
-def exponential_visit(t, data, params, visit = 0):
+sys.path.insert(0, '..')
+
+def exponential_visit(t, data, params, visit: float = 0.):
     exp1, exp2 = params
     exp1 = exp1[visit]
     exp2 = exp2[visit]

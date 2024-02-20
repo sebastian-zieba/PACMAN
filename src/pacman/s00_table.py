@@ -1,11 +1,15 @@
-import numpy as np
-import os, time
-import shutil
+import time
 import pkg_resources
+import shutil
+from pathlib import Path
+from typing import Optional
+
+import numpy as np
 from astropy.table import QTable
 from astropy.io import ascii, fits
 from scipy.stats import rankdata
 from tqdm import tqdm
+
 from .lib import read_pcf as rd
 from .lib import util
 from .lib import manageevent as me
@@ -13,16 +17,15 @@ from .lib import plots
 
 
 class MetaClass:
-    """
-    A Class which will contain all the metadata of the analysis.
-    """
+    """A Class which will contain all the metadata of the analysis."""
     def __init__(self):
         return
 
 
-def run00(eventlabel, pcf_path='.'):
-    """
-    This function does the initial setup of the analysis, including creating a table with information on the observations. This table will be saved into 'filelist.txt'.
+def run00(eventlabel: str, pcf_path: Optional[Path] = Path.cwd()):
+    """This function does the initial setup of the analysis, including
+    creating a table with information on the observations. This table will
+    be saved into 'filelist.txt'.
 
     Steps:
 
@@ -60,22 +63,20 @@ def run00(eventlabel, pcf_path='.'):
     Parameters
     ----------
     eventlabel: str
-      the label given to the event in the run script. Will determine the name of the run directory
+        The label given to the event in the run script. Will determine the name of the run directory
 
 
     Returns
     -------
     meta
-      meta object with all the meta data stored in s00
+        Meta object with all the meta data stored in s00
 
 
     Notes:
     ----------
     History:
         Written by Sebastian Zieba      December 2021
-
     """
-
     print('\nStarting s00')
 
     # Initialize metadata object
@@ -83,46 +84,47 @@ def run00(eventlabel, pcf_path='.'):
     meta.eventlabel = eventlabel
 
     # Load PACMAN control file (which is in the run directory) and store values in Event object
-    pcffile = pcf_path + os.path.sep + 'obs_par.pcf'
+    pcffile = Path(pcf_path) / 'obs_par.pcf'
     pcf = rd.read_pcf(pcffile)
     rd.store_pcf(meta, pcf)
 
     # this file here is saved in /pacman/s00_table.py
     # pacmandir is just the path of the directory /pacman/
-    meta.pacmandir = pkg_resources.resource_filename("pacman","")
-    #meta.pacmandir = '/'.join(os.path.realpath(__file__).split('/')[:-2]) + '/'
+    meta.pacmandir = Path(pkg_resources.resource_filename("pacman", ""))
+    # meta.pacmandir = '/'.join(os.path.realpath(__file__).split('/')[:-2]) + '/'
     print('Location of PACMAN:', meta.pacmandir)
 
-    #If the user runs the tests we have to set the rundir and datadir manually
-    #if meta.rundir == 'pacman/tests/':
+    # If the user runs the tests we have to set the rundir and datadir manually
+    # if meta.rundir == 'pacman/tests/':
     #    print('True')
     #    meta.rundir = '/'.join(pcf_path.split('/')[:-1]) + '/'
-    #print('Location of the tests directory:', meta.rundir)
+    # print('Location of the tests directory:', meta.rundir)
 
-    #if meta.datadir == 'pacman/tests/data':
+    # if meta.datadir == 'pacman/tests/data':
     #    print('True')
     #    meta.datadir = '/'.join(pcf_path.split('/')[:-1]) + '/data/'
-    #print('Location of the data directory:', meta.datadir)
+    # print('Location of the data directory:', meta.datadir)
 
     # Create directories for this run = Work Directory
     datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
 
-    #run_files_dir = pkg_resources.resource_filename("pacman","") + '/data/run_files/'
-    #print(run_files_dir)
-    #onlyfiles = [f for f in os.listdir(run_files_dir) if os.path.isfile(os.path.join(run_files_dir, f))]
-    #print(onlyfiles)
-    meta.workdir = meta.rundir + os.path.sep + 'run_' + datetime + '_' + meta.eventlabel + os.path.sep
-    if not os.path.exists(meta.workdir):
-        os.makedirs(meta.workdir)
+    # run_files_dir = pkg_resources.resource_filename("pacman","") + '/data/run_files/'
+    # print(run_files_dir)
+    # onlyfiles = [f for f in os.listdir(run_files_dir) if os.path.isfile(os.path.join(run_files_dir, f))]
+    # print(onlyfiles)
+    meta.workdir = meta.rundir / f'run_{datetime}_{meta.eventlabel}'
+    if not meta.workdir.exists():
+        meta.workdir.mkdir(parents=True)
     print('Location of the new work directory:', meta.workdir)
 
     #Create a figure directory
-    if not os.path.exists(meta.workdir + os.path.sep + "figs"):
-        os.makedirs(meta.workdir + os.path.sep + "figs")
+    figure_dir =  meta.workdir / 'figs'
+    if not figure_dir.exists():
+        figure_dir.mkdir(parents=True)
 
     # Copy pcf and fit_par.txt
     shutil.copy(pcffile, meta.workdir)
-    fit_parfile = pcf_path + os.path.sep + 'fit_par.txt'
+    fit_parfile = pcf_path / 'fit_par.txt'
     shutil.copy(fit_parfile, meta.workdir)
     print('pcf and fit_par files copied to the new work directory', meta.workdir)
 
@@ -136,31 +138,31 @@ def run00(eventlabel, pcf_path='.'):
     times = np.zeros(len(files))
     exp = np.zeros(len(files))
     instr = np.zeros(len(files), object)
-    scans = np.zeros(len(files), dtype=int) #stores scan directions
+    scans = np.zeros(len(files), dtype=int)  # Stores scan directions
 
     postarg2 = np.zeros(len(files))
 
     # Will create a table with the properties of all _ima.fits files at the first run
     for i, file in enumerate(tqdm(files, desc='Reading in files and their headers', ascii=True)):
         ima = fits.open(file)
-        #the header "instr" tells us if the observation used a Filter (-> Direct Image) or a Grism (-> Spectrum)
-      #  print(repr(ima[0].header))
+        # The header "instr" tells us if the observation used a Filter (-> Direct Image) or a Grism (-> Spectrum)
+        # print(repr(ima[0].header))
         instr[i] = ima[0].header['filter']
         exp[i] = ima[0].header['exptime']
         times[i] = (ima[0].header['expstart'] + ima[0].header['expend'])/(2.0) # mid exposure time
-        #scan direction
-        # scan: (0: forward - lower flux, 1: reverse - higher flux, -1: Filter)
+        # Scan direction
+        # Scan: (0: forward - lower flux, 1: reverse - higher flux, -1: Filter)
         scans[i] = 0  # sets scan direction
         if ima[0].header['postarg2'] < 0: scans[i] = 1
         if instr[i][0] == 'F': scans[i]= -1
         postarg2[i] = ima[0].header['postarg2']
         ima.close()
 
-    # files are chronologically sorted
+    # Files are chronologically sorted
     tsort = np.argsort(times)
-    files = np.array([i.split(os.path.sep)[-1] for i in files])[tsort]
-    #files = np.array(files)
-    #files = files[tsort]
+    files = np.array([Path(file).name for file in files])[tsort]
+    # files = np.array(files)
+    # files = files[tsort]
     times = times[tsort]
     exp = exp[tsort]
     instr = instr[tsort]
@@ -254,12 +256,11 @@ def run00(eventlabel, pcf_path='.'):
     table = QTable([files, instr, ivisits, iorbits, iexp_orb, times, tvs, tos, scans, exp],
                names=('filenames', 'instr', 'ivisit', 'iorbit', 'iexp_orb', 't_mjd', 't_visit', 't_orbit',
                       'scan', 'exp'))# scan: (0: forward - lower flux, 1: reverse - higher flux, -1: Direct Image)
-    ascii.write(table, meta.workdir + os.path.sep + 'filelist.txt', format='rst', overwrite=True)
+    ascii.write(table, meta.workdir / 'filelist.txt', format='rst', overwrite=True)
 
     # Save results
     print('Saving Metadata')
-    me.saveevent(meta, meta.workdir + os.path.sep + 'WFC3_' + meta.eventlabel + '_Meta_Save', save=[])
+    me.saveevent(meta, meta.workdir / f'WFC3_{meta.eventlabel}_Meta_Save', save=[])
 
     print('Finished s00 \n')
-
     return meta
