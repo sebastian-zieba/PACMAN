@@ -25,8 +25,14 @@ jobs:
           pip install -e ".[test]"
 
       - name: Test with pytest
+#        run: |
+#          pytest tests --cov=./src/pacman --cov-report=xml -s 
         run: |
-          pytest tests --cov=./src/pacman --cov-report=xml -s 
+          if [ "${{ matrix.python-version }}" == "3.8" ]; then
+            pytest tests --cov=./src/pacman --cov-report=xml -s
+          else
+            pytest tests --cov=./src/pacman -s
+          fi
 
       - name: Upload coverage.xml as artifact
         uses: actions/upload-artifact@v4

@@ -21,7 +21,7 @@ from .lib.read_data import Data
 def run30(eventlabel: str, workdir: Path, meta=None):
     """This functions reads in the spectroscopic or white light curve(s) and
     fits a model to them."""
-    print('Starting s30')
+    print('Starting s30\n')
 
     if meta is None:
         meta = me.loadevent(workdir / f'WFC3_{eventlabel}_Meta_Save')
