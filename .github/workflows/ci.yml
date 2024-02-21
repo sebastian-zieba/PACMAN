@@ -34,7 +34,7 @@ jobs:
 
       - name: Test with pytest
         run: |
-          pytest tests/test_all.py --cov=src/pacman --cov-report=xml  -s
+          pytest tests --cov=./src/pacman --cov-report=xml
 
 
       #- name: Upload coverage reports to Codecov with GitHub Action
