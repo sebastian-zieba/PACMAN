@@ -1,4 +1,4 @@
-name: Python package
+name: Pytest (Windows)
 on: [push, pull_request]
 
 jobs:
@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install ".[test]"
+          pip install -e ".[test]"
 
       - name: Test with pytest
         run: |
