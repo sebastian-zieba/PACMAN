@@ -2,8 +2,8 @@
 # NOTE: DO NOT USE SPACES IN LISTS!
 
 # 00
-rundir                       .                                              # location of run dir
-datadir                      ./data                                         # location of data dir
+rundir                       ./tests/                                              # location of run dir
+datadir                      ./tests/data                                         # location of data dir
 suffix                       ima                                                # data suffix (only ima supported right now)
 which_visits                 [0]                                                # which visits to use; Options: list (e.g., [0,1,3]) or everything
 
