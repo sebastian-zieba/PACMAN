@@ -95,6 +95,6 @@ def run10(eventlabel, workdir: Path, meta=None):
     # Save results
     print('Saving Metadata')
     me.saveevent(meta, meta.workdir / f'WFC3_{meta.eventlabel}_Meta_Save', save=[])
-    print('tmp: ', 2+5)
+    print('tmp: ', 2+6)
     print('Finished s10 \n')
     return meta
