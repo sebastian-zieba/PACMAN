@@ -24,8 +24,8 @@ from pacman.lib.suntimecorr import getcoords as getcoords
 from pacman.lib.gaussfitter import gaussfit as gaussfit
 from pacman.lib import optextr
 
-src_dir = Path.cwd() / 'src'
-sys.path.insert(0, src_dir)
+#src_dir = Path.cwd() / 'src'
+#sys.path.insert(0, src_dir)
 
 # HACK: Sets the encoding to utf-8 for the Github tests.
 sys.stdout.reconfigure(encoding='utf-8')
