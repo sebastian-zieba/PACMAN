@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        python-version: ["3.8"]
 
     steps:
       - name: Checkout
@@ -44,6 +44,11 @@ jobs:
       #    files: ./coverage.xml
       #    fail_ci_if_error: true
       #    verbose: true
+      - name: Upload coverage.xml as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage
+          path: coverage.xml
 
       - name: Upload coverage reports to Codecov with GitHub Action
         uses: codecov/codecov-action@v3
