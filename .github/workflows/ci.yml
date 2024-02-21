@@ -34,7 +34,7 @@ jobs:
 
       - name: Test with pytest
         run: |
-          pytest tests/test_all.py -s  --cov-report=xml
+          pytest tests/test_all.py --cov -s  --cov-report=xml
 
 
       #- name: Upload coverage reports to Codecov with GitHub Action
