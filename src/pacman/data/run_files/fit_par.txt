@@ -13,7 +13,9 @@ ecc            True    -1     0.0         False    0.0       False    0.0      X
 c              False   0      8.37        True     6.0       True     8.9      X       6.7       7.0      0.001      
 c              False   1      8.37        True     6.0       True     8.9      X       6.7       7.0      0.001      
 v              False   0      -1e-06      False    -0.0001   False    -1e-08   X       -7e-06    -1e-06   1e-05      
-v              False   1      -1e-06      False    -0.0001   False    -1e-08   X       -7e-06    -1e-06   1e-05      
+v              False   1      -1e-06      False    -0.0001   False    -1e-08   X       -7e-06    -1e-06   1e-05
+rowshift_vr    False   -1     0.0         False    -10.0     False    10.0     U       -1.0      1.0      1e-07      
+rowshift_vf    False   -1     0.0         False    -10.0     False    10.0     U       -1.0      1.0      1e-07       
 v2             True    -1     0.0         True     0.0       True     1.0      X       0.0       0.0      1e-11      
 r1             False   0      0.1         False    0.0       False    1.0      U       -10.0     10.0     0.01       
 r1             False   1      0.1         False    0.0       False    1.0      U       -10.0     10.0     0.01       

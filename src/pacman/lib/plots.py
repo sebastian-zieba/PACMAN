@@ -732,6 +732,92 @@ def utr_aper_evo(peaks_all, meta):
         gc.collect()
 
 
+def rowshift_fit(modelx, modely, datax, datay, leastsq_res, meta, i):
+    fig, ax = plt.subplots(1,1, figsize=(9,6))
+    plt.suptitle('rowshift_fit {0}, visit {1}, orbit {2}'.format(i, meta.ivisit_sp[i], meta.iorbit_sp[i]))
+    ax.plot(modelx, modely/max(modely), label='first exposure')
+    ax.plot((leastsq_res[0] + datax), datay/max(datay),
+             label='profile fit = ({0:.5g}+x)*{1:.5g}'.format(leastsq_res[0],leastsq_res[1]))
+    ax.plot(datax, datay/max(datay), label='profile before fit')
+    peakx = modelx[np.argmax(modely)]
+    ax.set_xlim(peakx-20, peakx+20)
+    ax.set_xlabel('row / px')
+    ax.set_ylabel('rel. Flux')
+    plt.legend()
+    plt.tight_layout()
+    if meta.save_rowshift_plot:
+        s20_rowshift_dir = meta.workdir / 'figs' / 's20_rowshift'
+        if not s20_rowshift_dir.exists():
+            s20_rowshift_dir.mkdir(parents=True)
+        plt.savefig(s20_rowshift_dir / f'rowshift_{i}.png',
+                    bbox_inches='tight', pad_inches=0.05, dpi=120)
+        plt.close('all')
+        plt.clf()
+        gc.collect()
+    else:
+        plt.show()
+        plt.close('all')
+        plt.clf()
+        gc.collect()
+
+
+def stretch_fit(modelx, modely, datax, datay, leastsq_res, meta, i):
+    fig, ax = plt.subplots(1,1, figsize=(9,6))
+    plt.suptitle('length_fit {0}, visit {1}, orbit {2}'.format(i, meta.ivisit_sp[i], meta.iorbit_sp[i]))
+    ax.plot(modelx, modely/max(modely), label='first exposure')
+    ax.plot((leastsq_res[0] + leastsq_res[1]*datax), datay/max(datay),
+             label='profile fit = ({0:.5g}+x*{1:.5g})*{2:.5g}'.format(leastsq_res[0],leastsq_res[1],leastsq_res[2]))
+    ax.plot(datax, datay/max(datay), label='profile before fit')
+    ax.set_xlabel('row / px')
+    ax.set_ylabel('rel. Flux')
+    plt.legend()
+    plt.tight_layout()
+    if meta.save_rowshift_stretch_plot:        
+        s20_stretch_dir = meta.workdir / 'figs' / 's20_stretch'
+        if not s20_stretch_dir.exists():
+            s20_stretch_dir.mkdir(parents=True)
+        plt.savefig(s20_stretch_dir / f'stretch_{i}.png',
+                    bbox_inches='tight', pad_inches=0.05, dpi=120)
+        plt.close('all')
+        plt.clf()
+        gc.collect()
+    else:
+        plt.show()
+        plt.close('all')
+        plt.clf()
+        gc.collect()
+
+
+def rowshift_stretch(meta):
+    fig, ax = plt.subplots(1,1, figsize=(9,6))
+    marker_iterator = np.array(['o','^','s','v','D','x','2','<','>'])
+    color_iterator1 = np.array(['tab:blue','tab:cyan','tab:green','tab:olive'])
+    color_iterator2 = np.array(['tab:orange','tab:red','tab:brown','tab:pink'])
+    for visit_plot in set(meta.ivisit_sp):
+        marker = marker_iterator[visit_plot%len(marker_iterator)]
+        color1 = color_iterator1[int(visit_plot/len(marker_iterator))]
+        color2 = color_iterator2[int(visit_plot/len(marker_iterator))]
+        ax.scatter(meta.rowshift[(meta.scans_sp==0) & (meta.ivisit_sp==visit_plot)], meta.stretch[(meta.scans_sp==0) & (meta.ivisit_sp==visit_plot)], marker=marker, color=color1, label='forward, visit {0}'.format(visit_plot))
+        ax.scatter(meta.rowshift[(meta.scans_sp==1) & (meta.ivisit_sp==visit_plot)], meta.stretch[(meta.scans_sp==1) & (meta.ivisit_sp==visit_plot)], marker=marker, color=color2, label='reverse, visit {0}'.format(visit_plot))
+    ax.set_xlabel('rowshift / px')
+    ax.set_ylabel('Stretch Scaling Factor')
+    plt.legend(fontsize="xx-small")
+    if meta.save_rowshift_stretch_plot:
+        s20_rowshift_stretch_dir = meta.workdir / 'figs' / 's20_rowshift_stretch'
+        if not s20_rowshift_stretch_dir.exists():
+            s20_rowshift_stretch_dir.mkdir(parents=True)
+        plt.savefig(s20_rowshift_stretch_dir / f'rowshift_stretch.png',
+                    bbox_inches='tight', pad_inches=0.05, dpi=120)
+        plt.close('all')
+        plt.clf()
+        gc.collect()
+    else:
+        plt.show()
+        plt.close('all')
+        plt.clf()
+        gc.collect()
+
+
 def refspec_fit(modelx, modely, p0, datax, datay, leastsq_res, meta, i):
     fig, ax = plt.subplots(1, 1, figsize=(9, 6))
     plt.suptitle(f'refspec_fit {i}, visit {meta.ivisit_sp[i]}, orbit {meta.iorbit_sp[i]}')

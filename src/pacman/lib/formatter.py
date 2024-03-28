@@ -64,6 +64,9 @@ class FormatParams:
             self.r3 = params[data.par_order['r3']*data.nvisit:(1 + data.par_order['r3'])*data.nvisit]
         elif 'upstream_downstream' in data.s30_myfuncs:
             self.scale = params[data.par_order['scale']*data.nvisit:(1 + data.par_order['scale'])*data.nvisit]
+        elif 'model_rowshift' in data.s30_myfuncs:
+            self.rowshift_vf = params[data.par_order['rowshift_vf']*data.nvisit:(1 + data.par_order['rowshift_vf'])*data.nvisit]
+            self.rowshift_vr = params[data.par_order['rowshift_vr']*data.nvisit:(1 + data.par_order['rowshift_vr'])*data.nvisit]
         elif 'ackbar' in data.s30_myfuncs:
             self.trap_pop_s = params[data.par_order['trap_pop_s']*data.nvisit:(1 + data.par_order['trap_pop_s'])*data.nvisit]
             self.trap_pop_f = params[data.par_order['trap_pop_f']*data.nvisit:(1 + data.par_order['trap_pop_f'])*data.nvisit]
