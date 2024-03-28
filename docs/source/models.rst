@@ -54,6 +54,11 @@ Instrument Systematics
 
 .. note:: c is in log10. An average flux of 10^7 photoelectrons therefore leads to approximately c = 7.
 
+* `model_rowshift.py <https://pacmandocs.readthedocs.io/en/latest/_modules/pacman/lib/models/model_rowshift.html#model_rowshift>`_
+
+  Linear trend with shift of the spectrum on the detector in spatial direction (rows). Independent application for both scan directions. Implemented similarly to the method explained in `Tsiaras et al. (2016) <https://arxiv.org/pdf/1511.08901.pdf>`_.
+
+.. note:: Requires that stage 20 was executed with calculate_rowshift True.
 
 * `uncmulti.py <https://pacmandocs.readthedocs.io/en/latest/_modules/pacman/lib/models/uncmulti.html#uncmulti>`_
 
