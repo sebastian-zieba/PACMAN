@@ -56,7 +56,7 @@ Instrument Systematics
 
 * `model_rowshift.py <https://pacmandocs.readthedocs.io/en/latest/_modules/pacman/lib/models/model_rowshift.html#model_rowshift>`_
 
-  Linear trend with shift of the spectrum on the detector in spatial direction (rows). Independent application for both scan directions. Implemented similarly to the method explained in `Tsiaras et al. (2016) <https://arxiv.org/pdf/1511.08901.pdf>`_.
+  Linear trend with shift of the spectrum on the detector in spatial direction (rows). Independent application for both scan directions. Implemented similarly to the method explained in `Tsiaras et al. (2016) <https://arxiv.org/pdf/1511.08901.pdf>`_. (free parameters: vf, vr)
 
 .. note:: Requires that stage 20 was executed with calculate_rowshift True.
 
