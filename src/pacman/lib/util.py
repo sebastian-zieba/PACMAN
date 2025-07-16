@@ -508,6 +508,26 @@ def correct_wave_shift_fct_1_lin(meta, orbnum, cmin, cmax, spec_opt,
     # np.savetxt('/home/zieba/Desktop/Projects/Observations/Hubble/KELT11_15255/run_2022-05-25_16-57-51_new/spectra_drift/' + 'testing_exp{0}.txt'.format(i), list(zip(x_data, y_data)))
     return wvls, leastsq_res
 
+def gaussian_kernel_optext_spec(x, y):
+    """Performs a gaussian kernel over an array. Copied from pacman util s03. Changed sigma. Used for smoothing each individual opt extracted spectrum.
+    Taken from: https://stackoverflow.com/questions/24143320/gaussian-sum-filter-for-irregular-spaced-points.
+    """
+    y = y / max(y)
+    x.sort()
+
+    resolution = min(len(x), 3000)
+
+    x_eval = np.linspace(min(x), max(x), resolution)
+    sigma = 441 / 5 # wvl is in Angström
+
+    delta_x = x_eval[:, None] - x
+    weights = np.exp(-delta_x*delta_x / (2*sigma*sigma)) / (np.sqrt(2*np.pi) * sigma)
+    weights /= np.sum(weights, axis=1, keepdims=True)
+    y_eval = np.dot(weights, y)
+
+    y_eval = y_eval / max(y_eval)
+
+    return x_eval, y_eval
 
 # 30
 def read_fitfiles(meta):
