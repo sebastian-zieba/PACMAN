@@ -48,7 +48,14 @@ def run30(eventlabel: str, workdir: Path, meta=None):
 
     # Reads in fit parameters from the fit_par file
     #TODO: Check that fit_par is configured correctly. Eg initial value has to be within boundaries!
-    fit_par = ascii.read(meta.workdir / "fit_par.txt", Reader=ascii.CommentedHeader)
+    fit_par = ascii.read(
+        meta.workdir / "fit_par.txt",
+        format="commented_header",
+        delimiter=r"\s",
+        guess=False,
+        fast_reader=False,
+        fill_values=[("", "0")],
+    )
 
     # Read in the user wanted fit functions
     myfuncs = meta.s30_myfuncs

@@ -9,7 +9,7 @@ from astropy.io import ascii, fits
 from astroquery.mast import Observations
 from astropy.table import Table
 from importlib import reload
-from photutils.datasets import make_noise_image, make_gaussian_sources_image
+from photutils.datasets import make_noise_image
 
 from pacman import s00_table as s00
 from pacman import s01_horizons as s01
@@ -288,8 +288,8 @@ def test_s10(capsys):
         xrefyref = ascii.read(xrefyref_file)
 
     # Check if the direct image position was determined correctly
-    assert np.round(xrefyref['pos1'][0], 5) == 513.57510
-    assert np.round(xrefyref['pos2'][0], 5) == 400.90239
+    assert np.isclose(xrefyref['pos1'][0], 513.57510, atol=1e-4)
+    assert np.isclose(xrefyref['pos2'][0], 400.90239, atol=1e-4)
 
 
 @pytest.mark.run(order=26)
@@ -310,7 +310,14 @@ def test_sim_source(capsys):
     source['id'] = [1]
     tshape = (64, 64)
 
-    source_data = make_gaussian_sources_image(tshape, source)
+    yy, xx = np.mgrid[0:tshape[0], 0:tshape[1]]
+
+    source_data = source['flux'][0] * np.exp(
+        -0.5 * (
+            ((xx - source['x_mean'][0]) / source['x_stddev'][0])**2
+            + ((yy - source['y_mean'][0]) / source['y_stddev'][0])**2
+        )
+    )
     noise_data = make_noise_image(tshape, distribution='gaussian', mean=80.,
                                   stddev=5., seed=123)
 

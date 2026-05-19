@@ -1,12 +1,17 @@
 from pathlib import Path
-
 from astropy.io import ascii
-
-from .options import OPTIONS
 
 
 def nice_fit_par(fit_par_file: Path) -> None:
-    fit_par = ascii.read(fit_par_file, Reader=ascii.CommentedHeader)
+    fit_par = ascii.read(
+        fit_par_file,
+        format="commented_header",
+        delimiter=r"\s",
+        guess=False,
+        fast_reader=False,
+        fill_values=[("", "0")],
+    )
+
     with fit_par_file.open('w', encoding='ascii') as f:
         col_size = []
         for i in range(len(fit_par.colnames)):
