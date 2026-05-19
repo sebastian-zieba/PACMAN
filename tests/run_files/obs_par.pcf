@@ -69,6 +69,14 @@ bg_rmax                      400
 bg_cmin                      40
 bg_cmax                      100
 
+calculate_rowshift           True                                            # calculates spatial shift of spectrum on detector with respect to first exposure
+
+save_rowshift_plot           True                                             # save plot of rowshift fit
+show_rowshift_plot           False
+
+save_rowshift_stretch_plot   True                                             # save plot of stretch fit and plot of profile stretch to rowshift
+show_rowshift_stretch_plot   False
+
 save_optextr_plot            True
 
 save_sp2d_plot               True                                               # save plot of 2d spectrum

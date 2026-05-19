@@ -26,7 +26,8 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
     fixed_array = np.array(fit_par['fixed'])
     tied_array = np.array(fit_par['tied'])
     free_array = util.return_free_array(nvisit, fixed_array, tied_array)
-    l_args = [params, data, model, nvisit, fixed_array, tied_array, free_array]
+    untied_array = util.return_untied_array(nvisit, fixed_array, tied_array)
+    l_args = [params, data, model, nvisit, fixed_array, tied_array, free_array, untied_array]
 
     # Setting up multiprocessing
     if hasattr(meta, 'ncpu') and meta.ncpu > 1:
@@ -90,7 +91,9 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
         for row in zip(errors_lower, medians, errors_upper, labels):
             print(f'{row[3]: >8}: {row[1]: >24} {row[0]: >24} {row[2]: >24} ', file=f_mcmc)
 
-    updated_params = util.format_params_for_Model(medians, params, nvisit, fixed_array, tied_array, free_array)
+    updated_params = util.format_params_for_Model(medians, params, nvisit, fixed_array, tied_array, free_array, untied_array)
+    if 'uncmulti' in data.s30_myfuncs:
+        data.err = updated_params[-1] * data.err_notrescaled
     fit = model.fit(data, updated_params)
     util.append_fit_output(fit, meta, fitter='mcmc', medians=medians)
 
@@ -136,9 +139,9 @@ def lnprior(theta, data):
     return lnprior_prob
 
 
-def lnprob(theta, params, data, model, nvisit, fixed_array, tied_array, free_array):
+def lnprob(theta, params, data, model, nvisit, fixed_array, tied_array, free_array, untied_array):
     """Calculates the log-likelihood."""
-    updated_params = util.format_params_for_Model(theta, params, nvisit, fixed_array, tied_array, free_array)
+    updated_params = util.format_params_for_Model(theta, params, nvisit, fixed_array, tied_array, free_array, untied_array)
     if 'uncmulti' in data.s30_myfuncs:
         data.err = updated_params[-1] * data.err_notrescaled
     lp = lnprior(theta, data)
