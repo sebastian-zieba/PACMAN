@@ -8,7 +8,7 @@ Welcome to PACMAN's documentation!
 
 .. image:: media/Pacman_V2.gif
 
-``PACMAN`` is a pipeline to reduce and analyze Hubble/Wide Field Camera 3 (WFC3) observations of transiting exoplanets. The pipeline runs end-to-end, beginning with a time series of 2D images and ending with transmission or emission spectra, or phase-curves of the planet. ``PACMAN`` supports simultaneous fitting of multiple visits and spectroscopic wavelength bins.
+``PACMAN`` is a pipeline to reduce and analyze Hubble/Wide Field Camera 3 (WFC3) observations of transiting exoplanets. The pipeline runs end-to-end, beginning with a time series of 2D images and ending with transmission spectra, emission spectra, or phase curves of the planet. ``PACMAN`` supports simultaneous fitting of multiple visits and spectroscopic wavelength bins.
 
 The main steps in the pipeline are:
 

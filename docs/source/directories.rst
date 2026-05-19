@@ -152,11 +152,10 @@ An example for a directory structure:
 
   ::
 
-      Stage00
+      stage00
       └── s00_run_2022-03-04_15-10-29
 
-  When a later stage is run, PACMAN uses the most recent relevant run directory
-  from the previous stage unless the user specifies a different input path.
+  When a later stage is run, by default, PACMAN uses the most recent run directory from the previous stage unless the user specifies a different input path.
 
 * **data directory**:
 

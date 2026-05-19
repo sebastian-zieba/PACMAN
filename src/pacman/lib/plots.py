@@ -1364,22 +1364,28 @@ def lsq_rprs(vals, errs, idxs, meta):
 def mcmc_chains(ndim, sampler, nburn, labels, meta):
     """Plots the temporal evolution of the MCMC chain."""
     plt.clf()
+
+    chain = sampler.get_chain()  # shape: (nsteps, nwalkers, ndim)
+    chain = chain[nburn:, :, :]
+
     fig, axes = plt.subplots(ndim, 1, sharex=True, figsize=(8, ndim))
+
     if ndim > 1:
-        for i in range(0, ndim):
-            axes[i].plot(sampler.chain[:, nburn:, i].T, alpha=0.4)
-            # axes[i].yaxis.set_major_locator(MaxNLocator(5))
+        for i in range(ndim):
+            axes[i].plot(chain[:, :, i], alpha=0.4)
             axes[i].set_ylabel(labels[i])
     elif ndim == 1:
-        axes.plot(sampler.chain[:, nburn:, 0].T, alpha=0.4)
-        # axes.yaxis.set_major_locator(MaxNLocator(5))
-        axes.set_ylabel(labels)
+        axes.plot(chain[:, :, 0], alpha=0.4)
+        axes.set_ylabel(labels[0] if isinstance(labels, (list, tuple, np.ndarray)) else labels)
+
     fig.tight_layout()
     fig.subplots_adjust(wspace=0, hspace=0)
+
     if nburn == 0:
         fig.savefig(meta.workdir / meta.fitdir / 'mcmc_res' / f"mcmc_chains_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png")
     else:
         fig.savefig(meta.workdir / meta.fitdir / 'mcmc_res' / f"mcmc_chains_noburn_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png")
+
     plt.close('all')
     plt.clf()
     gc.collect()
