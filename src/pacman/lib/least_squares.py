@@ -6,7 +6,6 @@ from . import plots
 from . import util
 from . import read_fit_par
 from .formatter import PrintParams
-from .options import OPTIONS
 
 
 def residuals(params, data, model, fjac=None):
@@ -65,7 +64,7 @@ def lsq_fit(fit_par, data, meta, model, myfuncs, noclip=False):
     if meta.run_verbose:
         with (meta.workdir / meta.fitdir / 'lsq_res' /
               f"lsq_res_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt")\
-                      .open("w", encoding=OPTIONS["encoding"]) as f_lsq:
+                      .open("w", encoding='utf-8') as f_lsq:
             PrintParams(m, data, savefile=f_lsq)
         PrintParams(m, data)
 

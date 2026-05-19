@@ -5,26 +5,34 @@ Stage 01
 
 .. topic:: Summary
 
-    - Navigate to the run directory and execute the run_pacman.py file using the --s01 flag
+    - Navigate to ``pacman_run_files``, only have Stage 01 uncommented and execute run_pacman.py.
     - Continue with s02
 
 Next we download the locations of HST. This will be later used for the barycentric correction.
 
     .. warning:: This step needs an internet connection!
 
-    .. note:: | At the beginning of every stage we read in again the pcf file located in the work directory.
-              | This ensures that any user-made changes to the pcf file will be considered when running a new stage.
-              | This means that the pcf file in the run directory is ONLY used in Stage 00. The same is true for the fit_par.txt file. So, after running Stage 00, PACMAN does not care anymore about the changes made to the pcf file and the fit_par file in the run directory.
+Navigate to ``pacman_run_files`` and open ``run_pacman.py``. Comment out Stage 00 and uncomment Stage 01:
 
-Navigate to your rundir (where run_pacman.py is located) in your terminal and type:
+.. code-block:: python
+
+    # meta = s00.run00(pcf_path=pcf_path)
+
+    meta = s01.run01(pcf_path=pcf_path)
+
+Then run:
 
 .. code-block:: console
 
-    python run_pacman.py --s01
+    python run_pacman.py
 
-The script (run_pacman.py) will assume that you want to continue the analysis started in the newly created work directory.
-If you want to use a different work directory instead, you can use the --workdir='SOME_PATH' flag when running the script.
+PACMAN reads the most recent ``stage00/s00_run_*`` directory and creates a new timestamped Stage 01 workdir:
 
+``stage01/s01_run_YYYY-MM-DD_HH-MM-SS``
+
+The HORIZONS files are saved in:
+
+``stage01/s01_run_*/ancil/horizons``
 
 After running Stage 01 you should get an output like this:
 
@@ -37,7 +45,7 @@ After running Stage 01 you should get an output like this:
 	    Finished s01
 
 We now accessed the `HORIZONS system <https://ssd.jpl.nasa.gov/horizons/>`_ by JPL and downloaded a file containing the positions of HST during the observations.
-For that a new directory was created in the run directory called "ancil/horizons".
+The files are saved in the current Stage 01 workdir under ``ancil/horizons``.
 Two new .txt files where saved there; a Horizons file for each visit.
 Each file contains the X, Y and Z position of HST relative to the solar system barycenter. The X,Y,Z positions of HST were downloaded for 5 minute intervals starting one hour before the first exposure in the observations and one hour after the observations.
 
@@ -47,5 +55,3 @@ For example, the first of the two horizon files should look like this (due to it
    :literal:
 
 The next Stage uses the information in these files to convert from MJD to BJD.
-
-    .. note:: You might have noticed the output "Successfully reloaded meta file" at the beginning of the stage. This means that the pcf in the work directory is being read in again and any changes which have been made to the file between Stage 00 and Stage 01 will be considered. This reloading is being done before running every Stage but Stage 00.

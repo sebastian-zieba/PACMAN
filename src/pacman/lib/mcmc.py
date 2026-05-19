@@ -7,7 +7,6 @@ import numpy as np
 from . import plots
 from . import util
 from . import read_fit_par
-from .options import OPTIONS
 
 
 def mcmc_fit(data, model, params, file_name, meta, fit_par):
@@ -86,7 +85,7 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
     # Saving sampling results into txt files
     with (meta.workdir / meta.fitdir / 'mcmc_res' /
             f"mcmc_res_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt")\
-            .open('w', encoding=OPTIONS["encoding"]) as f_mcmc:
+            .open('w', encoding='utf-8') as f_mcmc:
         for row in zip(errors_lower, medians, errors_upper, labels):
             print(f'{row[3]: >8}: {row[1]: >24} {row[0]: >24} {row[2]: >24} ', file=f_mcmc)
 
@@ -100,7 +99,7 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
 
     if meta.s30_fit_white:
         with (meta.workdir / meta.fitdir / 'white_systematics_mcmc.txt')\
-                .open("w", encoding=OPTIONS["encoding"]) as outfile:
+                .open("w", encoding='utf-8') as outfile:
             for i in range(len(fit.all_sys)):
                 print(fit.all_sys[i], file=outfile)
             print('Saved white_systematics.txt file for mcmc run')

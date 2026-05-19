@@ -14,7 +14,6 @@ from .lib.least_squares import lsq_fit
 from .lib.mcmc import mcmc_fit
 from .lib.model import Model
 from .lib.nested import nested_sample
-from .lib.options import OPTIONS
 from .lib.read_data import Data
 
 

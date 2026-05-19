@@ -14,6 +14,7 @@ from .lib import read_pcf as rd
 from .lib import util
 from .lib import manageevent as me
 from .lib import plots
+from .lib import logedit
 
 
 class MetaClass:
@@ -74,7 +75,7 @@ def run00(pcf_path: Optional[Path] = Path.cwd()):
     History:
         Written by Sebastian Zieba      December 2021
     """
-    print('\nStarting s00')
+
 
     # Initialize metadata object
     meta = MetaClass()
@@ -93,7 +94,7 @@ def run00(pcf_path: Optional[Path] = Path.cwd()):
 
     # PACMAN package directory
     meta.pacmandir = resources.files("pacman")
-    print('Location of PACMAN:', meta.pacmandir)
+    log.writelog(f"Location of PACMAN: {meta.pacmandir}")
 
     # Create the Stage 00 output directory:
     #   rundir/stage00/s00_run_YYYY-MM-DD_HH-MM-SS
@@ -103,7 +104,12 @@ def run00(pcf_path: Optional[Path] = Path.cwd()):
     meta.workdir = meta.stage00dir / f's00_run_{datetime}'
 
     meta.workdir.mkdir(parents=True, exist_ok=True)
-    print('Location of the new Stage 00 run directory:', meta.workdir)
+    log.writelog(f"Location of the new Stage 00 run directory: {meta.workdir}")
+
+    meta.logname = meta.workdir / "s00.log"
+    log = logedit.Logedit(meta.logname)
+    log.writelog("Starting s00")
+    log.writelog(f"Output directory: {meta.workdir}", mute=True)
 
     # Create figure directory inside this Stage 00 run
     figure_dir = meta.workdir / 'figs'
@@ -114,12 +120,12 @@ def run00(pcf_path: Optional[Path] = Path.cwd()):
     # Future runs still read the live files from pacman_run_files.
     shutil.copy(pcffile, meta.workdir)
     shutil.copy(fit_parfile, meta.workdir)
-    print('pcf and fit_par files copied to the Stage 00 run directory:', meta.workdir)
+    log.writelog(f'pcf and fit_par files copied to the Stage 00 run directory: {meta.workdir}')
 
     # Create list of file segments
     meta = util.readfiles(meta)
     num_data_files = len(meta.segment_list)
-    print(f'Found {num_data_files} data file(s) ending in {meta.suffix}.fits')
+    log.writelog(f'Found {num_data_files} data file(s) ending in {meta.suffix}.fits')
     files = meta.segment_list  # gets list of filenames in directory
 
     # A file called "filelist.txt" should include all _ima.fits file names and if they are a spec or di
@@ -223,7 +229,7 @@ def run00(pcf_path: Optional[Path] = Path.cwd()):
         scans = scans[mask_visit]
         postarg2 = postarg2[mask_visit]
         exp = exp[mask_visit]
-        print('The user does not want to analyse every visit (which_visits != everything). '
+        log.writelog('The user does not want to analyse every visit (which_visits != everything). '
               'The amount of files analyzed therefore reduced from {0} to {1}.'.format(num_data_files, sum(mask_visit)))
 
     # changing the numeration of the visits:
@@ -237,7 +243,7 @@ def run00(pcf_path: Optional[Path] = Path.cwd()):
     if meta.which_visits  != 'everything' and (meta.save_obs_times_plot or meta.show_obs_times_plot):
         plots.obs_times(meta, times, ivisits, iorbits, updated=True)
 
-    print('Writing table into filelist.txt')
+    log.writelog('Writing table into filelist.txt')
 #    table = QTable([files, instr, ivisits, iorbits, iexp_orb, times, tvs, tos, scans, exp, postarg2],
 #               names=('filenames', 'instr', 'ivisit', 'iorbit', 'iexp_orb', 't_mjd', 't_visit', 't_orbit',
 #                      'scan', 'exp', 'postarg2'))# scan: (0: forward - lower flux, 1: reverse - higher flux, -1: Direct Image)
@@ -247,8 +253,9 @@ def run00(pcf_path: Optional[Path] = Path.cwd()):
     ascii.write(table, meta.workdir / 'filelist.txt', format='rst', overwrite=True)
 
     # Save results
-    print('Saving Metadata')
+    log.writelog('Saving Metadata')
     me.saveevent(meta, meta.workdir / 'WFC3_Meta_Save', save=[])
 
-    print('Finished s00 \n')
+    log.writelog('Finished s00 \n')
+    log.closelog()
     return meta

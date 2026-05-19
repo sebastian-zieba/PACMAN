@@ -9,6 +9,7 @@ from tqdm import tqdm
 
 from .lib import manageevent as me
 from .lib import util
+from .lib import logedit
 
 
 def run01(pcf_path: Path, meta=None):
@@ -41,7 +42,6 @@ def run01(pcf_path: Path, meta=None):
     History:
         Written by Sebastian Zieba      December 2021
     """
-    print('Starting s01')
 
     pcf_path = Path(pcf_path)
     rundir = pcf_path.parent
@@ -59,8 +59,13 @@ def run01(pcf_path: Path, meta=None):
     meta.workdir = meta.stage01dir / f's01_run_{datetime}'
     meta.workdir.mkdir(parents=True, exist_ok=True)
 
-    print('Using Stage 00 input directory:', meta.inputdir)
-    print('Location of the new Stage 01 run directory:', meta.workdir)
+    previous_log = meta.inputdir / "s00.log"
+    meta.logname = meta.workdir / "s01.log"
+    log = logedit.Logedit(meta.logname, read=previous_log)
+
+    log.writelog("Starting s01")
+    log.writelog(f"Using Stage 00 input directory: {meta.inputdir}", mute=True)
+    log.writelog(f"Location of the new Stage 01 run directory: {meta.workdir}", mute=True)
 
     # Read filelist from Stage 00
     filelist_path = meta.inputdir / 'filelist.txt'
@@ -125,8 +130,9 @@ def run01(pcf_path: Path, meta=None):
             copyfileobj(in_stream, out_file)
 
     # Save results
-    print('Saving Metadata')
+    log.writelog('Saving Metadata')
     me.saveevent(meta, meta.workdir / 'WFC3_Meta_Save', save=[])
 
-    print('Finished s01 \n')
+    log.writelog("Finished s01 \n")
+    log.closelog()
     return meta

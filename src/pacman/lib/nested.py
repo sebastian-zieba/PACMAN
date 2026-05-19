@@ -8,7 +8,6 @@ from scipy.stats import norm
 
 from . import plots
 from . import util
-from .options import OPTIONS
 
 
 def transform_uniform(x, a, b):
@@ -106,7 +105,7 @@ def nested_sample(data, model, params, file_name, meta, fit_par):
     # Saving sampling results into txt files
     with (meta.workdir / meta.fitdir / 'nested_res' /
           f"nested_res_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt")\
-            .open('w', encoding=OPTIONS["encoding"]) as f_mcmc:
+            .open('w', encoding='utf-8') as f_mcmc:
         for row in zip(errors_lower, medians, errors_upper, labels):
             print('{0: >8}: '.format(row[3]), '{0: >24} '.format(row[1]),
                   '{0: >24} '.format(row[0]), '{0: >24} '.format(row[2]), file=f_mcmc)
@@ -122,7 +121,7 @@ def nested_sample(data, model, params, file_name, meta, fit_par):
 
     if meta.s30_fit_white:
         with (meta.workdir / meta.fitdir / 'white_systematics_nested.txt')\
-                .open("w", encoding=OPTIONS["encoding"]) as outfile:
+                .open("w", encoding='utf-8') as outfile:
             for i in range(len(fit.all_sys)):
                 print(fit.all_sys[i], file=outfile)
         print('Saved white_systematics.txt file for nested sampling run')

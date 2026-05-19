@@ -1,5 +1,4 @@
 # !/usr/bin/python
-from . import options
 
 ## s00
 from . import manageevent
