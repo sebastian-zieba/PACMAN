@@ -1,5 +1,5 @@
 import time
-import pkg_resources
+from importlib import resources
 import shutil
 from pathlib import Path
 from typing import Optional
@@ -90,7 +90,7 @@ def run00(eventlabel: str, pcf_path: Optional[Path] = Path.cwd()):
 
     # this file here is saved in /pacman/s00_table.py
     # pacmandir is just the path of the directory /pacman/
-    meta.pacmandir = Path(pkg_resources.resource_filename("pacman", ""))
+    meta.pacmandir = resources.files("pacman")
     # meta.pacmandir = '/'.join(os.path.realpath(__file__).split('/')[:-2]) + '/'
     print('Location of PACMAN:', meta.pacmandir)
 

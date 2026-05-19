@@ -48,7 +48,7 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
     with (meta.workdir / meta.fitdir / 'mcmc_res' /
           f'mcmc_out_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.p')\
             .open("wb") as pickle_file:
-        pickle.dump([data, params, sampler.chain], pickle_file)
+        pickle.dump([data, params, sampler.get_chain()], pickle_file)
     nburn = meta.run_nburn
 
     labels = meta.labels
