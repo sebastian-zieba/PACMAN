@@ -22,18 +22,21 @@ class MetaClass:
         return
 
 
-def run00(eventlabel: str, pcf_path: Optional[Path] = Path.cwd()):
+def run00(pcf_path: Optional[Path] = Path.cwd()):
     """This function does the initial setup of the analysis, including
     creating a table with information on the observations. This table will
     be saved into 'filelist.txt'.
 
     Steps:
 
-    - 1. Creates a MetaData object
-    - 2. Creates a new run directory with the following form, e.g.: ./run/run_2021-01-01_12-34-56_eventname/
-    - 3. Copy and pastes the control file (obs_par.pcf) and the fit parameters file (fit_par.txt) into the new directory
-    - 4. Reads in all fits files and creates a table which will be saved in filelist.txt.
-    - 5. Saves metadata into a file called something like ./run/run_2021-01-01_12-34-56_eventname/WFC3_eventname_Meta_Save.dat
+    - 1. Creates a metadata object.
+    - 2. Reads the live ``obs_par.pcf`` file from ``pacman_run_files``.
+    - 3. Creates a new Stage 00 run directory with the form
+         ``rundir/stage00/s00_run_YYYY-MM-DD_HH-MM-SS``.
+    - 4. Copies ``obs_par.pcf`` and ``fit_par.txt`` into the Stage 00 run directory
+         as provenance snapshots.
+    - 5. Reads all FITS files and creates ``filelist.txt``.
+    - 6. Saves metadata into the Stage 00 run directory.
 
     The information listed in filelist.txt are:
 
@@ -60,12 +63,6 @@ def run00(eventlabel: str, pcf_path: Optional[Path] = Path.cwd()):
                - else:             --> scans[i] = 0  --> forward scan
 
 
-    Parameters
-    ----------
-    eventlabel: str
-        The label given to the event in the run script. Will determine the name of the run directory
-
-
     Returns
     -------
     meta
@@ -81,41 +78,43 @@ def run00(eventlabel: str, pcf_path: Optional[Path] = Path.cwd()):
 
     # Initialize metadata object
     meta = MetaClass()
-    meta.eventlabel = eventlabel
 
-    # Load PACMAN control file (which is in the run directory) and store values in Event object
-    pcffile = Path(pcf_path) / 'obs_par.pcf'
+    # The live/current PACMAN control files are always read from pacman_run_files.
+    # Example:
+    #   rundir/pacman_run_files/obs_par.pcf
+    #   rundir/pacman_run_files/fit_par.txt
+    pcf_path = Path(pcf_path)
+    pcffile = pcf_path / 'obs_par.pcf'
+    fit_parfile = pcf_path / 'fit_par.txt'
+
+    # Load PACMAN control file and store values in metadata object
     pcf = rd.read_pcf(pcffile)
     rd.store_pcf(meta, pcf)
 
-    # this file here is saved in /pacman/s00_table.py
-    # pacmandir is just the path of the directory /pacman/
+    # PACMAN package directory
     meta.pacmandir = resources.files("pacman")
-    # meta.pacmandir = '/'.join(os.path.realpath(__file__).split('/')[:-2]) + '/'
     print('Location of PACMAN:', meta.pacmandir)
 
-    # If the user runs the tests we have to set the rundir and datadir manually
-    # if meta.rundir == 'pacman/tests/':
-    #    print('True')
-    #    meta.rundir = '/'.join(pcf_path.split('/')[:-1]) + '/'
-    # print('Location of the tests directory:', meta.rundir)
-
-    # if meta.datadir == 'pacman/tests/data':
-    #    print('True')
-    #    meta.datadir = '/'.join(pcf_path.split('/')[:-1]) + '/data/'
-    # print('Location of the data directory:', meta.datadir)
-
-    # Create directories for this run = Work Directory
+    # Create the Stage 00 output directory:
+    #   rundir/stage00/s00_run_YYYY-MM-DD_HH-MM-SS
     datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
 
-    # run_files_dir = pkg_resources.resource_filename("pacman","") + '/data/pacman_run_files/'
-    # print(run_files_dir)
-    # onlyfiles = [f for f in os.listdir(run_files_dir) if os.path.isfile(os.path.join(run_files_dir, f))]
-    # print(onlyfiles)
-    meta.workdir = meta.rundir / f'run_{datetime}_{meta.eventlabel}'
-    if not meta.workdir.exists():
-        meta.workdir.mkdir(parents=True)
-    print('Location of the new work directory:', meta.workdir)
+    meta.stage00dir = meta.rundir / 'stage00'
+    meta.workdir = meta.stage00dir / f's00_run_{datetime}'
+
+    meta.workdir.mkdir(parents=True, exist_ok=True)
+    print('Location of the new Stage 00 run directory:', meta.workdir)
+
+    # Create figure directory inside this Stage 00 run
+    figure_dir = meta.workdir / 'figs'
+    figure_dir.mkdir(parents=True, exist_ok=True)
+
+    # Copy obs_par.pcf and fit_par.txt into the Stage 00 run directory as provenance snapshots.
+    # These copied files document the settings used for this run.
+    # Future runs still read the live files from pacman_run_files.
+    shutil.copy(pcffile, meta.workdir)
+    shutil.copy(fit_parfile, meta.workdir)
+    print('pcf and fit_par files copied to the Stage 00 run directory:', meta.workdir)
 
     #Create a figure directory
     figure_dir =  meta.workdir / 'figs'
@@ -260,7 +259,7 @@ def run00(eventlabel: str, pcf_path: Optional[Path] = Path.cwd()):
 
     # Save results
     print('Saving Metadata')
-    me.saveevent(meta, meta.workdir / f'WFC3_{meta.eventlabel}_Meta_Save', save=[])
+    me.saveevent(meta, meta.workdir / 'WFC3_Meta_Save', save=[])
 
     print('Finished s00 \n')
     return meta
