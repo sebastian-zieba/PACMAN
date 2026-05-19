@@ -61,8 +61,8 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
     else:
         thin_corner = 1
 
-    samples = sampler.chain[:, nburn::thin_corner, :].reshape((-1, ndim))
-
+    samples = sampler.get_chain(discard=nburn, thin=thin_corner, flat=True)
+    
     # Closing multiprocessing
     if meta.ncpu > 1:
         pool.close()
