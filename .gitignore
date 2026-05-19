@@ -1,14 +1,33 @@
+# Python
 __pycache__/
-reduction/tmp/
-fit/
-*.log
+*.pyc
+
+# Build artifacts
+build/
+dist/
 *.egg-info/
+
+# Coverage
+.coverage
+htmlcov/
+
 # Sphinx documentation
 docs/_build/
 docs/build/
-# Pycharm directory
-.idea/
-#run directory
+
+# Jupyter
+.ipynb_checkpoints/
+
+# PACMAN pipeline outputs
+reduction/tmp/
+fit/
 run/run_20*/
-# Mac/OSX
+
+# IDE
+.idea/
+
+# macOS
 .DS_Store
+
+# personal log files
+*.log
