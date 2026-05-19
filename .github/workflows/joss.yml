@@ -1,14 +1,24 @@
 name: JOSS
-on: [push]
+
+on:
+  push:
+    paths:
+      - "joss/**"
+      - ".github/workflows/joss.yml"
+  pull_request:
+    paths:
+      - "joss/**"
+      - ".github/workflows/joss.yml"
 
 jobs:
   paper:
     runs-on: ubuntu-latest
     name: Paper Draft
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        
+
       - name: Generate .tex
         uses: docker://openjournals/paperdraft:latest
         with:
@@ -20,7 +30,7 @@ jobs:
         with:
           args: joss/paper.md --defaults=metadata.yaml
           journal: joss
-          
+
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
