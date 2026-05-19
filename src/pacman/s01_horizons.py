@@ -110,7 +110,7 @@ def run01(pcf_path: Path, meta=None):
         "VEC_TABLE": "'3'",
     }
 
-
+    print('USE NESTORS CODE TO DOWNLOAD HORIZONS FILES INSTEAD OF THIS ONE, WHICH IS SLOWER AND NOT AS RELIABLE. SEE')
     # save it in ./ancil/bjd_conversion/
     horizons_dir = meta.workdir / 'ancil' / 'horizons'
     horizons_dir.mkdir(parents=True, exist_ok=True)
@@ -126,8 +126,8 @@ def run01(pcf_path: Path, meta=None):
         t_end = np.max(t_mjd_visit) + 2400000.5 + 1.0 / 24.0
 
         params = dict(base_params)
-        params["START_TIME"] = f"'JD{t_start:.8f}'"
-        params["STOP_TIME"] = f"'JD{t_end:.8f}'"
+        params["START_TIME"] = f"'JD{t_start:.12f}'"
+        params["STOP_TIME"] = f"'JD{t_end:.12f}'"
 
         # urlencode handles the URL escaping properly.
         url = f"{base_url}?{urlencode(params)}"
