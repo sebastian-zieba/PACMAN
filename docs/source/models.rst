@@ -133,7 +133,7 @@ Let's have a look at each column:
 
   If the user wants to tie a parameter over all visits, set -1.
 
-  If the user does not want to tie a certain parameter, he or she has to duplicate the line as often as they have visits.
+  If the user does not want to tie a certain parameter, they have to duplicate the line as often as they have visits.
 
   Example: c in the template above. The code assumes that the user sorted the rows in the correct order.
 

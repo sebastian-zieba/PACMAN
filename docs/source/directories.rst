@@ -46,7 +46,7 @@ In the package
 
     * -> `PACMAN/src/pacman/data/pacman_run_files/run_pacman.py <https://github.com/sebastian-zieba/PACMAN/tree/master/src/pacman/data/pacman_run_files/run_pacman.py>`_
 
-    This python script runs PACMAN. If the user did not install PACMAN properly as explained in the :ref:`installation walkthrough <installation>` (not recommended) he or she might have to add a path to the sys.path.append pointing to the PACMAN directory:
+    This python script runs PACMAN. If the user did not install PACMAN properly as explained in the :ref:`installation walkthrough <installation>` (not recommended) they might have to add a path to the sys.path.append pointing to the PACMAN directory:
 
     .. code-block:: python
 

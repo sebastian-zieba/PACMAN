@@ -28,7 +28,7 @@ Decide on a run directory
 Before we can run ``PACMAN``, we need to create a run directory.
 
 All PACMAN outputs will be stored inside this directory. For the analysis of the
-GJ 1214 data, we use the following directory structure:
+GJ 1214 data, we will use the following directory structure:
 
 ::
 
@@ -90,9 +90,9 @@ Set up the pcf
 The PACMAN control file, or :ref:`pcf page <pcf>`, stores all parameters that the user can tune for a particular run.
 
 Before starting the analysis, the paths to the data directory and run directory
-(``datadir`` and ``rundir``) must be set in the pcf.
+(``datadir`` and ``rundir``) must be set in the pcf (to be clear, in the ``obs_par.pcf`` file that is in e.g., ``/home/zieba/Desktop/Projects/Observations/Hubble/GJ1214_13021``).
 
-Navigate into ``pacman_run_files``, open ``obs_par.pcf``, and modify the entries
+Navigate into ``pacman_run_files`` (in e.g., ``/home/zieba/Desktop/Projects/Observations/Hubble/GJ1214_13021``), open ``obs_par.pcf``, and modify the entries
 ``datadir`` and ``rundir`` with the absolute paths to the data directory and run directory, respectively.
 
 For example:
@@ -104,6 +104,7 @@ For example:
 Run PACMAN
 ----------
 
+(Don't do this yet. We will run PACMAN after downloading the data in the next part of this Quickstart.)
 Navigate into the ``pacman_run_files`` directory and run:
 
 .. code-block:: console
