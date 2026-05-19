@@ -22,8 +22,8 @@ rundir
 
 The directory where you want PACMAN to run and save data to.
 If you downloaded or cloned the GitHub repository it includes a pacman_run_files directory.
-These three files can also be downloaded under this link: `Download here <https://downgit.github.io/#/home?url=https://github.com/sebastian-zieba/PACMAN/tree/master/pacman/pacman_run_files>`_.
-You have to copy these files into your run directory.
+These three files can also be downloaded under this link: `Download here <https://downgit.github.io/#/home?url=https://github.com/sebastian-zieba/PACMAN/tree/master/src/pacman/pacman_run_files>`_.
+These files should be copied into the user's ``pacman_run_files`` directory.
 It should include three files:
  - run_pacman.py: The run script
  - obs_par.pcf: The pcf file
@@ -78,7 +78,7 @@ This plot consists of one table and two subplots.
 
 - The left subplot shows when the visit was observed.
 
-- The right subplot shows when observations where taken during an visit as a function of time elapsed since the first exposure in the visit.
+- The right subplot shows when observations were taken during an visit as a function of time elapsed since the first exposure in the visit.
 
 .. image:: media/s00/obs_dates_all.png
 
@@ -295,7 +295,7 @@ Interpolates each spectrum to the wavelength scale of the reference spectrum, to
 
 correct_wave_shift_refspec
 ''''''''''''''''''''''''''''''''''''''''''''
-uses the created reference spectrum during Stage 03 for the wavelength calibration.
+uses the created reference spectrum during stage 03 for the wavelength calibration.
 
 
 output
@@ -410,11 +410,11 @@ s21_most_recent_s20/s21_spec_dir_path_s20
 | Example: ``s21_most_recent_s20    True``
 | Example: ``s21_spec_dir_path_s20  None``
 
-If ``s21_most_recent_s20`` is set to ``True`` the most recent s20 run will be used.
+If ``s21_most_recent_s20`` is ``True``, PACMAN automatically uses the most recent ``stage20`` run directory.
 If ``s21_most_recent_s20`` is set to False, the user can set a path with the extracted data after s20:
 
 | Example: ``s21_most_recent_s20    False ``
-| Example: ``s21_spec_dir_path_s20  /home/zieba/Desktop/Projects/Open_source/PACMAN/run/run_2022-01-25_19-12-59_GJ1214_Hubble13021/extracted_lc/2022-02-11_17-44-56``
+| Example: ``s21_spec_dir_path_s20  /home/zieba/Desktop/Projects/Observations/Hubble/GJ1214_13021/stage20/s20_run_2022-02-11_17-44-56/``
 
 
 wvl_min/wvl_max/wvl_bins
@@ -455,12 +455,12 @@ Choose the functions to fit the data. The available functions are listed in `mod
 
 s30_fit_white
 ''''''''''''''''''''''''''''''''''''''''''''
-Fit the white light curve created in Stage 20.
+Fit the white light curve created in stage 20.
 
 
 s30_most_recent_s20
 ''''''''''''''''''''''''''''''''''''''''''''
-Use the most recent Stage 20 run for the white light curve fit.
+Use the most recent stage 20 run for the white light curve fit.
 
 
 s30_white_file_path
@@ -470,12 +470,12 @@ If s30_most_recent_s20 was set to False, the user can put a path to the white li
 
 s30_fit_spec
 ''''''''''''''''''''''''''''''''''''''''''''
-Fit the spectroscopic light curves created in Stage 21.
+Fit the spectroscopic light curves created in stage 21.
 
 
 s30_most_recent_s21
 ''''''''''''''''''''''''''''''''''''''''''''
-Use the most recent Stage 21 run for the spectroscopic light curve fit.
+Use the most recent stage 21 run for the spectroscopic light curve fit.
 
 
 s30_spec_dir_path
