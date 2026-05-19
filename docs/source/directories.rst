@@ -170,3 +170,17 @@ An example for a directory structure:
   This is the installed PACMAN source code directory. Users normally do not need to
   edit files in this directory during an analysis.
 
+
++----------------------+--------------------------------------------------------------+---------------------------------------------------------------------------------------------+
+| Term                 | Meaning                                                      | Example                                                                                     |
++======================+==============================================================+=============================================================================================+
+| run directory        | Top-level PACMAN project directory                           | ``/home/zieba/Desktop/Projects/Observations/Hubble/GJ1214_13021``                           |
++----------------------+--------------------------------------------------------------+---------------------------------------------------------------------------------------------+
+| ``pacman_run_files`` | Configuration directory containing ``run_pacman.py``,         | ``/home/zieba/Desktop/Projects/Observations/Hubble/GJ1214_13021/pacman_run_files``          |
+|                      | ``fit_par.txt``, and ``obs_par.pcf``                          |                                                                                             |
++----------------------+--------------------------------------------------------------+---------------------------------------------------------------------------------------------+
+| ``stage00``          | Stage output directory for all Stage 00 runs                  | ``/home/zieba/Desktop/Projects/Observations/Hubble/GJ1214_13021/stage00``                   |
++----------------------+--------------------------------------------------------------+---------------------------------------------------------------------------------------------+
+| ``s00_run_*``        | Individual Stage 00 execution directory, also called          | ``/home/zieba/Desktop/Projects/Observations/Hubble/GJ1214_13021/stage00/s00_run_2022-...``  |
+|                      | the Stage 00 ``workdir``                                     |                                                                                             |
++----------------------+--------------------------------------------------------------+---------------------------------------------------------------------------------------------+

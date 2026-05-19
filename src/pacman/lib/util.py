@@ -42,6 +42,18 @@ def readfiles(meta):
     return meta
 
 
+#s01
+def find_latest_stage_run(rundir, stage_name, pattern):
+    """Return the most recent run directory inside a stage directory."""
+    stage_dir = Path(rundir) / stage_name
+    run_dirs = sorted(stage_dir.glob(pattern))
+
+    if len(run_dirs) == 0:
+        raise FileNotFoundError(f'No run directories found in {stage_dir} matching {pattern}')
+
+    return run_dirs[-1]
+
+
 # s02
 def ancil(meta, s10: Optional[bool] = False, s20: Optional[bool] = False):
     """This function loads in a lot of useful arrays and values into meta.

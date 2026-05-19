@@ -130,7 +130,7 @@ Stage 00
 
 3) **Results**
 
-    After running Stage 00, you should get terminal output similar to this (in this example I had all 15 visits in the data directory, but only wanted to analyze two of them, so the amount of files analyzed was reduced from 1145 to 150):
+    After running Stage 00, you should get terminal output similar to this (in this example I had all 15 visits in the data directory, but only wanted to analyze two of them, so the amount of files analyzed was reduced from 1145 to 158):
 
     .. code-block:: console
 
@@ -138,7 +138,7 @@ Stage 00
         Found 1145 data file(s) ending in ima.fits
         Reading in files and their headers: 100%|##########| 1145/1145 [00:03<00:00, 303.42it/s]
         Determining orbit(s) and visit(s): 100%|##########| 1145/1145 [00:00<00:00, 261786.76it/s]
-        The user does not want to analyse every visit (which_visits != everything). The amount of files analyzed therefore reduced from 1145 to 150.
+        The user does not want to analyse every visit (which_visits != everything). The amount of files analyzed therefore reduced from 1145 to 158.
         Writing table into filelist.txt
         Saving Metadata
         Finished s00

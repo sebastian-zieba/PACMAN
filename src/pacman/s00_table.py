@@ -116,17 +116,6 @@ def run00(pcf_path: Optional[Path] = Path.cwd()):
     shutil.copy(fit_parfile, meta.workdir)
     print('pcf and fit_par files copied to the Stage 00 run directory:', meta.workdir)
 
-    #Create a figure directory
-    figure_dir =  meta.workdir / 'figs'
-    if not figure_dir.exists():
-        figure_dir.mkdir(parents=True)
-
-    # Copy pcf and fit_par.txt
-    shutil.copy(pcffile, meta.workdir)
-    fit_parfile = pcf_path / 'fit_par.txt'
-    shutil.copy(fit_parfile, meta.workdir)
-    print('pcf and fit_par files copied to the new work directory', meta.workdir)
-
     # Create list of file segments
     meta = util.readfiles(meta)
     num_data_files = len(meta.segment_list)
