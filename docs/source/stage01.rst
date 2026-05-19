@@ -5,7 +5,7 @@ Stage 01
 
 .. topic:: Summary
 
-    - Navigate to the run directory and execute the pacman_script.py file using the --s01 flag
+    - Navigate to the run directory and execute the run_pacman.py file using the --s01 flag
     - Continue with s02
 
 Next we download the locations of HST. This will be later used for the barycentric correction.
@@ -16,13 +16,13 @@ Next we download the locations of HST. This will be later used for the barycentr
               | This ensures that any user-made changes to the pcf file will be considered when running a new stage.
               | This means that the pcf file in the run directory is ONLY used in Stage 00. The same is true for the fit_par.txt file. So, after running Stage 00, PACMAN does not care anymore about the changes made to the pcf file and the fit_par file in the run directory.
 
-Navigate to your rundir (where pacman_script.py is located) in your terminal and type:
+Navigate to your rundir (where run_pacman.py is located) in your terminal and type:
 
 .. code-block:: console
 
-    python pacman_script.py --s01
+    python run_pacman.py --s01
 
-The script (pacman_script.py) will assume that you want to continue the analysis started in the newly created work directory.
+The script (run_pacman.py) will assume that you want to continue the analysis started in the newly created work directory.
 If you want to use a different work directory instead, you can use the --workdir='SOME_PATH' flag when running the script.
 
 

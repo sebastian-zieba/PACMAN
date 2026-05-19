@@ -5,7 +5,7 @@ Stage 20
 
 .. topic:: Summary
 
-    - Navigate to the run directory and execute the pacman_script.py file using the --s20 flag
+    - Navigate to the run directory and execute the run_pacman.py file using the --s20 flag
     - Continue with s21 if you want to create spectroscopic light curves and fit them
     - (Continue with s30 if you are ONLY interested in the white light curve)
 

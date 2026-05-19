@@ -10,9 +10,9 @@ Stage 00
 .. topic:: Summary
 
     - Make sure you followed the steps in :ref:`Before Running <before_running>`!
-    - You should now have a run directory which include pacman_script.py, fit_par.txt and obs_par.pcf.
+    - You should now have a run directory which include run_pacman.py, fit_par.txt and obs_par.pcf.
     - Make sure the path to run directory and data directory are set in the pcf
-    - Navigate to the run directory and execute the pacman_script.py file using the \-\-s00 flag and the \-\-eventlabel argument
+    - Navigate to the run directory and execute the run_pacman.py file using the \-\-s00 flag and the \-\-eventlabel argument
     - Continue with s01
 
 
@@ -29,14 +29,14 @@ Stage 00
 
     The rundir should contain the following three files:
 
-    - **pacman_script.py**
+    - **run_pacman.py**
 
     - **fit_par.txt**
 
     - **obs_par.pcf**
 
-	These files can be either found in your package directory, on `GitHub <https://github.com/sebastian-zieba/PACMAN/tree/master/src/pacman/data/run_files>`_
-	or can be downloaded `here <https://downgit.github.io/#/home?url=https://github.com/sebastian-zieba/PACMAN/tree/master/src/pacman/data/run_files>`_.
+	These files can be either found in your package directory, on `GitHub <https://github.com/sebastian-zieba/PACMAN/tree/master/src/pacman/data/pacman_run_files>`_
+	or can be downloaded `here <https://downgit.github.io/#/home?url=https://github.com/sebastian-zieba/PACMAN/tree/master/src/pacman/data/pacman_run_files>`_.
 
 	As mentioned in the Introduction, in this example going to analyze just two
 	visits taken in the middle of the GO 13021 program (Dates (YYYY-MM-DD): 2013-03-13 and 2013-03-15).
@@ -56,7 +56,7 @@ Stage 00
 
 	.. code-block:: console
 
-		python pacman_script.py --s00 --eventlabel='GJ1214_Hubble13021'
+		python run_pacman.py --s00 --eventlabel='GJ1214_Hubble13021'
 
 	Here, \-\-s00 means we are going to run Stage 00 and \-\-eventlabel will be used in the naming of files and directories.
     The  \-\-eventlabel argument is just needed when running \-\-s00.
@@ -78,7 +78,7 @@ Stage 00
 			└── Observations
 				└── Hubble
 					└── GJ1214_13021
-						├── pacman_script.py
+						├── run_pacman.py
 						├── fit_par.txt
 						├── obs_par.pcf
 						└── run_2022-03-04_15-10-29_GJ1214_Hubble13021
@@ -91,7 +91,7 @@ Stage 00
     All next steps are going to use the pcf and fit_par which is located in the workdir (run_2022-03-04_15-10-29_GJ1214_Hubble13021) and not the pcf and fit_par in the rundir (GJ1214_13021)!!
 
 .. note::
-    You can type ``python pacman_script.py --help`` to see all possible flags which are available.
+    You can type ``python run_pacman.py --help`` to see all possible flags which are available.
 
 
 

@@ -5,7 +5,7 @@ Stage 02
 
 .. topic:: Summary
 
-    - Navigate to the run directory and execute the pacman_script.py file using the --s02 flag
+    - Navigate to the run directory and execute the run_pacman.py file using the --s02 flag
     - Continue with s03
 
 This stage performs a barycentric correction because the time stamps for the observations do not account for HST's orbital motion.

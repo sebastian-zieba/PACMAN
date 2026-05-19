@@ -21,11 +21,11 @@ rundir
 | Example: ``rundir   /home/zieba/Desktop/Projects/Observations/Hubble/GJ1214_13021``
 
 The directory where you want PACMAN to run and save data to.
-If you downloaded or cloned the GitHub repository it includes a run_files directory.
-These three files can also be downloaded under this link: `Download here <https://downgit.github.io/#/home?url=https://github.com/sebastian-zieba/PACMAN/tree/master/pacman/run_files>`_.
+If you downloaded or cloned the GitHub repository it includes a pacman_run_files directory.
+These three files can also be downloaded under this link: `Download here <https://downgit.github.io/#/home?url=https://github.com/sebastian-zieba/PACMAN/tree/master/pacman/pacman_run_files>`_.
 You have to copy these files into your run directory.
 It should include three files:
- - pacman_script.py: The run script
+ - run_pacman.py: The run script
  - obs_par.pcf: The pcf file
  - fit_par.txt: The fit_par file with the fit parameters (only used for Stage 30) 
 

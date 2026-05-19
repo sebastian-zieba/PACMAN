@@ -136,7 +136,7 @@ def test_s00(capsys):
     and the filelist file.
     """
     reload(s00)
-    pcf_path = test_path / 'run_files'
+    pcf_path = test_path / 'pacman_run_files'
 
     # Run s00
     meta = s00.run00(eventlabel, pcf_path)

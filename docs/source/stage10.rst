@@ -5,7 +5,7 @@ Stage 10
 
 .. topic:: Summary
 
-    - Navigate to the run directory and execute the pacman_script.py file using the --s10 flag
+    - Navigate to the run directory and execute the run_pacman.py file using the --s10 flag
     - Continue with s20
 
 This stage determines the position of the star in each direct image.

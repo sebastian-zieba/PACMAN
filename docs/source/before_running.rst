@@ -6,7 +6,7 @@ Before Running
 .. topic:: Summary
     - Decide on a data directory
     - Decide on a run directory
-    - Copy pacman_script.py, fit_par.txt and obs_par.pcf to this run directory
+    - Copy run_pacman.py, fit_par.txt and obs_par.pcf to this run directory
     - Enter path to run directory and data directory into the pcf
 
 
@@ -31,7 +31,7 @@ All runs will be saved in a run directory. For the analysis of the GJ1214 data, 
 			└── Observations
 				└── Hubble
 					└── GJ1214_13021 (="run directory")
-						├── pacman_script.py
+						├── run_pacman.py
 						├── fit_par.txt
 						└── obs_par.pcf
 		└── Data
@@ -43,25 +43,25 @@ All runs will be saved in a run directory. For the analysis of the GJ1214 data, 
 In this case, `/user/Desktop/Projects/Observations/Hubble/GJ1214_13021` is my run directory.
 
 
-Copy run_files contents into your run directory
+Copy pacman_run_files contents into your run directory
 ------------------------------------------------------------
 
-The source code of PACMAN contains a directory called "run_files". In there are three different files:
+The source code of PACMAN contains a directory called "pacman_run_files". In there are three different files:
 
- - **pacman_script.py**
+ - **run_pacman.py**
 
  - **fit_par.txt**
 
  - **obs_par.pcf**
 
-These three files are `part of the package <https://github.com/sebastian-zieba/PACMAN/tree/master/src/pacman/data/run_files>`_ but can also be downloaded under this link: `Download here <https://downgit.github.io/#/home?url=https://github.com/sebastian-zieba/PACMAN/tree/master/src/pacman/data/run_files>`_.
+These three files are `part of the package <https://github.com/sebastian-zieba/PACMAN/tree/master/src/pacman/data/pacman_run_files>`_ but can also be downloaded under this link: `Download here <https://downgit.github.io/#/home?url=https://github.com/sebastian-zieba/PACMAN/tree/master/src/pacman/data/pacman_run_files>`_.
 
 This files have to be copied over to the run directory. You should then have the following:
 
 ::
 
 	GJ1214_13021 (="run directory")
-	├── pacman_script.py
+	├── run_pacman.py
 	├── fit_par.txt
 	└── obs_par.pcf
 

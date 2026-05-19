@@ -108,7 +108,7 @@ def run00(eventlabel: str, pcf_path: Optional[Path] = Path.cwd()):
     # Create directories for this run = Work Directory
     datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
 
-    # run_files_dir = pkg_resources.resource_filename("pacman","") + '/data/run_files/'
+    # run_files_dir = pkg_resources.resource_filename("pacman","") + '/data/pacman_run_files/'
     # print(run_files_dir)
     # onlyfiles = [f for f in os.listdir(run_files_dir) if os.path.isfile(os.path.join(run_files_dir, f))]
     # print(onlyfiles)

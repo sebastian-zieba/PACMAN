@@ -9,14 +9,14 @@ Stage 30
     - Open your pcf file (the one in the work directory!).
     - Check that s30_fit_white and s30_most_recent_s20 are both **True**.
     - Check that s30_fit_spec and s30_most_recent_s21 are both **False**.
-    - Navigate to the run directory and execute the pacman_script.py file using the --s30 flag
+    - Navigate to the run directory and execute the run_pacman.py file using the --s30 flag
     - This should take approximately a minute using the default settings.
     - The results are then saved in /rundir/fit_white
     - 2) Spectroscopic light curves fit:
     - Open your pcf file (the one in the work directory!).
     - Check that s30_fit_white and s30_most_recent_s20 are both **False**.
     - Check that s30_fit_spec and s30_most_recent_s21 are both **True**.
-    - Navigate to the run directory and execute the pacman_script.py file using the --s30 flag
+    - Navigate to the run directory and execute the run_pacman.py file using the --s30 flag
     - This should take approximately a few minutes using the default settings.
     - The results are then saved in /rundir/fit_spec
 
