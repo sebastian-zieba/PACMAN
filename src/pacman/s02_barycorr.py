@@ -1,5 +1,6 @@
+import time
 from pathlib import Path
-
+import shutil
 import numpy as np
 from astropy.io import ascii
 from astropy.table import Column
@@ -8,9 +9,10 @@ from tqdm import tqdm
 from .lib import suntimecorr
 from .lib import util
 from .lib import manageevent as me
+from .lib import logedit
 
 
-def run02(eventlabel: str, workdir: Path, meta=None):
+def run02(pcf_path: Path, meta=None):
     """Performs the barycentric correction of the observation times
 
     - performs the barycentric correction based on the t_mjd in filelist.txt.
@@ -37,15 +39,41 @@ def run02(eventlabel: str, workdir: Path, meta=None):
         Written by Sebastian Zieba      December 2021
     """
 
-    print('Starting s02')
+
+    pcf_path = Path(pcf_path)
+    rundir = pcf_path.parent
+
+    # Find latest Stage 01 workdir
+    s01_workdir = util.find_latest_stage_run(rundir, 'stage01', 's01_run_*')
 
     if meta is None:
-        meta = me.loadevent(workdir / f'WFC3_{eventlabel}_Meta_Save')
+        meta = me.loadevent(s01_workdir / 'WFC3_Meta_Save')
 
-    # read in filelist
+    # Create new Stage 02 workdir
+    datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
+    meta.inputdir = s01_workdir
+    meta.stage02dir = rundir / 'stage02'
+    meta.workdir = meta.stage02dir / f's02_run_{datetime}'
+    meta.workdir.mkdir(parents=True, exist_ok=True)
+
+    # Copy current config files from pacman_run_files
+    shutil.copy(pcf_path / 'obs_par.pcf', meta.workdir)
+    shutil.copy(pcf_path / 'fit_par.txt', meta.workdir)
+
+    # Copy filelist from previous stage
+    shutil.copy(meta.inputdir / 'filelist.txt', meta.workdir)
+
+    previous_log = meta.inputdir / "s01.log"
+    meta.logname = meta.workdir / "s02.log"
+    log = logedit.Logedit(meta.logname, read=previous_log)
+
+    log.writelog("Starting s02")
+    log.writelog(f"Using Stage 01 input directory: {meta.inputdir}")
+    log.writelog(f"Location of the new Stage 02 run directory: {meta.workdir}")
+
+    # Read filelist from Stage 00/01 input lineage
     filelist_path = meta.workdir / 'filelist.txt'
-    if filelist_path.exists():
-        filelist = ascii.read(filelist_path)
+    filelist = ascii.read(str(filelist_path))
 
     ivisit = filelist['ivisit']
     t_mjd = filelist['t_mjd']
@@ -86,22 +114,24 @@ def run02(eventlabel: str, workdir: Path, meta=None):
         tos[i] = (itime - t_bjd[iorbit_begin]) * 24 * 60  # time since first exposure in orbit
         tvs[i] = (itime - t_bjd[ivisit_begin]) * 24 * 60  # time since first exposure in visit
 
-    print('Writing t_bjd into filelist.txt')
-    if not any(np.array(filelist.keys()) == 't_bjd'):
+    log.writelog('Writing t_bjd into filelist.txt')
+
+    if 't_bjd' not in filelist.colnames:
         filelist.add_column(Column(data=t_bjd, name='t_bjd'))
-        ascii.write(filelist, filelist_path, format='rst', overwrite=True)
     else:
         filelist.replace_column(name='t_bjd', col=Column(data=t_bjd, name='t_bjd'))
-        ascii.write(filelist, filelist_path, format='rst', overwrite=True)
 
     # Overwrite old visit and orbit times with BJD corrected ones
     filelist['t_visit'] = tvs
     filelist['t_orbit'] = tos
-    ascii.write(filelist, filelist_path, format='rst', overwrite=True)
 
-    # Save results
-    print('Saving Metadata')
-    me.saveevent(meta, meta.workdir / f'WFC3_{meta.eventlabel}_Meta_Save', save=[])
+    # Save updated filelist into the Stage 02 workdir
+    ascii.write(filelist, meta.workdir / 'filelist.txt', format='rst', overwrite=True)
 
-    print('Finished s02 \n')
+    log.writelog('Saving Metadata')
+    me.saveevent(meta, meta.workdir / 'WFC3_Meta_Save', save=[])
+
+    log.writelog('Finished s02 \n')
+    log.closelog()
+
     return meta

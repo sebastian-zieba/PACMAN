@@ -2,7 +2,7 @@ import time
 from pathlib import Path
 from shutil import copyfileobj
 from urllib.request import urlopen
-
+import shutil
 import numpy as np
 from astropy.io import ascii
 from tqdm import tqdm
@@ -59,17 +59,24 @@ def run01(pcf_path: Path, meta=None):
     meta.workdir = meta.stage01dir / f's01_run_{datetime}'
     meta.workdir.mkdir(parents=True, exist_ok=True)
 
+    # Copy current config files from pacman_run_files
+    shutil.copy(pcf_path / 'obs_par.pcf', meta.workdir)
+    shutil.copy(pcf_path / 'fit_par.txt', meta.workdir)
+
+    # Copy filelist from previous stage
+    shutil.copy(meta.inputdir / 'filelist.txt', meta.workdir)
+
     previous_log = meta.inputdir / "s00.log"
     meta.logname = meta.workdir / "s01.log"
     log = logedit.Logedit(meta.logname, read=previous_log)
 
     log.writelog("Starting s01")
-    log.writelog(f"Using Stage 00 input directory: {meta.inputdir}", mute=True)
-    log.writelog(f"Location of the new Stage 01 run directory: {meta.workdir}", mute=True)
+    log.writelog(f"Using Stage 00 input directory: {meta.inputdir}")
+    log.writelog(f"Location of the new Stage 01 run directory: {meta.workdir}")
 
     # Read filelist from Stage 00
-    filelist_path = meta.inputdir / 'filelist.txt'
-    filelist = ascii.read(filelist_path)
+    filelist_path = meta.workdir / 'filelist.txt'
+    filelist = ascii.read(str(filelist_path))
 
     t_mjd = filelist['t_mjd']
     ivisit = filelist['ivisit']

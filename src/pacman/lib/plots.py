@@ -23,7 +23,6 @@ from ..lib import util
 sns.set_context("talk")
 sns.set_style("white")
 sns.set_style("ticks", {"xtick.direction": "in", "ytick.direction": "in"})
-matplotlib.use('Agg')
 matplotlib.rcParams.update({'lines.markeredgewidth': 0.3})
 matplotlib.rcParams.update({'axes.formatter.useoffset': False})
 
@@ -113,8 +112,7 @@ def obs_times(meta, times, ivisits, iorbits, updated=False):
 
     if meta.save_obs_times_plot:
         obs_date_dir = meta.workdir / 'figs' / 's00_obs_dates'
-        if not obs_date_dir.exists():
-            obs_date_dir.mkdir(parents=True)
+        obs_date_dir.mkdir(parents=True, exist_ok=True)
 
         if not updated:
             plt.savefig(obs_date_dir / 'obs_dates_all.png',
@@ -122,14 +120,13 @@ def obs_times(meta, times, ivisits, iorbits, updated=False):
         else:
             plt.savefig(obs_date_dir / 'obs_dates.png',
                         bbox_inches='tight', pad_inches=0.05, dpi=120)
-        plt.close('all')
-        plt.clf()
-        gc.collect()
-    else:
+
+    if meta.show_obs_times_plot:
         plt.show()
-        plt.close('all')
-        plt.clf()
-        gc.collect()
+
+    plt.close('all')
+    plt.clf()
+    gc.collect()
 
 
 # 02

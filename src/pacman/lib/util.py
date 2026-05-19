@@ -87,7 +87,7 @@ def ancil(meta, s10: Optional[bool] = False, s20: Optional[bool] = False):
     History:
         Written by Sebastian Zieba      December 2021
     """
-    filelist = ascii.read(meta.workdir / 'filelist.txt')
+    filelist = ascii.read(str(meta.workdir / "filelist.txt"))
 
     aa = filelist['iorbit'].data
     bb = np.diff(aa)
@@ -102,9 +102,10 @@ def ancil(meta, s10: Optional[bool] = False, s20: Optional[bool] = False):
     meta.ra = f[0].header['ra_targ'] * math.pi / 180.0  # stores right ascension
     meta.dec = f[0].header['dec_targ'] * math.pi / 180.0  # stores declination
 
-    meta.coordtable = []  # table of spacecraft coordinates
-    for i in range(max(filelist['ivisit']) + 1): meta.coordtable.append(
-        meta.workdir / 'ancil' / 'horizons' / f'horizons_results_v{i}.txt')
+    horizons_dir = getattr(meta, "inputdir", meta.workdir) / "ancil" / "horizons"
+    meta.coordtable = []# table of spacecraft coordinates
+    for i in range(max(filelist["ivisit"]) + 1):
+        meta.coordtable.append(horizons_dir / f"horizons_results_v{i}.txt")
 
     # 03
     # TODO: Q: Is it okay if I assume everything in datadir uses same Filter Grism pair?

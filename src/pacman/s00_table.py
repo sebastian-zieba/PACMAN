@@ -92,9 +92,6 @@ def run00(pcf_path: Optional[Path] = Path.cwd()):
     pcf = rd.read_pcf(pcffile)
     rd.store_pcf(meta, pcf)
 
-    # PACMAN package directory
-    meta.pacmandir = resources.files("pacman")
-    log.writelog(f"Location of PACMAN: {meta.pacmandir}")
 
     # Create the Stage 00 output directory:
     #   rundir/stage00/s00_run_YYYY-MM-DD_HH-MM-SS
@@ -104,12 +101,15 @@ def run00(pcf_path: Optional[Path] = Path.cwd()):
     meta.workdir = meta.stage00dir / f's00_run_{datetime}'
 
     meta.workdir.mkdir(parents=True, exist_ok=True)
-    log.writelog(f"Location of the new Stage 00 run directory: {meta.workdir}")
 
     meta.logname = meta.workdir / "s00.log"
     log = logedit.Logedit(meta.logname)
     log.writelog("Starting s00")
-    log.writelog(f"Output directory: {meta.workdir}", mute=True)
+    log.writelog(f"Output directory: {meta.workdir}")
+
+    # PACMAN package directory
+    meta.pacmandir = resources.files("pacman")
+    log.writelog(f"Location of PACMAN: {meta.pacmandir}")
 
     # Create figure directory inside this Stage 00 run
     figure_dir = meta.workdir / 'figs'
