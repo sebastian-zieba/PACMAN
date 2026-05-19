@@ -1,21 +1,21 @@
 .. _stages:
 
 Stages
-============
+======
 
-PACMAN is separated into different stages, summarized here.  Click on the hyperlinks below to see the python script for each stage. For an example of each stage applied to real data, check out :ref:`example_introduction`.
+PACMAN is organized into several processing stages, summarized below.  Click on the hyperlinks below to see the python script for each stage. For an example of each stage applied to real data, check out :ref:`example_introduction`.
 
 
 - Stage 00
 
-  + read in  the _ima_ fits files in the data directory 
+  + read in the ``IMA`` FITS files in the data directory 
   + save important information from the header in a table
   + create a "work directory" to save all plots and files from the next stages
 
 
 - Stage 01
 
-  + download the location of HST during the observations to prepare for the barycentric correction
+  + download the position of HST during the observations to prepare for the barycentric correction
 
 
 - Stage 02
@@ -26,8 +26,8 @@ PACMAN is separated into different stages, summarized here.  Click on the hyperl
 - Stage 03
 
   + download or generate a stellar spectrum that matches the spectral type of the host star.  Options are: KURUCZ 1993, CASTELLI AND KURUCZ 2004, PHOENIX MODELS and a blackbody spectrum
-  + smooth the stellar spectrum using a gaussian kernel to reduce the stellar spectrum's resolution
-  + multiply the stellar spectrum by the grism throughput (which is saved in `PACMAN/src/data/bandpass <https://github.com/sebastian-zieba/PACMAN/tree/master/src/pacman/data/bandpass>`_) to make a reference spectrum for the wavelength calibration
+  + smooth the stellar spectrum using a Gaussian kernel to reduce the stellar spectrum's resolution
+  + multiply the stellar spectrum by the grism throughput (which is saved in `PACMAN/src/pacman/data/bandpass <https://github.com/sebastian-zieba/PACMAN/tree/master/src/pacman/data/bandpass>`_) to make a reference spectrum for the wavelength calibration
   + saves the reference spectrum into the work directory
 
 
