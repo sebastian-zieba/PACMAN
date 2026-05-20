@@ -12,6 +12,20 @@ Before Running
     - Enter the paths to the run directory and data directory into the pcf
 
 
+General workflow
+-----------------
+
+PACMAN automatically detects the most recent run directory from the previous stage.
+
+For example:
+- Stage 01 reads the latest ``stage00/s00_run_*``
+- Stage 02 reads the latest ``stage01/s01_run_*``
+- Stage 03 reads the latest ``stage02/s02_run_*``
+
+and so on.
+
+Each stage creates a new timestamped run directory while preserving previous runs.
+
 Decide on a data directory
 --------------------------
 
@@ -99,6 +113,15 @@ For example:
 
 | ``rundir   /home/zieba/Desktop/Projects/Observations/Hubble/GJ1214_13021``
 | ``datadir  /home/zieba/Desktop/Data/GJ1214_Hubble13021``
+
+
+At the start of every stage, the current ``obs_par.pcf`` and ``fit_par.txt``
+from ``pacman_run_files`` are copied into the new stage run directory.
+
+The copied ``obs_par.pcf`` is then used to update the metadata for that stage.
+
+This ensures every stage preserves the exact settings used for that run.
+
 
 
 Run PACMAN

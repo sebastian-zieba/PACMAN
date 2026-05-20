@@ -3,22 +3,64 @@
 Stage 30
 ============
 
-.. topic:: Summary
+.. _stage30:
 
-    - 1) White light curve fit:
-    - Open your pcf file (the one in the work directory!).
-    - Check that s30_fit_white and s30_most_recent_s20 are both **True**.
-    - Check that s30_fit_spec and s30_most_recent_s21 are both **False**.
-    - Navigate to the run directory and execute the run_pacman.py file using the --s30 flag
-    - This should take approximately a minute using the default settings.
-    - The results are then saved in /rundir/fit_white
-    - 2) Spectroscopic light curves fit:
-    - Open your pcf file (the one in the work directory!).
-    - Check that s30_fit_white and s30_most_recent_s20 are both **False**.
-    - Check that s30_fit_spec and s30_most_recent_s21 are both **True**.
-    - Navigate to the run directory and execute the run_pacman.py file using the --s30 flag
-    - This should take approximately a few minutes using the default settings.
-    - The results are then saved in /rundir/fit_spec
+Stage 30
+============
+
+.. topic:: Quick Summary
+
+    - Navigate to ``pacman_run_files``
+    - Uncomment Stage 30 in ``run_pacman.py``
+    - Configure the desired fit mode in ``obs_par.pcf``
+    - Run ``python run_pacman.py``
+    - Continue with the analysis of the fitted light curves and spectra
+
+Stage 30 fits either:
+
+- the white light curve generated in Stage 20
+- or the spectroscopic light curves generated in Stage 21
+
+PACMAN automatically determines which previous stage products to use based on the settings in ``obs_par.pcf``.
+
+The relevant settings are:
+
+.. code-block:: text
+
+    s30_fit_white    True/False
+    s30_fit_spec     True/False
+
+If ``s30_fit_white`` is ``True``, PACMAN automatically uses the most recent:
+
+.. code-block:: text
+
+    stage20/s20_run_*
+
+If ``s30_fit_spec`` is ``True``, PACMAN automatically uses the most recent:
+
+.. code-block:: text
+
+    stage21/s21_run_*
+
+A new Stage 30 run directory is then created.
+
+The Stage 30 directory structure is:
+
+.. code-block:: text
+
+    stage30/
+    ├── white_lc/
+    │   └── s30_run_YYYY-MM-DD_HH-MM-SS/
+    └── spec_lc/
+        └── s30_run_YYYY-MM-DD_HH-MM-SS/
+
+At the beginning of the stage, the current ``obs_par.pcf`` and ``fit_par.txt``
+from ``pacman_run_files`` are copied into the new Stage 30 run directory.
+
+The copied ``obs_par.pcf`` is then used to update the metadata for the run.
+This ensures every Stage 30 run preserves the exact fitting settings used.
+
+1) **Preparation**
 
 Here we can fit the broadband ("white") light curve (which was created in S20) or spectroscopic light curves (which were created in S21).
 
@@ -65,8 +107,8 @@ An alternative method is using an additional free parameter which rescales the u
 This model is called `uncmulti <https://pacmandocs.readthedocs.io/en/latest/_modules/pacman/lib/models/uncmulti.html#uncmulti>`_.
 
 
-White light curve fit
-'''''''''''''''''''''''''''''''''
+2) **Run PACMAN: White light curve fit**
+''''''''''''''''''''''''''''''''''''''''''
 
 Here's the fit_par.txt file which was used in this example to fit the white light curve:
 
@@ -186,8 +228,8 @@ Corner plot from the MCMC:
 
 
 
-Spectroscopic light curve fit
-'''''''''''''''''''''''''''''''''
+3) **Run PACMAN: Spectroscopic light curve fit**
+'''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 Here's the fit_par.txt file which was used in this example to fit the spectroscopic light curves:
 
