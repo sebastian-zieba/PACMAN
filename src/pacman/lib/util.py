@@ -523,60 +523,44 @@ def correct_wave_shift_fct_1_lin(meta, orbnum, cmin, cmax, spec_opt,
 
 # 30
 def read_fitfiles(meta):
-    """Read in the files (white or spectroscopic) which will be fitted."""
+    """Read in the white or spectroscopic light curve files to fit."""
     if meta.s30_fit_white:
-        print('White light curve fit will be performed')
-        files = []
-        if meta.s30_most_recent_s20:
-            lst_dir = sn((meta.workdir / "extracted_lc").iterdir())
-            # the following line makes sure that only directories starting with a "2" are considered
-            # this was implemented after issue #10 was raised (see issue for more info)
-            # this works because the dates will always start with a "2"
-            lst_dir_new = [lst_dir_i for lst_dir_i in lst_dir if lst_dir_i.name.startswith("2")]
-            white_dir = lst_dir_new[-1]
-            files.append(meta.workdir / "extracted_lc" / white_dir / "lc_white.txt")
-            print('using most recent s20 run: {0}'.format(white_dir))
-        else:
-            files.append(meta.s30_white_file_path)
-            print('using user set white file: '.format(meta.s30_white_file_path))
+        print("White light curve fit will be performed")
 
-        if meta.grism == 'G102':
+        files = [meta.workdir / "extracted_lc" / "lc_white.txt"]
+
+        if meta.grism == "G102":
             meta.wavelength_list = [1.0]
-        elif meta.grism == 'G141':
+        elif meta.grism == "G141":
             meta.wavelength_list = [1.4]
 
     elif meta.s30_fit_spec:
-        print('Spectroscopic light curve fit(s) will be performed')
-        if meta.s30_most_recent_s21:
-            # find most recent bins directory
-            lst_dir = np.array([path for path in (meta.workdir / "extracted_sp").iterdir()
-                                if path.is_dir()])
-            dirs_bool = np.array(['bins' in i.name for i in lst_dir])
-            lst_dir = lst_dir[dirs_bool]
-            dirs_times = [i.name[-19:] for i in lst_dir]  # There are 19 digits in the typical '%Y-%m-%d_%H-%M-%S' format
-            # sort the times
-            times_sorted = sn(dirs_times)
-            # most recent time
-            recent_time = times_sorted[-1]
-            idx = 0
-            for i in range(len(lst_dir)):
-                if lst_dir[i].name[-19:] == recent_time:
-                    idx = i
-            spec_dir_full = lst_dir[idx]
-            #spec_dir_full = meta.workdir + "/extracted_sp/" + spec_dir
-            files = sn(spec_dir_full.glob("*.txt"))
-            print(f'using most recent s21 run: {spec_dir_full}')
-        else:
-            spec_dir_full = meta.s30_spec_dir_path
-            files = sn(spec_dir_full.glob("*.txt"))
+        print("Spectroscopic light curve fit(s) will be performed")
 
-            print('using user set spectroscopic directory: '.format(meta.s30_spec_dir_path))
-        spec_dir_wvl_file = spec_dir_full / 'wvl_table.dat'
-        meta.wavelength_list = ascii.read(spec_dir_wvl_file)['wavelengths']
+        extracted_sp_dir = meta.workdir / "extracted_sp"
+
+        bins_dirs = sorted(
+            path for path in extracted_sp_dir.iterdir()
+            if path.is_dir() and path.name.startswith("bins")
+        )
+
+        if len(bins_dirs) == 0:
+            raise FileNotFoundError(
+                f"No bins directories found in {extracted_sp_dir}"
+            )
+
+        spec_dir_full = bins_dirs[-1]
+        files = sn(spec_dir_full.glob("speclc*.txt"))
+
+        spec_dir_wvl_file = spec_dir_full / "wvl_table.dat"
+        meta.wavelength_list = ascii.read(str(spec_dir_wvl_file))["wavelength"]
+
+        print(f"Using spectroscopic directory: {spec_dir_full}")
+
     else:
-        print('Neither s30_fit_white nor s30_fit_spec are True!')
+        raise ValueError("Either s30_fit_white or s30_fit_spec must be True.")
 
-    print('Identified file(s) for fitting:', files)
+    print("Identified file(s) for fitting:", files)
     meta.nfits = len(files)
     return files, meta
 

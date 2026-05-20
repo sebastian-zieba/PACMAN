@@ -15,24 +15,85 @@ from .lib.mcmc import mcmc_fit
 from .lib.model import Model
 from .lib.nested import nested_sample
 from .lib.read_data import Data
+from .lib import logedit
 
 
-def run30(eventlabel: str, workdir: Path, meta=None):
+def run30(pcf_path: Path, meta=None):
     """This functions reads in the spectroscopic or white light curve(s) and
     fits a model to them."""
-    print('Starting s30\n')
+    pcf_path = Path(pcf_path)
+    rundir = pcf_path.parent
 
+    # Use latest Stage 21 if fitting spectroscopic light curves.
+    # Otherwise use latest Stage 20 for the white light curve.
     if meta is None:
-        meta = me.loadevent(workdir / f'WFC3_{eventlabel}_Meta_Save')
+        # Need temporary metadata from latest possible previous stage
+        s20_workdir = util.find_latest_stage_run(rundir, "stage20", "s20_run_*")
+        meta_tmp = me.loadevent(s20_workdir / "WFC3_Meta_Save")
+
+        if meta_tmp.s30_fit_spec:
+            input_workdir = util.find_latest_stage_run(rundir, "stage21", "s21_run_*")
+            previous_log = input_workdir / "s21.log"
+        else:
+            input_workdir = s20_workdir
+            previous_log = input_workdir / "s20.log"
+
+        meta = me.loadevent(input_workdir / "WFC3_Meta_Save")
+    else:
+        input_workdir = meta.workdir
+        previous_log = getattr(meta, "logname", None)
+
+    datetime = time.strftime("%Y-%m-%d_%H-%M-%S")
+    meta.inputdir = input_workdir
+    meta.stage30dir = rundir / "stage30"
+    meta.workdir = meta.stage30dir / f"s30_run_{datetime}"
+    meta.workdir.mkdir(parents=True, exist_ok=True)
+
+    shutil.copy(pcf_path / "obs_par.pcf", meta.workdir)
+    shutil.copy(pcf_path / "fit_par.txt", meta.workdir)
+
+    if (meta.inputdir / "filelist.txt").exists():
+        shutil.copy(meta.inputdir / "filelist.txt", meta.workdir)
+
+    if (meta.inputdir / "xrefyref.txt").exists():
+        shutil.copy(meta.inputdir / "xrefyref.txt", meta.workdir)
+
+    if (meta.inputdir / "ancil").exists():
+        shutil.copytree(
+            meta.inputdir / "ancil",
+            meta.workdir / "ancil",
+            dirs_exist_ok=True,
+        )
+
+    if meta.s30_fit_white and (meta.inputdir / "extracted_lc").exists():
+        shutil.copytree(
+            meta.inputdir / "extracted_lc",
+            meta.workdir / "extracted_lc",
+            dirs_exist_ok=True,
+        )
+
+    if meta.s30_fit_spec and (meta.inputdir / "extracted_sp").exists():
+        shutil.copytree(
+            meta.inputdir / "extracted_sp",
+            meta.workdir / "extracted_sp",
+            dirs_exist_ok=True,
+        )
+
+    meta.logname = meta.workdir / "s30.log"
+    log = logedit.Logedit(meta.logname, read=previous_log)
+
+    log.writelog("Starting s30")
+    log.writelog(f"Using input directory: {meta.inputdir}")
+    log.writelog(f"Location of the new Stage 30 run directory: {meta.workdir}")
 
     # Create directories for Stage 3 processing
     datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
 
     # Create a directory for the white or the spectroscopic fit
     if meta.s30_fit_white:
-        meta.fitdir = Path('fit_white') / f'fit_{datetime}_{meta.eventlabel}'
+        meta.fitdir = Path("fit_white") / f"fit_{datetime}"
     elif meta.s30_fit_spec:
-        meta.fitdir = Path('fit_spec') / f'fit_{datetime}_{meta.eventlabel}'
+        meta.fitdir = Path("fit_spec") / f"fit_{datetime}"
 
     fit_dir = meta.workdir / meta.fitdir
     if not fit_dir.exists():
@@ -40,10 +101,6 @@ def run30(eventlabel: str, workdir: Path, meta=None):
 
     # Make fit_par nicer by lining up the columns
     nice_fit_par.nice_fit_par(meta.workdir / "fit_par.txt")
-
-    # Copy pcf and fit_par files into the new fitdirectory
-    shutil.copy(meta.workdir / "obs_par.pcf", fit_dir)
-    shutil.copy(meta.workdir / "fit_par.txt", fit_dir)
 
     # Reads in fit parameters from the fit_par file
     #TODO: Check that fit_par is configured correctly. Eg initial value has to be within boundaries!
@@ -216,8 +273,11 @@ def run30(eventlabel: str, workdir: Path, meta=None):
     if meta.run_mcmc or meta.run_nested:
         util.save_fit_output(fit, data, meta)
 
-    print('Finished s30')
+    log.writelog("Saving Metadata")
+    me.saveevent(meta, meta.workdir / "WFC3_Meta_Save", save=[])
 
+    log.writelog("Finished s30")
+    log.closelog()
     return meta
 
 

@@ -183,14 +183,14 @@ def run21(pcf_path: Path, meta=None):
 
         plots.light_curve_errorbar(
             outname,
-            dirname / "figs",
+            meta.workdir / "figs" / "s21_lightcurves",
             f"speclc{wave:.3f}.png",
             title=f"Spectroscopic light curve: {wave:.3f} micron",
         )
 
     log.writelog(f"Saved light curve(s) in {dirname}")
 
-    fig_dir = dirname / "figs"
+    fig_dir = meta.workdir / "figs" / "s21_lightcurves"
     fig_dir.mkdir(parents=True, exist_ok=True)
     plots.plot_wvl_bins(w_hires, f_interp, wave_edges, meta.wvl_bins, fig_dir)
 
