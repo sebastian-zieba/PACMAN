@@ -1,6 +1,6 @@
 import sys
+import time
 import shutil
-from datetime import datetime
 from pathlib import Path
 
 import numpy as np
@@ -12,28 +12,61 @@ from .lib import manageevent as me
 from .lib import optextr
 from .lib import plots
 from .lib import util
+from .lib import logedit
 
 
-def run20(eventlabel, workdir: Path, meta=None):
+def run20(pcf_path: Path, meta=None):
     """This function extracts the spectrum and saves the total flux and the
     flux as a function of wavelength into files.
     """
-    print('Starting s20')
-
-    if meta is None:
-        meta = me.loadevent(workdir / f'WFC3_{eventlabel}_Meta_Save')
-
-    # NOTE: Load in more information into meta
-    meta = util.ancil(meta, s20=True)
 
     ###############################################################################################################################################################
     # NOTE: STEP 0: Set up files and directories
     ###############################################################################################################################################################
 
-    dirname = meta.workdir / "extracted_lc" /\
-        datetime.strftime(datetime.now(), '%Y-%m-%d_%H-%M-%S')
-    if not dirname.exists():
-        dirname.mkdir(parents=True)
+    pcf_path = Path(pcf_path)
+    rundir = pcf_path.parent
+
+    # Find latest Stage 10 workdir
+    s10_workdir = util.find_latest_stage_run(rundir, "stage10", "s10_run_*")
+
+    if meta is None:
+        meta = me.loadevent(s10_workdir / "WFC3_Meta_Save")
+
+    # Create new Stage 20 workdir
+    datetime = time.strftime("%Y-%m-%d_%H-%M-%S")
+    meta.inputdir = s10_workdir
+    meta.stage20dir = rundir / "stage20"
+    meta.workdir = meta.stage20dir / f"s20_run_{datetime}"
+    meta.workdir.mkdir(parents=True, exist_ok=True)
+
+    # Copy current config files from pacman_run_files
+    shutil.copy(pcf_path / "obs_par.pcf", meta.workdir)
+    shutil.copy(pcf_path / "fit_par.txt", meta.workdir)
+
+    # Copy filelist and xrefyref from previous stage
+    shutil.copy(meta.inputdir / "filelist.txt", meta.workdir)
+    shutil.copy(meta.inputdir / "xrefyref.txt", meta.workdir)
+    if (meta.inputdir / "ancil").exists():
+        shutil.copytree(
+            meta.inputdir / "ancil",
+            meta.workdir / "ancil",
+            dirs_exist_ok=True,
+        )
+
+    previous_log = meta.inputdir / "s10.log"
+    meta.logname = meta.workdir / "s20.log"
+    log = logedit.Logedit(meta.logname, read=previous_log)
+
+    log.writelog("Starting s20")
+    log.writelog(f"Using Stage 10 input directory: {meta.inputdir}")
+    log.writelog(f"Location of the new Stage 20 run directory: {meta.workdir}")
+
+    # Load ancillary metadata
+    meta = util.ancil(meta, s20=True)
+
+    dirname = meta.workdir / "extracted_lc"
+    dirname.mkdir(parents=True, exist_ok=True)
 
     # NOTE: Let's have a copy of the pcf in the extracted_lc directory
     # This copy is just for the user to know what parameters they used when
@@ -240,7 +273,7 @@ def run20(eventlabel, workdir: Path, meta=None):
                 # Mnew = M[max(peaks_mid - 110, 0):min(peaks_mid + 110, rmax),:]
                 Mnew = M[max(min(peaks) - meta.window, 0):min(max(peaks) + meta.window, rmax),:]
                 # TODO: Just use meta to reduce the number of parameters which are given to optextr
-                if meta.opt_extract==True: [f_opt_0, var_opt_0, numoutliers] = optextr.optextr(spectrum, err, spec_box_0, var_box_0, Mnew, meta.nsmooth, meta.sig_cut, meta.save_optextr_plot, i, ii, meta)
+                if meta.opt_extract: [f_opt_0, var_opt_0, numoutliers] = optextr.optextr(spectrum, err, spec_box_0, var_box_0, Mnew, meta.nsmooth, meta.sig_cut, meta.save_optextr_plot, i, ii, meta)
                 else: [f_opt, var_opt] = [spec_box_0,var_box_0]
 
                 # NOTE: Sums up spectra and variance for all the differenced images
@@ -309,8 +342,6 @@ def run20(eventlabel, workdir: Path, meta=None):
                     format='ecsv', overwrite=True)
         ascii.write(table_background, dirname / 'background.txt',
                     format='ecsv', overwrite=True)
-    print('Saving Metadata')
-    me.saveevent(meta, meta.workdir / f'WFC3_{meta.eventlabel}_Meta_Save', save=[])
 
     # NOTE: Make Plots
     if meta.save_bkg_evo_plot or meta.show_bkg_evo_plot:
@@ -327,5 +358,9 @@ def run20(eventlabel, workdir: Path, meta=None):
     if meta.save_drift_plot or meta.show_drift_plot:
         plots.drift(leastsq_res_all, meta)
 
-    print('Finished s20 \n')
+    log.writelog("Saving Metadata")
+    me.saveevent(meta, meta.workdir / "WFC3_Meta_Save", save=[])
+
+    log.writelog("Finished s20 \n")
+    log.closelog()
     return meta

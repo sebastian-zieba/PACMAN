@@ -35,6 +35,12 @@ def run10(pcf_path: Path, meta=None):
     shutil.copy(pcf_path / "obs_par.pcf", meta.workdir)
     shutil.copy(pcf_path / "fit_par.txt", meta.workdir)
     shutil.copy(meta.inputdir / "filelist.txt", meta.workdir)
+    if (meta.inputdir / "ancil").exists():
+        shutil.copytree(
+            meta.inputdir / "ancil",
+            meta.workdir / "ancil",
+            dirs_exist_ok=True,
+        )
 
     previous_log = meta.inputdir / "s03.log"
     meta.logname = meta.workdir / "s10.log"

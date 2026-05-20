@@ -1,6 +1,6 @@
 from pathlib import Path
 from typing import List
-
+import os
 import corner
 import gc
 import matplotlib
