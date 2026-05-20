@@ -1,7 +1,8 @@
-"""This code computes the mean position of the direct image for each visit"""
+import time
+import shutil
 from pathlib import Path
-
 import numpy as np
+
 from astropy.io import ascii, fits
 from astropy.table import Table
 from tqdm import tqdm
@@ -10,15 +11,38 @@ from .lib import util
 from .lib import gaussfitter
 from .lib import plots
 from .lib import manageevent as me
+from .lib import logedit
 
 
-def run10(eventlabel, workdir: Path, meta=None):
+def run10(pcf_path: Path, meta=None):
     """Opens the direct images to determine the position of the star on the detector.
     The positions are then saved in x and y physical pixel coordinates into a new txt file called xrefyref.txt.
     """
-    print('Starting s10')
+    pcf_path = Path(pcf_path)
+    rundir = pcf_path.parent
+
+    s03_workdir = util.find_latest_stage_run(rundir, "stage03", "s03_run_*")
+
     if meta is None:
-        meta = me.loadevent(workdir / f'WFC3_{eventlabel}_Meta_Save')
+        meta = me.loadevent(s03_workdir / "WFC3_Meta_Save")
+
+    datetime = time.strftime("%Y-%m-%d_%H-%M-%S")
+    meta.inputdir = s03_workdir
+    meta.stage10dir = rundir / "stage10"
+    meta.workdir = meta.stage10dir / f"s10_run_{datetime}"
+    meta.workdir.mkdir(parents=True, exist_ok=True)
+
+    shutil.copy(pcf_path / "obs_par.pcf", meta.workdir)
+    shutil.copy(pcf_path / "fit_par.txt", meta.workdir)
+    shutil.copy(meta.inputdir / "filelist.txt", meta.workdir)
+
+    previous_log = meta.inputdir / "s03.log"
+    meta.logname = meta.workdir / "s10.log"
+    log = logedit.Logedit(meta.logname, read=previous_log)
+
+    log.writelog("Starting s10")
+    log.writelog(f"Using Stage 03 input directory: {meta.inputdir}")
+    log.writelog(f"Location of the new Stage 10 run directory: {meta.workdir}")
 
     #f = open(meta.workdir + '/xrefyref.txt', 'w')						#opens file to store positions of reference pixels
     table = Table() # creates table to store positions of reference pixels
@@ -93,8 +117,9 @@ def run10(eventlabel, workdir: Path, meta=None):
     util.di_reformat(meta)
 
     # Save results
-    print('Saving Metadata')
-    me.saveevent(meta, meta.workdir / f'WFC3_{meta.eventlabel}_Meta_Save', save=[])
+    log.writelog("Saving Metadata")
+    me.saveevent(meta, meta.workdir / "WFC3_Meta_Save", save=[])
 
-    print('Finished s10 \n')
+    log.writelog("Finished s10 \n")
+    log.closelog()
     return meta

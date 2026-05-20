@@ -104,7 +104,7 @@ def ancil(meta, s10: Optional[bool] = False, s20: Optional[bool] = False):
 
     horizons_dir = getattr(meta, "inputdir", meta.workdir) / "ancil" / "horizons"
     meta.coordtable = []# table of spacecraft coordinates
-    for i in range(max(filelist["ivisit"]) + 1):
+    for i in range(int(np.max(filelist["ivisit"])) + 1):
         meta.coordtable.append(horizons_dir / f"horizons_results_v{i}.txt")
 
     # 03
@@ -245,7 +245,7 @@ def di_reformat(meta):
     ivisit_max = max(meta.ivisit_sp)
     control_one_per_orbit = np.arange(iorbit_max + 1)
     control_one_per_visit = np.arange(ivisit_max + 1)
-    reffile = ascii.read(meta.workdir / 'xrefyref.txt')
+    reffile = ascii.read(str(meta.workdir / "xrefyref.txt"))
 
     meta.ivisits_new_orbit = meta.iorbit_sp[meta.new_visit_idx_sp]
     meta.nvisits_in_orbit = np.diff(np.append(meta.iorbit_sp[meta.new_visit_idx_sp], np.array([max(meta.iorbit_sp) + 1])))

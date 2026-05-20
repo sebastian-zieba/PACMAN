@@ -1,15 +1,18 @@
+import time
+import shutil
 from pathlib import Path
-
 import numpy as np
+
 from scipy.interpolate import interp1d
 
 from .lib import plots
 from .lib import stellar_spectrum
 from .lib import manageevent as me
 from .lib import util
+from .lib import logedit
 
 
-def run03(eventlabel: str, workdir: Path, meta=None):
+def run03(pcf_path: Path, meta=None):
     """Retrieves the bandpass (G102 or G141) and the stellar spectrum and
     takes the product to create a reference spectrum.
 
@@ -41,10 +44,31 @@ def run03(eventlabel: str, workdir: Path, meta=None):
     History:
         Written by Sebastian Zieba      December 2021
     """
-    print('Starting s03')
+    pcf_path = Path(pcf_path)
+    rundir = pcf_path.parent
+
+    s02_workdir = util.find_latest_stage_run(rundir, "stage02", "s02_run_*")
 
     if meta is None:
-        meta = me.loadevent(workdir / f'WFC3_{eventlabel}_Meta_Save')
+        meta = me.loadevent(s02_workdir / "WFC3_Meta_Save")
+
+    datetime = time.strftime("%Y-%m-%d_%H-%M-%S")
+    meta.inputdir = s02_workdir
+    meta.stage03dir = rundir / "stage03"
+    meta.workdir = meta.stage03dir / f"s03_run_{datetime}"
+    meta.workdir.mkdir(parents=True, exist_ok=True)
+
+    shutil.copy(pcf_path / "obs_par.pcf", meta.workdir)
+    shutil.copy(pcf_path / "fit_par.txt", meta.workdir)
+    shutil.copy(meta.inputdir / "filelist.txt", meta.workdir)
+
+    previous_log = meta.inputdir / "s02.log"
+    meta.logname = meta.workdir / "s03.log"
+    log = logedit.Logedit(meta.logname, read=previous_log)
+
+    log.writelog("Starting s03")
+    log.writelog(f"Using Stage 02 input directory: {meta.inputdir}")
+    log.writelog(f"Location of the new Stage 03 run directory: {meta.workdir}")
 
     ### Stellar Spectrum
     Teff, logg, MH = meta.Teff, meta.logg, meta.MH
@@ -90,10 +114,9 @@ def run03(eventlabel: str, workdir: Path, meta=None):
     #sm_flux = sm_flux #* sm_wvl  # in order to convert from W/m^3/sr units to W/m^2/sr
     #sm_flux = sm_flux / max(sm_flux)
 
-    meta.refspecdir = meta.workdir / 'ancil' / 'refspec'
-    if not meta.refspecdir.exists():
-        meta.refspecdir.mkdir(parents=True)
-
+    meta.refspecdir = meta.workdir / "ancil" / "refspec"
+    meta.refspecdir.mkdir(parents=True, exist_ok=True)
+    
     #Interpolate stellar model so that we can multiply it with the bandpass
     f = interp1d(sm_wvl, sm_flux, kind='linear')
 
@@ -108,8 +131,9 @@ def run03(eventlabel: str, workdir: Path, meta=None):
         plots.refspec(bp_wvl, bp_val, sm_wvl, sm_flux, ref_wvl, ref_flux, meta)
 
     # Save results
-    print('Saving Metadata')
-    me.saveevent(meta, meta.workdir / f'WFC3_{meta.eventlabel}_Meta_Save', save=[])
+    log.writelog("Saving Metadata")
+    me.saveevent(meta, meta.workdir / "WFC3_Meta_Save", save=[])
 
-    print('Finished s03 \n')
+    log.writelog("Finished s03 \n")
+    log.closelog()
     return meta

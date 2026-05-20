@@ -1,4 +1,3 @@
-"""This code reads in the optimally extracted lightcurve and bins it into channels, following Berta '12"""
 import time as time_now
 from pathlib import Path
 
