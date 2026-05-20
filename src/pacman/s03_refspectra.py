@@ -1,4 +1,5 @@
 import time
+from importlib import resources
 import shutil
 from pathlib import Path
 import numpy as np
@@ -70,6 +71,10 @@ def run03(pcf_path: Path, meta=None):
     log.writelog(f"Using Stage 02 input directory: {meta.inputdir}")
     log.writelog(f"Location of the new Stage 03 run directory: {meta.workdir}")
 
+    # PACMAN package directory
+    meta.pacmandir = resources.files("pacman")
+    log.writelog(f"Location of PACMAN: {meta.pacmandir}")
+
     ### Stellar Spectrum
     Teff, logg, MH = meta.Teff, meta.logg, meta.MH
     print('Using {0} model.\n'.format(meta.sm))
@@ -104,7 +109,7 @@ def run03(pcf_path: Path, meta=None):
     elif meta.grism == 'G102':
         grism = 'g102'
     print(f'Using {grism} grism.')
-
+    
     #Read in bandpass for the used grism
     bp_wvl, bp_val = np.loadtxt(meta.pacmandir / 'data' / 'bandpass' / f'bandpass_{grism}.txt').T
 

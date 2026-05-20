@@ -3,11 +3,12 @@
 Stage 03
 ============
 
-.. topic:: Summary
+.. topic:: Quick Summary
 
-    - Navigate to the run directory and execute the run_pacman.py file using the --s03 flag
+    - Navigate to ``pacman_run_files``, comment out Stage 02, uncomment Stage 03, and execute ``run_pacman.py``.
     - Continue with s10
 
+1) **Stage summary**
 This Stage starts by downloading a stellar model or calculating one in case of the black body spectrum.
 
     .. note:: | PACMAN currently offers the following stellar models:
@@ -32,51 +33,70 @@ We use the stellar parameters published in `Cloutier et al. 2021 <https://ui.ads
 
 Let's use an ``k93models`` model.
 
+2) **Run PACMAN**
+Navigate to ``pacman_run_files`` and open ``run_pacman.py``.
+Comment out Stage 02 and uncomment Stage 03:
+
+.. code-block:: python
+
+    # meta = s02.run02(pcf_path=pcf_path)
+
+    meta = s03.run03(pcf_path=pcf_path)
+
+Then run:
+
 .. code-block:: console
 
-	    Successfully reloaded meta file
-	    Starting s03
-	    Using k93models model.
+    python run_pacman.py
 
-	    Possible metallicities: [ 1.   0.5  0.3  0.2  0.1  0.  -0.1 -0.2 -0.3 -0.5 -1.  -1.5 -2.  -2.5
-	     -3.  -3.5 -4.  -4.5 -5. ]
-	    For input metallicity 0.29, closest metallicity is 0.3.
+3) **What happens?**
 
-	    Possible effective temperatures: [10000. 10500. 11000. 11500. 12000. 12500. 13000. 14000. 15000. 16000.
-	     17000. 18000. 19000. 20000. 21000. 22000. 23000. 24000. 25000. 26000.
-	     27000. 28000. 29000. 30000. 31000. 32000. 33000. 34000.  3500. 35000.
-	      3750. 37500.  4000. 40000.  4250. 42500.  4500. 45000.  4750. 47500.
-	      5000. 50000.  5250.  5500.  5750.  6000.  6250.  6500.  6750.  7000.
-	      7250.  7500.  7750.  8000.  8250.  8500.  8750.  9000.  9250.  9500.
-	      9750.]
-	    For input effective temperature 3250, closest temperature is 3500.0.
+.. code-block:: console
 
-	    Was the stellar model fits file already downloaded?: False
+    Starting s03
+    Using Stage 02 input directory: ...
+    Location of the new Stage 03 run directory: ...
+	Using k93models model.
 
-		          + Downloading file kp03_3500.fits from https://archive.stsci.edu/hlsps/reference-atlases/cdbs/grid/k93models/kp03/kp03_3500.fits.
-	    --2022-01-25 19:13:30--  https://archive.stsci.edu/hlsps/reference-atlases/cdbs/grid/k93models/kp03/kp03_3500.fits
-	    Resolving archive.stsci.edu (archive.stsci.edu)... 130.167.201.60
-	    Connecting to archive.stsci.edu (archive.stsci.edu)|130.167.201.60|:443... connected.
-	    HTTP request sent, awaiting response... 200 OK
-	    Length: 69120 (68K) [image/fits]
-	    Saving to: ‘kp03_3500.fits’
+	Possible metallicities: [ 1.   0.5  0.3  0.2  0.1  0.  -0.1 -0.2 -0.3 -0.5 -1.  -1.5 -2.  -2.5
+		-3.  -3.5 -4.  -4.5 -5. ]
+	For input metallicity 0.29, closest metallicity is 0.3.
 
-	    kp03_3500.fits         100%[=========================>]  67.50K   323KB/s    in 0.2s
+	Possible effective temperatures: [10000. 10500. 11000. 11500. 12000. 12500. 13000. 14000. 15000. 16000.
+		17000. 18000. 19000. 20000. 21000. 22000. 23000. 24000. 25000. 26000.
+		27000. 28000. 29000. 30000. 31000. 32000. 33000. 34000.  3500. 35000.
+		3750. 37500.  4000. 40000.  4250. 42500.  4500. 45000.  4750. 47500.
+		5000. 50000.  5250.  5500.  5750.  6000.  6250.  6500.  6750.  7000.
+		7250.  7500.  7750.  8000.  8250.  8500.  8750.  9000.  9250.  9500.
+		9750.]
+	For input effective temperature 3250, closest temperature is 3500.0.
 
-	    2022-01-25 19:13:30 (323 KB/s) - ‘kp03_3500.fits’ saved [69120/69120]
+	Was the stellar model fits file already downloaded?: False
 
-	    Possible logg: [0.  0.5 1.  1.5 2.  2.5 3.  3.5 4.  4.5 5. ]
-	    For input logg 5.026, closest logg is 5.0.
+				+ Downloading file kp03_3500.fits from https://archive.stsci.edu/hlsps/reference-atlases/cdbs/grid/k93models/kp03/kp03_3500.fits.
+	--2022-01-25 19:13:30--  https://archive.stsci.edu/hlsps/reference-atlases/cdbs/grid/k93models/kp03/kp03_3500.fits
+	Resolving archive.stsci.edu (archive.stsci.edu)... 130.167.201.60
+	Connecting to archive.stsci.edu (archive.stsci.edu)|130.167.201.60|:443... connected.
+	HTTP request sent, awaiting response... 200 OK
+	Length: 69120 (68K) [image/fits]
+	Saving to: ‘kp03_3500.fits’
 
-	    Using g141 grism.
-	    Saving Metadata
-	    Finished s03
+	kp03_3500.fits         100%[=========================>]  67.50K   323KB/s    in 0.2s
+
+	2022-01-25 19:13:30 (323 KB/s) - ‘kp03_3500.fits’ saved [69120/69120]
+
+	Possible logg: [0.  0.5 1.  1.5 2.  2.5 3.  3.5 4.  4.5 5. ]
+	For input logg 5.026, closest logg is 5.0.
+
+	Using g141 grism.
+	Saving Metadata
+	Finished s03
 
 
 
 .. note::
 
-	The stellar models will be saved into the run directory. E.g., ``/home/zieba/Desktop/Projects/Observations/Hubble/GJ1214_13021/run_2022-03-04_15-10-29_GJ1214_Hubble13021/ancil/stellar_models/k93models/kp03_3500.fits``.
+	The stellar models are saved inside the current Stage 03 workdir. E.g., ``.../stage03/s03_run_2022-03-04_15-10-29/ancil/stellar_models/k93models/kp03_3500.fits``.
 	If the file already exists then it will not be downloaded again.
 
 

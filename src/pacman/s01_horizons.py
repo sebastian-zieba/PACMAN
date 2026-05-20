@@ -110,7 +110,6 @@ def run01(pcf_path: Path, meta=None):
         "VEC_TABLE": "'3'",
     }
 
-    print('USE NESTORS CODE TO DOWNLOAD HORIZONS FILES INSTEAD OF THIS ONE, WHICH IS SLOWER AND NOT AS RELIABLE. SEE')
     # save it in ./ancil/bjd_conversion/
     horizons_dir = meta.workdir / 'ancil' / 'horizons'
     horizons_dir.mkdir(parents=True, exist_ok=True)

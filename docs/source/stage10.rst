@@ -3,11 +3,12 @@
 Stage 10
 ============
 
-.. topic:: Summary
+.. topic:: Quick Summary
 
-    - Navigate to the run directory and execute the run_pacman.py file using the --s10 flag
+    - Navigate to ``pacman_run_files``, comment out Stage 03, uncomment Stage 10, and execute ``run_pacman.py``.
     - Continue with s20
 
+1) **Stage summary**
 This stage determines the position of the star in each direct image.
 
 Let's look at an example using the two GJ1214 visits from earlier:
@@ -15,6 +16,7 @@ Let's look at an example using the two GJ1214 visits from earlier:
 You can run Stage 10 first without giving any guess on where the star is located.
 This will save a plot showing you the direct image which you can then use to refine your guess.
 
+2) **Run PACMAN**
 First run
 ''''''''''''''''''''''''
 
@@ -29,28 +31,31 @@ The terminal should give you something like this:
 
 .. code-block:: console
 
-	    Successfully reloaded meta file
-	    Starting s10
-	    Determining Source Positions for Direct Images:   8%|8         | 1/8 [00:01<00:15,  1.45s/it]
-	    Your guess for di_rmax is outside of the image.
-	    Determining Source Positions for Direct Images:  17%|#6        | 2/8 [00:02<00:13,  1.36s/it]
-	    Your guess for di_rmax is outside of the image.
-	    Determining Source Positions for Direct Images:  25%|##5       | 3/8 [00:03<00:11,  1.26s/it]
-	    Your guess for di_rmax is outside of the image.
-	    Your guess for di_rmax is outside of the image.
-	    Determining Source Positions for Direct Images:  42%|####1     | 5/8 [00:05<00:07,  1.14s/it]
-	    Your guess for di_rmax is outside of the image.
-	    Your guess for di_rmax is outside of the image.
-	    Determining Source Positions for Direct Images:  58%|#####8    | 7/8 [00:07<00:05,  1.10s/it]
-	    Your guess for di_rmax is outside of the image.
-	    Determining Source Positions for Direct Images:  100%|#########| 8/8 [00:08<00:04,  1.11s/it]
-	    Your guess for di_rmax is outside of the image.
-	    Saving Metadata
-	    Finished s10
+    Starting s10
+	Using Stage 03 input directory: ...
+	Location of the new Stage 10 run directory: ...
+	Determining Source Positions for Direct Images:   8%|8         | 1/8 [00:01<00:15,  1.45s/it]
+	Your guess for di_rmax is outside of the image.
+	Determining Source Positions for Direct Images:  17%|#6        | 2/8 [00:02<00:13,  1.36s/it]
+	Your guess for di_rmax is outside of the image.
+	Determining Source Positions for Direct Images:  25%|##5       | 3/8 [00:03<00:11,  1.26s/it]
+	Your guess for di_rmax is outside of the image.
+	Your guess for di_rmax is outside of the image.
+	Determining Source Positions for Direct Images:  42%|####1     | 5/8 [00:05<00:07,  1.14s/it]
+	Your guess for di_rmax is outside of the image.
+	Your guess for di_rmax is outside of the image.
+	Determining Source Positions for Direct Images:  58%|#####8    | 7/8 [00:07<00:05,  1.10s/it]
+	Your guess for di_rmax is outside of the image.
+	Determining Source Positions for Direct Images:  100%|#########| 8/8 [00:08<00:04,  1.11s/it]
+	Your guess for di_rmax is outside of the image.
+	Saving Metadata
+	Finished s10
 
 
 We see that we got error messages that our guesses were outside of the image.
-To determine where the star actually is, this run saved the images as plots into a new directory: run directory + /figs/images
+To determine where the star actually is, this run saved the plots into the current Stage 10 workdir under:
+
+``stage10/s10_run_*/figs/images``
 
 You will end up with plots like this one:
 
@@ -74,8 +79,9 @@ The terminal should give you something like this:
 
 .. code-block:: console
 
-    Successfully reloaded meta file
     Starting s10
+	Using Stage 03 input directory: ...
+    Location of the new Stage 10 run directory: ...
     Determining Source Positions for Direct Images: 100%|#| 8/8 [00:06<00:00,  1.26i
     There is one DI per orbit.
     Saving Metadata
@@ -91,7 +97,9 @@ A second plot shows you the best fit to the star by using a 2D gaussian.
 
 .. image:: media/s10/di_0.png
 
-The positions of the star in physical pixels are then saved into a new file called ``xrefyref.txt``:
+The positions of the star in physical pixels are saved into:
+
+``stage10/s10_run_*/xrefyref.txt``
 
 .. include:: media/s10/xrefyref.txt
    :literal:

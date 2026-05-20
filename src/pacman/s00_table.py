@@ -1,5 +1,4 @@
 import time
-from importlib import resources
 import shutil
 from pathlib import Path
 from typing import Optional
@@ -106,10 +105,6 @@ def run00(pcf_path: Optional[Path] = Path.cwd()):
     log = logedit.Logedit(meta.logname)
     log.writelog("Starting s00")
     log.writelog(f"Output directory: {meta.workdir}")
-
-    # PACMAN package directory
-    meta.pacmandir = resources.files("pacman")
-    log.writelog(f"Location of PACMAN: {meta.pacmandir}")
 
     # Create figure directory inside this Stage 00 run
     figure_dir = meta.workdir / 'figs'
