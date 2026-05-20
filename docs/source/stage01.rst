@@ -50,7 +50,7 @@ After running Stage 01 you should get an output like this:
 
 We now accessed the `HORIZONS system <https://ssd.jpl.nasa.gov/horizons/>`_ by JPL and downloaded a file containing the positions of HST during the observations.
 The files are saved in the current Stage 01 workdir under ``ancil/horizons``.
-Two new .txt files where saved there; a Horizons file for each visit.
+Two new .txt files were saved there; a Horizons file for each visit.
 Each file contains the X, Y and Z position of HST relative to the solar system barycenter. The X,Y,Z positions of HST were downloaded for 5 minute intervals starting one hour before the first exposure in the observations and one hour after the observations.
 
 For example, the first of the two horizon files should look like this (due to its length, we just display the first 100 lines):

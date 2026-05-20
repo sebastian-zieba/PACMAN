@@ -50,6 +50,9 @@ Then run:
     python run_pacman.py
 
 3) **What happens?**
+PACMAN reads the most recent ``stage02/s02_run_*`` directory and creates a new Stage 03 workdir:
+
+``stage03/s03_run_YYYY-MM-DD_HH-MM-SS``
 
 .. code-block:: console
 
@@ -101,7 +104,8 @@ Then run:
 
 
 After downloading or calculating the stellar spectrum, it is multiplied by the grism throughput (if the observations used G102 or G141 is recognized automatically).
-The bandpass files are stored in the pipeline directory (e.g., ``/home/zieba/Desktop/Projects/Open_source/PACMAN/pacman/ancil/bandpass``).
+The bandpass files are stored in the PACMAN package directory
+(e.g., ``PACMAN/src/pacman/data/bandpass``).
 The final plot of this stage shows the stellar spectrum, the bandpass and the product of these two. This product is used as the reference spectrum for wavelength calibration.
 
 .. image:: media/s03/refspec.png

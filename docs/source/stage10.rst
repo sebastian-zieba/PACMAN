@@ -17,6 +17,18 @@ You can run Stage 10 first without giving any guess on where the star is located
 This will save a plot showing you the direct image which you can then use to refine your guess.
 
 2) **Run PACMAN**
+
+Navigate to ``pacman_run_files`` and open ``run_pacman.py``.
+Comment out Stage 03 and uncomment Stage 10:
+
+.. code-block:: python
+
+    # meta = s03.run03(pcf_path=pcf_path)
+
+    meta = s10.run10(pcf_path=pcf_path)
+
+
+
 First run
 ''''''''''''''''''''''''
 
@@ -27,11 +39,19 @@ For demonstration purposes, in this first run I did not change the settings in t
 | di_cmin    | 100
 | di_cmax    | 150
 
+
+Then run:
+
+.. code-block:: console
+
+    python run_pacman.py
+
+
 The terminal should give you something like this:
 
 .. code-block:: console
 
-    Starting s10
+	Starting s10
 	Using Stage 03 input directory: ...
 	Location of the new Stage 10 run directory: ...
 	Determining Source Positions for Direct Images:   8%|8         | 1/8 [00:01<00:15,  1.45s/it]
@@ -50,7 +70,6 @@ The terminal should give you something like this:
 	Your guess for di_rmax is outside of the image.
 	Saving Metadata
 	Finished s10
-
 
 We see that we got error messages that our guesses were outside of the image.
 To determine where the star actually is, this run saved the plots into the current Stage 10 workdir under:
@@ -79,13 +98,13 @@ The terminal should give you something like this:
 
 .. code-block:: console
 
-    Starting s10
+	Starting s10
 	Using Stage 03 input directory: ...
-    Location of the new Stage 10 run directory: ...
-    Determining Source Positions for Direct Images: 100%|#| 8/8 [00:06<00:00,  1.26i
-    There is one DI per orbit.
-    Saving Metadata
-    Finished s10
+	Location of the new Stage 10 run directory: ...
+	Determining Source Positions for Direct Images: 100%|#| 8/8 [00:06<00:00,  1.26i
+	There is one DI per orbit.
+	Saving Metadata
+	Finished s10
 
 
 You will end up with plots like this one:
