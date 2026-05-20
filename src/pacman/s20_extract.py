@@ -255,8 +255,16 @@ def run20(eventlabel, workdir: Path, meta=None):
         # TODO: Q: disp_solution = geo.dispersion(meta.refpix[i,1], -meta.LTV2+j)
         # TODO: Q: delx = 0.5 + np.arange(meta.subarray_size) - (meta.refpix[i,2] + meta.LTV1 + meta.POSTARG1/meta.platescale)
 
-        template_waves = meta.wave_grid[0, int(meta.refpix[orbnum, 1]) + meta.LTV1, cmin:cmax]
-        # print(template_waves)
+        # optional Gaussian smoothing for each extracted spectrum
+        if meta.smooth_extracted_spectra == True:
+            template_waves_new = meta.wave_grid[0, int(meta.refpix[orbnum, 1]) + meta.LTV1, cmin:cmax]
+            # smooth each individual spectrum
+            template_waves = util.gaussian_kernel_optext_spec(template_waves_new, spec_opt)[0]
+            spec_opt = util.gaussian_kernel_optext_spec(template_waves_new, spec_opt)[1]
+            var_opt = util.gaussian_kernel_optext_spec(template_waves_new, var_opt)[1]
+        else:
+            template_waves = meta.wave_grid[0, int(meta.refpix[orbnum, 1]) + meta.LTV1, cmin:cmax]
+            # print(template_waves)
 
         # NOTE: Corrects for wavelength drift over time
         if meta.correct_wave_shift == True:

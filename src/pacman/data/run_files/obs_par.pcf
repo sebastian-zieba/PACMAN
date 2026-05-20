@@ -101,6 +101,7 @@ show_refspec_fit_plot        False
 save_drift_plot              True                                               # save plot of 1d spectrum drift over time
 show_drift_plot              False
 
+smooth_extracted_spectra     False                                             # smooth each extracted spectrum by applying a Gaussian convolution
 
 ##21
 
