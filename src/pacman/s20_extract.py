@@ -68,11 +68,6 @@ def run20(pcf_path: Path, meta=None):
     dirname = meta.workdir / "extracted_lc"
     dirname.mkdir(parents=True, exist_ok=True)
 
-    # NOTE: Let's have a copy of the pcf in the extracted_lc directory
-    # This copy is just for the user to know what parameters they used when
-    # running s20
-    shutil.copy(meta.workdir / 'obs_par.pcf', dirname)
-
     # NOTE: Initialize the astropy tables where we will save the extracted
     # spectra
     if meta.output:
@@ -341,6 +336,13 @@ def run20(pcf_path: Path, meta=None):
                 format='ecsv', overwrite=True)
     ascii.write(table_background, dirname / 'background.txt',
                 format='ecsv', overwrite=True)
+
+    plots.light_curve_errorbar(
+        dirname / "lc_white.txt",
+        meta.workdir / "figs" / "s20_lightcurves",
+        "lc_white.png",
+        title="White light curve",
+    )
 
     # NOTE: Make Plots
     if meta.save_bkg_evo_plot or meta.show_bkg_evo_plot:

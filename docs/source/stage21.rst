@@ -10,7 +10,7 @@ Stage 21
 
 This stage bins the data into spectroscopic light curves. 
 
-PACMAN can either use the most recent S20 run for the S21 step or specify a path to a previous run.
+PACMAN automatically uses the most recent Stage 20 run.
 
 The user can set the wavelength bins in the pcf by giving a wavelength range and a number of bins, or alternatively provide user-defined bin edges.
 
@@ -19,10 +19,9 @@ When running S21 the user should get an output similar to this one:
 
 .. code-block:: console
 
-    workdir:  run_2022-07-16_00-42-27_docs/
-    eventlabel:  docs
-    Successfully reloaded meta file
     Starting s21
+    Using Stage 20 input directory: ...
+    Location of the new Stage 21 run directory: ...
 
     Number of bins: 11
     chosen bin edges: [11370.         11830.90909091 12291.81818182 12752.72727273
@@ -30,7 +29,7 @@ When running S21 the user should get an output similar to this one:
      15057.27272727 15518.18181818 15979.09090909 16440.        ]
     Chosen directory with the spectroscopic flux files: 2022-07-16_00-45-03
     ***************** Looping over Bins: 100%|########################################| 11/11 [00:01<00:00,  9.15it/s]
-    Saved light curve(s) in run_2022-07-16_00-42-27_docs//extracted_sp/bins11_2022-07-17_00-44-59
+    Saved light curve(s) in stage21/s21_run_*/extracted_sp/bins11_*
     Saving Wavelength bin file
     Saving Metadata
     Finished s21
@@ -39,3 +38,31 @@ When running S21 the user should get an output similar to this one:
 Below is a plot of a 1D spectrum with the bin edges from a user-chosen binning.
 
 .. image:: media/s21/spec_bins11.png
+
+The spectroscopic light curves are saved in:
+
+``stage21/s21_run_*/extracted_sp/binsXX_*``
+
+For each wavelength bin, PACMAN saves:
+
+- a spectroscopic light curve (``speclc*.txt``)
+- light-curve plots with uncertainties
+- individual visit light curves (if multiple visits exist)
+
+The wavelength-bin directory also contains:
+
+- ``wvl_table.dat``:
+  wavelength-bin information including:
+  
+  - bin number
+  - central wavelength
+  - half-width
+  - lower wavelength edge
+  - upper wavelength edge
+
+- ``figs/spec_binsXX.png``:
+  overview plot showing the wavelength bins on the spectrum
+
+The wavelength-bin figures are saved in:
+
+``stage21/s21_run_*/extracted_sp/binsXX_*/figs``

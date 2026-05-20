@@ -872,6 +872,62 @@ def drift_lin(leastsq_res_all, meta):
         gc.collect()
 
 
+def light_curve_errorbar(table_path, fig_dir, filename, title=None):
+    """Plot spec_opt vs. t_bjd with sqrt(var_opt) error bars.
+
+    Saves one figure with all visits and, if multiple visits are present,
+    one additional figure per visit.
+    """
+    data = ascii.read(str(table_path))
+
+    fig_dir = Path(fig_dir)
+    fig_dir.mkdir(parents=True, exist_ok=True)
+
+    def _plot(mask, outname, plot_title):
+        fig, ax = plt.subplots(figsize=(8, 5))
+
+        ax.errorbar(
+            data["t_bjd"][mask],
+            data["spec_opt"][mask],
+            yerr=np.sqrt(data["var_opt"][mask]),
+            fmt=".",
+            alpha=0.7,
+            capsize=0,
+        )
+
+        ax.set_xlabel("Time (BJD)")
+        ax.set_ylabel("Flux")
+        if plot_title is not None:
+            ax.set_title(plot_title)
+
+        fig.tight_layout()
+        fig.savefig(fig_dir / outname, bbox_inches="tight", pad_inches=0.05, dpi=150)
+        plt.close(fig)
+        gc.collect()
+
+    # Full light curve
+    all_mask = np.ones(len(data), dtype=bool)
+    _plot(all_mask, filename, title)
+
+    # Per-visit light curves
+    if "ivisit" in data.colnames:
+        visits = np.unique(data["ivisit"])
+
+        if len(visits) > 1:
+            stem = Path(filename).stem
+            suffix = Path(filename).suffix
+
+            for visit in visits:
+                visit_mask = data["ivisit"] == visit
+                visit_filename = f"{stem}_visit{int(visit)}{suffix}"
+
+                if title is None:
+                    visit_title = f"Visit {int(visit)}"
+                else:
+                    visit_title = f"{title}, visit {int(visit)}"
+
+                _plot(visit_mask, visit_filename, visit_title)
+
 # 21
 def plot_wvl_bins(w_hires, f_interp, wave_bins, wvl_bins, dirname):
     """Plot of a 1D spectrum and the bins."""

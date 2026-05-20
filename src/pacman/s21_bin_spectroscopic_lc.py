@@ -89,11 +89,21 @@ def run21(pcf_path: Path, meta=None):
     print("Chosen directory with the spectroscopic flux files:", spec_dir)
 
     # save the mid bin wavelengths into a new file
-    table_wvl = QTable(names=('bin', 'wavelengths'))
-    if len(wave_edges.shape) == 2:
-        wavelengths = np.array([(wave_edges[i][0] + wave_edges[i][1]) / 2. / 1.e4 for i in range(meta.wvl_bins)])
-    else:
-        wavelengths = np.array([(wave_edges[i] + wave_edges[i+1]) / 2. / 1.e4 for i in range(meta.wvl_bins)])
+    table_wvl = QTable(
+        names=("bin", "wavelength", "half_width", "lower_edge", "upper_edge")
+    )
+    for idx in range(meta.wvl_bins):
+        if len(wave_edges.shape) == 2:
+            lower_edge = wave_edges[idx][0] / 1.0e4
+            upper_edge = wave_edges[idx][1] / 1.0e4
+        else:
+            lower_edge = wave_edges[idx] / 1.0e4
+            upper_edge = wave_edges[idx + 1] / 1.0e4
+
+        wavelength = 0.5 * (lower_edge + upper_edge)
+        half_width = 0.5 * (upper_edge - lower_edge)
+
+        table_wvl.add_row([idx, wavelength, half_width, lower_edge, upper_edge])
 
     d = ascii.read(str(spec_dir / "lc_spec.txt"))
     d = np.array([d[i].data for i in d.colnames])
@@ -171,13 +181,35 @@ def run21(pcf_path: Path, meta=None):
     #print wave, 1.0*sum(wave_inds)/len(w_hires), meanflux, meanerr
         ascii.write(table, outname, format='ecsv', overwrite=True)
 
+        plots.light_curve_errorbar(
+            outname,
+            dirname / "figs",
+            f"speclc{wave:.3f}.png",
+            title=f"Spectroscopic light curve: {wave:.3f} micron",
+        )
+
     log.writelog(f"Saved light curve(s) in {dirname}")
-    plots.plot_wvl_bins(w_hires, f_interp, wave_edges, meta.wvl_bins, dirname)
+
+    fig_dir = dirname / "figs"
+    fig_dir.mkdir(parents=True, exist_ok=True)
+    plots.plot_wvl_bins(w_hires, f_interp, wave_edges, meta.wvl_bins, fig_dir)
 
     log.writelog("Saving Wavelength bin file")
-    for idx, wavelengths_i in enumerate(wavelengths):
-        table_wvl.add_row([idx, wavelengths_i])
-    ascii.write(table_wvl, dirname / 'wvl_table.dat', format='rst', overwrite=True)
+
+    for idx in range(meta.wvl_bins):
+        if len(wave_edges.shape) == 2:
+            lower_edge = wave_edges[idx][0] / 1.0e4
+            upper_edge = wave_edges[idx][1] / 1.0e4
+        else:
+            lower_edge = wave_edges[idx] / 1.0e4
+            upper_edge = wave_edges[idx + 1] / 1.0e4
+
+        wavelength = 0.5 * (lower_edge + upper_edge)
+        half_width = 0.5 * (upper_edge - lower_edge)
+
+        table_wvl.add_row([idx, wavelength, half_width, lower_edge, upper_edge])
+
+    ascii.write(table_wvl, dirname / "wvl_table.dat", format="rst", overwrite=True)
 
     # Save results
     log.writelog("Saving Metadata")
