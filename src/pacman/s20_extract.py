@@ -13,10 +13,12 @@ from .lib import optextr
 from .lib import plots
 from .lib import util
 from .lib import logedit
+from .lib import read_pcf as rd
 
 
 def run20(pcf_path: Path, meta=None):
-    """This function extracts the spectrum and saves the total flux and the
+    """
+    This function extracts the spectrum and saves the total flux and the
     flux as a function of wavelength into files.
     """
 
@@ -24,43 +26,15 @@ def run20(pcf_path: Path, meta=None):
     # NOTE: STEP 0: Set up files and directories
     ###############################################################################################################################################################
 
-    pcf_path = Path(pcf_path)
-    rundir = pcf_path.parent
-
-    # Find latest Stage 10 workdir
-    s10_workdir = util.find_latest_stage_run(rundir, "stage10", "s10_run_*")
-
-    if meta is None:
-        meta = me.loadevent(s10_workdir / "WFC3_Meta_Save")
-
-    # Create new Stage 20 workdir
-    datetime = time.strftime("%Y-%m-%d_%H-%M-%S")
-    meta.inputdir = s10_workdir
-    meta.stage20dir = rundir / "stage20"
-    meta.workdir = meta.stage20dir / f"s20_run_{datetime}"
-    meta.workdir.mkdir(parents=True, exist_ok=True)
-
-    # Copy current config files from pacman_run_files
-    shutil.copy(pcf_path / "obs_par.pcf", meta.workdir)
-    shutil.copy(pcf_path / "fit_par.txt", meta.workdir)
-
-    # Copy filelist and xrefyref from previous stage
-    shutil.copy(meta.inputdir / "filelist.txt", meta.workdir)
-    shutil.copy(meta.inputdir / "xrefyref.txt", meta.workdir)
-    if (meta.inputdir / "ancil").exists():
-        shutil.copytree(
-            meta.inputdir / "ancil",
-            meta.workdir / "ancil",
-            dirs_exist_ok=True,
-        )
-
-    previous_log = meta.inputdir / "s10.log"
-    meta.logname = meta.workdir / "s20.log"
-    log = logedit.Logedit(meta.logname, read=previous_log)
-
-    log.writelog("Starting s20")
-    log.writelog(f"Using Stage 10 input directory: {meta.inputdir}")
-    log.writelog(f"Location of the new Stage 20 run directory: {meta.workdir}")
+    meta, log = util.setup_stage(
+        pcf_path=pcf_path,
+        stage_num="20",
+        previous_stage_num="10",
+        copy_filelist=True,
+        copy_xrefyref=True,
+        copy_ancil=True,
+        meta=meta,
+    )
 
     # Load ancillary metadata
     meta = util.ancil(meta, s20=True)

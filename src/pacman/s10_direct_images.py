@@ -12,43 +12,23 @@ from .lib import gaussfitter
 from .lib import plots
 from .lib import manageevent as me
 from .lib import logedit
+from .lib import read_pcf as rd
 
 
 def run10(pcf_path: Path, meta=None):
-    """Opens the direct images to determine the position of the star on the detector.
+    """
+    Opens the direct images to determine the position of the star on the detector.
     The positions are then saved in x and y physical pixel coordinates into a new txt file called xrefyref.txt.
     """
-    pcf_path = Path(pcf_path)
-    rundir = pcf_path.parent
 
-    s03_workdir = util.find_latest_stage_run(rundir, "stage03", "s03_run_*")
-
-    if meta is None:
-        meta = me.loadevent(s03_workdir / "WFC3_Meta_Save")
-
-    datetime = time.strftime("%Y-%m-%d_%H-%M-%S")
-    meta.inputdir = s03_workdir
-    meta.stage10dir = rundir / "stage10"
-    meta.workdir = meta.stage10dir / f"s10_run_{datetime}"
-    meta.workdir.mkdir(parents=True, exist_ok=True)
-
-    shutil.copy(pcf_path / "obs_par.pcf", meta.workdir)
-    shutil.copy(pcf_path / "fit_par.txt", meta.workdir)
-    shutil.copy(meta.inputdir / "filelist.txt", meta.workdir)
-    if (meta.inputdir / "ancil").exists():
-        shutil.copytree(
-            meta.inputdir / "ancil",
-            meta.workdir / "ancil",
-            dirs_exist_ok=True,
-        )
-
-    previous_log = meta.inputdir / "s03.log"
-    meta.logname = meta.workdir / "s10.log"
-    log = logedit.Logedit(meta.logname, read=previous_log)
-
-    log.writelog("Starting s10")
-    log.writelog(f"Using Stage 03 input directory: {meta.inputdir}")
-    log.writelog(f"Location of the new Stage 10 run directory: {meta.workdir}")
+    meta, log = util.setup_stage(
+        pcf_path=pcf_path,
+        stage_num="10",
+        previous_stage_num="03",
+        copy_filelist=True,
+        copy_ancil=True,
+        meta=meta,
+    )
 
     #f = open(meta.workdir + '/xrefyref.txt', 'w')						#opens file to store positions of reference pixels
     table = Table() # creates table to store positions of reference pixels

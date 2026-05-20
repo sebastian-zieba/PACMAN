@@ -11,60 +11,25 @@ from .lib import manageevent as me
 from .lib import plots
 from .lib import util
 from .lib import logedit
+from .lib import read_pcf as rd
 
 
 def run21(pcf_path: Path, meta=None):
-    """This function reads in the lc_spec.txt file with the flux as a
+    """
+    This function reads in the lc_spec.txt file with the flux as a
     function of wavelength and bins it into light curves.
     """
 
-    pcf_path = Path(pcf_path)
-    rundir = pcf_path.parent
-
-    # Find latest Stage 20 workdir
-    s20_workdir = util.find_latest_stage_run(rundir, "stage20", "s20_run_*")
-
-    if meta is None:
-        meta = me.loadevent(s20_workdir / "WFC3_Meta_Save")
-
-    # Create new Stage 21 workdir
-    datetime = time.strftime("%Y-%m-%d_%H-%M-%S")
-    meta.inputdir = s20_workdir
-    meta.stage21dir = rundir / "stage21"
-    meta.workdir = meta.stage21dir / f"s21_run_{datetime}"
-    meta.workdir.mkdir(parents=True, exist_ok=True)
-
-    # Copy current config files from pacman_run_files
-    shutil.copy(pcf_path / "obs_par.pcf", meta.workdir)
-    shutil.copy(pcf_path / "fit_par.txt", meta.workdir)
-
-    # Copy files/directories from previous stage
-    shutil.copy(meta.inputdir / "filelist.txt", meta.workdir)
-
-    if (meta.inputdir / "xrefyref.txt").exists():
-        shutil.copy(meta.inputdir / "xrefyref.txt", meta.workdir)
-
-    if (meta.inputdir / "ancil").exists():
-        shutil.copytree(
-            meta.inputdir / "ancil",
-            meta.workdir / "ancil",
-            dirs_exist_ok=True,
-        )
-
-    if (meta.inputdir / "extracted_lc").exists():
-        shutil.copytree(
-            meta.inputdir / "extracted_lc",
-            meta.workdir / "extracted_lc",
-            dirs_exist_ok=True,
-        )
-
-    previous_log = meta.inputdir / "s20.log"
-    meta.logname = meta.workdir / "s21.log"
-    log = logedit.Logedit(meta.logname, read=previous_log)
-
-    log.writelog("Starting s21")
-    log.writelog(f"Using Stage 20 input directory: {meta.inputdir}")
-    log.writelog(f"Location of the new Stage 21 run directory: {meta.workdir}")
+    meta, log = util.setup_stage(
+        pcf_path=pcf_path,
+        stage_num="21",
+        previous_stage_num="20",
+        copy_filelist=True,
+        copy_xrefyref=True,
+        copy_ancil=True,
+        copy_extracted_lc=True,
+        meta=meta,
+    )
 
     if meta.use_wvl_list:
         wave_edges = np.array(meta.wvl_edge_list)

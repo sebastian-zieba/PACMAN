@@ -11,6 +11,7 @@ from .lib import stellar_spectrum
 from .lib import manageevent as me
 from .lib import util
 from .lib import logedit
+from .lib import read_pcf as rd
 
 
 def run03(pcf_path: Path, meta=None):
@@ -27,9 +28,6 @@ def run03(pcf_path: Path, meta=None):
 
     Parameters
     ----------
-    eventlabel : str
-       The label given to the event in the run script.
-       Will determine the name of the run directory
     workdir : str
        The name of the work directory.
     meta :
@@ -45,31 +43,14 @@ def run03(pcf_path: Path, meta=None):
     History:
         Written by Sebastian Zieba      December 2021
     """
-    pcf_path = Path(pcf_path)
-    rundir = pcf_path.parent
-
-    s02_workdir = util.find_latest_stage_run(rundir, "stage02", "s02_run_*")
-
-    if meta is None:
-        meta = me.loadevent(s02_workdir / "WFC3_Meta_Save")
-
-    datetime = time.strftime("%Y-%m-%d_%H-%M-%S")
-    meta.inputdir = s02_workdir
-    meta.stage03dir = rundir / "stage03"
-    meta.workdir = meta.stage03dir / f"s03_run_{datetime}"
-    meta.workdir.mkdir(parents=True, exist_ok=True)
-
-    shutil.copy(pcf_path / "obs_par.pcf", meta.workdir)
-    shutil.copy(pcf_path / "fit_par.txt", meta.workdir)
-    shutil.copy(meta.inputdir / "filelist.txt", meta.workdir)
-
-    previous_log = meta.inputdir / "s02.log"
-    meta.logname = meta.workdir / "s03.log"
-    log = logedit.Logedit(meta.logname, read=previous_log)
-
-    log.writelog("Starting s03")
-    log.writelog(f"Using Stage 02 input directory: {meta.inputdir}")
-    log.writelog(f"Location of the new Stage 03 run directory: {meta.workdir}")
+    
+    meta, log = util.setup_stage(
+        pcf_path=pcf_path,
+        stage_num="03",
+        previous_stage_num="02",
+        copy_filelist=True,
+        meta=meta,
+    )
 
     # PACMAN package directory
     meta.pacmandir = resources.files("pacman")

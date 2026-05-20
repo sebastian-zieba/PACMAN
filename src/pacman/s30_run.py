@@ -16,6 +16,7 @@ from .lib.model import Model
 from .lib.nested import nested_sample
 from .lib.read_data import Data
 from .lib import logedit
+from .lib import read_pcf as rd
 
 
 def run30(pcf_path: Path, meta=None):
@@ -23,6 +24,13 @@ def run30(pcf_path: Path, meta=None):
     fits a model to them."""
     pcf_path = Path(pcf_path)
     rundir = pcf_path.parent
+
+    pcf = rd.read_pcf(pcf_path / "obs_par.pcf")
+
+    if pcf.s30_fit_spec.get(0):
+        input_workdir = util.find_latest_stage_run(rundir, "stage21", "s21_run_*")
+    else:
+        input_workdir = util.find_latest_stage_run(rundir, "stage20", "s20_run_*")
 
     # Use latest Stage 21 if fitting spectroscopic light curves.
     # Otherwise use latest Stage 20 for the white light curve.
@@ -51,6 +59,9 @@ def run30(pcf_path: Path, meta=None):
 
     shutil.copy(pcf_path / "obs_par.pcf", meta.workdir)
     shutil.copy(pcf_path / "fit_par.txt", meta.workdir)
+
+    pcf = rd.read_pcf(meta.workdir / "obs_par.pcf")
+    rd.store_pcf(meta, pcf)
 
     if (meta.inputdir / "filelist.txt").exists():
         shutil.copy(meta.inputdir / "filelist.txt", meta.workdir)

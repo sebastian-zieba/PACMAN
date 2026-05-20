@@ -11,6 +11,7 @@ from .lib import suntimecorr
 from .lib import util
 from .lib import manageevent as me
 from .lib import logedit
+from .lib import read_pcf as rd
 
 
 def run02(pcf_path: Path, meta=None):
@@ -22,8 +23,6 @@ def run02(pcf_path: Path, meta=None):
 
     Parameters
     ----------
-    eventlabel : str
-        the label given to the event in the run script. Will determine the name of the run directory
     workdir : str
         the name of the work directory.
     meta
@@ -40,36 +39,13 @@ def run02(pcf_path: Path, meta=None):
         Written by Sebastian Zieba      December 2021
     """
 
-    pcf_path = Path(pcf_path)
-    rundir = pcf_path.parent
-
-    # Find latest Stage 01 workdir
-    s01_workdir = util.find_latest_stage_run(rundir, 'stage01', 's01_run_*')
-
-    if meta is None:
-        meta = me.loadevent(s01_workdir / 'WFC3_Meta_Save')
-
-    # Create new Stage 02 workdir
-    datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
-    meta.inputdir = s01_workdir
-    meta.stage02dir = rundir / 'stage02'
-    meta.workdir = meta.stage02dir / f's02_run_{datetime}'
-    meta.workdir.mkdir(parents=True, exist_ok=True)
-
-    # Copy current config files from pacman_run_files
-    shutil.copy(pcf_path / 'obs_par.pcf', meta.workdir)
-    shutil.copy(pcf_path / 'fit_par.txt', meta.workdir)
-
-    # Copy filelist from previous stage
-    shutil.copy(meta.inputdir / 'filelist.txt', meta.workdir)
-
-    previous_log = meta.inputdir / "s01.log"
-    meta.logname = meta.workdir / "s02.log"
-    log = logedit.Logedit(meta.logname, read=previous_log)
-
-    log.writelog("Starting s02")
-    log.writelog(f"Using Stage 01 input directory: {meta.inputdir}")
-    log.writelog(f"Location of the new Stage 02 run directory: {meta.workdir}")
+    meta, log = util.setup_stage(
+        pcf_path=pcf_path,
+        stage_num="02",
+        previous_stage_num="01",
+        copy_filelist=True,
+        meta=meta,
+    )
 
     # Read filelist from Stage 00/01 input lineage
     filelist_path = meta.workdir / 'filelist.txt'

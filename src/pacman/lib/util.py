@@ -1,4 +1,6 @@
 import math
+import time
+import shutil
 from pathlib import Path
 from typing import Optional
 
@@ -12,6 +14,9 @@ from scipy.signal import find_peaks
 
 from .sort_nicely import sort_nicely as sn
 from ..lib import plots
+from . import manageevent as me
+from . import logedit
+from . import read_pcf as rd
 
 
 # s00
@@ -51,6 +56,132 @@ def find_latest_stage_run(rundir, stage_name, pattern):
         raise FileNotFoundError(f'No run directories found in {stage_dir} matching {pattern}')
 
     return run_dirs[-1]
+
+
+def setup_stage(
+    pcf_path,
+    stage_num,
+    previous_stage_num,
+    copy_filelist=True,
+    copy_xrefyref=False,
+    copy_ancil=False,
+    copy_extracted_lc=False,
+    copy_extracted_sp=False,
+    meta=None,
+):
+    """Set up a PACMAN stage run directory.
+
+    This function:
+    - finds the latest previous-stage run directory
+    - loads metadata from that previous stage
+    - creates the new stage directory and timestamped workdir
+    - copies current obs_par.pcf and fit_par.txt from pacman_run_files
+    - updates meta with the copied obs_par.pcf settings
+    - copies selected products from the previous stage
+    - initializes the stage log
+
+    Parameters
+    ----------
+    pcf_path : pathlib.Path
+        Path to pacman_run_files.
+    stage_num : str
+        Stage number, e.g. "01", "02", "03", "10", "20", "21".
+    previous_stage_num : str
+        Previous stage number, e.g. "00", "01", "02", "03", "10", "20".
+    copy_filelist : bool
+        Copy filelist.txt from previous stage.
+    copy_xrefyref : bool
+        Copy xrefyref.txt from previous stage.
+    copy_ancil : bool
+        Copy ancil/ from previous stage.
+    copy_extracted_lc : bool
+        Copy extracted_lc/ from previous stage.
+    copy_extracted_sp : bool
+        Copy extracted_sp/ from previous stage.
+    meta : object or None
+        Optional metadata object. If None, metadata is loaded from previous stage.
+
+    Returns
+    -------
+    meta
+        Updated metadata object.
+    log
+        Logedit object for the current stage.
+    """
+    pcf_path = Path(pcf_path)
+    rundir = pcf_path.parent
+
+    stage_name = f"stage{stage_num}"
+    run_pattern = f"s{stage_num}_run_*"
+
+    previous_stage_name = f"stage{previous_stage_num}"
+    previous_run_pattern = f"s{previous_stage_num}_run_*"
+
+    input_workdir = find_latest_stage_run(
+        rundir,
+        previous_stage_name,
+        previous_run_pattern,
+    )
+
+    if meta is None:
+        meta = me.loadevent(input_workdir / "WFC3_Meta_Save")
+
+    datetime = time.strftime("%Y-%m-%d_%H-%M-%S")
+
+    meta.inputdir = input_workdir
+
+    stage_dir = rundir / stage_name
+    setattr(meta, f"stage{stage_num}dir", stage_dir)
+
+    meta.workdir = stage_dir / f"s{stage_num}_run_{datetime}"
+    meta.workdir.mkdir(parents=True, exist_ok=True)
+
+    # Copy current config files from pacman_run_files
+    shutil.copy(pcf_path / "obs_par.pcf", meta.workdir)
+    shutil.copy(pcf_path / "fit_par.txt", meta.workdir)
+
+    # Update meta using the copied obs_par.pcf snapshot
+    pcf = rd.read_pcf(meta.workdir / "obs_par.pcf")
+    rd.store_pcf(meta, pcf)
+
+    # Copy selected files/directories from previous stage
+    if copy_filelist and (meta.inputdir / "filelist.txt").exists():
+        shutil.copy(meta.inputdir / "filelist.txt", meta.workdir)
+
+    if copy_xrefyref and (meta.inputdir / "xrefyref.txt").exists():
+        shutil.copy(meta.inputdir / "xrefyref.txt", meta.workdir)
+
+    if copy_ancil and (meta.inputdir / "ancil").exists():
+        shutil.copytree(
+            meta.inputdir / "ancil",
+            meta.workdir / "ancil",
+            dirs_exist_ok=True,
+        )
+
+    if copy_extracted_lc and (meta.inputdir / "extracted_lc").exists():
+        shutil.copytree(
+            meta.inputdir / "extracted_lc",
+            meta.workdir / "extracted_lc",
+            dirs_exist_ok=True,
+        )
+
+    if copy_extracted_sp and (meta.inputdir / "extracted_sp").exists():
+        shutil.copytree(
+            meta.inputdir / "extracted_sp",
+            meta.workdir / "extracted_sp",
+            dirs_exist_ok=True,
+        )
+
+    previous_log = meta.inputdir / f"s{previous_stage_num}.log"
+    meta.logname = meta.workdir / f"s{stage_num}.log"
+
+    log = logedit.Logedit(meta.logname, read=previous_log)
+
+    log.writelog(f"Starting s{stage_num}")
+    log.writelog(f"Using Stage {previous_stage_num} input directory: {meta.inputdir}")
+    log.writelog(f"Location of the new Stage {stage_num} run directory: {meta.workdir}")
+
+    return meta, log
 
 
 # s02
