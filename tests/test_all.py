@@ -2,6 +2,7 @@ import time
 import os
 import sys
 from pathlib import Path
+import shutil
 
 import numpy as np
 import pytest
@@ -23,6 +24,8 @@ from pacman.lib import sort_nicely as sn
 from pacman.lib.suntimecorr import getcoords as getcoords
 from pacman.lib.gaussfitter import gaussfit as gaussfit
 from pacman.lib import optextr
+from pacman.lib import util
+
 
 src_dir = Path.cwd() / 'src'
 sys.path.insert(0, src_dir)
@@ -31,49 +34,47 @@ sys.path.insert(0, src_dir)
 sys.stdout.reconfigure(encoding='utf-8')
 
 test_path = Path(__file__).parent
-eventlabel = 'GJ1214_13021'
+pcf_path = test_path / "pacman_run_files"
 
 
-def workdir_finder():
-    """Finds the latest work directory created.
-    After running the Stage 00 test,
-    we want to base all following tests (for s01, s02, ...) on the
-    workdirectory created when running s00.
-    """
-    eventlabel = 'GJ1214_13021'
-    # List subdirectories in the run directory
-    dirs = np.array([path for path in test_path.iterdir() if path.is_dir()])
-
-    # Saves times when these subdirectories were created.
-    # They always have the following form: 'run_YYYY-MM-DD_HH-MM-SS_eventlabel'
-    dirs_bool = np.array(['run_2' in dir.name for dir in dirs])
-    dirs = dirs[dirs_bool]
-
-    eventlabel_len = len(eventlabel)
-    dirs_times = [i.name[-(eventlabel_len+20):-(eventlabel_len+1)] for i in dirs]
-
-    # Sort the times
-    times_sorted = sn.sort_nicely(dirs_times)
-
-    # Most recent time
-    recent_time = times_sorted[-1]
-
-    # Find the directory with that most recent time
-    idx = 0
-    for i in range(len(dirs)):
-        if dirs[i].name[-(eventlabel_len+20):-(eventlabel_len+1)] == recent_time:
-            idx = i
-    workdir = dirs[idx]
-    # Save the eventlabel which is in the directory name too
-    print('workdir: ', workdir)
-    print('eventlabel: ', eventlabel)
-    return workdir, eventlabel
+def latest_stage(stage_num: str) -> Path:
+    return util.find_latest_stage_run(
+        test_path,
+        f"stage{stage_num}",
+        f"s{stage_num}_run_*",
+    )
 
 
 def delete_dir(dir_name: Path) -> None:
     if dir_name.exists():
-        print('Old dir found and deleted')
-        os.system(f"rm -r {dir_name}")
+        print(f"Old dir found and deleted: {dir_name}")
+        shutil.rmtree(dir_name)
+
+
+def delete_stage_dirs() -> None:
+    for stage_dir in [
+        "stage00", "stage01", "stage02", "stage03",
+        "stage10", "stage20", "stage21", "stage30",
+    ]:
+        delete_dir(test_path / stage_dir)
+
+
+def replace_pcf_value(path: Path, key: str, value: str) -> None:
+    lines = path.read_text(encoding="utf-8").splitlines()
+    new_lines = []
+
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith(key):
+            comment = ""
+            if "#" in line:
+                before, comment = line.split("#", 1)
+                comment = " # " + comment.strip()
+            new_lines.append(f"{key:<30} {value}{comment}")
+        else:
+            new_lines.append(line)
+
+    path.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
 
 
 @pytest.mark.run(order=1)
@@ -82,11 +83,7 @@ def test_sessionstart(capsys):
     used in this test using astroquery.
     """
     test_dir = Path(__file__).parent
-    dirs = np.array([path for path in test_path.iterdir() if path.is_dir()])
-    dirs_bool = np.array(['run_2' in dir.name for dir in dirs])
-    dirs = dirs[dirs_bool]
-    for diri in dirs:
-        delete_dir(diri)
+    delete_stage_dirs()
 
     # Delete old data dir
     data_dir = test_dir / 'data'
@@ -126,7 +123,7 @@ def test_sessionstart(capsys):
         if (data_dir / fil.name).exists():
             os.remove(data_dir / fil.name)
         fil.rename(data_dir / fil.name)
-    os.system(f"rm -r {mast_dir}")
+    delete_dir(mast_dir)
     assert True
 
 
@@ -139,7 +136,7 @@ def test_s00(capsys):
     pcf_path = test_path / 'pacman_run_files'
 
     # Run s00
-    meta = s00.run00(eventlabel, pcf_path)
+    meta = s00.run00(pcf_path)
     time.sleep(1)
 
     # run assertions
@@ -162,11 +159,12 @@ def test_s01(capsys):
     """Downloads the HORIZONS file."""
     reload(s01)
     time.sleep(1)
-    workdir, eventlabel = workdir_finder()
 
     # Run s01
-    _ = s01.run01(eventlabel, workdir)
-    horizons_file = workdir / 'ancil' / 'horizons' / 'horizons_results_v0.txt'
+    _ = s01.run01(pcf_path)
+    s01_workdir = latest_stage("01")
+
+    horizons_file = s01_workdir / 'ancil' / 'horizons' / 'horizons_results_v0.txt'
 
     # Run assertions
     assert horizons_file.exists()
@@ -182,9 +180,9 @@ def my_round(num):
 @pytest.mark.run(order=4)
 def test_horizons(capsys):
     """Check the shape of the HORIZONS file."""
-    workdir, _ = workdir_finder()
 
-    horizons_file = workdir / 'ancil' / 'horizons' / 'horizons_results_v0.txt'
+    s01_workdir = latest_stage("01")
+    horizons_file = s01_workdir / "ancil" / "horizons" / "horizons_results_v0.txt"
 
     start_data = '$$SOE'
     end_data = '$$EOE'
@@ -222,12 +220,11 @@ def test_s02(capsys):
     reload(s02)
     time.sleep(1)
 
-    workdir, eventlabel = workdir_finder()
-
     # Run s02
-    _ = s02.run02(eventlabel, workdir)
+    _ = s02.run02(pcf_path)
+    s02_workdir = latest_stage("02")
 
-    filelist_file = workdir / 'filelist.txt'
+    filelist_file = s02_workdir / 'filelist.txt'
     assert filelist_file.exists()
     filelist = ascii.read(filelist_file)
 
@@ -242,23 +239,23 @@ def test_s03(capsys):
     reload(s03)
     time.sleep(1)
 
-    workdir, eventlabel = workdir_finder()
-
     # Run s03
-    _ = s03.run03(eventlabel, workdir)
-    sm_file = workdir / 'ancil' / 'stellar_models' / 'k93models' / 'kp03_3500.fits'
+    _ = s03.run03(pcf_path)
+    s03_workdir = latest_stage("03")
+
+    sm_file = s03_workdir / 'ancil' / 'stellar_models' / 'k93models' / 'kp03_3500.fits'
     assert sm_file.exists()
 
-    hdul = fits.open(sm_file)
-    wvl = hdul[1].data['WAVELENGTH']*1e-10
-    flux = hdul[1].data['g50']*1e-7*1e4/1e-10/np.pi
+    with fits.open(sm_file) as hdul:
+        wvl = hdul[1].data["WAVELENGTH"] * 1e-10
+        flux = hdul[1].data["g50"] * 1e-7 * 1e4 / 1e-10 / np.pi
 
     # Check if for the sm fits file the flux and wavelength is >= 0 everywhere
     assert np.all(wvl >= 0)
     assert np.all(flux >= 0)
 
     # Check the refspec_file
-    refspec_file = workdir / 'ancil' / 'refspec' / 'refspec.txt'
+    refspec_file = s03_workdir / "ancil" / "refspec" / "refspec.txt"
     assert refspec_file.exists()
 
     wvl_refspec, flux_refspec = np.loadtxt(refspec_file).T
@@ -276,12 +273,12 @@ def test_s10(capsys):
     reload(s10)
     time.sleep(1)
 
-    workdir, eventlabel = workdir_finder()
-
     # Run s10
-    _ = s10.run10(eventlabel, workdir)
+    _ = s10.run10(pcf_path)
+    s10_workdir = latest_stage("10")
 
-    xrefyref_file = workdir / 'xrefyref.txt'
+
+    xrefyref_file = s10_workdir / 'xrefyref.txt'
     assert xrefyref_file.exists()
 
     if xrefyref_file.exists():
@@ -336,16 +333,12 @@ def test_s20(capsys):
     reload(s20)
     time.sleep(1)
 
-    workdir, eventlabel = workdir_finder()
-
     # Run s20
-    meta = s20.run20(eventlabel, workdir)
+    meta = s20.run20(pcf_path)
+    s20_workdir = latest_stage("20")
 
-    extracted_lc_dir_path = workdir / 'extracted_lc'
-
-    s20_dir = np.array([path for path in extracted_lc_dir_path.iterdir() if path.is_dir()])[0]
-    s20_lc_spec_file = s20_dir / 'lc_spec.txt'
-    s20_lc_white_file = s20_dir / 'lc_white.txt'
+    s20_lc_spec_file = s20_workdir / "extracted_lc" / "lc_spec.txt"
+    s20_lc_white_file = s20_workdir / "extracted_lc" / "lc_white.txt"
 
     # Check if the files were created
     assert s20_lc_spec_file.exists()
@@ -386,27 +379,28 @@ def test_s21(capsys):
     reload(s21)
     time.sleep(1)
 
-    workdir, eventlabel = workdir_finder()
-
     # Run s21
-    meta = s21.run21(eventlabel, workdir)
+    meta = s21.run21(pcf_path)
+    s21_workdir = latest_stage("21")
+    extracted_sp_dir_path = s21_workdir / "extracted_sp"
 
-    extracted_sp_dir_path = workdir / 'extracted_sp'
+    s21_dir = np.array([
+        path for path in extracted_sp_dir_path.iterdir()
+        if path.is_dir()
+    ])[0]
 
-    s21_dir = np.array([path for path in extracted_sp_dir_path.iterdir()
-                        if path.is_dir()])[0]
-    s21_wvl_table_file = s21_dir / 'wvl_table.dat'
+    s21_wvl_table_file = s21_dir / "wvl_table.dat"
     assert s21_wvl_table_file.exists()
     s21_wvl_table = ascii.read(s21_wvl_table_file)
 
-    wvl_s21 = s21_wvl_table['wavelengths']
+    wvl_s21 = s21_wvl_table["wavelength"]
 
     # Check if the number of bins defined in the pcf is the same as
     # the number of wavelength bins saved into the wvl_table.dat file.
     assert meta.wvl_bins == len(wvl_s21)
 
     # Number of light curves should be the same as meta.wvl_bins
-    extracted_sp_lcs_files = list(s21_dir.glob("*.txt"))
+    extracted_sp_lcs_files = list(s21_dir.glob("speclc*.txt"))
     assert meta.wvl_bins == len(extracted_sp_lcs_files)
 
     # There should be 10 columns as for the /lc_spec.txt file which was generated after running s20.
@@ -421,39 +415,51 @@ def test_s30(capsys):
     reload(s30)
     time.sleep(1)
 
-    workdir, eventlabel = workdir_finder()
-
     # Run s30
-    meta = s30.run30(eventlabel, workdir)
+    meta = s30.run30(pcf_path)
+    s30_workdir = util.find_latest_stage_run(
+        test_path,
+        "stage30/spec_lc",
+        "s30_run_*",
+    )
 
-    dirs = np.array([path for path in workdir.iterdir() if path.is_dir()])
+    dirs = np.array([path for path in s30_workdir.iterdir() if path.is_dir()])
     dirs_bool = np.array(['fit_' in dir.name for dir in dirs])
     fit_dirs = dirs[dirs_bool]
     fit_dir = fit_dirs[0]
     assert fit_dir.exists()
 
-    meta.s30_fit_white = True
-    meta.s30_most_recent_s20 = True
+    pcf_file = pcf_path / "obs_par.pcf"
+    original_pcf = pcf_file.read_text(encoding="utf-8")
 
-    s30.run30(eventlabel, workdir, meta=meta)
+    try:
+        replace_pcf_value(pcf_file, "s30_fit_white", "True")
+        replace_pcf_value(pcf_file, "s30_fit_spec", "False")
 
-    dirs = np.array([path for path in workdir.iterdir() if path.is_dir()])
-    dirs_bool = np.array(['fit_' in dir.name for dir in dirs])
+        s30.run30(pcf_path)
 
-    print('dirs_bool: ', dirs_bool)
-    assert True
+        s30_white_workdir = util.find_latest_stage_run(
+            test_path,
+            "stage30/white_lc",
+            "s30_run_*",
+        )
 
+        assert s30_white_workdir.exists()
+        assert (s30_white_workdir / "fit_white").exists()
+
+    finally:
+        pcf_file.write_text(original_pcf, encoding="utf-8")
+
+    assert (s30_workdir / "fit_spec").exists()
 
 @pytest.mark.run(order=40)
 def test_sessionfinish(capsys):
     """Called after whole test run finished. It will delete the created
     work directory and the downloaded HST files.
     """
-    workdir, _ = workdir_finder()
-    test_dir = Path(__file__).parent
-    data_dir = test_dir / 'data'
-    os.system(f"rm -r {data_dir}")
-    os.system(f"rm -r {workdir}")
+    delete_stage_dirs()
+    delete_dir(test_path / "data")
+    delete_dir(test_path / "mastDownload")
 
     print('Deleted directories and files again.')
     assert True
