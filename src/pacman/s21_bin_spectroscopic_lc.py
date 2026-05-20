@@ -53,23 +53,6 @@ def run21(pcf_path: Path, meta=None):
 
     print("Chosen directory with the spectroscopic flux files:", spec_dir)
 
-    # save the mid bin wavelengths into a new file
-    table_wvl = QTable(
-        names=("bin", "wavelength", "half_width", "lower_edge", "upper_edge")
-    )
-    for idx in range(meta.wvl_bins):
-        if len(wave_edges.shape) == 2:
-            lower_edge = wave_edges[idx][0] / 1.0e4
-            upper_edge = wave_edges[idx][1] / 1.0e4
-        else:
-            lower_edge = wave_edges[idx] / 1.0e4
-            upper_edge = wave_edges[idx + 1] / 1.0e4
-
-        wavelength = 0.5 * (lower_edge + upper_edge)
-        half_width = 0.5 * (upper_edge - lower_edge)
-
-        table_wvl.add_row([idx, wavelength, half_width, lower_edge, upper_edge])
-
     d = ascii.read(str(spec_dir / "lc_spec.txt"))
     d = np.array([d[i].data for i in d.colnames])
 
@@ -159,8 +142,11 @@ def run21(pcf_path: Path, meta=None):
     fig_dir.mkdir(parents=True, exist_ok=True)
     plots.plot_wvl_bins(w_hires, f_interp, wave_edges, meta.wvl_bins, fig_dir)
 
+    # save the mid bin wavelengths into a new file
     log.writelog("Saving Wavelength bin file")
-
+    table_wvl = QTable(
+        names=("bin", "wavelength", "half_width", "lower_edge", "upper_edge")
+    )
     for idx in range(meta.wvl_bins):
         if len(wave_edges.shape) == 2:
             lower_edge = wave_edges[idx][0] / 1.0e4
