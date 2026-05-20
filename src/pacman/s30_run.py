@@ -20,82 +20,47 @@ from .lib import read_pcf as rd
 
 
 def run30(pcf_path: Path, meta=None):
-    """This functions reads in the spectroscopic or white light curve(s) and
-    fits a model to them."""
+    """
+    This functions reads in the spectroscopic or white light curve(s) and
+    fits a model to them.
+    """
     pcf_path = Path(pcf_path)
-    rundir = pcf_path.parent
 
+    # Read live/current obs_par.pcf to decide whether Stage 30 uses
+    # Stage 20 white light curves or Stage 21 spectroscopic light curves.
     pcf = rd.read_pcf(pcf_path / "obs_par.pcf")
+    fit_white = pcf.s30_fit_white.get(0)
+    fit_spec = pcf.s30_fit_spec.get(0)
 
-    if pcf.s30_fit_spec.get(0):
-        input_workdir = util.find_latest_stage_run(rundir, "stage21", "s21_run_*")
+    if fit_white and fit_spec:
+        raise ValueError("Only one of s30_fit_white or s30_fit_spec can be True.")
+
+    if not fit_white and not fit_spec:
+        raise ValueError("Either s30_fit_white or s30_fit_spec must be True.")
+
+    if fit_spec:
+        previous_stage_num = "21"
+        stage_subdir = "spec_lc"
+        copy_extracted_sp = True
+        copy_extracted_lc = False
     else:
-        input_workdir = util.find_latest_stage_run(rundir, "stage20", "s20_run_*")
+        previous_stage_num = "20"
+        stage_subdir = "white_lc"
+        copy_extracted_sp = False
+        copy_extracted_lc = True
 
-    # Use latest Stage 21 if fitting spectroscopic light curves.
-    # Otherwise use latest Stage 20 for the white light curve.
-    if meta is None:
-        # Need temporary metadata from latest possible previous stage
-        s20_workdir = util.find_latest_stage_run(rundir, "stage20", "s20_run_*")
-        meta_tmp = me.loadevent(s20_workdir / "WFC3_Meta_Save")
-
-        if meta_tmp.s30_fit_spec:
-            input_workdir = util.find_latest_stage_run(rundir, "stage21", "s21_run_*")
-            previous_log = input_workdir / "s21.log"
-        else:
-            input_workdir = s20_workdir
-            previous_log = input_workdir / "s20.log"
-
-        meta = me.loadevent(input_workdir / "WFC3_Meta_Save")
-    else:
-        input_workdir = meta.workdir
-        previous_log = getattr(meta, "logname", None)
-
-    datetime = time.strftime("%Y-%m-%d_%H-%M-%S")
-    meta.inputdir = input_workdir
-    meta.stage30dir = rundir / "stage30"
-    meta.workdir = meta.stage30dir / f"s30_run_{datetime}"
-    meta.workdir.mkdir(parents=True, exist_ok=True)
-
-    shutil.copy(pcf_path / "obs_par.pcf", meta.workdir)
-    shutil.copy(pcf_path / "fit_par.txt", meta.workdir)
-
-    pcf = rd.read_pcf(meta.workdir / "obs_par.pcf")
-    rd.store_pcf(meta, pcf)
-
-    if (meta.inputdir / "filelist.txt").exists():
-        shutil.copy(meta.inputdir / "filelist.txt", meta.workdir)
-
-    if (meta.inputdir / "xrefyref.txt").exists():
-        shutil.copy(meta.inputdir / "xrefyref.txt", meta.workdir)
-
-    if (meta.inputdir / "ancil").exists():
-        shutil.copytree(
-            meta.inputdir / "ancil",
-            meta.workdir / "ancil",
-            dirs_exist_ok=True,
-        )
-
-    if meta.s30_fit_white and (meta.inputdir / "extracted_lc").exists():
-        shutil.copytree(
-            meta.inputdir / "extracted_lc",
-            meta.workdir / "extracted_lc",
-            dirs_exist_ok=True,
-        )
-
-    if meta.s30_fit_spec and (meta.inputdir / "extracted_sp").exists():
-        shutil.copytree(
-            meta.inputdir / "extracted_sp",
-            meta.workdir / "extracted_sp",
-            dirs_exist_ok=True,
-        )
-
-    meta.logname = meta.workdir / "s30.log"
-    log = logedit.Logedit(meta.logname, read=previous_log)
-
-    log.writelog("Starting s30")
-    log.writelog(f"Using input directory: {meta.inputdir}")
-    log.writelog(f"Location of the new Stage 30 run directory: {meta.workdir}")
+    meta, log = util.setup_stage(
+        pcf_path=pcf_path,
+        stage_num="30",
+        previous_stage_num=previous_stage_num,
+        stage_subdir=stage_subdir,
+        copy_filelist=True,
+        copy_xrefyref=True,
+        copy_ancil=True,
+        copy_extracted_lc=copy_extracted_lc,
+        copy_extracted_sp=copy_extracted_sp,
+        meta=meta,
+    )
 
     # Create directories for Stage 3 processing
     datetime = time.strftime('%Y-%m-%d_%H-%M-%S')

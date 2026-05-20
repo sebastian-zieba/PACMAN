@@ -44,11 +44,10 @@ def run20(pcf_path: Path, meta=None):
 
     # NOTE: Initialize the astropy tables where we will save the extracted
     # spectra
-    if meta.output:
-        table_white = QTable(names=('t_mjd', 't_bjd', 't_visit','t_orbit', 'ivisit', 'iorbit', 'scan', 'spec_opt', 'var_opt', 'spec_box', 'var_box'))
-        table_spec = QTable(names=('t_mjd', 't_bjd', 't_visit','t_orbit', 'ivisit', 'iorbit', 'scan', 'spec_opt', 'var_opt', 'template_waves'))
-        table_diagnostics = QTable(names=('nspectra', 't_mjd', 'numoutliers', 'skymedian', "# nans"))
-        table_background = QTable(names=('t_mjd', 't_bjd', 'ivisit', 'iorbit', 'scan', 'n_sample', 'skymedian'))
+    table_white = QTable(names=('t_mjd', 't_bjd', 't_visit','t_orbit', 'ivisit', 'iorbit', 'scan', 'spec_opt', 'var_opt', 'spec_box', 'var_box'))
+    table_spec = QTable(names=('t_mjd', 't_bjd', 't_visit','t_orbit', 'ivisit', 'iorbit', 'scan', 'spec_opt', 'var_opt', 'template_waves'))
+    table_diagnostics = QTable(names=('nspectra', 't_mjd', 'numoutliers', 'skymedian', "# nans"))
+    table_background = QTable(names=('t_mjd', 't_bjd', 'ivisit', 'iorbit', 'scan', 'n_sample', 'skymedian'))
 
     files_sp = meta.files_sp     # spectra files
     nspectra = 0                 # iterator variable to track number of spectra reduced

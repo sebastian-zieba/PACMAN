@@ -62,6 +62,7 @@ def setup_stage(
     pcf_path,
     stage_num,
     previous_stage_num,
+    stage_subdir=None,
     copy_filelist=True,
     copy_xrefyref=False,
     copy_ancil=False,
@@ -131,6 +132,10 @@ def setup_stage(
     meta.inputdir = input_workdir
 
     stage_dir = rundir / stage_name
+    # the following is just for s30, where we want to save the results in a subdirectories called "white_lc" or "spec_lc" depending on the type of light curve we are fitting
+    # I thought that might help to keep s30 a bit more organized :)
+    if stage_subdir is not None:
+        stage_dir = stage_dir / stage_subdir
     setattr(meta, f"stage{stage_num}dir", stage_dir)
 
     meta.workdir = stage_dir / f"s{stage_num}_run_{datetime}"
