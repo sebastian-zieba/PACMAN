@@ -1,27 +1,70 @@
-import time as time_now
+import time
+import shutil
 from pathlib import Path
 
 import numpy as np
 from astropy.io import ascii
 from astropy.table import QTable
-# from numpy import *
-# from pylab import *
 from tqdm import tqdm
 
 from .lib import manageevent as me
 from .lib import plots
-from .lib import sort_nicely as sn
 from .lib import util
+from .lib import logedit
 
 
-def run21(eventlabel, workdir: Path, meta=None):
+def run21(pcf_path: Path, meta=None):
     """This function reads in the lc_spec.txt file with the flux as a
     function of wavelength and bins it into light curves.
     """
-    print('Starting s21\n')
+
+    pcf_path = Path(pcf_path)
+    rundir = pcf_path.parent
+
+    # Find latest Stage 20 workdir
+    s20_workdir = util.find_latest_stage_run(rundir, "stage20", "s20_run_*")
 
     if meta is None:
-        meta = me.loadevent(workdir / f'WFC3_{eventlabel}_Meta_Save')
+        meta = me.loadevent(s20_workdir / "WFC3_Meta_Save")
+
+    # Create new Stage 21 workdir
+    datetime = time.strftime("%Y-%m-%d_%H-%M-%S")
+    meta.inputdir = s20_workdir
+    meta.stage21dir = rundir / "stage21"
+    meta.workdir = meta.stage21dir / f"s21_run_{datetime}"
+    meta.workdir.mkdir(parents=True, exist_ok=True)
+
+    # Copy current config files from pacman_run_files
+    shutil.copy(pcf_path / "obs_par.pcf", meta.workdir)
+    shutil.copy(pcf_path / "fit_par.txt", meta.workdir)
+
+    # Copy files/directories from previous stage
+    shutil.copy(meta.inputdir / "filelist.txt", meta.workdir)
+
+    if (meta.inputdir / "xrefyref.txt").exists():
+        shutil.copy(meta.inputdir / "xrefyref.txt", meta.workdir)
+
+    if (meta.inputdir / "ancil").exists():
+        shutil.copytree(
+            meta.inputdir / "ancil",
+            meta.workdir / "ancil",
+            dirs_exist_ok=True,
+        )
+
+    if (meta.inputdir / "extracted_lc").exists():
+        shutil.copytree(
+            meta.inputdir / "extracted_lc",
+            meta.workdir / "extracted_lc",
+            dirs_exist_ok=True,
+        )
+
+    previous_log = meta.inputdir / "s20.log"
+    meta.logname = meta.workdir / "s21.log"
+    log = logedit.Logedit(meta.logname, read=previous_log)
+
+    log.writelog("Starting s21")
+    log.writelog(f"Using Stage 20 input directory: {meta.inputdir}")
+    log.writelog(f"Location of the new Stage 21 run directory: {meta.workdir}")
 
     if meta.use_wvl_list:
         wave_edges = np.array(meta.wvl_edge_list)
@@ -40,16 +83,8 @@ def run21(eventlabel, workdir: Path, meta=None):
         print('chosen bin edges:', wave_edges)
 
     # reads in spectra
-    if meta.s21_most_recent_s20:
-        # NOTE: If spectra have a specific filetype ending they can also be globbed directly.
-        lst_dir = sn.sort_nicely((meta.workdir / "extracted_lc").iterdir())
-        # the following line makes sure that only directories starting with a "2" are considered
-        # this was implemented after issue #10 was raised (see issue for more info)
-        # this works because the dates will always start with a "2"
-        lst_dir_new = [lst_dir_i for lst_dir_i in lst_dir if lst_dir_i.name.startswith("2")]
-        spec_dir = lst_dir_new[-1]
-    else:
-        spec_dir = meta.s21_spec_dir_path_s20
+    spec_dir = meta.workdir / "extracted_lc"
+    log.writelog(f"Using spectroscopic flux files from: {spec_dir}")
 
     print("Chosen directory with the spectroscopic flux files:", spec_dir)
 
@@ -60,7 +95,7 @@ def run21(eventlabel, workdir: Path, meta=None):
     else:
         wavelengths = np.array([(wave_edges[i] + wave_edges[i+1]) / 2. / 1.e4 for i in range(meta.wvl_bins)])
 
-    d = ascii.read(meta.workdir / "extracted_lc" / spec_dir / "lc_spec.txt")
+    d = ascii.read(str(spec_dir / "lc_spec.txt"))
     d = np.array([d[i].data for i in d.colnames])
 
     nexp = meta.nexp		            #number of exposures
@@ -97,7 +132,7 @@ def run21(eventlabel, workdir: Path, meta=None):
 
     #for i in range(len(wave_bins)- 1): lo_res_wave_inds.append((w >= wave_bins[i])&(w <= wave_bins[i+1]))
 
-    datetime = time_now.strftime('%Y-%m-%d_%H-%M-%S')
+    datetime = time.strftime("%Y-%m-%d_%H-%M-%S")
     dirname = meta.workdir / "extracted_sp" / f'bins{meta.wvl_bins}_{datetime}'
     if not dirname.exists():
         dirname.mkdir(parents=True)
@@ -136,17 +171,18 @@ def run21(eventlabel, workdir: Path, meta=None):
     #print wave, 1.0*sum(wave_inds)/len(w_hires), meanflux, meanerr
         ascii.write(table, outname, format='ecsv', overwrite=True)
 
-    print(f'Saved light curve(s) in {dirname}')
+    log.writelog(f"Saved light curve(s) in {dirname}")
     plots.plot_wvl_bins(w_hires, f_interp, wave_edges, meta.wvl_bins, dirname)
 
-    print('Saving Wavelength bin file')
+    log.writelog("Saving Wavelength bin file")
     for idx, wavelengths_i in enumerate(wavelengths):
         table_wvl.add_row([idx, wavelengths_i])
     ascii.write(table_wvl, dirname / 'wvl_table.dat', format='rst', overwrite=True)
 
     # Save results
-    print('Saving Metadata')
-    me.saveevent(meta, meta.workdir / f'WFC3_{meta.eventlabel}_Meta_Save', save=[])
+    log.writelog("Saving Metadata")
+    me.saveevent(meta, meta.workdir / "WFC3_Meta_Save", save=[])
 
-    print('Finished s21 \n')
+    log.writelog("Finished s21 \n")
+    log.closelog()
     return meta

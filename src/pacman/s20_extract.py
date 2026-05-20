@@ -333,15 +333,14 @@ def run20(pcf_path: Path, meta=None):
         print('\n')
 
     # NOTE: Save results in the astropy tables
-    if meta.output:
-        ascii.write(table_white, dirname / 'lc_white.txt',
-                    format='ecsv', overwrite=True)
-        ascii.write(table_spec, dirname / 'lc_spec.txt',
-                    format='ecsv', overwrite=True)
-        ascii.write(table_diagnostics, dirname / 'diagnostics.txt',
-                    format='ecsv', overwrite=True)
-        ascii.write(table_background, dirname / 'background.txt',
-                    format='ecsv', overwrite=True)
+    ascii.write(table_white, dirname / 'lc_white.txt',
+                format='ecsv', overwrite=True)
+    ascii.write(table_spec, dirname / 'lc_spec.txt',
+                format='ecsv', overwrite=True)
+    ascii.write(table_diagnostics, dirname / 'diagnostics.txt',
+                format='ecsv', overwrite=True)
+    ascii.write(table_background, dirname / 'background.txt',
+                format='ecsv', overwrite=True)
 
     # NOTE: Make Plots
     if meta.save_bkg_evo_plot or meta.show_bkg_evo_plot:
