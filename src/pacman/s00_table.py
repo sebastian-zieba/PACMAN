@@ -74,12 +74,8 @@ def run00(pcf_path: Optional[Path] = Path.cwd()):
     History:
         Written by Sebastian Zieba      December 2021
     """
-<<<<<<< HEAD
 
 
-=======
-    print('\nStarting s00')
->>>>>>> pr-28-rowshift-mcmc-fixes
     # Initialize metadata object
     meta = MetaClass()
 
