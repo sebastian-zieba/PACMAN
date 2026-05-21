@@ -17,6 +17,7 @@ from .lib.nested import nested_sample
 from .lib.read_data import Data
 from .lib import logedit
 from .lib import read_pcf as rd
+from .lib import read_fit_par
 
 
 def run30(pcf_path: Path, meta=None):
@@ -79,7 +80,6 @@ def run30(pcf_path: Path, meta=None):
     nice_fit_par.nice_fit_par(meta.workdir / "fit_par.txt")
 
     # Reads in fit parameters from the fit_par file
-    #TODO: Check that fit_par is configured correctly. Eg initial value has to be within boundaries!
     fit_par = ascii.read(
         meta.workdir / "fit_par.txt",
         format="commented_header",
@@ -87,6 +87,13 @@ def run30(pcf_path: Path, meta=None):
         guess=False,
         fast_reader=False,
         fill_values=[("", "0")],
+    )
+    read_fit_par.validate_fit_par(
+        fit_par,
+        run_mcmc=meta.run_mcmc,
+        run_nested=meta.run_nested,
+        nsigma_lsq=5.0,
+        warn_only_for_x=False, # I set that to False because for nested sampling the code will definitely break when "X" is used as a prior. 
     )
 
     # Read in the user wanted fit functions

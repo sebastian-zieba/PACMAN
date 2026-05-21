@@ -1142,3 +1142,39 @@ def save_allandata(binsz, rms, stderr, meta, fitter=None):
 # def getphase(t):
 #    phase = (t - t0)/period
 #    return phase - int(phase)
+
+def apply_uncmulti(data, params):
+    """Apply visit-specific uncertainty rescaling.
+
+    If ``uncmulti_val`` is tied with tied = -1, the expanded params vector
+    should contain the same value for every visit. If it is untied, each
+    visit gets its own value.
+    """
+    if "uncmulti" not in data.s30_myfuncs:
+        return None
+
+    if "uncmulti_val" not in data.par_order:
+        raise KeyError(
+            "'uncmulti' is in s30_myfuncs, but 'uncmulti_val' is missing "
+            "from fit_par.txt."
+        )
+
+    start = data.par_order["uncmulti_val"] * data.nvisit
+    stop = start + data.nvisit
+
+    uncmulti_vals = np.asarray(params[start:stop], dtype=float)
+
+    if len(uncmulti_vals) != data.nvisit:
+        raise ValueError(
+            f"Expected {data.nvisit} uncmulti_val values after parameter "
+            f"expansion, but got {len(uncmulti_vals)}."
+        )
+
+    err = np.array(data.err_notrescaled, dtype=float, copy=True)
+
+    for visit in range(data.nvisit):
+        visit_mask = data.vis_num == visit
+        err[visit_mask] *= uncmulti_vals[visit]
+
+    data.err = err
+    return uncmulti_vals

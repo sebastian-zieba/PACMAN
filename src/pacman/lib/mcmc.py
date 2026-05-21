@@ -38,9 +38,7 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
 
     print('Run emcee...')
     sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args = l_args, pool=pool)
-    step_size = read_fit_par.get_step_size(data, params, meta, fit_par)
-    pos = [theta + np.array(step_size)*np.random.randn(ndim) for i in range(nwalkers)]
-    pos = np.array(pos)
+    pos = read_fit_par.get_initial_walkers(data, theta, meta, fit_par)
 
     sampler.run_mcmc(pos, meta.run_nsteps, progress=True)
 
@@ -91,8 +89,8 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
             print(f'{row[3]: >8}: {row[1]: >24} {row[0]: >24} {row[2]: >24} ', file=f_mcmc)
 
     updated_params = util.format_params_for_Model(medians, params, nvisit, fixed_array, tied_array, free_array, untied_array)
-    if 'uncmulti' in data.s30_myfuncs:
-        data.err = updated_params[-1] * data.err_notrescaled
+    if "uncmulti" in data.s30_myfuncs:
+        util.apply_uncmulti(data, updated_params)
     fit = model.fit(data, updated_params)
     util.append_fit_output(fit, meta, fitter='mcmc', medians=medians)
 
@@ -122,27 +120,43 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
 
 
 def lnprior(theta, data):
-    """
-    Calculate the log-prior.
-    """
-    lnprior_prob = 0.
-    n = len(data.prior)
-    for i in range(n):
-        if data.prior[i][0] == 'U':
-            if np.logical_or(theta[i] < data.prior[i][1],
-              theta[i] > data.prior[i][2]): lnprior_prob += - np.inf
-        if data.prior[i][0] == 'N':
-            lnprior_prob -= 0.5*(np.sum(((theta[i] -
-              data.prior[i][1])/data.prior[i][2])**2 +
-              np.log(2.0*np.pi*(data.prior[i][2])**2)))
+    """Calculate the log-prior."""
+    lnprior_prob = 0.0
+
+    for i, prior in enumerate(data.prior):
+        prior_type = str(prior[0]).upper()
+
+        if prior_type == "U":
+            lo, hi = prior[1], prior[2]
+            if theta[i] < lo or theta[i] > hi:
+                return -np.inf
+
+        elif prior_type == "N":
+            mean, sigma = prior[1], prior[2]
+            if sigma <= 0:
+                return -np.inf
+
+            lnprior_prob -= 0.5 * (
+                ((theta[i] - mean) / sigma) ** 2
+                + np.log(2.0 * np.pi * sigma**2)
+            )
+
+        elif prior_type == "X":
+            # Should have been caught before sampling.
+            # Keep this explicit so X is not silently ignored.
+            return -np.inf
+
+        else:
+            raise ValueError(f"Unknown prior type '{prior_type}'.")
+
     return lnprior_prob
 
 
 def lnprob(theta, params, data, model, nvisit, fixed_array, tied_array, free_array, untied_array):
     """Calculates the log-likelihood."""
     updated_params = util.format_params_for_Model(theta, params, nvisit, fixed_array, tied_array, free_array, untied_array)
-    if 'uncmulti' in data.s30_myfuncs:
-        data.err = updated_params[-1] * data.err_notrescaled
+    if "uncmulti" in data.s30_myfuncs:
+        util.apply_uncmulti(data, updated_params)
     lp = lnprior(theta, data)
     if lp == -np.inf:  # if the likelihood from the priors is already -inf, dont evaluate the function
         return lp
