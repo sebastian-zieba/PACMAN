@@ -77,6 +77,39 @@ def replace_pcf_value(path: Path, key: str, value: str) -> None:
     path.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
 
 
+def replace_fit_par_row(
+    path: Path,
+    parameter: str,
+    fixed: str,
+    tied: str,
+    value: str,
+    prior: str,
+    p1: str,
+    p2: str,
+) -> None:
+    lines = path.read_text(encoding="utf-8").splitlines()
+    new_lines = []
+
+    for line in lines:
+        stripped = line.strip()
+
+        if stripped.startswith("#") or not stripped:
+            new_lines.append(line)
+            continue
+
+        parts = line.split()
+
+        if parts[0] == parameter:
+            new_lines.append(
+                f"{parameter:<14}{fixed:<7}{tied:<6}"
+                f"{value:<12}{prior:<7}{p1:<12}{p2:<12}".rstrip()
+            )
+        else:
+            new_lines.append(line)
+
+    path.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
+
+
 @pytest.mark.run(order=1)
 def test_sessionstart(capsys):
     """Called as the first test. It downloads the three HST files
@@ -339,10 +372,12 @@ def test_s20(capsys):
 
     s20_lc_spec_file = s20_workdir / "extracted_lc" / "lc_spec.txt"
     s20_lc_white_file = s20_workdir / "extracted_lc" / "lc_white.txt"
+    s20_wvl_table_file = s20_workdir / "extracted_lc" / "wvl_table.dat"
 
     # Check if the files were created
     assert s20_lc_spec_file.exists()
     assert s20_lc_white_file.exists()
+    assert s20_wvl_table_file.exists()
 
     s20_lc_spec = ascii.read(s20_lc_spec_file)
     s20_lc_white = ascii.read(s20_lc_white_file)
@@ -350,6 +385,16 @@ def test_s20(capsys):
     # Check the amount of columns
     assert len(s20_lc_spec.colnames) == 10
     assert len(s20_lc_white.colnames) == 11
+
+    s20_wvl_table = ascii.read(s20_wvl_table_file)
+    assert s20_wvl_table.colnames == [
+        "bin",
+        "wavelength",
+        "half_width",
+        "lower_edge",
+        "upper_edge",
+    ]
+    assert len(s20_wvl_table) == 1
 
     # test_optextr
     spectrum = np.ones((20, 9))
@@ -392,7 +437,13 @@ def test_s21(capsys):
     s21_wvl_table_file = s21_dir / "wvl_table.dat"
     assert s21_wvl_table_file.exists()
     s21_wvl_table = ascii.read(s21_wvl_table_file)
-
+    assert s21_wvl_table.colnames == [
+        "bin",
+        "wavelength",
+        "half_width",
+        "lower_edge",
+        "upper_edge",
+    ]
     wvl_s21 = s21_wvl_table["wavelength"]
 
     # Check if the number of bins defined in the pcf is the same as
@@ -411,30 +462,60 @@ def test_s21(capsys):
 
 @pytest.mark.run(order=30)
 def test_s30(capsys):
-    """Fits spectroscopic light curves."""
+    """Fits spectroscopic and white light curves."""
     reload(s30)
     time.sleep(1)
 
-    # Run s30
-    meta = s30.run30(pcf_path)
-    s30_workdir = util.find_latest_stage_run(
-        test_path,
-        "stage30/spec_lc",
-        "s30_run_*",
-    )
-
-    dirs = np.array([path for path in s30_workdir.iterdir() if path.is_dir()])
-    dirs_bool = np.array(['fit_' in dir.name for dir in dirs])
-    fit_dirs = dirs[dirs_bool]
-    fit_dir = fit_dirs[0]
-    assert fit_dir.exists()
-
     pcf_file = pcf_path / "obs_par.pcf"
+    fit_par_file = pcf_path / "fit_par.txt"
+
     original_pcf = pcf_file.read_text(encoding="utf-8")
+    original_fit_par = fit_par_file.read_text(encoding="utf-8")
 
     try:
+        # ------------------------------------------------------------
+        # 1) Spectroscopic fit
+        # ------------------------------------------------------------
+        replace_pcf_value(pcf_file, "s30_fit_white", "False")
+        replace_pcf_value(pcf_file, "s30_fit_spec", "True")
+
+        s21_workdir = latest_stage("21")
+        extracted_sp_dir_path = s21_workdir / "extracted_sp"
+
+        s21_dir = sorted([
+            path for path in extracted_sp_dir_path.iterdir()
+            if path.is_dir()
+        ])[-1]
+
+        spec_lc_files = sn.sort_nicely(list(s21_dir.glob("speclc*.txt")))
+
+        s30.run30(pcf_path)
+
+        s30_spec_workdir = util.find_latest_stage_run(
+            test_path,
+            "stage30/spec_lc",
+            "s30_run_*",
+        )
+
+        assert s30_spec_workdir.exists()
+        assert (s30_spec_workdir / "fit_spec").exists()
+
+        # ------------------------------------------------------------
+        # 2) White-light fit
+        # ------------------------------------------------------------
         replace_pcf_value(pcf_file, "s30_fit_white", "True")
         replace_pcf_value(pcf_file, "s30_fit_spec", "False")
+
+        replace_fit_par_row(
+            fit_par_file,
+            parameter="c",
+            fixed="False",
+            tied="-1",
+            value="8.4",
+            prior="U",
+            p1="8.35",
+            p2="8.45",
+        )
 
         s30.run30(pcf_path)
 
@@ -449,8 +530,7 @@ def test_s30(capsys):
 
     finally:
         pcf_file.write_text(original_pcf, encoding="utf-8")
-
-    assert (s30_workdir / "fit_spec").exists()
+        fit_par_file.write_text(original_fit_par, encoding="utf-8")
 
 @pytest.mark.run(order=40)
 def test_sessionfinish(capsys):

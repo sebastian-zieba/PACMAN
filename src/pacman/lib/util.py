@@ -1178,3 +1178,96 @@ def apply_uncmulti(data, params):
 
     data.err = err
     return uncmulti_vals
+
+from astropy.io import ascii
+from pathlib import Path
+
+def get_wavelength_info(meta, file_counter=None):
+    """
+    Return wavelength info dict with keys:
+    wavelength, half_width, lower_edge, upper_edge
+    """
+    if file_counter is None:
+        file_counter = getattr(meta, "s30_file_counter", 0)
+
+    if meta.s30_fit_white:
+        wvl_file = meta.workdir / "extracted_lc" / "wvl_table.dat"
+        table = ascii.read(wvl_file)
+        row = table[0]
+    else:
+        extracted_sp_dir = meta.workdir / "extracted_sp"
+        bins_dirs = sorted(
+            path for path in extracted_sp_dir.iterdir()
+            if path.is_dir() and path.name.startswith("bins")
+        )
+        if len(bins_dirs) == 0:
+            raise FileNotFoundError(f"No bins directory found in {extracted_sp_dir}")
+
+        table = ascii.read(bins_dirs[-1] / "wvl_table.dat")
+        row = table[file_counter]
+
+    return {
+        "wavelength": float(row["wavelength"]),
+        "half_width": float(row["half_width"]),
+        "lower_edge": float(row["lower_edge"]),
+        "upper_edge": float(row["upper_edge"]),
+    }
+
+def get_param_value_from_fit_or_fitpar(data, fit, param_name, visit=0):
+    """
+    Return parameter value from fitted params if available,
+    otherwise fall back to fit_par.txt.
+    """
+    from .formatter import FormatParams
+    import numpy as np
+
+    p = FormatParams(fit.params, data)
+
+    if hasattr(p, param_name):
+        arr = np.atleast_1d(getattr(p, param_name))
+        if len(arr) > visit:
+            return float(arr[visit])
+        return float(arr[0])
+
+    fit_par = data.fit_par
+    rows = fit_par[fit_par["parameter"] == param_name]
+
+    if len(rows) == 0:
+        raise ValueError(f"Could not find parameter '{param_name}' in fit_par.")
+
+    tied = np.array(rows["tied"], dtype=int)
+    values = np.array(rows["value"], dtype=float)
+
+    # exact visit match first
+    match = np.where(tied == visit)[0]
+    if len(match) > 0:
+        return float(values[match[0]])
+
+    # otherwise use shared value
+    match = np.where(tied == -1)[0]
+    if len(match) > 0:
+        return float(values[match[0]])
+
+    # final fallback
+    return float(values[0])
+
+
+def make_time_model_per_visit(data, pad_hours=0.25, points_per_hour=15):
+    """
+    Build per-visit model time arrays.
+    Returns a list of time arrays, one per visit.
+    """
+    segments = []
+    pad_days = pad_hours / 24.0
+
+    for visit in range(data.nvisit):
+        ind = data.vis_num == visit
+        tmin = np.min(data.time[ind]) - pad_days
+        tmax = np.max(data.time[ind]) + pad_days
+
+        duration_hours = (tmax - tmin) * 24.0
+        npts = max(50, int(np.ceil(duration_hours * points_per_hour)))
+
+        segments.append(np.linspace(tmin, tmax, npts))
+
+    return segments

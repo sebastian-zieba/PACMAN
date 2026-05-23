@@ -206,7 +206,8 @@ class Data:
         self.flux = flux[clip_mask]
         print('Median log10 raw flux of full light curve: ', np.log10(np.median(flux[clip_mask])))
         self.err = err[clip_mask]
-        self.err_notrescaled = err[clip_mask] # will store the original errorbars and wont be rescaled
+        self.err_notrescaled = np.copy(err[clip_mask]) # will store the original errorbars and wont be rescaled
+        self.fit_par = fit_par
         self.wavelength = meta.wavelength
         self.ld_model = meta.ld_model
         self.exp_time = np.median(np.diff(time))*60*60*24 #for supersampling in batman.py

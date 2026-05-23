@@ -377,6 +377,24 @@ def run20(pcf_path: Path, meta=None):
     ascii.write(table_background, dirname / 'background.txt',
                 format='ecsv', overwrite=True)
 
+    table_wvl = QTable(
+        names=("bin", "wavelength", "half_width", "lower_edge", "upper_edge")
+    )
+
+    lower_edge = float(np.nanmin(table_spec["template_waves"])) / 1.0e4
+    upper_edge = float(np.nanmax(table_spec["template_waves"])) / 1.0e4
+    wavelength = 0.5 * (lower_edge + upper_edge)
+    half_width = 0.5 * (upper_edge - lower_edge)
+
+    table_wvl.add_row([0, wavelength, half_width, lower_edge, upper_edge])
+
+    ascii.write(
+        table_wvl,
+        dirname / "wvl_table.dat",
+        format="rst",
+        overwrite=True,
+    )
+
     plots.light_curve_errorbar(
         dirname / "lc_white.txt",
         meta.workdir / "figs" / "s20_lightcurves",

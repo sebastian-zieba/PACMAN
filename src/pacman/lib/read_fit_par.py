@@ -267,3 +267,140 @@ def get_initial_walkers(data, theta, meta, fit_par):
             raise ValueError(f"Unknown prior type '{prior}'.")
 
     return pos
+
+def validate_c_against_light_curve(
+    fit_par,
+    data,
+    nsigma_lc=100.0,
+    nsigma_prior=100.0,
+    warn_only=False,
+):
+    """Check that c guesses and bounds are plausible for the light curve.
+
+    PACMAN's constant model uses:
+
+        flux_model = 10**c
+
+    Therefore c is checked against log10(flux), not flux.
+    """
+    if "c" not in data.parnames:
+        return
+
+    c_rows = fit_par[fit_par["parameter"] == "c"]
+
+    if len(c_rows) == 0:
+        raise ValueError(
+            "Parameter 'c' is used by the model, but no 'c' row was found "
+            "in fit_par.txt."
+        )
+
+    problems = []
+    summaries = []
+
+    tied_values = np.array([int(tied) for tied in c_rows["tied"]])
+
+    for visit in range(data.nvisit):
+        visit_mask = data.vis_num == visit
+        flux = np.asarray(data.flux[visit_mask], dtype=float)
+        flux = flux[np.isfinite(flux) & (flux > 0)]
+
+        if len(flux) == 0:
+            problems.append(f"Visit {visit}: no finite positive flux values found.")
+            continue
+
+        log_flux = np.log10(flux)
+
+        log_min = float(np.min(log_flux))
+        log_max = float(np.max(log_flux))
+        log_mean = float(np.mean(log_flux))
+        log_std = float(np.std(log_flux))
+
+        if log_std == 0:
+            log_std = 1.0e-12
+
+        sanity_lo = log_min - nsigma_lc * log_std
+        sanity_hi = log_max + nsigma_lc * log_std
+
+        visit_match = np.where(tied_values == visit)[0]
+        shared_match = np.where(tied_values == -1)[0]
+
+        if len(visit_match) > 0:
+            row = c_rows[visit_match[0]]
+            label = f"c_{visit}"
+        elif len(shared_match) > 0:
+            row = c_rows[shared_match[0]]
+            label = "c"
+        else:
+            problems.append(
+                f"Visit {visit}: no c row found with tied={visit} "
+                "and no shared c row with tied=-1."
+            )
+            continue
+
+        c_value = float(row["value"])
+        prior = str(row["prior"]).upper()
+        p1 = float(row["p1"])
+        p2 = float(row["p2"])
+
+        values_to_check = [("initial value", c_value)]
+
+        if prior == "U":
+            c_lo = p1
+            c_hi = p2
+            values_to_check.extend([
+                ("lower prior bound", c_lo),
+                ("upper prior bound", c_hi),
+            ])
+
+        elif prior == "N":
+            c_lo = p1 - nsigma_prior * p2
+            c_hi = p1 + nsigma_prior * p2
+            values_to_check.extend([
+                (f"lower {nsigma_prior:g}σ prior sanity bound", c_lo),
+                (f"upper {nsigma_prior:g}σ prior sanity bound", c_hi),
+            ])
+
+        elif prior == "X":
+            pass
+
+        else:
+            problems.append(
+                f"{label}: unknown prior type '{prior}'. Use U, N, or X."
+            )
+            continue
+
+        for description, value in values_to_check:
+            if not (sanity_lo <= value <= sanity_hi):
+                problems.append(
+                    f"Visit {visit}, {label}: {description} {value:.6f} "
+                    f"is outside the log10(flux) sanity range "
+                    f"[{sanity_lo:.6f}, {sanity_hi:.6f}]. "
+                    f"Flux stats: mean={np.mean(flux):.6e}, "
+                    f"min={np.min(flux):.6e}, max={np.max(flux):.6e}; "
+                    f"log10(flux) stats: mean={log_mean:.6f}, "
+                    f"std={log_std:.6f}."
+                )
+
+        summaries.append(
+            f"Visit {visit}: log10(flux) mean={log_mean:.6f}, "
+            f"std={log_std:.6f}, sanity range=[{sanity_lo:.6f}, "
+            f"{sanity_hi:.6f}], {label}={c_value:.6f}"
+        )
+
+    if problems:
+        message = (
+            "\nSuspicious c values in fit_par.txt:\n"
+            + "\n".join(f"  - {problem}" for problem in problems)
+            + "\n\nPACMAN's constant model uses flux = 10**c. "
+            "This usually means c should be close to log10(raw flux)."
+        )
+
+        if warn_only:
+            import warnings
+            warnings.warn(message, RuntimeWarning)
+        else:
+            raise ValueError(message)
+
+    print("c sanity check passed:")
+    for summary in summaries:
+        print("  " + summary)

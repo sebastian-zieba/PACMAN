@@ -1039,22 +1039,49 @@ def plot_raw(data, meta):
             # plt.subplot((data.nvisit) * 100 + 10 + i + 1)
             ax[i].plot(data.t_vis[ind] / 60., data.flux[ind], marker='o',
                        markersize=3.0, linestyle="none",
-                       label="Visit {0}".format(i), color=palette[i])
+                       color=palette[i])
+            
+            ax[i].text(
+                0.98, 0.95,
+                f"Visit {i}",
+                transform=ax[i].transAxes,
+                ha="right",
+                va="top",
+                fontsize=12,
+                zorder=10,
+            )
             ax[i].set_xlim(((data.t_vis.min() - 0.02) / 60, (data.t_vis.max() + 0.05) / 60))
             ax[i].set_ylim((0.998 * data.flux.min(), 1.002 * data.flux.max()))
-            ax[i].legend(loc=1)
+            #ax[i].legend(loc=1)
             ax[i].set_ylabel("Flux (e-)")
     else:
         # plt.subplot((data.nvisit) * 100 + 10 + i + 1)
         ax.plot(data.t_vis / 60., data.flux, marker='o',
                 markersize=3.0, linestyle="none",
-                label="Visit 0", color=palette[0])
+                color=palette[0])
+        ax.text(
+            0.98, 0.95,
+            "Visit 0",
+            transform=ax.transAxes,
+            ha="right",
+            va="top",
+            fontsize=12,
+            zorder=10,
+        )
         ax.set_xlim(((data.t_vis.min() - 0.02) / 60, (data.t_vis.max() + 0.05) / 60))
         ax.set_ylim((0.998 * data.flux.min(), 1.002 * data.flux.max()))
-        ax.legend(loc=1)
+        #ax.legend(loc=1)
         ax.set_ylabel("Flux (e-)")
     plt.xlabel("Time after visit start (hours)")
-    fig.suptitle('wvl = {0:0.3f} micron'.format(meta.wavelength), fontsize=15, y=0.998)
+
+    winfo = util.get_wavelength_info(meta)
+
+    fig.suptitle(
+        rf"$\lambda_c = {winfo['wavelength']:.3f} \pm {winfo['half_width']:.3f}\ \mu m$",
+        fontsize=18,
+        y=0.998,
+    )
+
     plt.tight_layout()
 
     raw_lc_dir = meta.workdir / meta.fitdir / 'raw_lc'
@@ -1123,17 +1150,18 @@ def plot_fit_lc2(data, fit, meta, mcmc=False, nested=False):
     plt.clf()
     fig, ax = plt.subplots(2, 1)
 
-    # FIXME:
-    p = FormatParams(fit.params, data)
     sns.set_palette("muted")
     palette = sns.color_palette("muted", data.nvisit)
 
     # ind = model.phase > 0.5
     # model.phase[ind] -= 1.
     # calculate a range of times at higher resolution to make model look nice
-    phase_hr = np.linspace(fit.phase.min() - 0.05,
-                           fit.phase.max() + 0.05, 1000)
-    t_hr = phase_hr * p.per[0] + p.t0[0] + data.toffset
+    phase_hr = np.linspace(fit.phase.min() - 0.05, fit.phase.max() + 0.05, 1000)
+
+    per0 = util.get_param_value_from_fit_or_fitpar(data, fit, "per", visit=0)
+    t00 = util.get_param_value_from_fit_or_fitpar(data, fit, "t0", visit=0)
+
+    t_hr = phase_hr * per0 + t00 + data.toffset
 
     # NOTE: Plot data and best fit model from first visit
     ax[0].plot(phase_hr, calc_astro(t_hr, fit.params, data, fit.myfuncs, 0))
@@ -1153,12 +1181,21 @@ def plot_fit_lc2(data, fit, meta, mcmc=False, nested=False):
 
     # NOTE: Annotate plot with fit diagnostics
     # ax = plt.gca()
-    ax[0].text(0.85, 0.29,
-               r'$\chi^2_{\nu}$:    ' + '{0:0.2f}'.format(fit.chi2red) + '\n'
-               + 'obs. rms:  ' + '{0:0.1f}'.format(fit.rms) + '\n'
-               + 'exp. rms:  ' + '{0:0.1f}'.format(fit.rms_predicted),
-               verticalalignment='top', horizontalalignment='left',
-               transform=ax[0].transAxes, fontsize=12)
+    stats_text = (
+        r'$\chi^2_{\nu}$: ' + f'{fit.chi2red:0.2f}\n'
+        + 'obs. rms: ' + f'{fit.rms:0.1f}\n'
+        + 'exp. rms: ' + f'{fit.rms_predicted:0.1f}'
+    )
+
+    ax[0].text(
+        0.98, 0.05,
+        stats_text,
+        transform=ax[0].transAxes,
+        ha='right',
+        va='bottom',
+        fontsize=12,
+        bbox=dict(facecolor='white', edgecolor='0.7', alpha=0.85, boxstyle='round,pad=0.3'),
+    )
 
     # NOTE: Plot fit residuals
     ax[1].axhline(0, zorder=1, color='0.2', linestyle='dashed')
@@ -1173,6 +1210,14 @@ def plot_fit_lc2(data, fit, meta, mcmc=False, nested=False):
     ax[1].set_xlim(xlo, xhi)
     ax[1].set_ylabel("Residuals (ppm)")
     ax[1].set_xlabel("Orbital phase")
+
+    winfo = util.get_wavelength_info(meta)
+    method = 'MCMC' if mcmc else 'Nested Sampling' if nested else 'LSQ'
+    fig.suptitle(
+        rf"{method}, $\lambda_c = {winfo['wavelength']:.3f} \pm {winfo['half_width']:.3f}\ \mu m$",
+        fontsize=18,
+        y=0.998,
+    )
 
     if mcmc:
         fig.suptitle(f'MCMC, {meta.wavelength:0.3f} micron',
@@ -1197,18 +1242,20 @@ def plot_fit_lc2(data, fit, meta, mcmc=False, nested=False):
     gc.collect()
 
 
-def plot_fit_lc3(data, fit, meta, mcmc=False):
+def plot_fit_lc3(data, fit, meta, mcmc=False, nested=False):
     """Plots light curve without systematics model."""
     plt.clf()
     fig, ax = plt.subplots(1, 1)
 
-    p = FormatParams(fit.params, data)  # FIXME
     sns.set_palette("muted")
     palette = sns.color_palette("muted", data.nvisit)
 
-    time_model = np.linspace(data.time.min() - 0.05, data.time.max() + 0.05, 1000)
-    flux_model = calc_astro(time_model, fit.params, data, fit.myfuncs, 0)
-    ax.plot(time_model, flux_model)
+    p = FormatParams(fit.params, data)  # FIXME
+    time_segments = util.make_time_model_per_visit(data, pad_hours=0.25, points_per_hour=15)
+
+    for visit, time_model in enumerate(time_segments):
+        flux_model = calc_astro(time_model, fit.params, data, fit.myfuncs, visit)
+        ax.plot(time_model, flux_model, color=palette[visit] if data.nvisit > 1 else None)
 
     # plot systematics removed data
     ax.plot(data.time, fit.data_nosys, marker='o', markersize=3, linestyle="none")
@@ -1221,20 +1268,32 @@ def plot_fit_lc3(data, fit, meta, mcmc=False):
 
     # annotate plot with fit diagnostics
     # ax = plt.gca()
-    ax.text(0.85, 0.29,
-            r'$\chi^2_{\nu}$:    ' + '{0:0.2f}'.format(fit.chi2red) + '\n'
-            + 'obs. rms:  ' + '{0:0d}'.format(int(fit.rms)) + '\n'
-            + 'exp. rms:  ' + '{0:0d}'.format(int(fit.rms_predicted)),
-            verticalalignment='top', horizontalalignment='left',
-            transform=ax.transAxes, fontsize=12)
+    stats_text = (
+        r'$\chi^2_{\nu}$: ' + f'{fit.chi2red:0.2f}\n'
+        + 'obs. rms: ' + f'{fit.rms:0.1f}\n'
+        + 'exp. rms: ' + f'{fit.rms_predicted:0.1f}'
+    )
+
+    ax.text(
+        0.98, 0.05,
+        stats_text,
+        transform=ax.transAxes,
+        ha='right',
+        va='bottom',
+        fontsize=12,
+        bbox=dict(facecolor='white', edgecolor='0.7', alpha=0.85, boxstyle='round,pad=0.3'),
+    )
 
     # add labels/set axes
     ax.set_xlabel("Time")
 
-    if mcmc:
-        fig.suptitle(f'MCMC, {meta.wavelength:0.3f} micron', fontsize=15, y=0.998)
-    else:
-        fig.suptitle(f'LSQ, {meta.wavelength:0.3f} micron', fontsize=15, y=0.998)
+    winfo = util.get_wavelength_info(meta)
+    method = 'MCMC' if mcmc else 'Nested Sampling' if nested else 'LSQ'
+    fig.suptitle(
+        rf"{method}, $\lambda_c = {winfo['wavelength']:.3f} \pm {winfo['half_width']:.3f}\ \mu m$",
+        fontsize=18,
+        y=0.998,
+    )
 
     plt.tight_layout()
     # plt.show()
@@ -1286,7 +1345,6 @@ def save_astrolc_data(data, fit, meta):
     table_nosys = Table()
 
     p = FormatParams(fit.params, data)
-
     time_model = np.linspace(data.time.min() - p.per[0]/2, data.time.max() + p.per[0]/2, 1000)
     flux_model = calc_astro(time_model, fit.params, data, fit.myfuncs, 0)
 
@@ -1313,7 +1371,6 @@ def save_astrolc_data_nested(data, fit, meta):
     table_nosys = Table()
 
     p = FormatParams(fit.params, data)
-
     time_model = np.linspace(data.time.min() - p.per[0]/2, data.time.max() + p.per[0]/2, 10000)
     flux_model = calc_astro(time_model, fit.params, data, fit.myfuncs, 0)
 

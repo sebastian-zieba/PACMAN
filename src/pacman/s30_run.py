@@ -133,6 +133,15 @@ def run30(pcf_path: Path, meta=None):
             if meta.run_clipiters == 0:
                 print('\n')
                 data = Data(f, meta, fit_par)
+
+                read_fit_par.validate_c_against_light_curve(
+                    fit_par,
+                    data,
+                    nsigma_lc=100.0,
+                    nsigma_prior=100.0,
+                    warn_only=False,
+                )
+
                 model = Model(data, myfuncs)
                 print('\n*STARTS LEAST SQUARED*')
                 data, model, params, m = lsq_fit(fit_par, data, meta, model, myfuncs, noclip=True) #not clipping
@@ -147,6 +156,15 @@ def run30(pcf_path: Path, meta=None):
                         data = Data(f, meta, fit_par)
                     else:
                         data = Data(f, meta, fit_par, clip_idx)
+
+                    read_fit_par.validate_c_against_light_curve(
+                        fit_par,
+                        data,
+                        nsigma_lc=100.0,
+                        nsigma_prior=100.0,
+                        warn_only=False,
+                    )
+
                     model = Model(data, myfuncs)
                     if iii == meta.run_clipiters:
                         data, model, params, m = lsq_fit(fit_par, data, meta, model, myfuncs, noclip=True)
