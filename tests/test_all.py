@@ -427,9 +427,9 @@ def test_s21(capsys):
     # Run s21
     meta = s21.run21(pcf_path)
     s21_workdir = latest_stage("21")
-    extracted_sp_dir_path = s21_workdir / "extracted_sp"
 
     s21_dir = s21_workdir / "extracted_sp"
+    assert s21_dir.exists()
 
     s21_wvl_table_file = s21_dir / "wvl_table.dat"
     assert s21_wvl_table_file.exists()
@@ -444,19 +444,17 @@ def test_s21(capsys):
         "upper_edge",
     ]
 
-    wvl_s21 = s21_wvl_table["wavelength"]
-
     # Check if the number of bins defined in the pcf is the same as
     # the number of wavelength bins saved into the wvl_table.dat file.
+    wvl_s21 = s21_wvl_table["wavelength"]
     assert meta.wvl_bins == len(wvl_s21)
 
     # Number of light curves should be the same as meta.wvl_bins
-    extracted_sp_lcs_files = list(s21_dir.glob("speclc*.txt"))
+    extracted_sp_lcs_files = sn.sort_nicely(list(s21_dir.glob("speclc*.txt")))
     assert meta.wvl_bins == len(extracted_sp_lcs_files)
 
     # There should be 10 columns as for the /lc_spec.txt file which was generated after running s20.
-    extracted_sp_lc_file_0 = sn.sort_nicely(extracted_sp_lcs_files)[0]
-    extracted_sp_lc_0 = ascii.read(extracted_sp_lc_file_0)
+    extracted_sp_lc_0 = ascii.read(extracted_sp_lcs_files[0])
     assert len(extracted_sp_lc_0.colnames) == 10
 
 
@@ -480,14 +478,13 @@ def test_s30(capsys):
         replace_pcf_value(pcf_file, "s30_fit_spec", "True")
 
         s21_workdir = latest_stage("21")
-        extracted_sp_dir_path = s21_workdir / "extracted_sp"
+        s21_dir = s21_workdir / "extracted_sp"
 
-        s21_dir = sorted([
-            path for path in extracted_sp_dir_path.iterdir()
-            if path.is_dir()
-        ])[-1]
+        assert s21_dir.exists()
+        assert (s21_dir / "wvl_table.dat").exists()
 
         spec_lc_files = sn.sort_nicely(list(s21_dir.glob("speclc*.txt")))
+        assert len(spec_lc_files) > 0
 
         s30.run30(pcf_path)
 
