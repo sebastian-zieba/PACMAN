@@ -72,21 +72,32 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
     plots.mcmc_chains(ndim, sampler, nburn, labels, meta)
 
     # Determine median and 16th and 84th percentiles
-    medians = []
+    p16_list = []
+    p50_list = []
+    p84_list = []
     errors_lower = []
     errors_upper = []
     for i in range(len(theta)):
         q = util.quantile(samples[:, i], [0.16, 0.5, 0.84])
-        medians.append(q[1])
-        errors_lower.append(abs(q[1] - q[0]))
-        errors_upper.append(abs(q[2] - q[1]))
+        p16, p50, p84 = q
+        p16_list.append(p16)
+        p50_list.append(p50)
+        p84_list.append(p84)
+        errors_lower.append(p50 - p16)
+        errors_upper.append(p84 - p50)
+    medians = p50_list
 
     # Saving sampling results into txt files
     with (meta.workdir / meta.fitdir / 'mcmc_res' /
-            f"mcmc_res_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt")\
-            .open('w', encoding='utf-8') as f_mcmc:
-        for row in zip(errors_lower, medians, errors_upper, labels):
-            print(f'{row[3]: >8}: {row[1]: >24} {row[0]: >24} {row[2]: >24} ', file=f_mcmc)
+        f"mcmc_res_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt").open('w', encoding='utf-8') as f_mcmc:
+        print(f"{'parameter':<20} {'p50':>14} {'p16':>14} {'p84':>14} {'minus':>14} {'plus':>14}", file=f_mcmc)
+        for label, p50, p16, p84, minus, plus in zip(
+            labels, p50_list, p16_list, p84_list, errors_lower, errors_upper
+        ):
+            print(
+                f"{label:<20} {p50:14.7f} {p16:14.7f} {p84:14.7f} {minus:14.7f} {plus:14.7f}",
+                file=f_mcmc
+            )
 
     updated_params = util.format_params_for_Model(medians, params, nvisit, fixed_array, tied_array, free_array, untied_array)
     if "uncmulti" in data.s30_myfuncs:

@@ -1,28 +1,28 @@
-#parameter     fixed   tied   value       lo_lim   lo_val    hi_lim   hi_val   prior   p1        p2       step_size  
-per            True    -1     1.5804046   True     1.55      True     1.6      X       2.25314   2e-05    1e-07      
-t0             False   -1     0.18        True     0.16      True     0.2      U       0.0       0.3      0.001      
-t_secondary    True    -1     0.0         False    0.0       False    0.0      X       0.0       0.0      0.0        
-w              True    -1     90.0        False    0.0       False    0.0      X       0.0       0.0      0.0        
-a              True    -1     15.23       True     14.0      True     16.0     X       4.98      0.05     0.02       
-inc            True    -1     89.1        True     88.0      True     89.9     X       85.3      0.2      0.02       
-rp             False   -1     0.116       True     0.05      True     0.2      U       0.01      0.3      0.001      
-fp             True    -1     0.0         False    0.0       False    0.002    X       0.0       1.0      0.0        
-u1             False   -1     0.29        True     0.0       True     0.6      U       0.0       1.0      0.01       
-u2             True    -1     0.0         False    0.0       False    0.0      X       0.0       0.0      0.0        
-ecc            True    -1     0.0         False    0.0       False    0.0      X       0.0       0.0      0.0        
-c              False   0      8.37        True     6.0       True     8.9      X       6.7       7.0      0.001      
-c              False   1      8.37        True     6.0       True     8.9      X       6.7       7.0      0.001      
-v              False   0      -1e-06      False    -0.0001   False    -1e-08   X       -7e-06    -1e-06   1e-05      
-v              False   1      -1e-06      False    -0.0001   False    -1e-08   X       -7e-06    -1e-06   1e-05
-rowshift_vr    False   -1     0.0         False    -10.0     False    10.0     U       -1.0      1.0      1e-07      
-rowshift_vf    False   -1     0.0         False    -10.0     False    10.0     U       -1.0      1.0      1e-07       
-v2             True    -1     0.0         True     0.0       True     1.0      X       0.0       0.0      1e-11      
-r1             False   0      0.1         False    0.0       False    1.0      U       -10.0     10.0     0.01       
-r1             False   1      0.1         False    0.0       False    1.0      U       -10.0     10.0     0.01       
-r2             False   0      0.0         False    5.5       False    7.5      U       -100.0    100.0    0.1        
-r2             False   1      0.0         False    5.5       False    7.5      U       -100.0    100.0    0.1        
-r3             True    0      0.0         False    -1.0      False    1.0      U       -10.0     10.0     0.001      
-r3             True    1      0.0         False    -1.0      False    1.0      U       -10.0     10.0     0.001      
-scale          False   0      0.0         False    -0.01     False    0.01     U       -0.1      0.1      0.002      
-scale          False   1      0.0         False    -0.01     False    0.01     U       -0.1      0.1      0.002      
-uncmulti_val   True    -1     1.0         False    1.0       False    7.0      U       0.1       10.0     0.01       
+#parameter     fixed  tied  value      prior  p1       p2
+per           True   -1    1.5804046  X      2.25314  2e-05
+t0            False  -1    0.18       U      0.0      0.3
+t_secondary   True   -1    0.0        X      0.0      0.0
+w             True   -1    90.0       X      0.0      0.0
+a             True   -1    15.23      X      4.98     0.05
+inc           True   -1    89.1       X      85.3     0.2
+rp            False  -1    0.116      U      0.01     0.3
+fp            True   -1    0.0        X      0.0      1.0
+u1            False  -1    0.29       U      0.0      1.0
+u2            True   -1    0.0        X      0.0      0.0
+ecc           True   -1    0.0        X      0.0      0.0
+c             False  0     8.37       X      6.7      7.0
+c             False  1     8.37       X      6.7      7.0
+v             False  0     -1e-06     X      -7e-06   -1e-06
+v             False  1     -1e-06     X      -7e-06   -1e-06
+rowshift_vr   False  -1    0.0        U      -1.0     1.0
+rowshift_vf   False  -1    0.0        U      -1.0     1.0
+v2            True   -1    0.0        X      0.0      0.0
+r1            False  0     0.1        U      -10.0    10.0
+r1            False  1     0.1        U      -10.0    10.0
+r2            False  0     0.0        U      -100.0   100.0
+r2            False  1     0.0        U      -100.0   100.0
+r3            True   0     0.0        U      -10.0    10.0
+r3            True   1     0.0        U      -10.0    10.0
+scale         False  0     0.0        U      -0.1     0.1
+scale         False  1     0.0        U      -0.1     0.1
+uncmulti_val  True   -1    1.0        U      0.1      10.0

@@ -1078,11 +1078,10 @@ def plot_raw(data, meta):
 
     fig.suptitle(
         rf"$\lambda_c = {winfo['wavelength']:.3f} \pm {winfo['half_width']:.3f}\ \mu m$",
-        fontsize=18,
-        y=0.998,
+        fontsize=14,
+        y=0.98,
     )
-
-    plt.tight_layout()
+    plt.tight_layout(rect=[0, 0, 1, 0.96])
 
     raw_lc_dir = meta.workdir / meta.fitdir / 'raw_lc'
     if not raw_lc_dir.exists():
@@ -1125,7 +1124,14 @@ def rmsplot(model, data, meta, fitter=None):
     plt.rcParams.update({'legend.fontsize': 11})
     plt.figure(1111, figsize=(8, 6))
     plt.clf()
-    plt.suptitle(f'Correlated Noise at wvl = {meta.wavelength:0.3f} micron', size=16)
+
+    winfo = util.get_wavelength_info(meta)
+    method = fitter.upper() if fitter is not None else "FIT"
+    plt.title(
+        rf"{method}, $\lambda_c = {winfo['wavelength']:.3f} \pm {winfo['half_width']:.3f}\ \mu m$",
+        fontsize=14,
+    )
+
     plt.loglog(binsz, rms/normfactor, color='black', lw=1.5, label='Fit RMS', zorder=3)    # our noise
     plt.loglog(binsz, stderr/normfactor, color='red', ls='-', lw=2, label='Std. Err.', zorder=1)  # expected noise
     plt.xlim(0.95, binsz[-1]*2)
@@ -1174,8 +1180,7 @@ def plot_fit_lc2(data, fit, meta, mcmc=False, nested=False):
                    markersize=3, linestyle="none")
 
     # NOTE: Add labels/set axes
-    # xlo, xhi = np.min(model.phase)*0.9, np.max(model.phase)*1.1
-    xlo, xhi = -0.1, 0.1
+    xlo, xhi = get_phase_xlim(fit.phase, frac_pad=0.10, min_pad=0.005)
     ax[0].set_xlim(xlo, xhi)
     ax[0].set_ylabel("Relative Flux")
 
@@ -1188,7 +1193,7 @@ def plot_fit_lc2(data, fit, meta, mcmc=False, nested=False):
     )
 
     ax[0].text(
-        0.98, 0.05,
+        0.98, 0.08,
         stats_text,
         transform=ax[0].transAxes,
         ha='right',
@@ -1215,21 +1220,11 @@ def plot_fit_lc2(data, fit, meta, mcmc=False, nested=False):
     method = 'MCMC' if mcmc else 'Nested Sampling' if nested else 'LSQ'
     fig.suptitle(
         rf"{method}, $\lambda_c = {winfo['wavelength']:.3f} \pm {winfo['half_width']:.3f}\ \mu m$",
-        fontsize=18,
-        y=0.998,
+        fontsize=14,
+        y=0.98,
     )
 
-    if mcmc:
-        fig.suptitle(f'MCMC, {meta.wavelength:0.3f} micron',
-                     fontsize=15, y=0.998)
-    elif nested:
-        fig.suptitle(f'Nested Sampling, {meta.wavelength:0.3f} micron',
-                     fontsize=15, y=0.998)
-    else:
-        fig.suptitle(f'LSQ, {meta.wavelength:0.3f} micron',
-                     fontsize=15, y=0.998)
-
-    plt.tight_layout()
+    plt.tight_layout(rect=[0, 0, 1, 0.96])
 
     if mcmc:
         plt.savefig(meta.workdir / meta.fitdir / 'fit_lc' / f'mcmc_lc_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png')
@@ -1587,15 +1582,66 @@ def mcmc_pairs(samples, params, meta, fit_par, data):
     gc.collect()
 
 # FIXME: make sure this works for cases when nvisit > 1
-def nested_pairs(samples, params, meta, fit_par, data):
-    """Plots a pairs plot of the nested sampling."""
-    labels = meta.labels
-    fig = corner.corner(samples, labels=labels, show_titles=True,
-                        quantiles=[0.16, 0.5, 0.84], title_fmt='.4')
-    figname = meta.workdir / meta.fitdir / 'nested_res' /\
-            f"nested_pairs_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png"
-    fig.savefig(figname)
-    plt.close('all')
+def nested_pairs(samples, labels_plot, meta, median_vals=None, ml_vals=None, n_sampled=None):
+    """
+    Corner plot for nested sampling, with posterior medians and max-likelihood
+    values overplotted.
+    """
+    nplot = samples.shape[1]
+
+    if len(labels_plot) != nplot:
+        raise ValueError(f"len(labels_plot)={len(labels_plot)} but samples has ndim={nplot}")
+
+    if n_sampled is None:
+        n_sampled = nplot
+
+    fig = corner.corner(
+        samples,
+        labels=labels_plot,
+        show_titles=True,
+        quantiles=[0.16, 0.5, 0.84],
+        title_fmt='.7f'
+    )
+
+    axes = np.array(fig.axes).reshape((nplot, nplot))
+
+    for i in range(nplot):
+        ax = axes[i, i]
+
+        if i < n_sampled:
+            if median_vals is not None:
+                ax.axvline(median_vals[i], color='r', lw=1.5)
+
+            if ml_vals is not None:
+                ax.axvline(ml_vals[i], color='g', lw=1.5)
+
+        for j in range(i):
+            ax = axes[i, j]
+
+            if i < n_sampled and j < n_sampled:
+                if median_vals is not None:
+                    ax.scatter(
+                        median_vals[j], median_vals[i],
+                        c='r', s=20, zorder=20
+                    )
+
+                if ml_vals is not None:
+                    ax.scatter(
+                        ml_vals[j], ml_vals[i],
+                        c='g', s=20, zorder=21
+                    )
+
+    axes[0, 0].text(
+        0.95, 0.95,
+        'red = posterior median\ngreen = max likelihood',
+        transform=axes[0, 0].transAxes,
+        ha='right', va='top', fontsize=10
+    )
+
+    figname = meta.workdir / meta.fitdir / 'nested_res' / \
+        f"nested_pairs_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png"
+    fig.savefig(figname, dpi=500, bbox_inches='tight', pad_inches=0.05)
+    plt.close(fig)
     plt.clf()
     gc.collect()
 
@@ -1669,3 +1715,16 @@ def nested_rprs(vals_nested, errs_lower_nested, errs_upper_nested, meta):
     plt.close('all')
     plt.clf()
     gc.collect()
+
+def get_phase_xlim(phase, frac_pad=0.10, min_pad=0.005):
+    """Return x-limits based on data range with a fractional padding."""
+    xmin = float(np.nanmin(phase))
+    xmax = float(np.nanmax(phase))
+    width = xmax - xmin
+
+    if width <= 0:
+        pad = min_pad
+    else:
+        pad = max(frac_pad * width, min_pad)
+
+    return xmin - pad, xmax + pad
