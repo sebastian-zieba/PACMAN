@@ -72,9 +72,8 @@ def lsq_fit(fit_par, data, meta, model, myfuncs, noclip=False):
         if not (meta.workdir / meta.fitdir / 'fit_lc').exists():
             (meta.workdir / meta.fitdir / 'fit_lc').mkdir(parents=True)
         plots.plot_fit_lc2(data, model, meta)
-        plots.plot_fit_lc3(data, model, meta)
         plots.save_plot_raw_data(data, meta)
-        plots.save_astrolc_data(data, model, meta)
+        plots.save_astrolc_data(data, model, meta, fitter='lsq')
 
     util.append_fit_output(model, meta, fitter='lsq')
 

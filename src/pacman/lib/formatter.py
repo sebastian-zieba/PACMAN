@@ -91,17 +91,24 @@ class FormatParams:
 
 
 def PrintParams(m, data, savefile=False):
+    if savefile:
+        print(f"{'parameter':<20} {'value':>20} {'error':>20}", file=savefile)
+
     for name in data.parnames:
         for vis in range(data.nvisit):
-            if m.perror[data.par_order[name]*data.nvisit + vis] > 0.: 
-                if not savefile:
-                    print(name+"_"+str(vis), \
-                          "\t", "{0:0.4e}".format(m.params[data.par_order[name]*data.nvisit + vis]), \
-                          "\t", "{0:0.4e}".format(m.perror[data.par_order[name]*data.nvisit + vis]))
+            idx = data.par_order[name] * data.nvisit + vis
+
+            if m.perror[idx] > 0.:
+                label = f"{name}_{vis}"
+                value = m.params[idx]
+                error = m.perror[idx]
+
+                line = f"{label:<20} {value:>20.8e} {error:>20.8e}"
+
+                if savefile:
+                    print(line, file=savefile)
                 else:
-                    print(name+"_"+str(vis), \
-                          "\t", "{0:0.4e}".format(m.params[data.par_order[name]*data.nvisit + vis]), \
-                          "\t", "{0:0.4e}".format(m.perror[data.par_order[name]*data.nvisit + vis]), file=savefile)
+                    print(line)
 
 
 def ReturnParams(m, data):

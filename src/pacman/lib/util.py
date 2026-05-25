@@ -707,33 +707,26 @@ def read_fitfiles(meta):
 
         files = [meta.workdir / "extracted_lc" / "lc_white.txt"]
 
-        if meta.grism == "G102":
-            meta.wavelength_list = [1.0]
-        elif meta.grism == "G141":
-            meta.wavelength_list = [1.4]
+        wvl_table = get_wavelength_table(meta)
+        meta.wavelength_list = np.asarray(wvl_table["wavelength"], dtype=float)
 
     elif meta.s30_fit_spec:
         print("Spectroscopic light curve fit(s) will be performed")
 
-        extracted_sp_dir = meta.workdir / "extracted_sp"
+        spec_dir = meta.workdir / "extracted_sp"
 
-        bins_dirs = sorted(
-            path for path in extracted_sp_dir.iterdir()
-            if path.is_dir() and path.name.startswith("bins")
-        )
+        if not spec_dir.exists():
+            raise FileNotFoundError(f"Could not find spectroscopic directory: {spec_dir}")
 
-        if len(bins_dirs) == 0:
-            raise FileNotFoundError(
-                f"No bins directories found in {extracted_sp_dir}"
-            )
+        files = sn(list(spec_dir.glob("speclc*.txt")))
 
-        spec_dir_full = bins_dirs[-1]
-        files = sn(spec_dir_full.glob("speclc*.txt"))
+        if len(files) == 0:
+            raise FileNotFoundError(f"No speclc*.txt files found in {spec_dir}")
 
-        spec_dir_wvl_file = spec_dir_full / "wvl_table.dat"
-        meta.wavelength_list = ascii.read(str(spec_dir_wvl_file))["wavelength"]
+        wvl_table = get_wavelength_table(meta)
+        meta.wavelength_list = np.asarray(wvl_table["wavelength"], dtype=float)
 
-        print(f"Using spectroscopic directory: {spec_dir_full}")
+        print(f"Using spectroscopic directory: {spec_dir}")
 
     else:
         raise ValueError("Either s30_fit_white or s30_fit_spec must be True.")
@@ -1179,31 +1172,32 @@ def apply_uncmulti(data, params):
     data.err = err
     return uncmulti_vals
 
-from astropy.io import ascii
-from pathlib import Path
+
+def get_wavelength_table(meta):
+    """Return the wavelength table for the current Stage 30 fit."""
+    if meta.s30_fit_white:
+        wvl_file = meta.workdir / "extracted_lc" / "wvl_table.dat"
+    elif meta.s30_fit_spec:
+        wvl_file = meta.workdir / "extracted_sp" / "wvl_table.dat"
+    else:
+        raise ValueError("Either s30_fit_white or s30_fit_spec must be True.")
+
+    if not wvl_file.exists():
+        raise FileNotFoundError(f"Could not find wavelength table: {wvl_file}")
+
+    return ascii.read(str(wvl_file))
+
 
 def get_wavelength_info(meta, file_counter=None):
-    """
-    Return wavelength info dict with keys:
-    wavelength, half_width, lower_edge, upper_edge
-    """
+    """Return wavelength info dict for the current fit/bin."""
     if file_counter is None:
         file_counter = getattr(meta, "s30_file_counter", 0)
 
+    table = get_wavelength_table(meta)
+
     if meta.s30_fit_white:
-        wvl_file = meta.workdir / "extracted_lc" / "wvl_table.dat"
-        table = ascii.read(wvl_file)
         row = table[0]
     else:
-        extracted_sp_dir = meta.workdir / "extracted_sp"
-        bins_dirs = sorted(
-            path for path in extracted_sp_dir.iterdir()
-            if path.is_dir() and path.name.startswith("bins")
-        )
-        if len(bins_dirs) == 0:
-            raise FileNotFoundError(f"No bins directory found in {extracted_sp_dir}")
-
-        table = ascii.read(bins_dirs[-1] / "wvl_table.dat")
         row = table[file_counter]
 
     return {

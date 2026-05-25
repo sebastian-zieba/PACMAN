@@ -429,14 +429,13 @@ def test_s21(capsys):
     s21_workdir = latest_stage("21")
     extracted_sp_dir_path = s21_workdir / "extracted_sp"
 
-    s21_dir = np.array([
-        path for path in extracted_sp_dir_path.iterdir()
-        if path.is_dir()
-    ])[0]
+    s21_dir = s21_workdir / "extracted_sp"
 
     s21_wvl_table_file = s21_dir / "wvl_table.dat"
     assert s21_wvl_table_file.exists()
+
     s21_wvl_table = ascii.read(s21_wvl_table_file)
+
     assert s21_wvl_table.colnames == [
         "bin",
         "wavelength",
@@ -444,6 +443,7 @@ def test_s21(capsys):
         "lower_edge",
         "upper_edge",
     ]
+
     wvl_s21 = s21_wvl_table["wavelength"]
 
     # Check if the number of bins defined in the pcf is the same as
@@ -499,6 +499,8 @@ def test_s30(capsys):
 
         assert s30_spec_workdir.exists()
         assert (s30_spec_workdir / "fit_spec").exists()
+        assert (s30_spec_workdir / "fit_spec" / "fit_lc").exists()
+        assert (s30_spec_workdir / "fit_spec" / "lsq_res").exists()
 
         # ------------------------------------------------------------
         # 2) White-light fit
@@ -527,7 +529,8 @@ def test_s30(capsys):
 
         assert s30_white_workdir.exists()
         assert (s30_white_workdir / "fit_white").exists()
-
+        assert (s30_white_workdir / "fit_white" / "fit_lc").exists()
+        
     finally:
         pcf_file.write_text(original_pcf, encoding="utf-8")
         fit_par_file.write_text(original_fit_par, encoding="utf-8")

@@ -1310,83 +1310,52 @@ def plot_fit_lc3(data, fit, meta, mcmc=False, nested=False):
     gc.collect()
 
 
-
-def save_astrolc_data_nested(data, fit, meta):
-    """
-    Saves the data used to plot the astrophysical model (without the systematics) and the data (without the systematics) not phase folded.
-    """
-
+def save_astrolc_data(data, fit, meta, fitter="lsq"):
+    """Save the model/data used in the Stage 30 light-curve plot."""
     table_model = Table()
     table_nosys = Table()
 
-    p = FormatParams(fit.params, data)
-    # FIXME: the next is not great when there are more then one visit which are separated by a big time gap.
-    # same is true for plot_fit_lc3
-    time_model = np.linspace(data.time.min() - p.per[0]/2, data.time.max() + p.per[0]/2, 10000)
-    flux_model = calc_astro(time_model, fit.params, data, fit.myfuncs, 0)
+    visit_model = []
+    time_model_all = []
+    flux_model_all = []
 
-    table_model['time_model'] = np.array(time_model, dtype=np.float64)
-    table_model['flux_model'] = np.array(flux_model, dtype=np.float64)
+    time_segments = util.make_time_model_per_visit(
+        data,
+        pad_hours=0.25,
+        points_per_hour=15,
+    )
 
-    table_nosys['time_nosys'] = np.array(data.time, dtype=np.float64)
-    table_nosys['flux_nosys'] = np.array(fit.data_nosys, dtype=np.float64)
+    for visit, time_model in enumerate(time_segments):
+        flux_model = calc_astro(time_model, fit.params, data, fit.myfuncs, visit)
 
-    if not os.path.isdir(meta.workdir + meta.fitdir + '/nested_res'):
-        os.makedirs(meta.workdir + meta.fitdir + '/nested_res')
-    ascii.write(table_model, meta.workdir + meta.fitdir +  '/nested_res/fit_lc_data_model_bin{0}_wvl{1:0.3f}.txt'.format(meta.s30_file_counter, meta.wavelength), format='rst', overwrite=True)
-    ascii.write(table_nosys, meta.workdir + meta.fitdir +  '/nested_res/fit_lc_data_nosys_bin{0}_wvl{1:0.3f}.txt'.format(meta.s30_file_counter, meta.wavelength), format='rst', overwrite=True)
+        visit_model.append(np.full(len(time_model), visit, dtype=int))
+        time_model_all.append(time_model)
+        flux_model_all.append(flux_model)
 
+    table_model["visit"] = np.concatenate(visit_model)
+    table_model["time_model"] = np.concatenate(time_model_all)
+    table_model["flux_model"] = np.concatenate(flux_model_all)
 
-def save_astrolc_data(data, fit, meta):
-    """Saves the data used to plot the astrophysical model (without the systematics)
-    and the data (without the systematics) not phase folded.
-    """
-    table_model = Table()
-    table_nosys = Table()
+    table_nosys["visit"] = np.asarray(data.vis_num, dtype=int)
+    table_nosys["time_nosys"] = np.asarray(data.time, dtype=np.float64)
+    table_nosys["flux_nosys"] = np.asarray(fit.data_nosys, dtype=np.float64)
 
-    p = FormatParams(fit.params, data)
-    time_model = np.linspace(data.time.min() - p.per[0]/2, data.time.max() + p.per[0]/2, 1000)
-    flux_model = calc_astro(time_model, fit.params, data, fit.myfuncs, 0)
+    fit_lc_dir = meta.workdir / meta.fitdir / "fit_lc"
+    fit_lc_dir.mkdir(parents=True, exist_ok=True)
 
-    table_model['time_model'] = np.array(time_model, dtype=np.float64)
-    table_model['flux_model'] = np.array(flux_model, dtype=np.float64)
+    ascii.write(
+        table_model,
+        fit_lc_dir / f"{fitter}_lc_data_model_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt",
+        format="rst",
+        overwrite=True,
+    )
 
-    table_nosys['time_nosys'] = np.array(data.time, dtype=np.float64)
-    table_nosys['flux_nosys'] = np.array(fit.data_nosys, dtype=np.float64)
-
-    fit_lc_dir = meta.workdir / meta.fitdir / 'fit_lc'
-    if not fit_lc_dir.exists():
-        fit_lc_dir.mkdir(parents=True)
-    ascii.write(table_model, fit_lc_dir / f'fit_lc_data_model_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt',
-                format='rst', overwrite=True)
-    ascii.write(table_nosys, fit_lc_dir / f'fit_lc_data_nosys_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt',
-                format='rst', overwrite=True)
-
-
-def save_astrolc_data_nested(data, fit, meta):
-    """Saves the data used to plot the astrophysical model (without the systematics)
-    and the data (without the systematics) not phase folded.
-    """
-    table_model = Table()
-    table_nosys = Table()
-
-    p = FormatParams(fit.params, data)
-    time_model = np.linspace(data.time.min() - p.per[0]/2, data.time.max() + p.per[0]/2, 10000)
-    flux_model = calc_astro(time_model, fit.params, data, fit.myfuncs, 0)
-
-    table_model['time_model'] = np.array(time_model, dtype=np.float64)
-    table_model['flux_model'] = np.array(flux_model, dtype=np.float64)
-
-    table_nosys['time_nosys'] = np.array(data.time, dtype=np.float64)
-    table_nosys['flux_nosys'] = np.array(fit.data_nosys, dtype=np.float64)
-
-    fit_lc_dir = meta.workdir / meta.fitdir / 'nested_res'
-    if not fit_lc_dir.exists():
-        fit_lc_dir.mkdir(parents=True)
-    ascii.write(table_model, fit_lc_dir / f'fit_lc_data_model_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt',
-                format='rst', overwrite=True)
-    ascii.write(table_nosys, fit_lc_dir / f'fit_lc_data_nosys_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt',
-                format='rst', overwrite=True)
+    ascii.write(
+        table_nosys,
+        fit_lc_dir / f"{fitter}_lc_data_nosys_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt",
+        format="rst",
+        overwrite=True,
+    )
 
 
 # def plot_fit_lc4(data, fit, meta, mcmc=False):
@@ -1472,6 +1441,12 @@ def params_vs_wvl(vals, errs, idxs, meta):
             ax[i].errorbar(range(len(idxs)), [vals[ii][idxs[0][i]] for ii in range(len(vals))],
                            yerr=[errs[ii][idxs[0][i]] for ii in range(len(errs))], fmt='.')
             ax[i].set_ylabel(labels[i])
+
+    if isinstance(ax, np.ndarray):
+        ax[-1].set_xlabel("bin number")
+    else:
+        ax.set_xlabel("bin number")
+        
     plt.subplots_adjust(hspace=0.01)
     plt.tight_layout()
     plt.subplots_adjust(hspace=0.01)
@@ -1502,6 +1477,12 @@ def params_vs_wvl_mcmc(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta):
             ax[i].errorbar(meta.wavelength_list, vals_mcmc.T[i],
                            yerr=(errs_lower_mcmc.T[i], errs_upper_mcmc.T[i]), fmt='.')
             ax[i].set_ylabel(labels[i])
+
+    if isinstance(ax, np.ndarray):
+        ax[-1].set_xlabel("bin number")
+    else:
+        ax.set_xlabel("bin number")
+
     plt.subplots_adjust(hspace=0.01)
     plt.tight_layout()
     plt.subplots_adjust(hspace=0.01)
@@ -1532,6 +1513,12 @@ def params_vs_wvl_nested(vals_nested, errs_lower_nested, errs_upper_nested, meta
             ax[i].errorbar(meta.wavelength_list, vals_nested.T[i],
                            yerr=(errs_lower_nested.T[i], errs_upper_nested.T[i]), fmt='.')
             ax[i].set_ylabel(labels[i])
+
+    if isinstance(ax, np.ndarray):
+        ax[-1].set_xlabel("bin number")
+    else:
+        ax.set_xlabel("bin number")
+
     plt.subplots_adjust(hspace=0.01)
     plt.tight_layout()
     plt.subplots_adjust(hspace=0.01)
@@ -1549,7 +1536,7 @@ def lsq_rprs(vals, errs, idxs, meta):
     rprs_errs_lsq = [errs[ii][idxs[0][rp_idx]] for ii in range(len(errs))]
     plt.errorbar(meta.wavelength_list, rprs_vals_lsq, yerr=rprs_errs_lsq, fmt='.', c='red')
     plt.xlabel('Wavelength (micron)')
-    plt.ylabel('Transit Depth (ppm)')
+    plt.ylabel("rprs")
     plt.savefig(meta.workdir / meta.fitdir / 'lsq_res' / 'lsq_rprs.png',
                 dpi=300, bbox_inches='tight', pad_inches=0.05)
     plt.close('all')
@@ -1655,7 +1642,7 @@ def mcmc_rprs(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta):
                  fmt='.', c='darkblue', alpha=0.9)
 
     plt.xlabel('Wavelength (micron)')
-    plt.ylabel('Transit Depth (ppm)')
+    plt.ylabel("rprs")
     plt.savefig(meta.workdir / meta.fitdir / 'mcmc_res' / 'mcmc_rprs.png',
                 dpi=300, bbox_inches='tight', pad_inches=0.05)
     plt.close('all')
@@ -1676,7 +1663,7 @@ def nested_rprs(vals_nested, errs_lower_nested, errs_upper_nested, meta):
                  fmt='.', c='darkblue', alpha=0.9)
 
     plt.xlabel('Wavelength (micron)')
-    plt.ylabel('Transit Depth (ppm)')
+    plt.ylabel("rprs")
     plt.savefig(meta.workdir / meta.fitdir / 'nested_res' / 'nested_rprs.png',
                 dpi=300, bbox_inches='tight', pad_inches=0.05)
     plt.close('all')

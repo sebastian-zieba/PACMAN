@@ -97,6 +97,7 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
     # Saving plots
     plots.plot_fit_lc2(data, fit, meta, mcmc=True)
     plots.rmsplot(model, data, meta, fitter='mcmc')
+    plots.save_astrolc_data(data, model, meta, fitter='mcmc')
 
     if meta.s30_fit_white:
         with (meta.workdir / meta.fitdir / 'white_systematics_mcmc.txt')\

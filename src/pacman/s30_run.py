@@ -63,18 +63,16 @@ def run30(pcf_path: Path, meta=None):
         meta=meta,
     )
 
-    # Create directories for Stage 3 processing
-    datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
-
-    # Create a directory for the white or the spectroscopic fit
+    # Create a directory for the white or the spectroscopic fit.
+    # The Stage 30 run directory is already timestamped, so no extra
+    # timestamped fit_* subdirectory is needed.
     if meta.s30_fit_white:
-        meta.fitdir = Path("fit_white") / f"fit_{datetime}"
+        meta.fitdir = Path("fit_white")
     elif meta.s30_fit_spec:
-        meta.fitdir = Path("fit_spec") / f"fit_{datetime}"
+        meta.fitdir = Path("fit_spec")
 
     fit_dir = meta.workdir / meta.fitdir
-    if not fit_dir.exists():
-        fit_dir.mkdir(parents=True, exist_ok=True)
+    fit_dir.mkdir(parents=True, exist_ok=True)
 
     # Make fit_par nicer by lining up the columns
     nice_fit_par.nice_fit_par(meta.workdir / "fit_par.txt")

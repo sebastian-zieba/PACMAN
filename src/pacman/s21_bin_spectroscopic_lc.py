@@ -90,10 +90,8 @@ def run21(pcf_path: Path, meta=None):
 
     #for i in range(len(wave_bins)- 1): lo_res_wave_inds.append((w >= wave_bins[i])&(w <= wave_bins[i+1]))
 
-    datetime = time.strftime("%Y-%m-%d_%H-%M-%S")
-    dirname = meta.workdir / "extracted_sp" / f'bins{meta.wvl_bins}_{datetime}'
-    if not dirname.exists():
-        dirname.mkdir(parents=True)
+    dirname = meta.workdir / "extracted_sp"
+    dirname.mkdir(parents=True, exist_ok=True)
 
     for i in tqdm(range(meta.wvl_bins), desc='***************** Looping over Bins', ascii=True):
         if len(wave_edges.shape) == 2:
