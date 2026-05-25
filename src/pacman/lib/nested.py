@@ -91,20 +91,6 @@ def nested_sample(data, model, params, file_name, meta, fit_par):
     best_idx_ml = np.argmax(results.logl)
     best_sample_ml = results.samples[best_idx_ml]
 
-    plots.nested_pairs(
-        new_samples,
-        meta.labels,
-        meta,
-        median_vals=medians,
-        ml_vals=best_sample_ml,
-        n_sampled=ndim,
-    )
-
-    # Saving plots
-    plots.dyplot_runplot(results, meta)
-    plots.dyplot_traceplot(results, meta)
-    plots.dyplot_cornerplot(results, meta)
-
     # Determine median and 16th and 84th percentiles
     p16_list = []
     p50_list = []
@@ -120,6 +106,21 @@ def nested_sample(data, model, params, file_name, meta, fit_par):
         errors_lower.append(p50 - p16)
         errors_upper.append(p84 - p50)
     medians = p50_list
+
+    plots.nested_pairs(
+        new_samples,
+        meta.labels,
+        meta,
+        median_vals=medians,
+        ml_vals=best_sample_ml,
+        n_sampled=ndim,
+    )
+
+    # Saving plots
+    plots.dyplot_runplot(results, meta)
+    plots.dyplot_traceplot(results, meta)
+    plots.dyplot_cornerplot(results, meta)
+
 
     # Saving sampling results into txt files
     with (meta.workdir / meta.fitdir / 'nested_res' /
