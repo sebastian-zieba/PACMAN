@@ -1627,7 +1627,7 @@ def lsq_rprs(vals, errs, idxs, meta):
     plt.xlim(meta.wavelength_list[0] - 0.1 * wave_range, meta.wavelength_list[-1] + 0.1 * wave_range)
     plt.xlabel('Wavelength (micron)')
     plt.ylabel("rprs")
-    plt.title("Transmission Spectrum", fontsize=plt.xlabel().get_size(), pad=10)
+    plt.title("Transmission Spectrum", fontsize=14, pad=10)
     plt.savefig(meta.workdir / meta.fitdir / 'lsq_res' / 'lsq_rprs.png',
                 bbox_inches='tight', pad_inches=0.1, dpi=300)
     plt.close('all')
@@ -1651,7 +1651,7 @@ def mcmc_rprs(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta):
     plt.xlim(meta.wavelength_list[0] - 0.1 * wave_range, meta.wavelength_list[-1] + 0.1 * wave_range)
     plt.xlabel('Wavelength (micron)')
     plt.ylabel("rprs")
-    plt.title("Transmission Spectrum", fontsize=plt.xlabel().get_size(), pad=10)
+    plt.title("Transmission Spectrum", fontsize=14, pad=10)
     plt.savefig(meta.workdir / meta.fitdir / 'mcmc_res' / 'mcmc_rprs.png',
                 bbox_inches='tight', pad_inches=0.1, dpi=300)
     plt.close('all')
@@ -1675,7 +1675,7 @@ def nested_rprs(vals_nested, errs_lower_nested, errs_upper_nested, meta):
     plt.xlim(meta.wavelength_list[0] - 0.1 * wave_range, meta.wavelength_list[-1] + 0.1 * wave_range)
     plt.xlabel('Wavelength (micron)')
     plt.ylabel("rprs")
-    plt.title("Transmission Spectrum", fontsize=plt.xlabel().get_size(), pad=10)
+    plt.title("Transmission Spectrum", fontsize=14, pad=10)
     plt.savefig(meta.workdir / meta.fitdir / 'nested_res' / 'nested_rprs.png',
                 bbox_inches='tight', pad_inches=0.1, dpi=300)
     plt.close('all')

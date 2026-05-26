@@ -119,17 +119,16 @@ wvl_edge_list                [11400,12200,12600,13000,14600,15000,15400,15800,16
 
 
 ##30
-s30_myfuncs                  ['constant','transit']
+s30_myfuncs                  ['constant','upstream_downstream','model_ramp','polynomial1','transit','uncmulti']
 
 s30_fit_white                False
-
 s30_fit_spec                 True
 
 remove_first_exp             True
-remove_first_orb             False
-remove_which_orb             []
+remove_first_orb             True
+remove_which_orb             [0]
 
-rescale_uncert               True
+rescale_uncert               False
 rescale_uncert_smaller_1     False
 
 run_clipiters                0
@@ -156,9 +155,9 @@ run_nested                   True
 ncpu                         1
 
 #emcee
-run_nsteps                   300
-run_nwalkers	             6
-run_nburn                    100
+run_nsteps                   400
+run_nwalkers	             50
+run_nburn                    200
 
 #dynesty static
 run_dlogz                    1
@@ -167,8 +166,8 @@ run_nlive                    100
 #dynesty dynamic
 run_dynamic                  True
 run_dlogz_init               0.1
-run_nlive_init               15
-run_nlive_batch              15
+run_nlive_init               50
+run_nlive_batch              50
 run_maxbatch                 10
 
 run_bound                    multi
