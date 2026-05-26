@@ -42,6 +42,8 @@ def run20(pcf_path: Path, meta=None):
     dirname = meta.workdir / "extracted_lc"
     dirname.mkdir(parents=True, exist_ok=True)
 
+    util.validate_rowshift_settings(meta)
+
     # NOTE: Initialize the astropy tables where we will save the extracted
     # spectra
     table_white = QTable(names=('t_mjd', 't_bjd', 't_visit','t_orbit', 'ivisit', 'iorbit', 'scan', 'spec_opt', 'var_opt', 'spec_box', 'var_box'))

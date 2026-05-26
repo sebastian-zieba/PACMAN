@@ -564,6 +564,27 @@ def get_boxspat(meta,i,d,rmin,rmax,cmin,cmax,imageIndex):#,x_ref, y_ref,x_data, 
     return r_array_interp, spat_box_0_first_interp
 
 
+def validate_rowshift_settings(meta):
+    """Check consistency of rowshift/stretch plotting settings."""
+    rowshift_plot_requested = (
+        meta.save_rowshift_plot
+        or meta.show_rowshift_plot
+        or meta.save_rowshift_stretch_plot
+        or meta.show_rowshift_stretch_plot
+    )
+
+    if rowshift_plot_requested and not meta.calculate_rowshift:
+        raise ValueError(
+            "Rowshift/stretch plots were requested, but "
+            "calculate_rowshift is False.\n"
+            "Set calculate_rowshift=True, or set all of the following to False:\n"
+            "  save_rowshift_plot\n"
+            "  show_rowshift_plot\n"
+            "  save_rowshift_stretch_plot\n"
+            "  show_rowshift_stretch_plot"
+        )
+
+
 def calculate_rowshift(meta,x_ref, y_ref,x_data, y_data,i):
     p0 = [0,1]  # initial guess for least squares
     leastsq_res = leastsq(residuals2_lin, p0, args=(x_ref, y_ref,x_data, y_data))[0]
@@ -571,6 +592,7 @@ def calculate_rowshift(meta,x_ref, y_ref,x_data, y_data,i):
         plots.rowshift_fit(x_ref, y_ref, x_data, y_data, leastsq_res, meta,i)
     return leastsq_res[0]#float
     
+
 def calculate_stretch(meta,x_ref, y_ref,x_data, y_data,i):
     #all np arrays f(a+b*x2)*c
     p0 = [0,1,1]  # initial guess for least squares
@@ -578,6 +600,7 @@ def calculate_stretch(meta,x_ref, y_ref,x_data, y_data,i):
     if meta.save_rowshift_stretch_plot or meta.show_rowshift_stretch_plot:
         plots.stretch_fit(x_ref, y_ref, x_data, y_data, leastsq_res, meta,i)
     return leastsq_res[1]#float
+
 
 def correct_wave_shift_fct_0(meta, orbnum, cmin, cmax, spec_opt, i):
     """Use the reference spectrum for the wave cal."""
