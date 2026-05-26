@@ -97,6 +97,8 @@ You should then have the following structure:
         ├── fit_par.txt
         └── obs_par.pcf
 
+.. note:: Only the files in ``pacman_run_files`` should be edited by the user. The copies saved inside each stage directory are snapshots of the settings used for that specific run.
+
 
 Set up the pcf
 --------------
@@ -136,7 +138,6 @@ Navigate into the ``pacman_run_files`` directory and run:
 
 PACMAN will automatically create the stage directories (``stage00``,
 ``stage01``, etc.) inside the run directory as needed.
-
 
 `In the next step of the quickstart <https://pacmandocs.readthedocs.io/en/latest/astroquery_visits.html>`_,
 we will download the FITS files needed for the analysis using the Python package ``astroquery``.

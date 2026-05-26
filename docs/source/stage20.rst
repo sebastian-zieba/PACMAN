@@ -5,9 +5,9 @@ Stage 20
 
 .. topic:: Summary
 
-    - Navigate to the run directory and execute the run_pacman.py file using the --s20 flag
+    - Navigate to ``pacman_run_files``, comment out Stage 10, uncomment Stage 20, and execute ``run_pacman.py``.
     - Continue with s21 if you want to create spectroscopic light curves and fit them
-    - (Continue with s30 if you are ONLY interested in the white light curve)
+    - Continue with s30 if you are ONLY interested in the white light curve (for now)
 
 This step finally extracts the spectra!
 
@@ -110,6 +110,13 @@ If multiple visits are present, PACMAN automatically generates:
 
 - one combined white light curve
 - one white light curve per visit
+
+
+Stage 20 also saves a wavelength table for the white light curve:
+
+``stage20/s20_run_*/extracted_lc/wvl_table.dat``
+
+This file contains the central wavelength, half-width, and wavelength edges of the white-light bin. It is copied into Stage 30 when fitting the white light curve.
 
 
 After Stage 20 we can either:

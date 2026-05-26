@@ -3,11 +3,6 @@
 Stage 30
 ============
 
-.. _stage30:
-
-Stage 30
-============
-
 .. topic:: Quick Summary
 
     - Navigate to ``pacman_run_files``
@@ -48,11 +43,25 @@ The Stage 30 directory structure is:
 
 .. code-block:: text
 
-    stage30/
-    ├── white_lc/
-    │   └── s30_run_YYYY-MM-DD_HH-MM-SS/
-    └── spec_lc/
-        └── s30_run_YYYY-MM-DD_HH-MM-SS/
+  stage30/
+  ├── white_lc/
+  │   └── s30_run_YYYY-MM-DD_HH-MM-SS/
+  │       ├── extracted_lc/
+  │       └── fit_white/
+  │           ├── raw_lc/
+  │           ├── fit_lc/
+  │           ├── lsq_res/
+  │           ├── mcmc_res/
+  │           └── nested_res/
+  └── spec_lc/
+      └── s30_run_YYYY-MM-DD_HH-MM-SS/
+          ├── extracted_sp/
+          └── fit_spec/
+              ├── raw_lc/
+              ├── fit_lc/
+              ├── lsq_res/
+              ├── mcmc_res/
+              └── nested_res/
 
 At the beginning of the stage, the current ``obs_par.pcf`` and ``fit_par.txt``
 from ``pacman_run_files`` are copied into the new Stage 30 run directory.
@@ -241,9 +250,14 @@ Here's the fit_par.txt file which was used in this example to fit the spectrosco
     Successfully reloaded meta file
     Starting s30
     Spectroscopic light curve fit(s) will be performed
-    using most recent s21 run: ./run_2022-10-20_13-09-52_GJ1214_Hubble13021//extracted_sp/bins11_2022-10-20_13-39-31
-    Identified file(s) for fitting: ['./run_2022-10-20_13-09-52_GJ1214_Hubble13021//extracted_sp/bins11_2022-10-20_13-39-31/speclc1.158.txt', './run_2022-10-20_13-09-52_GJ1214_Hubble13021//extracted_sp/bins11_2022-10-20_13-39-31/speclc1.204.txt', './run_2022-10-20_13-09-52_GJ1214_Hubble13021//extracted_sp/bins11_2022-10-20_13-39-31/speclc1.250.txt', './run_2022-10-20_13-09-52_GJ1214_Hubble13021//extracted_sp/bins11_2022-10-20_13-39-31/speclc1.296.txt', './run_2022-10-20_13-09-52_GJ1214_Hubble13021//extracted_sp/bins11_2022-10-20_13-39-31/speclc1.342.txt', './run_2022-10-20_13-09-52_GJ1214_Hubble13021//extracted_sp/bins11_2022-10-20_13-39-31/speclc1.389.txt', './run_2022-10-20_13-09-52_GJ1214_Hubble13021//extracted_sp/bins11_2022-10-20_13-39-31/speclc1.435.txt', './run_2022-10-20_13-09-52_GJ1214_Hubble13021//extracted_sp/bins11_2022-10-20_13-39-31/speclc1.481.txt', './run_2022-10-20_13-09-52_GJ1214_Hubble13021//extracted_sp/bins11_2022-10-20_13-39-31/speclc1.527.txt', './run_2022-10-20_13-09-52_GJ1214_Hubble13021//extracted_sp/bins11_2022-10-20_13-39-31/speclc1.573.txt', './run_2022-10-20_13-09-52_GJ1214_Hubble13021//extracted_sp/bins11_2022-10-20_13-39-31/speclc1.619.txt']
-
+    Using Stage 21 input directory: ...
+    Location of the new Stage 30 run directory: ...
+    Spectroscopic light curve fit(s) will be performed
+    Identified file(s) for fitting: [
+        '.../stage30/spec_lc/s30_run_*/extracted_sp/speclc1.158.txt',
+        '.../stage30/spec_lc/s30_run_*/extracted_sp/speclc1.204.txt',
+        ...
+    ]
     ****** File: 1/11
 
 

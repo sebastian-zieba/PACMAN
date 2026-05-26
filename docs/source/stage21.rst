@@ -27,9 +27,8 @@ When running S21 the user should get an output similar to this one:
     chosen bin edges: [11370.         11830.90909091 12291.81818182 12752.72727273
      13213.63636364 13674.54545455 14135.45454545 14596.36363636
      15057.27272727 15518.18181818 15979.09090909 16440.        ]
-    Chosen directory with the spectroscopic flux files: 2022-07-16_00-45-03
     ***************** Looping over Bins: 100%|########################################| 11/11 [00:01<00:00,  9.15it/s]
-    Saved light curve(s) in stage21/s21_run_*/extracted_sp/bins11_*
+    Saved light curve(s) in stage21/s21_run_*/extracted_sp
     Saving Wavelength bin file
     Saving Metadata
     Finished s21
@@ -41,7 +40,7 @@ Below is a plot of a 1D spectrum with the bin edges from a user-chosen binning.
 
 The spectroscopic light curves are saved in:
 
-``stage21/s21_run_*/extracted_sp/binsXX_*``
+``stage21/s21_run_*/extracted_sp``
 
 For each wavelength bin, PACMAN saves:
 
@@ -49,7 +48,7 @@ For each wavelength bin, PACMAN saves:
 - light-curve plots with uncertainties
 - individual visit light curves (if multiple visits exist)
 
-The wavelength-bin directory also contains:
+The ``extracted_sp`` directory also contains:
 
 - ``wvl_table.dat``:
   wavelength-bin information including:
@@ -65,4 +64,18 @@ The wavelength-bin directory also contains:
 
 The wavelength-bin figures are saved in:
 
-``stage21/s21_run_*/extracted_sp/binsXX_*/figs``
+``stage21/s21_run_*/extracted_sp/figs``
+
+The stucture will be something like this:
+
+::
+
+  stage21/s21_run_YYYY-MM-DD_HH-MM-SS/
+  ├── extracted_sp/
+  │   ├── speclc1.158.txt
+  │   ├── speclc1.204.txt
+  │   ├── ...
+  │   └── wvl_table.dat
+  └── figs/
+      └── ...
+      

@@ -18,6 +18,9 @@ Instrument Systematics
 
   A constant (free parameters: c)
 
+  For models using ``constant``, PACMAN checks whether the initial value and prior bounds of ``c`` are plausible for the light curve being fitted. The ``constant`` model uses ``flux = 10**c``, so ``c`` should be close to ``log10`` of the raw flux level.
+  This helps catch cases where a white-light normalization is accidentally used for spectroscopic light curves, or vice versa.
+
 .. note:: c is in log10. An average flux of 10^7 photoelectrons therefore leads to approximately c = 7.
 
 * `model_ramp.py <https://pacmandocs.readthedocs.io/en/latest/_modules/pacman/lib/models/model_ramp.html#model_ramp>`_
