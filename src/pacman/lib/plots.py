@@ -116,10 +116,10 @@ def obs_times(meta, times, ivisits, iorbits, updated=False):
 
         if not updated:
             plt.savefig(obs_date_dir / 'obs_dates_all.png',
-                        bbox_inches='tight', pad_inches=0.05, dpi=120)
+                        bbox_inches='tight', pad_inches=0.1, dpi=300)
         else:
             plt.savefig(obs_date_dir / 'obs_dates.png',
-                        bbox_inches='tight', pad_inches=0.05, dpi=120)
+                        bbox_inches='tight', pad_inches=0.1, dpi=300)
 
     if meta.show_obs_times_plot:
         plt.show()
@@ -189,7 +189,7 @@ def barycorr(x, y, z, time, obsx, obsy, obsz, coordtable: List[Path], meta):
         if not barycorr_dir.exists():
             barycorr_dir.mkdir(parents=True)
         plt.savefig(barycorr_dir / f"bjdcorr_{coordtable.name.split('.')[0]}.png",
-                    bbox_inches='tight', pad_inches=0.05, dpi=120)
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close('all')
         plt.clf()
         gc.collect()
@@ -214,7 +214,7 @@ def smooth(meta, x, y, x_smoothed, y_smoothed):
         if not smooth_dir.exists():
             smooth_dir.mkdir(parents=True)
         plt.savefig(smooth_dir / 'smooth.png',
-                    bbox_inches='tight', pad_inches=0.05, dpi=120)
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close('all')
         plt.clf()
         gc.collect()
@@ -247,7 +247,7 @@ def refspec(bp_wvl, bp_val, sm_wvl, sm_flux, ref_wvl, ref_flux, meta):
         if not refspec_dir.exists():
             refspec_dir.mkdir(parents=True)
         plt.savefig(refspec_dir / 'refspec.png',
-                    bbox_inches='tight', pad_inches=0.05, dpi=120)
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close('all')
         plt.clf()
         gc.collect()
@@ -300,7 +300,7 @@ def image_quick(ima, i, meta):
         if not s10_images_dir.exists():
             s10_images_dir.mkdir(parents=True)
         plt.savefig(s10_images_dir / f'quick_di{i}.png',
-                    bbox_inches='tight', pad_inches=0.05, dpi=180)
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close('all')
         plt.clf()
         gc.collect()
@@ -364,7 +364,7 @@ def image(dat, ima, results, i, meta):
         if not s10_images_dir.exists():
             s10_images_dir.mkdir(parents=True)
         plt.savefig(s10_images_dir / f'quick_di{i}.png',
-                    bbox_inches='tight', pad_inches=0.05, dpi=120)
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close('all')
         plt.clf()
         gc.collect()
@@ -387,7 +387,7 @@ def sp2d(d, meta, i):
         if not s20_sp2d_dir.exists():
             s20_sp2d_dir.mkdir(parents=True)
         plt.savefig(s20_sp2d_dir / f'sp2d_{i}.png',
-                    bbox_inches='tight', pad_inches=0.05, dpi=120)
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close('all')
         plt.clf()
         gc.collect()
@@ -416,7 +416,7 @@ def badmask_2d(array1, array2, array3, meta, i):
     if not s20_badmask_dir.exists():
         s20_badmask_dir.mkdir(parents=True)
     plt.savefig(s20_badmask_dir / f'badmask_{i}.png',
-                bbox_inches='tight', pad_inches=0.05, dpi=120)
+                bbox_inches='tight', pad_inches=0.1, dpi=300)
     plt.close('all')
     plt.clf()
     gc.collect()
@@ -445,7 +445,7 @@ def trace(d, meta, visnum, orbnum, i):
         if not s20_trace_dir.exists():
             s20_trace_dir.mkdir(parents=True)
         plt.savefig(s20_trace_dir / f'trace_{i}.png',
-                    bbox_inches='tight', pad_inches=0.05, dpi=120)
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close('all')
         plt.clf()
         gc.collect()
@@ -500,7 +500,7 @@ def bkg_hist(fullframe_diff, skymedian, meta, i, ii):
         if not s20_bkg_hist_dir.exists():
             s20_bkg_hist_dir.mkdir(parents=True)
         plt.savefig(s20_bkg_hist_dir / f'bkg_hist{i}-{ii}.png',
-                    bbox_inches='tight', pad_inches=0.05, dpi=100)
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close('all')
         plt.clf()
         gc.collect()
@@ -587,7 +587,7 @@ def utr(diff, meta, i, ii, orbnum, rowmedian, rowmedian_absder, peaks):
         if not s20_utr_dir.exists():
             s20_utr_dir.mkdir(parents=True)
         plt.savefig(s20_utr_dir / f'utr{i}-{ii}.png',
-                    bbox_inches='tight', pad_inches=0.05, dpi=90)
+                    bbox_inches='tight', pad_inches=0.1, dpi=150)
         plt.close('all')
         plt.clf()
         gc.collect()
@@ -615,7 +615,7 @@ def sp1d(template_waves, spec_box, meta, i, spec_opt=False):
         if not s20_sp1d_dir.exists():
             s20_sp1d_dir.mkdir(parents=True)
         plt.savefig(s20_sp1d_dir / f'sp1d_{i}.png',
-                    bbox_inches='tight', pad_inches=0.05, dpi=120)
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close('all')
         plt.clf()
         gc.collect()
@@ -640,7 +640,7 @@ def bkg_evo(bkg_evo, meta):
         if not s20_bkg_evo_dir.exists():
             s20_bkg_evo_dir.mkdir(parents=True)
         plt.savefig(s20_bkg_evo_dir / f'bkg_evo.png',
-                    bbox_inches='tight', pad_inches=0.05, dpi=120)
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close('all')
         plt.clf()
         gc.collect()
@@ -673,7 +673,7 @@ def sp1d_diff(sp1d_all_diff, meta, wvl_hires):
         plt.tight_layout()
         if meta.save_sp1d_diff_plot:
             plt.savefig(s20_sp1d_diff_dir / f'sp1d_diff_{iiii}.png',
-                        bbox_inches='tight', pad_inches=0.05, dpi=120)
+                        bbox_inches='tight', pad_inches=0.1, dpi=300)
             plt.close('all')
             plt.clf()
             gc.collect()
@@ -718,7 +718,7 @@ def utr_aper_evo(peaks_all, meta):
         if not s20_utr_aper_evo_dir.exists():
             s20_utr_aper_evo_dir.mkdir(parents=True)
         plt.savefig(s20_utr_aper_evo_dir / f'utr_aper_evo.png',
-                    bbox_inches='tight', pad_inches=0.05, dpi=120)
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close('all')
         plt.clf()
         gc.collect()
@@ -747,7 +747,7 @@ def rowshift_fit(modelx, modely, datax, datay, leastsq_res, meta, i):
         if not s20_rowshift_dir.exists():
             s20_rowshift_dir.mkdir(parents=True)
         plt.savefig(s20_rowshift_dir / f'rowshift_{i}.png',
-                    bbox_inches='tight', pad_inches=0.05, dpi=120)
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close('all')
         plt.clf()
         gc.collect()
@@ -774,7 +774,7 @@ def stretch_fit(modelx, modely, datax, datay, leastsq_res, meta, i):
         if not s20_stretch_dir.exists():
             s20_stretch_dir.mkdir(parents=True)
         plt.savefig(s20_stretch_dir / f'stretch_{i}.png',
-                    bbox_inches='tight', pad_inches=0.05, dpi=120)
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close('all')
         plt.clf()
         gc.collect()
@@ -804,7 +804,7 @@ def rowshift_stretch(meta):
         if not s20_rowshift_stretch_dir.exists():
             s20_rowshift_stretch_dir.mkdir(parents=True)
         plt.savefig(s20_rowshift_stretch_dir / f'rowshift_stretch.png',
-                    bbox_inches='tight', pad_inches=0.05, dpi=120)
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close('all')
         plt.clf()
         gc.collect()
@@ -837,7 +837,7 @@ def refspec_fit(modelx, modely, p0, datax, datay, leastsq_res, meta, i):
         if not s20_refspec_fit_dir.exists():
             s20_refspec_fit_dir.mkdir(parents=True)
         plt.savefig(s20_refspec_fit_dir / f'refspec_fit_{i}.png',
-                    bbox_inches='tight', pad_inches=0.05, dpi=120)
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close('all')
         plt.clf()
         gc.collect()
@@ -870,7 +870,7 @@ def refspec_fit_lin(modelx, modely, p0, datax, datay, leastsq_res, meta, i):
         if not s20_refspec_fit_dir.exists():
             s20_refspec_fit_dir.mkdir(parents=True)
         plt.savefig(s20_refspec_fit_dir / f'refspec_fit_{i}.png',
-                    bbox_inches='tight', pad_inches=0.05, dpi=120)
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close('all')
         plt.clf()
         gc.collect()
@@ -911,7 +911,7 @@ def drift(leastsq_res_all, meta):
         if not s20_drift_dir.exists():
             s20_drift_dir.mkdir(parents=True)
         plt.savefig(s20_drift_dir / 'drift.png',
-                    bbox_inches='tight', pad_inches=0.05, dpi=120)
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close('all')
         plt.clf()
         gc.collect()
@@ -947,7 +947,7 @@ def drift_lin(leastsq_res_all, meta):
         if not s20_drift_dir.exists():
             s20_drift_dir.mkdir(parents=True)
         plt.savefig(s20_drift_dir / 'drift.png',
-                    bbox_inches='tight', pad_inches=0.05, dpi=120)
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close('all')
         plt.clf()
         gc.collect()
@@ -987,7 +987,7 @@ def light_curve_errorbar(table_path, fig_dir, filename, title=None):
             ax.set_title(plot_title)
 
         fig.tight_layout()
-        fig.savefig(fig_dir / outname, bbox_inches="tight", pad_inches=0.05, dpi=150)
+        fig.savefig(fig_dir / outname, bbox_inches="tight", pad_inches=0.1, dpi=300)
         plt.close(fig)
         gc.collect()
 
@@ -1022,7 +1022,8 @@ def plot_wvl_bins(w_hires, f_interp, wave_bins, wvl_bins, dirname):
     plt.ylabel("Photelectrons")
     plt.xlabel("Wavelength (angstroms)")
     plt.tight_layout()
-    plt.savefig(dirname / f'spec_bins{wvl_bins}.png')
+    plt.savefig(dirname / f'spec_bins{wvl_bins}.png', 
+                bbox_inches='tight', pad_inches=0.1, dpi=300)
     # plt.show()
 
 
@@ -1075,18 +1076,22 @@ def plot_raw(data, meta):
     plt.xlabel("Time after visit start (hours)")
 
     winfo = util.get_wavelength_info(meta)
+    title = rf"$\lambda_c = {winfo['wavelength']:.3f} \pm {winfo['half_width']:.3f}\ \mu m$"
 
-    fig.suptitle(
-        rf"$\lambda_c = {winfo['wavelength']:.3f} \pm {winfo['half_width']:.3f}\ \mu m$",
-        fontsize=14,
-        y=0.98,
-    )
-    plt.tight_layout(rect=[0, 0, 1, 0.96])
+    if data.nvisit > 1:
+        title_fs = ax[0].xaxis.label.get_size()
+        ax[0].set_title(title, fontsize=title_fs, pad=10)
+    else:
+        title_fs = ax.xaxis.label.get_size()
+        ax.set_title(title, fontsize=title_fs, pad=10)
+
+    plt.tight_layout()
 
     raw_lc_dir = meta.workdir / meta.fitdir / 'raw_lc'
     if not raw_lc_dir.exists():
         raw_lc_dir.mkdir(parents=True)
-    plt.savefig(raw_lc_dir / f'raw_lc_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png')
+    plt.savefig(raw_lc_dir / f'raw_lc_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png', 
+                bbox_inches='tight', pad_inches=0.1, dpi=300)
     plt.close('all')
     plt.clf()
     gc.collect()
@@ -1122,7 +1127,7 @@ def rmsplot(model, data, meta, fitter=None):
     rms, stderr, binsz = util.computeRMS(residuals, binstep=1)
     normfactor = 1e-6
     plt.rcParams.update({'legend.fontsize': 11})
-    plt.figure(1111, figsize=(8, 6))
+    plt.figure(1111, figsize=(6, 5))
     plt.clf()
 
     winfo = util.get_wavelength_info(meta)
@@ -1144,7 +1149,8 @@ def rmsplot(model, data, meta, fitter=None):
 
     dname = Path(f'{fitter}_res')
     fname = dname / f'corr_plot_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png'
-    plt.savefig(meta.workdir / meta.fitdir / fname)
+    plt.savefig(meta.workdir / meta.fitdir / fname, 
+                bbox_inches='tight', pad_inches=0.1, dpi=300)
     plt.close('all')
     util.save_allandata(binsz, rms, stderr, meta, fitter=fitter)
     plt.clf()
@@ -1218,20 +1224,25 @@ def plot_fit_lc2(data, fit, meta, mcmc=False, nested=False):
 
     winfo = util.get_wavelength_info(meta)
     method = 'MCMC' if mcmc else 'Nested Sampling' if nested else 'LSQ'
-    fig.suptitle(
-        rf"{method}, $\lambda_c = {winfo['wavelength']:.3f} \pm {winfo['half_width']:.3f}\ \mu m$",
-        fontsize=14,
-        y=0.98,
+    title = (
+        rf"{method}, $\lambda_c = {winfo['wavelength']:.3f} "
+        rf"\pm {winfo['half_width']:.3f}\ \mu m$"
     )
 
-    plt.tight_layout(rect=[0, 0, 1, 0.96])
+    title_fs = ax[0].xaxis.label.get_size()
+    ax[0].set_title(title, fontsize=title_fs, pad=10)
+
+    plt.tight_layout()
 
     if mcmc:
-        plt.savefig(meta.workdir / meta.fitdir / 'fit_lc' / f'mcmc_lc_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png')
+        plt.savefig(meta.workdir / meta.fitdir / 'fit_lc' / f'mcmc_lc_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png', 
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
     elif nested:
-        plt.savefig(meta.workdir / meta.fitdir / 'fit_lc' / f'nested_lc_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png')
+        plt.savefig(meta.workdir / meta.fitdir / 'fit_lc' / f'nested_lc_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png', 
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
     else:
-        plt.savefig(meta.workdir / meta.fitdir / 'fit_lc' / f'lsq_lc_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png')
+        plt.savefig(meta.workdir / meta.fitdir / 'fit_lc' / f'lsq_lc_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png', 
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
     plt.close('all')
     plt.clf()
     gc.collect()
@@ -1296,9 +1307,11 @@ def plot_fit_lc3(data, fit, meta, mcmc=False, nested=False):
     if not fit_lc_dir.exists():
         fit_lc_dir.mkdir(parents=True)
     if mcmc:
-        plt.savefig(fit_lc_dir / f'newmcmc_lc_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png')
+        plt.savefig(fit_lc_dir / f'newmcmc_lc_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png', 
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
     else:
-        plt.savefig(fit_lc_dir / f'newfit_lc_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png')
+        plt.savefig(fit_lc_dir / f'newfit_lc_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png', 
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
     # plt.waitforbuttonpress(0) # this will wait for indefinite time
     plt.close('all')
     plt.clf()
@@ -1446,7 +1459,7 @@ def params_vs_wvl(vals, errs, idxs, meta):
     plt.tight_layout()
     plt.subplots_adjust(hspace=0.01)
     plt.savefig(meta.workdir / meta.fitdir / 'lsq_res' / 'lsq_params_vs_wvl.png',
-                dpi=450, bbox_inches='tight', pad_inches=0.05)
+                bbox_inches='tight', pad_inches=0.1, dpi=300)
     plt.close('all')
     plt.clf()
     gc.collect()
@@ -1482,7 +1495,7 @@ def params_vs_wvl_mcmc(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta):
     plt.tight_layout()
     plt.subplots_adjust(hspace=0.01)
     plt.savefig(meta.workdir / meta.fitdir / 'mcmc_res' / 'mcmc_params_vs_wvl.png',
-                dpi=500, bbox_inches='tight', pad_inches=0.05)
+                bbox_inches='tight', pad_inches=0.1, dpi=300)
     plt.close('all')
     plt.clf()
     gc.collect()
@@ -1518,7 +1531,7 @@ def params_vs_wvl_nested(vals_nested, errs_lower_nested, errs_upper_nested, meta
     plt.tight_layout()
     plt.subplots_adjust(hspace=0.01)
     plt.savefig(meta.workdir / meta.fitdir / 'nested_res' / 'nested_params_vs_wvl.png',
-                dpi=500, bbox_inches='tight', pad_inches=0.05)
+                bbox_inches='tight', pad_inches=0.1, dpi=300)
     plt.close('all')
     plt.clf()
     gc.collect()
@@ -1533,7 +1546,7 @@ def lsq_rprs(vals, errs, idxs, meta):
     plt.xlabel('Wavelength (micron)')
     plt.ylabel("rprs")
     plt.savefig(meta.workdir / meta.fitdir / 'lsq_res' / 'lsq_rprs.png',
-                dpi=300, bbox_inches='tight', pad_inches=0.05)
+                bbox_inches='tight', pad_inches=0.1, dpi=300)
     plt.close('all')
     plt.clf()
     gc.collect()
@@ -1560,9 +1573,11 @@ def mcmc_chains(ndim, sampler, nburn, labels, meta):
     fig.subplots_adjust(wspace=0, hspace=0)
 
     if nburn == 0:
-        fig.savefig(meta.workdir / meta.fitdir / 'mcmc_res' / f"mcmc_chains_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png")
+        fig.savefig(meta.workdir / meta.fitdir / 'mcmc_res' / f"mcmc_chains_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png", 
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
     else:
-        fig.savefig(meta.workdir / meta.fitdir / 'mcmc_res' / f"mcmc_chains_noburn_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png")
+        fig.savefig(meta.workdir / meta.fitdir / 'mcmc_res' / f"mcmc_chains_noburn_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png", 
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
 
     plt.close('all')
     plt.clf()
@@ -1576,7 +1591,8 @@ def mcmc_pairs(samples, params, meta, fit_par, data):
     fig = corner.corner(samples, labels=labels, show_titles=True,quantiles=[0.16, 0.5, 0.84],title_fmt='.4')
     figname = meta.workdir / meta.fitdir / 'mcmc_res' /\
             f"mcmc_pairs_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png"
-    fig.savefig(figname)
+    fig.savefig(figname, 
+                dpi=500, bbox_inches='tight', pad_inches=0.05)
     plt.close('all')
     plt.clf()
     gc.collect()
@@ -1600,7 +1616,7 @@ def nested_pairs(samples, labels_plot, meta, median_vals=None, ml_vals=None, n_s
         labels=labels_plot,
         show_titles=True,
         quantiles=[0.16, 0.5, 0.84],
-        title_fmt='.7f'
+        title_fmt='.7g'
     )
 
     axes = np.array(fig.axes).reshape((nplot, nplot))
@@ -1640,7 +1656,8 @@ def nested_pairs(samples, labels_plot, meta, median_vals=None, ml_vals=None, n_s
 
     figname = meta.workdir / meta.fitdir / 'nested_res' / \
         f"nested_pairs_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png"
-    fig.savefig(figname, dpi=500, bbox_inches='tight', pad_inches=0.05)
+    fig.savefig(figname, 
+                bbox_inches='tight', pad_inches=0.1, dpi=300)
     plt.close(fig)
     plt.clf()
     gc.collect()
@@ -1650,7 +1667,8 @@ def dyplot_runplot(results, meta):
     """Plot a summary of the run."""
     rfig, raxes = dyplot.runplot(results)
     plt.savefig(meta.workdir / meta.fitdir / 'nested_res/' /
-            f"dyplot_runplot_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png")
+            f"dyplot_runplot_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png", 
+            bbox_inches='tight', pad_inches=0.1, dpi=300)
     plt.close('all')
     plt.clf()
     gc.collect()
@@ -1660,7 +1678,8 @@ def dyplot_traceplot(results, meta):
     """Plot traces and 1-D marginalized posteriors."""
     tfig, taxes = dyplot.traceplot(results, labels=meta.labels)
     plt.savefig(meta.workdir / meta.fitdir / 'nested_res' /
-            f"dyplot_traceplot_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png")
+            f"dyplot_traceplot_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png", 
+            bbox_inches='tight', pad_inches=0.1, dpi=300)
     plt.close('all')
     plt.clf()
     gc.collect()
@@ -1670,7 +1689,8 @@ def dyplot_cornerplot(results, meta):
     # Plot the 2-D marginalized posteriors.
     cfig, caxes = dyplot.cornerplot(results, show_titles=True, title_fmt='.4',labels=meta.labels, color='blue', hist_kwargs=dict(facecolor='blue', edgecolor='blue'))
     plt.savefig(meta.workdir / meta.fitdir / 'nested_res' /
-                f"dyplot_cornerplot_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png")
+                f"dyplot_cornerplot_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png", 
+                bbox_inches='tight', pad_inches=0.1, dpi=300)
     plt.close('all')
     plt.clf()
     gc.collect()
@@ -1690,7 +1710,7 @@ def mcmc_rprs(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta):
     plt.xlabel('Wavelength (micron)')
     plt.ylabel("rprs")
     plt.savefig(meta.workdir / meta.fitdir / 'mcmc_res' / 'mcmc_rprs.png',
-                dpi=300, bbox_inches='tight', pad_inches=0.05)
+                bbox_inches='tight', pad_inches=0.1, dpi=300)
     plt.close('all')
     plt.clf()
     gc.collect()
@@ -1711,7 +1731,7 @@ def nested_rprs(vals_nested, errs_lower_nested, errs_upper_nested, meta):
     plt.xlabel('Wavelength (micron)')
     plt.ylabel("rprs")
     plt.savefig(meta.workdir / meta.fitdir / 'nested_res' / 'nested_rprs.png',
-                dpi=300, bbox_inches='tight', pad_inches=0.05)
+                bbox_inches='tight', pad_inches=0.1, dpi=300)
     plt.close('all')
     plt.clf()
     gc.collect()

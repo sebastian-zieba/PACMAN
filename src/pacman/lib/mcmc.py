@@ -95,7 +95,7 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
             labels, p50_list, p16_list, p84_list, errors_lower, errors_upper
         ):
             print(
-                f"{label:<20} {p50:14.7f} {p16:14.7f} {p84:14.7f} {minus:14.7f} {plus:14.7f}",
+                f"{label:<20} {p50:14.7g} {p16:14.7g} {p84:14.7g} {minus:14.7g} {plus:14.7g}",
                 file=f_mcmc
             )
 
