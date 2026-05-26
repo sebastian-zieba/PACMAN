@@ -114,6 +114,7 @@ def run30(pcf_path: Path, meta=None):
         vals_nested = []
         errs_lower_nested = []
         errs_upper_nested = []
+        vals_maxL_nested = []
 
     meta = util.log_run_setup(meta)
 
@@ -229,7 +230,8 @@ def run30(pcf_path: Path, meta=None):
             if not meta.run_lsq or meta.rescale_uncert:
                 data, model, params, m = lsq_fit(fit_par, data, meta, model, myfuncs, noclip=True)
                 if meta.run_verbose == True: print("rms, chi2red = ", model.rms, model.chi2red)
-            val_nested, err_lower_nested, err_upper_nested, fit = nested_sample(data, model, params, f, meta, fit_par)
+            val_nested, err_lower_nested, err_upper_nested, fit, val_maxL_nested = nested_sample(
+                data, model, params, f, meta, fit_par)
 
         if meta.run_verbose:
             val, err, idx = ReturnParams(m, data)
@@ -246,6 +248,7 @@ def run30(pcf_path: Path, meta=None):
             vals_nested.append(val_nested)
             errs_lower_nested.append(err_lower_nested)
             errs_upper_nested.append(err_upper_nested)
+            vals_maxL_nested.append(val_maxL_nested)
 
     if meta.run_verbose:
         plots.params_vs_wvl(vals, errs, idxs, meta)
@@ -267,7 +270,14 @@ def run30(pcf_path: Path, meta=None):
 
         if not meta.s30_fit_white and ('rp' in meta.labels) and meta.run_nested:
             plots.nested_rprs(vals_nested, errs_lower_nested, errs_upper_nested, meta)
-            util.make_rprs_txt(vals_nested, errs_lower_nested, errs_upper_nested, meta, fitter='nested')
+            util.make_rprs_txt(
+                                vals_nested,
+                                errs_lower_nested,
+                                errs_upper_nested,
+                                meta,
+                                fitter="nested",
+                                vals_maxL=vals_maxL_nested,
+                            )
 
     if meta.run_mcmc or meta.run_nested:
         util.save_fit_output(fit, data, meta)

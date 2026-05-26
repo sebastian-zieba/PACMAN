@@ -154,7 +154,7 @@ def nested_sample(data, model, params, file_name, meta, fit_par):
             for i in range(len(fit.all_sys)):
                 print(fit.all_sys[i], file=outfile)
         print('Saved white_systematics.txt file for nested sampling run')
-    return medians, errors_lower, errors_upper, fit
+    return medians, errors_lower, errors_upper, fit, best_sample_ml
 
 
 def ptform(u, data):

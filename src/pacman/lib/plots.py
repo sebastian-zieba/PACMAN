@@ -1033,7 +1033,7 @@ def plot_raw(data, meta):
     # palette = sns.color_palette("husl", data.nvisit)
     sns.set_palette("muted")
     palette = sns.color_palette("muted", data.nvisit)
-    fig, ax = plt.subplots(data.nvisit, 1, figsize=(6, 3.6*data.nvisit), sharex=True)
+    fig, ax = plt.subplots(data.nvisit, 1, figsize=(6.4, 3.6*data.nvisit), sharex=True)
     if data.nvisit > 1:
         for i in range(data.nvisit):
             ind = data.vis_num == i
@@ -1043,12 +1043,12 @@ def plot_raw(data, meta):
                        color=palette[i])
             
             ax[i].text(
-                0.98, 0.95,
+                0.98, 0.1,
                 f"Visit {i}",
                 transform=ax[i].transAxes,
                 ha="right",
                 va="top",
-                fontsize=12,
+                fontsize=14,
                 zorder=10,
             )
             ax[i].set_xlim(((data.t_vis.min() - 0.02) / 60, (data.t_vis.max() + 0.05) / 60))
@@ -1061,12 +1061,12 @@ def plot_raw(data, meta):
                 markersize=3.0, linestyle="none",
                 color=palette[0])
         ax.text(
-            0.98, 0.95,
+            0.98, 0.1,
             "Visit 0",
             transform=ax.transAxes,
             ha="right",
             va="top",
-            fontsize=12,
+            fontsize=14,
             zorder=10,
         )
         ax.set_xlim(((data.t_vis.min() - 0.02) / 60, (data.t_vis.max() + 0.05) / 60))
@@ -1085,7 +1085,8 @@ def plot_raw(data, meta):
         title_fs = ax.xaxis.label.get_size()
         ax.set_title(title, fontsize=title_fs, pad=10)
 
-    plt.tight_layout()
+    fig.tight_layout(h_pad=0.4)
+    fig.subplots_adjust(hspace=0.08)
 
     raw_lc_dir = meta.workdir / meta.fitdir / 'raw_lc'
     if not raw_lc_dir.exists():
@@ -1127,7 +1128,7 @@ def rmsplot(model, data, meta, fitter=None):
     rms, stderr, binsz = util.computeRMS(residuals, binstep=1)
     normfactor = 1e-6
     plt.rcParams.update({'legend.fontsize': 11})
-    plt.figure(1111, figsize=(6, 5))
+    plt.figure(1111, figsize=(6.4, 4.8))
     plt.clf()
 
     winfo = util.get_wavelength_info(meta)
@@ -1542,7 +1543,11 @@ def lsq_rprs(vals, errs, idxs, meta):
     rp_idx = np.where(np.array(meta.labels) == 'rp')[0][0]
     rprs_vals_lsq = [vals[ii][idxs[0][rp_idx]] for ii in range(len(vals))]
     rprs_errs_lsq = [errs[ii][idxs[0][rp_idx]] for ii in range(len(errs))]
+    plt.rcParams.update({'legend.fontsize': 11})
+    plt.figure(1111, figsize=(6.4, 4.8))
     plt.errorbar(meta.wavelength_list, rprs_vals_lsq, yerr=rprs_errs_lsq, fmt='.', c='red')
+    wave_range = meta.wavelength_list[-1] - meta.wavelength_list[0]
+    plt.xlim(meta.wavelength_list[0] - 0.1 * wave_range, meta.wavelength_list[-1] + 0.1 * wave_range)
     plt.xlabel('Wavelength (micron)')
     plt.ylabel("rprs")
     plt.savefig(meta.workdir / meta.fitdir / 'lsq_res' / 'lsq_rprs.png',
@@ -1703,10 +1708,13 @@ def mcmc_rprs(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta):
     errs_upper_mcmc = np.array(errs_upper_mcmc)
 
     rp_idx = np.where(np.array(meta.labels) == 'rp')[0][0]
+    plt.rcParams.update({'legend.fontsize': 11})
+    plt.figure(1111, figsize=(6.4, 4.8))
     plt.errorbar(meta.wavelength_list, vals_mcmc.T[rp_idx],
                  yerr=(errs_lower_mcmc.T[rp_idx], errs_upper_mcmc.T[rp_idx]),
                  fmt='.', c='darkblue', alpha=0.9)
-
+    wave_range = meta.wavelength_list[-1] - meta.wavelength_list[0]
+    plt.xlim(meta.wavelength_list[0] - 0.1 * wave_range, meta.wavelength_list[-1] + 0.1 * wave_range)
     plt.xlabel('Wavelength (micron)')
     plt.ylabel("rprs")
     plt.savefig(meta.workdir / meta.fitdir / 'mcmc_res' / 'mcmc_rprs.png',
@@ -1723,11 +1731,13 @@ def nested_rprs(vals_nested, errs_lower_nested, errs_upper_nested, meta):
     errs_upper_nested = np.array(errs_upper_nested)
 
     rp_idx = np.where(np.array(meta.labels) == 'rp')[0][0]
-
+    plt.rcParams.update({'legend.fontsize': 11})
+    plt.figure(1111, figsize=(6.4, 4.8))
     plt.errorbar(meta.wavelength_list, vals_nested.T[rp_idx],
                  yerr=(errs_lower_nested.T[rp_idx], errs_upper_nested.T[rp_idx]),
                  fmt='.', c='darkblue', alpha=0.9)
-
+    wave_range = meta.wavelength_list[-1] - meta.wavelength_list[0]
+    plt.xlim(meta.wavelength_list[0] - 0.1 * wave_range, meta.wavelength_list[-1] + 0.1 * wave_range)
     plt.xlabel('Wavelength (micron)')
     plt.ylabel("rprs")
     plt.savefig(meta.workdir / meta.fitdir / 'nested_res' / 'nested_rprs.png',

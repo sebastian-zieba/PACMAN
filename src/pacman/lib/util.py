@@ -862,38 +862,136 @@ def format_params_for_sampling(params, meta, fit_par):
 
 
 def make_lsq_rprs_txt(vals, errs, idxs, meta):
-    """Saves the rprs vs wvl as a txt file as resulting from the lsq."""
-    with (meta.workdir / meta.fitdir / 'lsq_res'/ "lsq_rprs.txt")\
-            .open('w', encoding='utf-8') as f_lsq:
-        rp_idx = np.where(np.array(meta.labels) == 'rp')[0][0]
-        rprs_vals_lsq = [vals[ii][idxs[0][rp_idx]] for ii in range(len(vals))]
-        rprs_errs_lsq = [errs[ii][idxs[0][rp_idx]] for ii in range(len(errs))]
-        file_header = ['wavelength (micron)', 'rprs', 'rprs_err']
-        print("#{: <24} {: <25} {: <25}".format(*file_header), file=f_lsq)
-        for row in zip(meta.wavelength_list, rprs_vals_lsq, rprs_errs_lsq):
-            print("{: <25} {: <25} {: <25}".format(*row), file=f_lsq)
+    """Save rprs vs wavelength from LSQ."""
+    wvl_table = get_wavelength_table(meta)
+
+    out_file = meta.workdir / meta.fitdir / "lsq_res" / "lsq_rprs.txt"
+
+    rp_idx = np.where(np.array(meta.labels) == "rp")[0][0]
+    rprs_vals_lsq = [vals[ii][idxs[0][rp_idx]] for ii in range(len(vals))]
+    rprs_errs_lsq = [errs[ii][idxs[0][rp_idx]] for ii in range(len(errs))]
+
+    with out_file.open("w", encoding="utf-8") as f_lsq:
+        header = [
+            "wavelength",
+            "wave_width",
+            "wave_low",
+            "wave_high",
+            "rprs",
+            "rprs_err",
+        ]
+
+        print("#" + " ".join(f"{item:<18}" for item in header), file=f_lsq)
+
+        for row in zip(
+            wvl_table["wavelength"],
+            wvl_table["half_width"],
+            wvl_table["lower_edge"],
+            wvl_table["upper_edge"],
+            rprs_vals_lsq,
+            rprs_errs_lsq,
+        ):
+            print(" ".join(f"{float(item):<18.8e}" for item in row), file=f_lsq)
 
 
-def make_rprs_txt(vals, errs_lower, errs_upper, meta, fitter=None):
-    """Saves the rprs vs wvl as a txt file as resulting from the sampler."""
-    rp_idx = np.where(np.array(meta.labels) == 'rp')[0][0]
-    medians = np.array(vals).T[rp_idx]
-    errors_lower = np.array(errs_lower).T[rp_idx]
-    errors_upper = np.array(errs_upper).T[rp_idx]
-    if fitter == 'mcmc':
-        with (meta.workdir / meta.fitdir / 'mcmc_res' / "mcmc_rprs.txt")\
-                .open('w', encoding='utf-8') as f_mcmc:
-            file_header = ['wavelength (micron)', 'rprs', 'rprs_err_lower', 'rprs_err_upper']
-            print("#{: <24} {: <25} {: <25} {: <25}".format(*file_header), file=f_mcmc)
-            for row in zip(meta.wavelength_list, medians, errors_lower, errors_upper):
-                print("{: <25} {: <25} {: <25} {: <25}".format(*row), file=f_mcmc)
-    if fitter == 'nested':
-        with (meta.workdir / meta.fitdir / 'nested_res' / "nested_rprs.txt")\
-                .open('w', encoding='utf-8') as f_nested:
-            file_header = ['wavelength (micron)', 'rprs', 'rprs_err_lower', 'rprs_err_upper']
-            print("#{: <24} {: <25} {: <25} {: <25}".format(*file_header), file=f_nested)
-            for row in zip(meta.wavelength_list, medians, errors_lower, errors_upper):
-                print("{: <25} {: <25} {: <25} {: <25}".format(*row), file=f_nested)
+def make_rprs_txt(vals, errs_lower, errs_upper, meta, fitter=None, vals_maxL=None):
+    """Save rprs vs wavelength from MCMC or nested sampling.
+
+    Parameters
+    ----------
+    vals : list
+        Median/p50 parameter values for each wavelength bin.
+    errs_lower : list
+        Lower 1-sigma errors, i.e. p50 - p16.
+    errs_upper : list
+        Upper 1-sigma errors, i.e. p84 - p50.
+    meta
+        PACMAN metadata object.
+    fitter : str
+        Either "mcmc" or "nested".
+    vals_maxL : list or None
+        Maximum-likelihood parameter values for each wavelength bin.
+        Required for fitter="nested" if you want maxL in nested_rprs.txt.
+    """
+    if fitter not in ["mcmc", "nested"]:
+        raise ValueError("fitter must be 'mcmc' or 'nested'.")
+
+    wvl_table = get_wavelength_table(meta)
+
+    rp_idx = np.where(np.array(meta.labels) == "rp")[0][0]
+
+    p50 = np.array(vals).T[rp_idx]
+    minus = np.array(errs_lower).T[rp_idx]
+    plus = np.array(errs_upper).T[rp_idx]
+
+    p16 = p50 - minus
+    p84 = p50 + plus
+
+    out_file = meta.workdir / meta.fitdir / f"{fitter}_res" / f"{fitter}_rprs.txt"
+
+    with out_file.open("w", encoding="utf-8") as f_out:
+        if fitter == "mcmc":
+            header = [
+                "wavelength",
+                "wave_width",
+                "wave_low",
+                "wave_high",
+                "p50",
+                "p16",
+                "p84",
+                "minus",
+                "plus",
+            ]
+
+            print("#" + " ".join(f"{item:<18}" for item in header), file=f_out)
+
+            for row in zip(
+                wvl_table["wavelength"],
+                wvl_table["half_width"],
+                wvl_table["lower_edge"],
+                wvl_table["upper_edge"],
+                p50,
+                p16,
+                p84,
+                minus,
+                plus,
+            ):
+                print(" ".join(f"{float(item):<18.8e}" for item in row), file=f_out)
+
+        elif fitter == "nested":
+            if vals_maxL is None:
+                raise ValueError("vals_maxL must be provided for nested_rprs.txt.")
+
+            maxL = np.array(vals_maxL).T[rp_idx]
+
+            header = [
+                "wavelength",
+                "wave_width",
+                "wave_low",
+                "wave_high",
+                "p50",
+                "p16",
+                "p84",
+                "minus",
+                "plus",
+                "maxL",
+            ]
+
+            print("#" + " ".join(f"{item:<18}" for item in header), file=f_out)
+
+            for row in zip(
+                wvl_table["wavelength"],
+                wvl_table["half_width"],
+                wvl_table["lower_edge"],
+                wvl_table["upper_edge"],
+                p50,
+                p16,
+                p84,
+                minus,
+                plus,
+                maxL,
+            ):
+                print(" ".join(f"{float(item):<18.8e}" for item in row), file=f_out)
 
 
 def quantile(x, q):
