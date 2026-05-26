@@ -1041,14 +1041,14 @@ def plot_raw(data, meta):
             ax[i].plot(data.t_vis[ind] / 60., data.flux[ind], marker='o',
                        markersize=3.0, linestyle="none",
                        color=palette[i])
-            
+            title_fs = ax[0].xaxis.label.get_size()
             ax[i].text(
                 0.98, 0.1,
                 f"Visit {i}",
                 transform=ax[i].transAxes,
                 ha="right",
                 va="top",
-                fontsize=14,
+                fontsize=title_fs,
                 zorder=10,
             )
             ax[i].set_xlim(((data.t_vis.min() - 0.02) / 60, (data.t_vis.max() + 0.05) / 60))
@@ -1060,13 +1060,14 @@ def plot_raw(data, meta):
         ax.plot(data.t_vis / 60., data.flux, marker='o',
                 markersize=3.0, linestyle="none",
                 color=palette[0])
+        title_fs = ax.xaxis.label.get_size()
         ax.text(
             0.98, 0.1,
             "Visit 0",
             transform=ax.transAxes,
             ha="right",
             va="top",
-            fontsize=14,
+            fontsize=title_fs,
             zorder=10,
         )
         ax.set_xlim(((data.t_vis.min() - 0.02) / 60, (data.t_vis.max() + 0.05) / 60))
@@ -1079,14 +1080,12 @@ def plot_raw(data, meta):
     title = rf"$\lambda_c = {winfo['wavelength']:.3f} \pm {winfo['half_width']:.3f}\ \mu m$"
 
     if data.nvisit > 1:
-        title_fs = ax[0].xaxis.label.get_size()
         ax[0].set_title(title, fontsize=title_fs, pad=10)
     else:
-        title_fs = ax.xaxis.label.get_size()
         ax.set_title(title, fontsize=title_fs, pad=10)
 
     fig.tight_layout(h_pad=0.4)
-    fig.subplots_adjust(hspace=0.08)
+    fig.subplots_adjust(hspace=0.1)
 
     raw_lc_dir = meta.workdir / meta.fitdir / 'raw_lc'
     if not raw_lc_dir.exists():
@@ -1133,8 +1132,9 @@ def rmsplot(model, data, meta, fitter=None):
 
     winfo = util.get_wavelength_info(meta)
     method = fitter.upper() if fitter is not None else "FIT"
+    lc_type = util.get_lc_type_label(meta)
     plt.title(
-        rf"{method}, $\lambda_c = {winfo['wavelength']:.3f} \pm {winfo['half_width']:.3f}\ \mu m$",
+        rf"{lc_type} {method}, $\lambda_c = {winfo['wavelength']:.3f} \pm {winfo['half_width']:.3f}\ \mu m$",
         fontsize=14,
     )
 
@@ -1224,9 +1224,10 @@ def plot_fit_lc2(data, fit, meta, mcmc=False, nested=False):
     ax[1].set_xlabel("Orbital phase")
 
     winfo = util.get_wavelength_info(meta)
-    method = 'MCMC' if mcmc else 'Nested Sampling' if nested else 'LSQ'
+    method = 'MCMC' if mcmc else 'NESTED' if nested else 'LSQ'
+    lc_type = util.get_lc_type_label(meta)
     title = (
-        rf"{method}, $\lambda_c = {winfo['wavelength']:.3f} "
+        rf"{lc_type} {method}, $\lambda_c = {winfo['wavelength']:.3f} "
         rf"\pm {winfo['half_width']:.3f}\ \mu m$"
     )
 
@@ -1244,76 +1245,6 @@ def plot_fit_lc2(data, fit, meta, mcmc=False, nested=False):
     else:
         plt.savefig(meta.workdir / meta.fitdir / 'fit_lc' / f'lsq_lc_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png', 
                     bbox_inches='tight', pad_inches=0.1, dpi=300)
-    plt.close('all')
-    plt.clf()
-    gc.collect()
-
-
-def plot_fit_lc3(data, fit, meta, mcmc=False, nested=False):
-    """Plots light curve without systematics model."""
-    plt.clf()
-    fig, ax = plt.subplots(1, 1)
-
-    sns.set_palette("muted")
-    palette = sns.color_palette("muted", data.nvisit)
-
-    p = FormatParams(fit.params, data)  # FIXME
-    time_segments = util.make_time_model_per_visit(data, pad_hours=0.25, points_per_hour=15)
-
-    for visit, time_model in enumerate(time_segments):
-        flux_model = calc_astro(time_model, fit.params, data, fit.myfuncs, visit)
-        ax.plot(time_model, flux_model, color=palette[visit] if data.nvisit > 1 else None)
-
-    # plot systematics removed data
-    ax.plot(data.time, fit.data_nosys, marker='o', markersize=3, linestyle="none")
-
-    # add labels/set axes
-    # xlo, xhi = np.min(model.phase)*0.9, np.max(model.phase)*1.1
-    # xlo, xhi = -0.1, 0.1
-    # ax[0].set_xlim(xlo, xhi)
-    ax.set_ylabel("Relative Flux")
-
-    # annotate plot with fit diagnostics
-    # ax = plt.gca()
-    stats_text = (
-        r'$\chi^2_{\nu}$: ' + f'{fit.chi2red:0.2f}\n'
-        + 'obs. rms: ' + f'{fit.rms:0.1f}\n'
-        + 'exp. rms: ' + f'{fit.rms_predicted:0.1f}'
-    )
-
-    ax.text(
-        0.98, 0.05,
-        stats_text,
-        transform=ax.transAxes,
-        ha='right',
-        va='bottom',
-        fontsize=12,
-        bbox=dict(facecolor='white', edgecolor='0.7', alpha=0.85, boxstyle='round,pad=0.3'),
-    )
-
-    # add labels/set axes
-    ax.set_xlabel("Time")
-
-    winfo = util.get_wavelength_info(meta)
-    method = 'MCMC' if mcmc else 'Nested Sampling' if nested else 'LSQ'
-    fig.suptitle(
-        rf"{method}, $\lambda_c = {winfo['wavelength']:.3f} \pm {winfo['half_width']:.3f}\ \mu m$",
-        fontsize=18,
-        y=0.998,
-    )
-
-    plt.tight_layout()
-    # plt.show()
-    fit_lc_dir = meta.workdir / meta.fitdir / 'fit_lc'
-    if not fit_lc_dir.exists():
-        fit_lc_dir.mkdir(parents=True)
-    if mcmc:
-        plt.savefig(fit_lc_dir / f'newmcmc_lc_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png', 
-                    bbox_inches='tight', pad_inches=0.1, dpi=300)
-    else:
-        plt.savefig(fit_lc_dir / f'newfit_lc_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png', 
-                    bbox_inches='tight', pad_inches=0.1, dpi=300)
-    # plt.waitforbuttonpress(0) # this will wait for indefinite time
     plt.close('all')
     plt.clf()
     gc.collect()
@@ -1443,18 +1374,18 @@ def params_vs_wvl(vals, errs, idxs, meta):
 
     for i in range(len(idxs[0])):
         if len(idxs[0]) == 1:
-            ax.errorbar(range(len(idxs)), [vals[ii][idxs[0][i]] for ii in range(len(vals))],
+            ax.errorbar(meta.wavelength_list, [vals[ii][idxs[0][i]] for ii in range(len(vals))],
                         yerr=[errs[ii][idxs[0][i]] for ii in range(len(errs))], fmt='.')
             ax.set_ylabel(labels[i])
         else:
-            ax[i].errorbar(range(len(idxs)), [vals[ii][idxs[0][i]] for ii in range(len(vals))],
+            ax[i].errorbar(meta.wavelength_list, [vals[ii][idxs[0][i]] for ii in range(len(vals))],
                            yerr=[errs[ii][idxs[0][i]] for ii in range(len(errs))], fmt='.')
             ax[i].set_ylabel(labels[i])
 
     if isinstance(ax, np.ndarray):
-        ax[-1].set_xlabel("bin number")
+        ax[-1].set_xlabel("Wavelength (microns)")
     else:
-        ax.set_xlabel("bin number")
+        ax.set_xlabel("Wavelength (microns)")
         
     plt.subplots_adjust(hspace=0.01)
     plt.tight_layout()
@@ -1488,9 +1419,9 @@ def params_vs_wvl_mcmc(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta):
             ax[i].set_ylabel(labels[i])
 
     if isinstance(ax, np.ndarray):
-        ax[-1].set_xlabel("bin number")
+        ax[-1].set_xlabel("Wavelength (microns)")
     else:
-        ax.set_xlabel("bin number")
+        ax.set_xlabel("Wavelength (microns)")
 
     plt.subplots_adjust(hspace=0.01)
     plt.tight_layout()
@@ -1524,33 +1455,14 @@ def params_vs_wvl_nested(vals_nested, errs_lower_nested, errs_upper_nested, meta
             ax[i].set_ylabel(labels[i])
 
     if isinstance(ax, np.ndarray):
-        ax[-1].set_xlabel("bin number")
+        ax[-1].set_xlabel("Wavelength (microns)")
     else:
-        ax.set_xlabel("bin number")
+        ax.set_xlabel("Wavelength (microns)")
 
     plt.subplots_adjust(hspace=0.01)
     plt.tight_layout()
     plt.subplots_adjust(hspace=0.01)
     plt.savefig(meta.workdir / meta.fitdir / 'nested_res' / 'nested_params_vs_wvl.png',
-                bbox_inches='tight', pad_inches=0.1, dpi=300)
-    plt.close('all')
-    plt.clf()
-    gc.collect()
-
-
-def lsq_rprs(vals, errs, idxs, meta):
-    """Plots the spectrum (rprs vs wvl) as fitted by the least square routine."""
-    rp_idx = np.where(np.array(meta.labels) == 'rp')[0][0]
-    rprs_vals_lsq = [vals[ii][idxs[0][rp_idx]] for ii in range(len(vals))]
-    rprs_errs_lsq = [errs[ii][idxs[0][rp_idx]] for ii in range(len(errs))]
-    plt.rcParams.update({'legend.fontsize': 11})
-    plt.figure(1111, figsize=(6.4, 4.8))
-    plt.errorbar(meta.wavelength_list, rprs_vals_lsq, yerr=rprs_errs_lsq, fmt='.', c='red')
-    wave_range = meta.wavelength_list[-1] - meta.wavelength_list[0]
-    plt.xlim(meta.wavelength_list[0] - 0.1 * wave_range, meta.wavelength_list[-1] + 0.1 * wave_range)
-    plt.xlabel('Wavelength (micron)')
-    plt.ylabel("rprs")
-    plt.savefig(meta.workdir / meta.fitdir / 'lsq_res' / 'lsq_rprs.png',
                 bbox_inches='tight', pad_inches=0.1, dpi=300)
     plt.close('all')
     plt.clf()
@@ -1652,11 +1564,12 @@ def nested_pairs(samples, labels_plot, meta, median_vals=None, ml_vals=None, n_s
                         c='g', s=20, zorder=21
                     )
 
-    axes[0, 0].text(
-        0.95, 0.95,
+    fig.text(
+        0.80, 0.98,
         'red = posterior median\ngreen = max likelihood',
-        transform=axes[0, 0].transAxes,
-        ha='right', va='top', fontsize=10
+        ha='left',
+        va='top',
+        fontsize=12,
     )
 
     figname = meta.workdir / meta.fitdir / 'nested_res' / \
@@ -1701,6 +1614,27 @@ def dyplot_cornerplot(results, meta):
     gc.collect()
 
 
+
+def lsq_rprs(vals, errs, idxs, meta):
+    """Plots the spectrum (rprs vs wvl) as fitted by the least square routine."""
+    rp_idx = np.where(np.array(meta.labels) == 'rp')[0][0]
+    rprs_vals_lsq = [vals[ii][idxs[0][rp_idx]] for ii in range(len(vals))]
+    rprs_errs_lsq = [errs[ii][idxs[0][rp_idx]] for ii in range(len(errs))]
+    plt.rcParams.update({'legend.fontsize': 11})
+    plt.figure(1111, figsize=(6.4, 4.8))
+    plt.errorbar(meta.wavelength_list, rprs_vals_lsq, yerr=rprs_errs_lsq, fmt='.', c='red')
+    wave_range = meta.wavelength_list[-1] - meta.wavelength_list[0]
+    plt.xlim(meta.wavelength_list[0] - 0.1 * wave_range, meta.wavelength_list[-1] + 0.1 * wave_range)
+    plt.xlabel('Wavelength (micron)')
+    plt.ylabel("rprs")
+    plt.title("Transmission Spectrum", fontsize=plt.xlabel().get_size(), pad=10)
+    plt.savefig(meta.workdir / meta.fitdir / 'lsq_res' / 'lsq_rprs.png',
+                bbox_inches='tight', pad_inches=0.1, dpi=300)
+    plt.close('all')
+    plt.clf()
+    gc.collect()
+
+
 def mcmc_rprs(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta):
     """Plots the spectrum (rprs vs wvl) as resulting from the MCMC."""
     vals_mcmc = np.array(vals_mcmc)
@@ -1717,6 +1651,7 @@ def mcmc_rprs(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta):
     plt.xlim(meta.wavelength_list[0] - 0.1 * wave_range, meta.wavelength_list[-1] + 0.1 * wave_range)
     plt.xlabel('Wavelength (micron)')
     plt.ylabel("rprs")
+    plt.title("Transmission Spectrum", fontsize=plt.xlabel().get_size(), pad=10)
     plt.savefig(meta.workdir / meta.fitdir / 'mcmc_res' / 'mcmc_rprs.png',
                 bbox_inches='tight', pad_inches=0.1, dpi=300)
     plt.close('all')
@@ -1740,6 +1675,7 @@ def nested_rprs(vals_nested, errs_lower_nested, errs_upper_nested, meta):
     plt.xlim(meta.wavelength_list[0] - 0.1 * wave_range, meta.wavelength_list[-1] + 0.1 * wave_range)
     plt.xlabel('Wavelength (micron)')
     plt.ylabel("rprs")
+    plt.title("Transmission Spectrum", fontsize=plt.xlabel().get_size(), pad=10)
     plt.savefig(meta.workdir / meta.fitdir / 'nested_res' / 'nested_rprs.png',
                 bbox_inches='tight', pad_inches=0.1, dpi=300)
     plt.close('all')

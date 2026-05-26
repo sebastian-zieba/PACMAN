@@ -1363,3 +1363,12 @@ def make_time_model_per_visit(data, pad_hours=0.25, points_per_hour=15):
         segments.append(np.linspace(tmin, tmax, npts))
 
     return segments
+
+def get_lc_type_label(meta):
+    """Return a short label for the current light-curve type."""
+    fitdir_str = str(meta.fitdir)
+    if "fit_white" in fitdir_str:
+        return "Wh.-LC"
+    if "fit_spec" in fitdir_str:
+        return "Sp.-LC"
+    return "LC"
