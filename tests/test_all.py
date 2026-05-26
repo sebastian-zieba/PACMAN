@@ -110,6 +110,33 @@ def replace_fit_par_row(
     path.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
 
 
+def download_products_with_retry(data_products_ima, test_dir, max_attempts=4, sleep_seconds=20):
+    """Download MAST products with retries to reduce CI flakiness."""
+    last_error = None
+
+    for attempt in range(1, max_attempts + 1):
+        try:
+            print(f"Downloading MAST products, attempt {attempt}/{max_attempts}")
+            Observations.download_products(
+                data_products_ima,
+                mrp_only=False,
+                download_dir=str(test_dir),
+            )
+            return
+        except Exception as err:
+            last_error = err
+            print(f"MAST download attempt {attempt} failed: {err}")
+
+            if attempt < max_attempts:
+                time.sleep(sleep_seconds)
+
+    pytest.fail(
+        "Could not download required MAST test data after "
+        f"{max_attempts} attempts. Last error: {last_error}"
+    )
+
+
+
 @pytest.mark.run(order=1)
 def test_sessionstart(capsys):
     """Called as the first test. It downloads the three HST files
@@ -143,12 +170,17 @@ def test_sessionstart(capsys):
     data_products_ima = data_products_new[data_products_new['productSubGroupDescription'] == 'IMA']
 
     # NOTE: Download the three files
-    Observations.download_products(data_products_ima, mrp_only=False,
-                                   download_dir=str(test_dir))
+    download_products_with_retry(data_products_ima, test_dir)
 
     filelist = []
     for tree, _, fils in os.walk(mast_dir):
         filelist.extend([Path(tree) / fil for fil in fils if fil.endswith('.fits')])
+
+    if len(filelist) == 0:
+        pytest.fail(
+            "No FITS files were downloaded from MAST. "
+            "This usually means the remote download failed or returned no files."
+        )
 
     for fil in filelist:
         # HACK: On windows file will be not overwritten
