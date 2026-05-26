@@ -829,7 +829,7 @@ def refspec_fit(modelx, modely, p0, datax, datay, leastsq_res, meta, i):
         ax.set_xlim(7000, 12500)
     # ax.set_xscale('log')
     ax.set_xlabel('Wavelength (angstrom)')
-    ax.set_xlabel('rel. Flux')
+    ax.set_ylabel('rel. Flux')
     plt.legend()
     plt.tight_layout()
     if meta.save_refspec_fit_plot:
@@ -862,7 +862,7 @@ def refspec_fit_lin(modelx, modely, p0, datax, datay, leastsq_res, meta, i):
         ax.set_xlim(5000, 16000)
     ax.set_xscale('log')
     ax.set_xlabel('Wavelength (angstrom)')
-    ax.set_xlabel('rel. Flux')
+    ax.set_ylabel('rel. Flux')
     plt.legend()
     plt.tight_layout()
     if meta.save_refspec_fit_plot:

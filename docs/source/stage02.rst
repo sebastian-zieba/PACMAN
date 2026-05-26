@@ -37,12 +37,13 @@ PACMAN reads the most recent ``stage01/s01_run_*`` directory and creates a new S
 .. code-block:: console
 
     Starting s02
-    Using Stage 01 input directory: ...
-    Location of the new Stage 02 run directory: ...
-	Converting MJD to BJD: 100%|##########| 2/2 [00:02<00:00,  1.35it/s]
-	Writing t_bjd into filelist.txt
-	Saving Metadata
-	Finished s02
+    Using Stage 01 input directory: /Users/sebastianzieba/Desktop/Projects/Observations/Hubble/GJ1214_13021_2026/stage01/s01_run_2026-05-26_12-41-21
+    Location of the new Stage 02 run directory: /Users/sebastianzieba/Desktop/Projects/Observations/Hubble/GJ1214_13021_2026/stage02/s02_run_2026-05-26_12-44-31
+    Converting MJD to BJD: 100%|##########| 2/2 [00:00<00:00,  3.20it/s]
+    Correcting orbit and visit times to BJD: 100%|##########| 158/158 [00:00<00:00, 735516.13it/s]
+    Writing t_bjd into filelist.txt
+    Saving Metadata
+    Finished s02 
 
 
 After the calculation has been performed, the user can check the newly generated plots saved in:
@@ -64,3 +65,37 @@ E.g. (only showing the first few lines):
 
 .. include:: media/s02/filelist_updated.txt
    :literal:
+
+
+    You should now have a directory structure similar to this:
+
+::
+
+    user
+    └── Desktop
+        └── Projects
+            └── Observations
+                └── Hubble
+                    └── GJ1214_13021
+                        ├── pacman_run_files
+                        │   ├── run_pacman.py
+                        │   ├── fit_par.txt
+                        │   └── obs_par.pcf
+                        ├── stage00
+                        │   └── s00_run_2022-03-04_15-10-29
+                        │       ├── ...
+                        ├── stage01
+                        │   └── s01_run_2022-03-04_15-10-29
+                        │       ├── ...
+                        └── stage02
+                            └── s02_run_2022-03-04_15-10-29
+                                ├── figs
+                                │   └── s02_barycorr
+                                │       ├── barycorr_horizons_results_v0.png
+                                │       └── barycorr_horizons_results_v1.png
+                                ├── fit_par.txt
+                                ├── obs_par.pcf
+                                ├── s02.log
+                                ├── WFC3_Meta_Save.dat
+                                └── filelist.txt
+

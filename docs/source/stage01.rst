@@ -42,11 +42,11 @@ After running Stage 01 you should get an output like this:
 .. code-block:: console
 
     Starting s01
-    Using Stage 00 input directory: ...
-    Location of the new Stage 01 run directory: ...
-    Retrieving Horizons file for every visit: ...
+    Using Stage 00 input directory: /Users/sebastianzieba/Desktop/Projects/Observations/Hubble/GJ1214_13021_2026/stage00/s00_run_2026-05-26_12-33-34
+    Location of the new Stage 01 run directory: /Users/sebastianzieba/Desktop/Projects/Observations/Hubble/GJ1214_13021_2026/stage01/s01_run_2026-05-26_12-41-21
+    Retrieving Horizons file for every visit: 100%|##########| 2/2 [00:01<00:00,  1.95it/s]
     Saving Metadata
-    Finished s01
+    Finished s01 
 
 We now accessed the `HORIZONS system <https://ssd.jpl.nasa.gov/horizons/>`_ by JPL and downloaded a file containing the positions of HST during the observations.
 The files are saved in the current Stage 01 workdir under ``ancil/horizons``.
@@ -58,4 +58,37 @@ For example, the first of the two horizon files should look like this (due to it
 .. include:: media/s01/horizons_results_v0_short.txt
    :literal:
 
-The next Stage uses the information in these files to convert from MJD to BJD.
+    You should now have a directory structure similar to this:
+
+::
+
+    user
+    └── Desktop
+        └── Projects
+            └── Observations
+                └── Hubble
+                    └── GJ1214_13021
+                        ├── pacman_run_files
+                        │   ├── run_pacman.py
+                        │   ├── fit_par.txt
+                        │   └── obs_par.pcf
+                        ├── stage00
+                        │   └── s00_run_2022-03-04_15-10-29
+                        │       ├── fit_par.txt
+                        │       ├── obs_par.pcf
+                        │       ├── s00.log
+                        │       ├── WFC3_Meta_Save.dat
+                        │       └── filelist.txt
+                        └── stage01
+                            └── s01_run_2022-03-04_15-10-29
+                                ├── fit_par.txt
+                                ├── obs_par.pcf
+                                ├── s01.log
+                                ├── WFC3_Meta_Save.dat
+                                └── filelist.txt
+                                └── ancil
+                                    └── horizons
+                                        ├── horizons_results_v0.txt
+                                        └── horizons_results_v1.txt
+
+The next Stage uses the information in these files to convert from MJD to BJD.│

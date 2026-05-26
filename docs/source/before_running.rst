@@ -18,13 +18,21 @@ General workflow
 PACMAN automatically detects the most recent run directory from the previous stage.
 
 For example:
+
 - Stage 01 reads the latest ``stage00/s00_run_*``
+
 - Stage 02 reads the latest ``stage01/s01_run_*``
+
 - Stage 03 reads the latest ``stage02/s02_run_*``
 
 and so on.
 
 Each stage creates a new timestamped run directory while preserving previous runs.
+
+This has been updated in version 0.5.0 of PACMAN and was done in order to make it easier for users that are used to the Eureka! pipeline. 
+
+In this example we will run start with Stage 00 and run through the last stage, Stage 30.
+
 
 Decide on a data directory
 --------------------------
@@ -103,7 +111,9 @@ You should then have the following structure:
 Set up the pcf
 --------------
 
-The PACMAN control file, or :ref:`pcf page <pcf>`, stores all parameters that the user can tune for a particular run.
+The pcf is the PACMAN control file and comparable to the ecf in the Eureka! pipeline. It contains all parameters that the user can tune for all stages.
+
+More information about it can be found in the :ref:`pcf page <pcf>`.
 
 Before starting the analysis, the paths to the data directory and run directory
 (``datadir`` and ``rundir``) must be set in the pcf (to be clear, in the ``obs_par.pcf`` file that is in e.g., ``/home/zieba/Desktop/Projects/Observations/Hubble/GJ1214_13021``).
@@ -118,26 +128,8 @@ For example:
 
 
 At the start of every stage, the current ``obs_par.pcf`` and ``fit_par.txt``
-from ``pacman_run_files`` are copied into the new stage run directory.
+from ``pacman_run_files`` are copied into the new stage run directory. This is just for future reference.
 
-The copied ``obs_par.pcf`` is then used to update the metadata for that stage.
-
-This ensures every stage preserves the exact settings used for that run.
-
-
-
-Run PACMAN
-----------
-
-(Don't do this yet. We will run PACMAN after downloading the data in the next part of this Quickstart.)
-Navigate into the ``pacman_run_files`` directory and run:
-
-.. code-block:: console
-
-    python run_pacman.py
-
-PACMAN will automatically create the stage directories (``stage00``,
-``stage01``, etc.) inside the run directory as needed.
 
 `In the next step of the quickstart <https://pacmandocs.readthedocs.io/en/latest/astroquery_visits.html>`_,
 we will download the FITS files needed for the analysis using the Python package ``astroquery``.

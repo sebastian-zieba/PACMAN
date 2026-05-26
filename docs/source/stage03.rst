@@ -56,44 +56,34 @@ PACMAN reads the most recent ``stage02/s02_run_*`` directory and creates a new S
 
 .. code-block:: console
 
-    Starting s03
-    Using Stage 02 input directory: ...
-    Location of the new Stage 03 run directory: ...
+	Starting s03
+	Using Stage 02 input directory: /Users/sebastianzieba/Desktop/Projects/Observations/Hubble/GJ1214_13021_2026/stage02/s02_run_2026-05-26_12-44-31
+	Location of the new Stage 03 run directory: /Users/sebastianzieba/Desktop/Projects/Observations/Hubble/GJ1214_13021_2026/stage03/s03_run_2026-05-26_12-51-37
+	Location of PACMAN: /Users/sebastianzieba/Desktop/Projects/Open_Source/PACMAN/src/pacman
 	Using k93models model.
 
 	Possible metallicities: [ 1.   0.5  0.3  0.2  0.1  0.  -0.1 -0.2 -0.3 -0.5 -1.  -1.5 -2.  -2.5
-		-3.  -3.5 -4.  -4.5 -5. ]
-	For input metallicity 0.29, closest metallicity is 0.3.
+	-3.  -3.5 -4.  -4.5 -5. ]
+	For input metallicity 0.29, closest metallicity is 0.3. 
 
 	Possible effective temperatures: [10000. 10500. 11000. 11500. 12000. 12500. 13000. 14000. 15000. 16000.
-		17000. 18000. 19000. 20000. 21000. 22000. 23000. 24000. 25000. 26000.
-		27000. 28000. 29000. 30000. 31000. 32000. 33000. 34000.  3500. 35000.
-		3750. 37500.  4000. 40000.  4250. 42500.  4500. 45000.  4750. 47500.
-		5000. 50000.  5250.  5500.  5750.  6000.  6250.  6500.  6750.  7000.
-		7250.  7500.  7750.  8000.  8250.  8500.  8750.  9000.  9250.  9500.
-		9750.]
+	17000. 18000. 19000. 20000. 21000. 22000. 23000. 24000. 25000. 26000.
+	27000. 28000. 29000. 30000. 31000. 32000. 33000. 34000.  3500. 35000.
+	3750. 37500.  4000. 40000.  4250. 42500.  4500. 45000.  4750. 47500.
+	5000. 50000.  5250.  5500.  5750.  6000.  6250.  6500.  6750.  7000.
+	7250.  7500.  7750.  8000.  8250.  8500.  8750.  9000.  9250.  9500.
+	9750.]
 	For input effective temperature 3250, closest temperature is 3500.0.
 
-	Was the stellar model fits file already downloaded?: False
+	Was the stellar model fits file called kp03_3500.fits already downloaded?: False 
 
 				+ Downloading file kp03_3500.fits from https://archive.stsci.edu/hlsps/reference-atlases/cdbs/grid/k93models/kp03/kp03_3500.fits.
-	--2022-01-25 19:13:30--  https://archive.stsci.edu/hlsps/reference-atlases/cdbs/grid/k93models/kp03/kp03_3500.fits
-	Resolving archive.stsci.edu (archive.stsci.edu)... 130.167.201.60
-	Connecting to archive.stsci.edu (archive.stsci.edu)|130.167.201.60|:443... connected.
-	HTTP request sent, awaiting response... 200 OK
-	Length: 69120 (68K) [image/fits]
-	Saving to: ‘kp03_3500.fits’
-
-	kp03_3500.fits         100%[=========================>]  67.50K   323KB/s    in 0.2s
-
-	2022-01-25 19:13:30 (323 KB/s) - ‘kp03_3500.fits’ saved [69120/69120]
-
 	Possible logg: [0.  0.5 1.  1.5 2.  2.5 3.  3.5 4.  4.5 5. ]
 	For input logg 5.026, closest logg is 5.0.
 
 	Using g141 grism.
 	Saving Metadata
-	Finished s03
+	Finished s03 
 
 
 
@@ -109,3 +99,48 @@ The bandpass files are stored in the PACMAN package directory
 The final plot of this stage shows the stellar spectrum, the bandpass and the product of these two. This product is used as the reference spectrum for wavelength calibration.
 
 .. image:: media/s03/refspec.png
+
+
+    You should now have a directory structure similar to this:
+
+::
+
+    user
+    └── Desktop
+        └── Projects
+            └── Observations
+                └── Hubble
+                    └── GJ1214_13021
+                        ├── pacman_run_files
+                        │   ├── run_pacman.py
+                        │   ├── fit_par.txt
+                        │   └── obs_par.pcf
+                        ├── stage00
+                        │   └── s00_run_2022-03-04_15-10-29
+                        │       ├── ...
+                        ├── stage01
+                        │   └── s01_run_2022-03-04_15-10-29
+                        │       ├── ...
+						├── stage02
+						│   └── s02_run_2022-03-04_15-10-29
+						│       ├── ...
+						└── stage03
+							└── s03_run_2022-03-04_15-10-29
+								├── ancil
+								│   ├── refspec
+								│   	└── refspec.txt
+								│   └── stellar_models
+								│       └── k93models
+								│           └── kp03_3500.fits
+								├── figs
+								│   └── s03_refspec
+								│       └── refspec.png
+								│   └── s03_smooth					
+								│       └── smooth.png
+								├── fit_par.txt
+								├── obs_par.pcf
+								├── s03.log
+								├── WFC3_Meta_Save.dat
+								└── filelist.txt
+
+

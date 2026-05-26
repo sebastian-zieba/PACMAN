@@ -14,7 +14,7 @@ When the visits are sorted by time, these visits have indices 5 and 6, using zer
 
 .. note::
     STScI uses visit numbers that are not sorted by time
-    (see, for example, the `visit information page for program 13021 <https://www.stsci.edu/cgi-bin/get-visit-status?id=13021&markupFormat=html&observatory=HST>`_).
+    (see, for example, the `visit information page for HST program 13021 <https://www.stsci.edu/hst-program-info/visits/?program=13021>`_).
     ``PACMAN`` uses a temporally sorted indexing scheme. This program has 15 visits in total. Within ``PACMAN``, the first visit is referred to with index 0, and the last visit has index 14.
 
 Before we download the observations, we will create the directories needed for the ``PACMAN`` analysis: the data directory, the run directory, and the ``pacman_run_files`` directory. Next: :ref:`Before Running <before_running>`.

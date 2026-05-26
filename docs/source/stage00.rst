@@ -7,7 +7,7 @@ Stage 00
 
     <style> .blue {color:blue} </style>
 
-.. topic:: Summary
+.. topic:: Quick Summary
 
     - Make sure you followed the steps in :ref:`Before Running <before_running>`.
     - You should now have a run directory containing ``pacman_run_files``.
@@ -23,12 +23,11 @@ Stage 00
     In :ref:`Before Running <before_running>`, we set up the location of the data directory (``datadir``) and run directory (``rundir``) in ``obs_par.pcf``.
 
     As a reminder, for this example these directories are:
-
     - ``datadir = /home/zieba/Desktop/Data/GJ1214_Hubble13021``
     - ``rundir = /home/zieba/Desktop/Projects/Observations/Hubble/GJ1214_13021``
 
-    The ``pacman_run_files`` directory should contain:
 
+    The ``pacman_run_files`` directory should contain:
     - ``run_pacman.py``
     - ``fit_par.txt``
     - ``obs_par.pcf``
@@ -42,7 +41,7 @@ Stage 00
 
     If your ``datadir`` contains many visits, but you only want to analyze a subset, use the ``which_visits`` parameter in ``obs_par.pcf``.
 
-    If you downloaded all 15 visits in GO 13021 (that is 1145 ima files with about 12.5 GB), use:
+    So, if you downloaded all 15 visits in GO 13021 (that is 1145 ima files with about 12.5 GB), use:
 
     .. code-block:: text
 
@@ -53,6 +52,8 @@ Stage 00
     .. code-block:: text
 
         which_visits   everything
+
+    In this example, we will assume you downloaded all 15 visits and that you set ``which_visits`` to [5,6], just to show you how it works.
 
 
 2) **Run PACMAN**
@@ -126,7 +127,12 @@ Stage 00
                             └── s00_run_2022-03-04_15-10-29
                                 ├── fit_par.txt
                                 ├── obs_par.pcf
+                                ├── s00.log
+                                ├── WFC3_Meta_Save.dat
                                 └── filelist.txt
+
+Here, s00.log is a log file that contains all terminal output from the Stage 00 run. WFC3_Meta_Save.dat is a file that contains metadata for this stage. filelist.txt is a file that contains information about the files that were analyzed in this stage, such as their names, the visit and orbit they belong to, their time, and more. We will discuss this file in more detail in the Results section below.
+
 
 3) **Results**
 
@@ -135,13 +141,15 @@ Stage 00
     .. code-block:: console
 
         Starting s00
+        Output directory: /Users/sebastianzieba/Desktop/Projects/Observations/Hubble/GJ1214_13021_2026/stage00/s00_run_2026-05-26_12-33-34
+        pcf and fit_par files copied to the Stage 00 run directory: /Users/sebastianzieba/Desktop/Projects/Observations/Hubble/GJ1214_13021_2026/stage00/s00_run_2026-05-26_12-33-34
         Found 1145 data file(s) ending in ima.fits
-        Reading in files and their headers: 100%|##########| 1145/1145 [00:03<00:00, 303.42it/s]
-        Determining orbit(s) and visit(s): 100%|##########| 1145/1145 [00:00<00:00, 261786.76it/s]
+        Reading in files and their headers: 100%|##########| 1145/1145 [00:01<00:00, 873.37it/s]
+        Determining orbit(s) and visit(s): 100%|##########| 1145/1145 [00:00<00:00, 497202.41it/s]
         The user does not want to analyse every visit (which_visits != everything). The amount of files analyzed therefore reduced from 1145 to 158.
         Writing table into filelist.txt
         Saving Metadata
-        Finished s00
+        Finished s00 
 
     Stage 00 creates a file called ``filelist.txt``. It should look like this:
 
