@@ -55,3 +55,7 @@ If not, raise an issue and we will do our best to address it!
 When submitting an issues, please provide information like the current ``PACMAN`` version and the error message you are receiving in your terminal.
 Also, have a look at our [FAQ page](https://pacmandocs.readthedocs.io/en/latest/faq.html) where we collect frequently asked questions. 
 If you are thinking about contributing to ``PACMAN``, please also create an issue, so that we can make sure nobody else is already working on the same feature.
+
+## Acknowledgements
+
+We acknowledge Brianna Zawadzki's contribution in creating the PACMAN logo/animation. 
