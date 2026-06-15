@@ -58,7 +58,7 @@ For example, the first of the two horizon files should look like this (due to it
 .. include:: media/s01/horizons_results_v0_short.txt
    :literal:
 
-    You should now have a directory structure similar to this:
+You should now have a directory structure similar to this:
 
 ::
 
