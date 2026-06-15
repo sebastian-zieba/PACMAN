@@ -4,6 +4,8 @@ Outputs
 =======
 
 Here we summarize all the files created by PACMAN when doing a complete run from s00 to s30.
+This might be partially outdated as it was written during version v0.4.0, but it should give you a good overview of what to expect when running PACMAN and where to find the outputs.
+The biggest change introduced in v0.5.0 is the new directory structure for the outputs. Just keep this in mind.
 
 
 Stage 00

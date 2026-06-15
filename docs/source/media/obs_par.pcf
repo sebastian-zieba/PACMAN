@@ -2,10 +2,10 @@
 # NOTE: DO NOT USE SPACES IN LISTS!
 
 # 00
-rundir                       /home/zieba/Desktop/Projects/Observations/Hubble/GJ1214_13021 # location of run dir
-datadir                      /home/zieba/Desktop/Data/GJ1214_Hubble13021        # location of data dir
+rundir                       /Users/sebastianzieba/Desktop/Projects/Observations/Hubble/GJ1214_13021_2026 # location of run dir
+datadir                      /Users/sebastianzieba/Desktop/Data/GJ1214_Hubble13021        # location of data dir
 suffix                       ima                                                # data suffix (only ima supported right now)
-which_visits                 [5,6]                                              # which visits to use; Options: list (e.g., [0,1,3]) or everything
+which_visits                 [5,6]                                          # which visits to use; Options: list (e.g., [0,1,3]) or everything
 
 save_obs_times_plot          True
 show_obs_times_plot          False
@@ -56,8 +56,6 @@ opt_extract                  True
 sig_cut                      15                                                 # optimal extraction, for cosmic rays etc
 nsmooth                      9                                                  # optimal extraction, created smoothed spatial profile, medial smoothing filter
 
-output                       True
-
 correct_wave_shift           True
 correct_wave_shift_refspec   True
 
@@ -69,6 +67,14 @@ bg_rmax                      400
 bg_cmin                      40
 bg_cmax                      100
 
+calculate_rowshift           True                                             # calculates spatial shift of spectrum on detector with respect to first exposure
+
+save_rowshift_plot           True                                             # save plot of rowshift fit
+show_rowshift_plot           False
+
+save_rowshift_stretch_plot   True                                             # save plot of stretch fit and plot of profile stretch to rowshift
+show_rowshift_stretch_plot   False
+
 save_optextr_plot            False
 
 save_sp2d_plot               False                                              # save plot of 2d spectrum
@@ -77,7 +83,7 @@ show_sp2d_plot               False
 save_trace_plot              False                                              # save plot of trace
 show_trace_plot              False
 
-save_bkg_hist_plot           False                                              # save histogram of fluxes 
+save_bkg_hist_plot           False                                              # save histogram of fluxes
 show_bkg_hist_plot           False
 
 save_utr_plot                False                                              # save plot of individual up-the-ramps
@@ -95,7 +101,7 @@ show_sp1d_diff_plot          False
 save_utr_aper_evo_plot       True                                               # save plot of aperture size over time
 show_utr_aper_evo_plot       False
 
-save_refspec_fit_plot        False                                              # save plot of fit of the 1d spectrum to the refspec
+save_refspec_fit_plot        True                                              # save plot of fit of the 1d spectrum to the refspec
 show_refspec_fit_plot        False
 
 save_drift_plot              True                                               # save plot of 1d spectrum drift over time
@@ -103,10 +109,6 @@ show_drift_plot              False
 
 
 ##21
-
-s21_most_recent_s20          True
-s21_spec_dir_path_s20        None
-
 wvl_min                      1.135
 wvl_max                      1.642
 wvl_bins                     11
@@ -116,23 +118,17 @@ wvl_edge_list                [11400,12200,12600,13000,14600,15000,15400,15800,16
 
 
 ##30
-s30_myfuncs                  ['constant','upstream_downstream','model_ramp','polynomial1','transit']
-#s30_myfuncs                  ['constant','upstream_downstream','model_ramp','polynomial1','transit','uncmulti']
+#s30_myfuncs                  ['constant','upstream_downstream','model_ramp','polynomial1','transit']
+s30_myfuncs                  ['constant','upstream_downstream','model_ramp','polynomial1','transit','uncmulti']
 
-s30_fit_white                True
-s30_most_recent_s20          True
-s30_white_file_path          None
-
-s30_fit_spec                 False
-s30_most_recent_s21          False
-s30_spec_dir_path            None
+s30_fit_white                False
+s30_fit_spec                 True
 
 remove_first_exp             True
 remove_first_orb             True
 remove_which_orb             [0]
 
-rescale_uncert               True
-rescale_uncert_smaller_1     False
+rescale_uncert               False
 
 run_clipiters                0
 run_clipsigma                0
@@ -140,27 +136,27 @@ run_clipsigma                0
 white_sys_path               None
 
 ld_model                     1
-fix_ld                       False
-ld_file                      /home/zieba/Desktop/Projects/Open_source/wfc3-pipeline/wfc3_reduction/limb-darkening/results/ld_outputfile.txt
+use_ld_file                  False
+ld_file_path                 /home/zieba/Data/ld_outputfile.txt
 
 toffset                      2456365
 
 run_verbose                  True
 
-save_time_averaging_plot     True
+save_allan_plot              True
 save_raw_lc_plot             True
 save_fit_lc_plot             True
 
 run_lsq                      True
-run_mcmc                     True
-run_nested                   False
+run_mcmc                     False
+run_nested                   True
 
-ncpu                         1
+ncpu                         4
 
 #emcee
-run_nsteps                   4000
-run_nwalkers	             30
-run_nburn                    2000
+run_nsteps                   20000
+run_nwalkers	             50
+run_nburn                    10000
 
 #dynesty static
 run_dlogz                    0.01
@@ -169,10 +165,9 @@ run_nlive                    400
 #dynesty dynamic
 run_dynamic                  True
 run_dlogz_init               0.01
-run_nlive_init               100
-run_nlive_batch              50
-run_maxbatch                 50
+run_nlive_init               200
+run_nlive_batch              400
+run_maxbatch                 100
 
 run_bound                    multi
 run_sample                   rwalk
-

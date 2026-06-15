@@ -241,8 +241,8 @@ The time averaging plot (formally known as Allan deviation plot):
 
 .. image:: media/s30/white/corr_plot_bin0_wvl1.400.png
 
-** Using dynesty ** 
 
+** Using dynesty ** 
 
 The fitted light curve without the systematics:
 
@@ -252,7 +252,6 @@ The fitted light curve without the systematics:
 Corner plot from the MCMC:
 
 .. image:: media/s30/white/nested_pairs_bin0_wvl1.400.png
-
 
 
 ** Using emcee **
@@ -279,7 +278,7 @@ In the obs_par.pcf file, we set:
 
 Here's the fit_par.txt file which was used in this example to fit the spectroscopic light curves:
 
-.. include:: media/s30/fit_par.txt
+.. include:: media/s30/spectroscopic/fit_par.txt
    :literal:
 
 It is worth noting that PACMAN returns and error if it detects that the constants in the fit_par.txt file are not within a sanity check range which is determined from the data. This is to prevent the user from running a fit with unphysical parameters which can lead to very long runtimes and/or non-convergence of the fit.
@@ -373,11 +372,15 @@ If you have set the fit_par.txt correctly and run the fit, you should get an out
 
   ****** File: 2/11
 
+  ...
+  24299it [01:10, 345.78it/s, batch: 6 | bound: 22 | nc: 1 | ncall: 816509 | eff(%):  2.927 | loglstar: -839.133 < -827.919 < -830.298 | logz: -901.756 +/-  0.392 | stop:  0.973]
 
+  Saved fit_results.txt file
+  Saving Metadata
   Finished s30
 
 
-Most plots which are created during the white light curve fit will be also created after running the spectroscopic fits.
+Most plots which are created during the white light curve fit will be also created during and after running the spectroscopic fits.
 Let's look at some examples:
 
 The first raw spectroscopic light curve:
@@ -392,10 +395,20 @@ The fitted spectroscopic light curve without the systematics:
 
 All fitted parameters as a function of wavelength:
 
-** Using emcee **
+** Using dynesty **
 
-.. image:: media/s30/spectroscopic/mcmc_params_vs_wvl.png
+.. image:: media/s30/spectroscopic/nested_params_vs_wvl.png
 
 The spectrum (rprs vs wavelength):
 
-.. image:: media/s30/spectroscopic/mcmc_rprs.png
+.. image:: media/s30/spectroscopic/nested_rprs.png
+
+There is also a fit that stores the transmission spectrum:
+
+.. include:: media/s30/spectroscopic/nested_rprs.txt
+   :literal:
+
+
+And finally a file that summarizes the fit results for the light curves:
+.. include:: media/s30/spectroscopic/fit_results.txt
+   :literal:

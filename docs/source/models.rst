@@ -122,7 +122,7 @@ The fit_par.txt file
 This file has to be set up when running Stage 30.
 Here's an example:
 
-.. include:: media/fit_par.txt
+.. include:: media/white/fit_par.txt
    :literal:
 
 Let's have a look at each column:
