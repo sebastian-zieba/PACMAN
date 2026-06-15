@@ -121,26 +121,26 @@ The final plot of this stage shows the stellar spectrum, the bandpass and the pr
                         ├── stage01
                         │   └── s01_run_2022-03-04_15-10-29
                         │       ├── ...
-						├── stage02
-						│   └── s02_run_2022-03-04_15-10-29
-						│       ├── ...
-						└── stage03
-							└── s03_run_2022-03-04_15-10-29
-								├── ancil
-								│   ├── refspec
-								│   	└── refspec.txt
-								│   └── stellar_models
-								│       └── k93models
-								│           └── kp03_3500.fits
-								├── figs
-								│   └── s03_refspec
-								│       └── refspec.png
-								│   └── s03_smooth					
-								│       └── smooth.png
-								├── fit_par.txt
-								├── obs_par.pcf
-								├── s03.log
-								├── WFC3_Meta_Save.dat
-								└── filelist.txt
+                        ├── stage02
+                        │   └── s02_run_2022-03-04_15-10-29
+                        │       ├── ...
+                        └── stage03
+                            └── s03_run_2022-03-04_15-10-29
+                                ├── ancil
+                                │   ├── refspec
+                                │   	└── refspec.txt
+                                │   └── stellar_models
+                                │       └── k93models
+                                │           └── kp03_3500.fits
+                                ├── figs
+                                │   └── s03_refspec
+                                │       └── refspec.png
+                                │   └── s03_smooth					
+                                │       └── smooth.png
+                                ├── fit_par.txt
+                                ├── obs_par.pcf
+                                ├── s03.log
+                                ├── WFC3_Meta_Save.dat
+                                └── filelist.txt
 
 
