@@ -60,7 +60,6 @@ For example, the first of the two horizon files should look like this (due to it
 
 You should now have a directory structure similar to this:
 
-TEST
 
 ::
 
@@ -94,6 +93,3 @@ TEST
                                         └── horizons_results_v1.txt
 
 The next Stage uses the information in these files to convert from MJD to BJD.
-
-.. include:: media/s01/horizons_results_v0_short.txt
-   :literal:
