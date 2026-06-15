@@ -5,7 +5,7 @@ Stage 21
 
 .. topic:: Summary
 
-    - Navigate to the run directory and execute the run_pacman.py file using the --s21 flag
+    - Navigate to ``pacman_run_files``, comment out Stage 20, uncomment Stage 21, and execute ``run_pacman.py``.
     - Continue with s30 to fit the white and spectroscopic light curves
 
 This stage bins the data into spectroscopic light curves. 
@@ -19,19 +19,20 @@ When running S21 the user should get an output similar to this one:
 
 .. code-block:: console
 
-    Starting s21
-    Using Stage 20 input directory: ...
-    Location of the new Stage 21 run directory: ...
-
-    Number of bins: 11
-    chosen bin edges: [11370.         11830.90909091 12291.81818182 12752.72727273
-     13213.63636364 13674.54545455 14135.45454545 14596.36363636
-     15057.27272727 15518.18181818 15979.09090909 16440.        ]
-    ***************** Looping over Bins: 100%|########################################| 11/11 [00:01<00:00,  9.15it/s]
-    Saved light curve(s) in stage21/s21_run_*/extracted_sp
-    Saving Wavelength bin file
-    Saving Metadata
-    Finished s21
+  Starting s21
+  Using Stage 20 input directory: /Users/sebastianzieba/Desktop/Projects/Observations/Hubble/GJ1214_13021_2026/stage20/s20_run_2026-06-15_10-28-16
+  Location of the new Stage 21 run directory: /Users/sebastianzieba/Desktop/Projects/Observations/Hubble/GJ1214_13021_2026/stage21/s21_run_2026-06-15_10-39-50
+  Number of bins: 11
+  chosen bin edges: [11350.         11810.90909091 12271.81818182 12732.72727273
+  13193.63636364 13654.54545455 14115.45454545 14576.36363636
+  15037.27272727 15498.18181818 15959.09090909 16420.        ]
+  Using spectroscopic flux files from: /Users/sebastianzieba/Desktop/Projects/Observations/Hubble/GJ1214_13021_2026/stage21/s21_run_2026-06-15_10-39-50/extracted_lc
+  Chosen directory with the spectroscopic flux files: /Users/sebastianzieba/Desktop/Projects/Observations/Hubble/GJ1214_13021_2026/stage21/s21_run_2026-06-15_10-39-50/extracted_lc
+  ***************** Looping over Bins: 100%|####################| 11/11 [00:05<00:00,  2.03it/s]
+  Saved light curve(s) in /Users/sebastianzieba/Desktop/Projects/Observations/Hubble/GJ1214_13021_2026/stage21/s21_run_2026-06-15_10-39-50/extracted_sp
+  Saving Wavelength bin file
+  Saving Metadata
+  Finished s21 
 
 
 Below is a plot of a 1D spectrum with the bin edges from a user-chosen binning.
@@ -65,17 +66,3 @@ The ``extracted_sp`` directory also contains:
 The wavelength-bin figures are saved in:
 
 ``stage21/s21_run_*/extracted_sp/figs``
-
-The stucture will be something like this:
-
-::
-
-  stage21/s21_run_YYYY-MM-DD_HH-MM-SS/
-  ├── extracted_sp/
-  │   ├── speclc1.158.txt
-  │   ├── speclc1.204.txt
-  │   ├── ...
-  │   └── wvl_table.dat
-  └── figs/
-      └── ...
-      
