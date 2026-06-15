@@ -1153,7 +1153,7 @@ def rmsplot(model, data, meta, fitter=None):
     plt.savefig(meta.workdir / meta.fitdir / fname, 
                 bbox_inches='tight', pad_inches=0.1, dpi=300)
     plt.close('all')
-    util.save_allandata(binsz, rms, stderr, meta, fitter=fitter)
+    util.save_time_averaging_data(binsz, rms, stderr, meta, fitter=fitter)
     plt.clf()
     gc.collect()
 

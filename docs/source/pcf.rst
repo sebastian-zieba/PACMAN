@@ -570,9 +570,10 @@ run_verbose
 If set to True, additional information is being outputted when running.
 
 
-save_allan_plot
+save_time_averaging_plot
 ''''''''''''''''''''''''''''''''''''''''''''
-The Allan deviation plot.
+The time averaging plot (formally known as Allan deviation plot).
+View this manuscript for more details: `Exoplaneteers Keep Calling Plots Allan Variance Plots When They Aren't <https://ui.adsabs.harvard.edu/abs/2025arXiv250413238K/abstract`_.
 
 .. image:: media/s30/white/corr_plot_bin0_wvl1.400.png
 

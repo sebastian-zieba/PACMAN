@@ -77,7 +77,7 @@ def lsq_fit(fit_par, data, meta, model, myfuncs, noclip=False):
 
     util.append_fit_output(model, meta, fitter='lsq')
 
-    if meta.save_allan_plot:
+    if meta.save_time_averaging_plot:
         plots.rmsplot(model, data, meta, fitter='lsq')
 
     if noclip:

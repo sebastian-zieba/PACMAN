@@ -1210,8 +1210,8 @@ def save_fit_output(fit, data, meta):
     print('Saved fit_results.txt file')
 
 
-def save_allandata(binsz, rms, stderr, meta, fitter=None):
-    """Saves the data used to create the Allan deviation plot."""
+def save_time_averaging_data(binsz, rms, stderr, meta, fitter=None):
+    """Saves the data used to create the time averaging plot (formally known as Allan deviation plot)."""
     t = Table()
 
     t['binsz'] = binsz
