@@ -22,7 +22,7 @@ rundir
 
 The directory where you want PACMAN to run and save data to.
 If you downloaded or cloned the GitHub repository it includes a pacman_run_files directory.
-These three files can also be downloaded under this link: `Download here <https://downgit.github.io/#/home?url=https://github.com/sebastian-zieba/PACMAN/tree/master/src/pacman/pacman_run_files>`_.
+These three files can also be downloaded under this link: `Download here <https://downgit.github.io/#/home?url=https://github.com/sebastian-zieba/PACMAN/tree/master/src/pacman/data/pacman_run_files>`_.
 These files should be copied into the user's ``pacman_run_files`` directory.
 It should include three files:
  - run_pacman.py: The run script
@@ -458,29 +458,10 @@ s30_fit_white
 Fit the white light curve created in stage 20.
 
 
-s30_most_recent_s20
-''''''''''''''''''''''''''''''''''''''''''''
-Use the most recent stage 20 run for the white light curve fit.
-
-
-s30_white_file_path
-''''''''''''''''''''''''''''''''''''''''''''
-If s30_most_recent_s20 was set to False, the user can put a path to the white light curve file here.
-
-
 s30_fit_spec
 ''''''''''''''''''''''''''''''''''''''''''''
 Fit the spectroscopic light curves created in stage 21.
 
-
-s30_most_recent_s21
-''''''''''''''''''''''''''''''''''''''''''''
-Use the most recent stage 21 run for the spectroscopic light curve fit.
-
-
-s30_spec_dir_path
-''''''''''''''''''''''''''''''''''''''''''''
-If s30_most_recent_s21 was set to False, the user can put a path here.
 
 
 remove_first_exp

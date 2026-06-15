@@ -5,7 +5,7 @@ Stage 30
 
 .. topic:: Quick Summary
 
-    - Navigate to ``pacman_run_files``, comment out Stage 20, uncomment Stage 21, and execute ``run_pacman.py``.
+    - Navigate to ``pacman_run_files``, comment out Stage 21, uncomment Stage 30, and execute ``run_pacman.py``.
     - Configure the desired fit mode in ``obs_par.pcf``
     - Run ``python run_pacman.py``
 
@@ -249,7 +249,7 @@ The fitted light curve without the systematics:
 .. image:: media/s30/white/nested_lc_bin0_wvl1.400.png
 
 
-Corner plot from the MCMC:
+Corner plot from the nested sampling:
 
 .. image:: media/s30/white/nested_pairs_bin0_wvl1.400.png
 

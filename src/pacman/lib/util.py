@@ -891,8 +891,8 @@ def make_lsq_rprs_txt(vals, errs, idxs, meta):
     out_file = meta.workdir / meta.fitdir / "lsq_res" / "lsq_rprs.txt"
 
     rp_idx = np.where(np.array(meta.labels) == "rp")[0][0]
-    rprs_vals_lsq = [vals[ii][idxs[0][rp_idx]] for ii in range(len(vals))]
-    rprs_errs_lsq = [errs[ii][idxs[0][rp_idx]] for ii in range(len(errs))]
+    rprs_vals_lsq = [vals[ii][idxs[ii][rp_idx]] for ii in range(len(vals))]
+    rprs_errs_lsq = [errs[ii][idxs[ii][rp_idx]] for ii in range(len(errs))]
 
     with out_file.open("w", encoding="utf-8") as f_lsq:
         header = [

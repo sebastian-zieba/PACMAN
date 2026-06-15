@@ -60,9 +60,9 @@ The ``extracted_sp`` directory also contains:
   - lower wavelength edge
   - upper wavelength edge
 
-- ``figs/spec_binsXX.png``:
+- ``figs/s21_lightcurves/spec_binsXX.png``:
   overview plot showing the wavelength bins on the spectrum
 
 The wavelength-bin figures are saved in:
 
-``stage21/s21_run_*/extracted_sp/figs``
+``stage21/s21_run_*/figs/s21_lightcurves``

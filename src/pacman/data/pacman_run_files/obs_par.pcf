@@ -118,8 +118,8 @@ wvl_edge_list                [11400,12200,12600,13000,14600,15000,15400,15800,16
 
 
 ## s30
-s30_myfuncs                  ['constant','upstream_downstream','model_ramp','polynomial1','transit']
-#s30_myfuncs                  ['constant','upstream_downstream','model_ramp','polynomial1','transit','uncmulti']
+#s30_myfuncs                  ['constant','upstream_downstream','model_ramp','polynomial1','transit']
+s30_myfuncs                  ['constant','upstream_downstream','model_ramp','polynomial1','transit','uncmulti']
 
 s30_fit_white                True
 s30_fit_spec                 False
@@ -128,7 +128,8 @@ remove_first_exp             True
 remove_first_orb             True
 remove_which_orb             [0]
 
-rescale_uncert               True
+rescale_uncert               False
+rescale_uncert_smaller_1     False
 
 run_clipiters                0
 run_clipsigma                0
@@ -148,8 +149,8 @@ save_raw_lc_plot             True
 save_fit_lc_plot             True
 
 run_lsq                      True
-run_mcmc                     True
-run_nested                   False
+run_mcmc                     False
+run_nested                   True
 
 ncpu                         1
 

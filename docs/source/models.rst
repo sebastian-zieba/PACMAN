@@ -122,7 +122,7 @@ The fit_par.txt file
 This file has to be set up when running Stage 30.
 Here's an example:
 
-.. include:: media/white/fit_par.txt
+.. include:: media/s30/white/fit_par.txt
    :literal:
 
 Let's have a look at each column:
@@ -153,26 +153,6 @@ Let's have a look at each column:
   If fixed was set to False, this is the initial guess for the parameter.
 
 
-- lo_lim
-
-  Use lower bounds for the least squares routine?
-
-
-- lo_val
-
-  lower bound value for the least squares routine.
-
-
-- hi_lim
-
-  Use upper bounds for the least squares routine?
-
-
-- hi_val
-
-  upper bound value for the least squares routine.
-
-
 - prior
 
   Prior for the sampling?
@@ -189,11 +169,6 @@ Let's have a look at each column:
   If prior = U -> lower and upper bounds for the uniform prior
 
   if prior = N -> mean and 1 sigma for the gaussian prior
-
-
-- step_size
-
-  Sets a step_size for the least squares and sampling.
 
 
 
