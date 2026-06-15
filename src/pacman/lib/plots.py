@@ -1374,12 +1374,12 @@ def params_vs_wvl(vals, errs, idxs, meta):
 
     for i in range(len(idxs[0])):
         if len(idxs[0]) == 1:
-            ax.errorbar(meta.wavelength_list, [vals[ii][idxs[ii][i]] for ii in range(len(vals))],
-                        yerr=[errs[ii][idxs[ii][i]] for ii in range(len(errs))], fmt='.')
+            ax.errorbar(meta.wavelength_list, [vals[ii][idxs[0][i]] for ii in range(len(vals))],
+                        yerr=[errs[ii][idxs[0][i]] for ii in range(len(errs))], fmt='.')
             ax.set_ylabel(labels[i])
         else:
-            ax[i].errorbar(meta.wavelength_list, [vals[ii][idxs[ii][i]] for ii in range(len(vals))],
-                           yerr=[errs[ii][idxs[ii][i]] for ii in range(len(errs))], fmt='.')
+            ax[i].errorbar(meta.wavelength_list, [vals[ii][idxs[0][i]] for ii in range(len(vals))],
+                           yerr=[errs[ii][idxs[0][i]] for ii in range(len(errs))], fmt='.')
             ax[i].set_ylabel(labels[i])
 
     if isinstance(ax, np.ndarray):
@@ -1618,8 +1618,8 @@ def dyplot_cornerplot(results, meta):
 def lsq_rprs(vals, errs, idxs, meta):
     """Plots the spectrum (rprs vs wvl) as fitted by the least square routine."""
     rp_idx = np.where(np.array(meta.labels) == 'rp')[0][0]
-    rprs_vals_lsq = [vals[ii][idxs[ii][rp_idx]] for ii in range(len(vals))]
-    rprs_errs_lsq = [errs[ii][idxs[ii][rp_idx]] for ii in range(len(errs))]
+    rprs_vals_lsq = [vals[ii][idxs[0][rp_idx]] for ii in range(len(vals))]
+    rprs_errs_lsq = [errs[ii][idxs[0][rp_idx]] for ii in range(len(errs))]
     plt.rcParams.update({'legend.fontsize': 11})
     plt.figure(1111, figsize=(6.4, 4.8))
     plt.errorbar(meta.wavelength_list, rprs_vals_lsq, yerr=rprs_errs_lsq, fmt='.', c='red')

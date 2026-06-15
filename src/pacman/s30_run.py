@@ -251,7 +251,11 @@ def run30(pcf_path: Path, meta=None):
             vals_maxL_nested.append(val_maxL_nested)
 
     if meta.run_verbose:
-        plots.params_vs_wvl(vals, errs, idxs, meta)
+        try:
+            plots.params_vs_wvl(vals, errs, idxs, meta)
+        except Exception as err:
+            print(f"WARNING: Could not create LSQ params-vs-wavelength plot: {err}")
+
         if meta.run_mcmc:
             plots.params_vs_wvl_mcmc(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta)
 
