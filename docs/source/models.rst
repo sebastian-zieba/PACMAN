@@ -18,6 +18,9 @@ Instrument Systematics
 
   A constant (free parameters: c)
 
+  For models using ``constant``, PACMAN checks whether the initial value and prior bounds of ``c`` are plausible for the light curve being fitted. The ``constant`` model uses ``flux = 10**c``, so ``c`` should be close to ``log10`` of the raw flux level.
+  This helps catch cases where a white-light normalization is accidentally used for spectroscopic light curves, or vice versa.
+
 .. note:: c is in log10. An average flux of 10^7 photoelectrons therefore leads to approximately c = 7.
 
 * `model_ramp.py <https://pacmandocs.readthedocs.io/en/latest/_modules/pacman/lib/models/model_ramp.html#model_ramp>`_
@@ -54,6 +57,11 @@ Instrument Systematics
 
 .. note:: c is in log10. An average flux of 10^7 photoelectrons therefore leads to approximately c = 7.
 
+* `model_rowshift.py <https://pacmandocs.readthedocs.io/en/latest/_modules/pacman/lib/models/model_rowshift.html#model_rowshift>`_
+
+  Linear trend with shift of the spectrum on the detector in spatial direction (rows). Independent application for both scan directions. Implemented similarly to the method explained in `Tsiaras et al. (2016) <https://arxiv.org/pdf/1511.08901.pdf>`_. (free parameters: vf, vr)
+
+.. note:: Requires that stage 20 was executed with calculate_rowshift True.
 
 * `uncmulti.py <https://pacmandocs.readthedocs.io/en/latest/_modules/pacman/lib/models/uncmulti.html#uncmulti>`_
 
@@ -114,7 +122,7 @@ The fit_par.txt file
 This file has to be set up when running Stage 30.
 Here's an example:
 
-.. include:: media/fit_par.txt
+.. include:: media/white/fit_par.txt
    :literal:
 
 Let's have a look at each column:
@@ -133,7 +141,7 @@ Let's have a look at each column:
 
   If the user wants to tie a parameter over all visits, set -1.
 
-  If the user does not want to tie a certain parameter, he or she has to duplicate the line as often as they have visits.
+  If the user does not want to tie a certain parameter, they have to duplicate the line as often as they have visits.
 
   Example: c in the template above. The code assumes that the user sorted the rows in the correct order.
 

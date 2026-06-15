@@ -1,6 +1,6 @@
 from pathlib import Path
 from typing import List
-
+import os
 import corner
 import gc
 import matplotlib
@@ -23,7 +23,6 @@ from ..lib import util
 sns.set_context("talk")
 sns.set_style("white")
 sns.set_style("ticks", {"xtick.direction": "in", "ytick.direction": "in"})
-matplotlib.use('Agg')
 matplotlib.rcParams.update({'lines.markeredgewidth': 0.3})
 matplotlib.rcParams.update({'axes.formatter.useoffset': False})
 
@@ -113,23 +112,21 @@ def obs_times(meta, times, ivisits, iorbits, updated=False):
 
     if meta.save_obs_times_plot:
         obs_date_dir = meta.workdir / 'figs' / 's00_obs_dates'
-        if not obs_date_dir.exists():
-            obs_date_dir.mkdir(parents=True)
+        obs_date_dir.mkdir(parents=True, exist_ok=True)
 
         if not updated:
             plt.savefig(obs_date_dir / 'obs_dates_all.png',
-                        bbox_inches='tight', pad_inches=0.05, dpi=120)
+                        bbox_inches='tight', pad_inches=0.1, dpi=300)
         else:
             plt.savefig(obs_date_dir / 'obs_dates.png',
-                        bbox_inches='tight', pad_inches=0.05, dpi=120)
-        plt.close('all')
-        plt.clf()
-        gc.collect()
-    else:
+                        bbox_inches='tight', pad_inches=0.1, dpi=300)
+
+    if meta.show_obs_times_plot:
         plt.show()
-        plt.close('all')
-        plt.clf()
-        gc.collect()
+
+    plt.close('all')
+    plt.clf()
+    gc.collect()
 
 
 # 02
@@ -192,7 +189,7 @@ def barycorr(x, y, z, time, obsx, obsy, obsz, coordtable: List[Path], meta):
         if not barycorr_dir.exists():
             barycorr_dir.mkdir(parents=True)
         plt.savefig(barycorr_dir / f"bjdcorr_{coordtable.name.split('.')[0]}.png",
-                    bbox_inches='tight', pad_inches=0.05, dpi=120)
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close('all')
         plt.clf()
         gc.collect()
@@ -217,7 +214,7 @@ def smooth(meta, x, y, x_smoothed, y_smoothed):
         if not smooth_dir.exists():
             smooth_dir.mkdir(parents=True)
         plt.savefig(smooth_dir / 'smooth.png',
-                    bbox_inches='tight', pad_inches=0.05, dpi=120)
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close('all')
         plt.clf()
         gc.collect()
@@ -250,7 +247,7 @@ def refspec(bp_wvl, bp_val, sm_wvl, sm_flux, ref_wvl, ref_flux, meta):
         if not refspec_dir.exists():
             refspec_dir.mkdir(parents=True)
         plt.savefig(refspec_dir / 'refspec.png',
-                    bbox_inches='tight', pad_inches=0.05, dpi=120)
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close('all')
         plt.clf()
         gc.collect()
@@ -303,7 +300,7 @@ def image_quick(ima, i, meta):
         if not s10_images_dir.exists():
             s10_images_dir.mkdir(parents=True)
         plt.savefig(s10_images_dir / f'quick_di{i}.png',
-                    bbox_inches='tight', pad_inches=0.05, dpi=180)
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close('all')
         plt.clf()
         gc.collect()
@@ -367,7 +364,7 @@ def image(dat, ima, results, i, meta):
         if not s10_images_dir.exists():
             s10_images_dir.mkdir(parents=True)
         plt.savefig(s10_images_dir / f'quick_di{i}.png',
-                    bbox_inches='tight', pad_inches=0.05, dpi=120)
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close('all')
         plt.clf()
         gc.collect()
@@ -390,7 +387,7 @@ def sp2d(d, meta, i):
         if not s20_sp2d_dir.exists():
             s20_sp2d_dir.mkdir(parents=True)
         plt.savefig(s20_sp2d_dir / f'sp2d_{i}.png',
-                    bbox_inches='tight', pad_inches=0.05, dpi=120)
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close('all')
         plt.clf()
         gc.collect()
@@ -419,7 +416,7 @@ def badmask_2d(array1, array2, array3, meta, i):
     if not s20_badmask_dir.exists():
         s20_badmask_dir.mkdir(parents=True)
     plt.savefig(s20_badmask_dir / f'badmask_{i}.png',
-                bbox_inches='tight', pad_inches=0.05, dpi=120)
+                bbox_inches='tight', pad_inches=0.1, dpi=300)
     plt.close('all')
     plt.clf()
     gc.collect()
@@ -448,7 +445,7 @@ def trace(d, meta, visnum, orbnum, i):
         if not s20_trace_dir.exists():
             s20_trace_dir.mkdir(parents=True)
         plt.savefig(s20_trace_dir / f'trace_{i}.png',
-                    bbox_inches='tight', pad_inches=0.05, dpi=120)
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close('all')
         plt.clf()
         gc.collect()
@@ -503,7 +500,7 @@ def bkg_hist(fullframe_diff, skymedian, meta, i, ii):
         if not s20_bkg_hist_dir.exists():
             s20_bkg_hist_dir.mkdir(parents=True)
         plt.savefig(s20_bkg_hist_dir / f'bkg_hist{i}-{ii}.png',
-                    bbox_inches='tight', pad_inches=0.05, dpi=100)
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close('all')
         plt.clf()
         gc.collect()
@@ -590,7 +587,7 @@ def utr(diff, meta, i, ii, orbnum, rowmedian, rowmedian_absder, peaks):
         if not s20_utr_dir.exists():
             s20_utr_dir.mkdir(parents=True)
         plt.savefig(s20_utr_dir / f'utr{i}-{ii}.png',
-                    bbox_inches='tight', pad_inches=0.05, dpi=90)
+                    bbox_inches='tight', pad_inches=0.1, dpi=150)
         plt.close('all')
         plt.clf()
         gc.collect()
@@ -618,7 +615,7 @@ def sp1d(template_waves, spec_box, meta, i, spec_opt=False):
         if not s20_sp1d_dir.exists():
             s20_sp1d_dir.mkdir(parents=True)
         plt.savefig(s20_sp1d_dir / f'sp1d_{i}.png',
-                    bbox_inches='tight', pad_inches=0.05, dpi=120)
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close('all')
         plt.clf()
         gc.collect()
@@ -643,7 +640,7 @@ def bkg_evo(bkg_evo, meta):
         if not s20_bkg_evo_dir.exists():
             s20_bkg_evo_dir.mkdir(parents=True)
         plt.savefig(s20_bkg_evo_dir / f'bkg_evo.png',
-                    bbox_inches='tight', pad_inches=0.05, dpi=120)
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close('all')
         plt.clf()
         gc.collect()
@@ -676,7 +673,7 @@ def sp1d_diff(sp1d_all_diff, meta, wvl_hires):
         plt.tight_layout()
         if meta.save_sp1d_diff_plot:
             plt.savefig(s20_sp1d_diff_dir / f'sp1d_diff_{iiii}.png',
-                        bbox_inches='tight', pad_inches=0.05, dpi=120)
+                        bbox_inches='tight', pad_inches=0.1, dpi=300)
             plt.close('all')
             plt.clf()
             gc.collect()
@@ -721,7 +718,93 @@ def utr_aper_evo(peaks_all, meta):
         if not s20_utr_aper_evo_dir.exists():
             s20_utr_aper_evo_dir.mkdir(parents=True)
         plt.savefig(s20_utr_aper_evo_dir / f'utr_aper_evo.png',
-                    bbox_inches='tight', pad_inches=0.05, dpi=120)
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
+        plt.close('all')
+        plt.clf()
+        gc.collect()
+    else:
+        plt.show()
+        plt.close('all')
+        plt.clf()
+        gc.collect()
+
+
+def rowshift_fit(modelx, modely, datax, datay, leastsq_res, meta, i):
+    fig, ax = plt.subplots(1,1, figsize=(9,6))
+    plt.suptitle('rowshift_fit {0}, visit {1}, orbit {2}'.format(i, meta.ivisit_sp[i], meta.iorbit_sp[i]))
+    ax.plot(modelx, modely/max(modely), label='first exposure')
+    ax.plot((leastsq_res[0] + datax), datay/max(datay),
+             label='profile fit = ({0:.5g}+x)*{1:.5g}'.format(leastsq_res[0],leastsq_res[1]))
+    ax.plot(datax, datay/max(datay), label='profile before fit')
+    peakx = modelx[np.argmax(modely)]
+    ax.set_xlim(peakx-20, peakx+20)
+    ax.set_xlabel('row / px')
+    ax.set_ylabel('rel. Flux')
+    plt.legend()
+    plt.tight_layout()
+    if meta.save_rowshift_plot:
+        s20_rowshift_dir = meta.workdir / 'figs' / 's20_rowshift'
+        if not s20_rowshift_dir.exists():
+            s20_rowshift_dir.mkdir(parents=True)
+        plt.savefig(s20_rowshift_dir / f'rowshift_{i}.png',
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
+        plt.close('all')
+        plt.clf()
+        gc.collect()
+    else:
+        plt.show()
+        plt.close('all')
+        plt.clf()
+        gc.collect()
+
+
+def stretch_fit(modelx, modely, datax, datay, leastsq_res, meta, i):
+    fig, ax = plt.subplots(1,1, figsize=(9,6))
+    plt.suptitle('length_fit {0}, visit {1}, orbit {2}'.format(i, meta.ivisit_sp[i], meta.iorbit_sp[i]))
+    ax.plot(modelx, modely/max(modely), label='first exposure')
+    ax.plot((leastsq_res[0] + leastsq_res[1]*datax), datay/max(datay),
+             label='profile fit = ({0:.5g}+x*{1:.5g})*{2:.5g}'.format(leastsq_res[0],leastsq_res[1],leastsq_res[2]))
+    ax.plot(datax, datay/max(datay), label='profile before fit')
+    ax.set_xlabel('row / px')
+    ax.set_ylabel('rel. Flux')
+    plt.legend()
+    plt.tight_layout()
+    if meta.save_rowshift_stretch_plot:        
+        s20_stretch_dir = meta.workdir / 'figs' / 's20_stretch'
+        if not s20_stretch_dir.exists():
+            s20_stretch_dir.mkdir(parents=True)
+        plt.savefig(s20_stretch_dir / f'stretch_{i}.png',
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
+        plt.close('all')
+        plt.clf()
+        gc.collect()
+    else:
+        plt.show()
+        plt.close('all')
+        plt.clf()
+        gc.collect()
+
+
+def rowshift_stretch(meta):
+    fig, ax = plt.subplots(1,1, figsize=(9,6))
+    marker_iterator = np.array(['o','^','s','v','D','x','2','<','>'])
+    color_iterator1 = np.array(['tab:blue','tab:cyan','tab:green','tab:olive'])
+    color_iterator2 = np.array(['tab:orange','tab:red','tab:brown','tab:pink'])
+    for visit_plot in set(meta.ivisit_sp):
+        marker = marker_iterator[visit_plot%len(marker_iterator)]
+        color1 = color_iterator1[int(visit_plot/len(marker_iterator))]
+        color2 = color_iterator2[int(visit_plot/len(marker_iterator))]
+        ax.scatter(meta.rowshift[(meta.scans_sp==0) & (meta.ivisit_sp==visit_plot)], meta.stretch[(meta.scans_sp==0) & (meta.ivisit_sp==visit_plot)], marker=marker, color=color1, label='forward, visit {0}'.format(visit_plot))
+        ax.scatter(meta.rowshift[(meta.scans_sp==1) & (meta.ivisit_sp==visit_plot)], meta.stretch[(meta.scans_sp==1) & (meta.ivisit_sp==visit_plot)], marker=marker, color=color2, label='reverse, visit {0}'.format(visit_plot))
+    ax.set_xlabel('rowshift / px')
+    ax.set_ylabel('Stretch Scaling Factor')
+    plt.legend(fontsize="xx-small")
+    if meta.save_rowshift_stretch_plot:
+        s20_rowshift_stretch_dir = meta.workdir / 'figs' / 's20_rowshift_stretch'
+        if not s20_rowshift_stretch_dir.exists():
+            s20_rowshift_stretch_dir.mkdir(parents=True)
+        plt.savefig(s20_rowshift_stretch_dir / f'rowshift_stretch.png',
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close('all')
         plt.clf()
         gc.collect()
@@ -746,7 +829,7 @@ def refspec_fit(modelx, modely, p0, datax, datay, leastsq_res, meta, i):
         ax.set_xlim(7000, 12500)
     # ax.set_xscale('log')
     ax.set_xlabel('Wavelength (angstrom)')
-    ax.set_xlabel('rel. Flux')
+    ax.set_ylabel('rel. Flux')
     plt.legend()
     plt.tight_layout()
     if meta.save_refspec_fit_plot:
@@ -754,7 +837,7 @@ def refspec_fit(modelx, modely, p0, datax, datay, leastsq_res, meta, i):
         if not s20_refspec_fit_dir.exists():
             s20_refspec_fit_dir.mkdir(parents=True)
         plt.savefig(s20_refspec_fit_dir / f'refspec_fit_{i}.png',
-                    bbox_inches='tight', pad_inches=0.05, dpi=120)
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close('all')
         plt.clf()
         gc.collect()
@@ -779,7 +862,7 @@ def refspec_fit_lin(modelx, modely, p0, datax, datay, leastsq_res, meta, i):
         ax.set_xlim(5000, 16000)
     ax.set_xscale('log')
     ax.set_xlabel('Wavelength (angstrom)')
-    ax.set_xlabel('rel. Flux')
+    ax.set_ylabel('rel. Flux')
     plt.legend()
     plt.tight_layout()
     if meta.save_refspec_fit_plot:
@@ -787,7 +870,7 @@ def refspec_fit_lin(modelx, modely, p0, datax, datay, leastsq_res, meta, i):
         if not s20_refspec_fit_dir.exists():
             s20_refspec_fit_dir.mkdir(parents=True)
         plt.savefig(s20_refspec_fit_dir / f'refspec_fit_{i}.png',
-                    bbox_inches='tight', pad_inches=0.05, dpi=120)
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close('all')
         plt.clf()
         gc.collect()
@@ -828,7 +911,7 @@ def drift(leastsq_res_all, meta):
         if not s20_drift_dir.exists():
             s20_drift_dir.mkdir(parents=True)
         plt.savefig(s20_drift_dir / 'drift.png',
-                    bbox_inches='tight', pad_inches=0.05, dpi=120)
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close('all')
         plt.clf()
         gc.collect()
@@ -864,7 +947,7 @@ def drift_lin(leastsq_res_all, meta):
         if not s20_drift_dir.exists():
             s20_drift_dir.mkdir(parents=True)
         plt.savefig(s20_drift_dir / 'drift.png',
-                    bbox_inches='tight', pad_inches=0.05, dpi=120)
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
         plt.close('all')
         plt.clf()
         gc.collect()
@@ -875,6 +958,62 @@ def drift_lin(leastsq_res_all, meta):
         gc.collect()
 
 
+def light_curve_errorbar(table_path, fig_dir, filename, title=None):
+    """Plot spec_opt vs. t_bjd with sqrt(var_opt) error bars.
+
+    Saves one figure with all visits and, if multiple visits are present,
+    one additional figure per visit.
+    """
+    data = ascii.read(str(table_path))
+
+    fig_dir = Path(fig_dir)
+    fig_dir.mkdir(parents=True, exist_ok=True)
+
+    def _plot(mask, outname, plot_title):
+        fig, ax = plt.subplots(figsize=(8, 5))
+
+        ax.errorbar(
+            data["t_bjd"][mask],
+            data["spec_opt"][mask],
+            yerr=np.sqrt(data["var_opt"][mask]),
+            fmt=".",
+            alpha=0.7,
+            capsize=0,
+        )
+
+        ax.set_xlabel("Time (BJD)")
+        ax.set_ylabel("Flux")
+        if plot_title is not None:
+            ax.set_title(plot_title)
+
+        fig.tight_layout()
+        fig.savefig(fig_dir / outname, bbox_inches="tight", pad_inches=0.1, dpi=300)
+        plt.close(fig)
+        gc.collect()
+
+    # Full light curve
+    all_mask = np.ones(len(data), dtype=bool)
+    _plot(all_mask, filename, title)
+
+    # Per-visit light curves
+    if "ivisit" in data.colnames:
+        visits = np.unique(data["ivisit"])
+
+        if len(visits) > 1:
+            stem = Path(filename).stem
+            suffix = Path(filename).suffix
+
+            for visit in visits:
+                visit_mask = data["ivisit"] == visit
+                visit_filename = f"{stem}_visit{int(visit)}{suffix}"
+
+                if title is None:
+                    visit_title = f"Visit {int(visit)}"
+                else:
+                    visit_title = f"{title}, visit {int(visit)}"
+
+                _plot(visit_mask, visit_filename, visit_title)
+
 # 21
 def plot_wvl_bins(w_hires, f_interp, wave_bins, wvl_bins, dirname):
     """Plot of a 1D spectrum and the bins."""
@@ -883,7 +1022,8 @@ def plot_wvl_bins(w_hires, f_interp, wave_bins, wvl_bins, dirname):
     plt.ylabel("Photelectrons")
     plt.xlabel("Wavelength (angstroms)")
     plt.tight_layout()
-    plt.savefig(dirname / f'spec_bins{wvl_bins}.png')
+    plt.savefig(dirname / f'spec_bins{wvl_bins}.png', 
+                bbox_inches='tight', pad_inches=0.1, dpi=300)
     # plt.show()
 
 
@@ -893,35 +1033,65 @@ def plot_raw(data, meta):
     # palette = sns.color_palette("husl", data.nvisit)
     sns.set_palette("muted")
     palette = sns.color_palette("muted", data.nvisit)
-    fig, ax = plt.subplots(data.nvisit, 1, figsize=(6, 3.6*data.nvisit), sharex=True)
+    fig, ax = plt.subplots(data.nvisit, 1, figsize=(6.4, 3.6*data.nvisit), sharex=True)
     if data.nvisit > 1:
         for i in range(data.nvisit):
             ind = data.vis_num == i
             # plt.subplot((data.nvisit) * 100 + 10 + i + 1)
             ax[i].plot(data.t_vis[ind] / 60., data.flux[ind], marker='o',
                        markersize=3.0, linestyle="none",
-                       label="Visit {0}".format(i), color=palette[i])
+                       color=palette[i])
+            title_fs = ax[0].xaxis.label.get_size()
+            ax[i].text(
+                0.98, 0.1,
+                f"Visit {i}",
+                transform=ax[i].transAxes,
+                ha="right",
+                va="top",
+                fontsize=title_fs,
+                zorder=10,
+            )
             ax[i].set_xlim(((data.t_vis.min() - 0.02) / 60, (data.t_vis.max() + 0.05) / 60))
             ax[i].set_ylim((0.998 * data.flux.min(), 1.002 * data.flux.max()))
-            ax[i].legend(loc=1)
+            #ax[i].legend(loc=1)
             ax[i].set_ylabel("Flux (e-)")
     else:
         # plt.subplot((data.nvisit) * 100 + 10 + i + 1)
         ax.plot(data.t_vis / 60., data.flux, marker='o',
                 markersize=3.0, linestyle="none",
-                label="Visit 0", color=palette[0])
+                color=palette[0])
+        title_fs = ax.xaxis.label.get_size()
+        ax.text(
+            0.98, 0.1,
+            "Visit 0",
+            transform=ax.transAxes,
+            ha="right",
+            va="top",
+            fontsize=title_fs,
+            zorder=10,
+        )
         ax.set_xlim(((data.t_vis.min() - 0.02) / 60, (data.t_vis.max() + 0.05) / 60))
         ax.set_ylim((0.998 * data.flux.min(), 1.002 * data.flux.max()))
-        ax.legend(loc=1)
+        #ax.legend(loc=1)
         ax.set_ylabel("Flux (e-)")
     plt.xlabel("Time after visit start (hours)")
-    fig.suptitle('wvl = {0:0.3f} micron'.format(meta.wavelength), fontsize=15, y=0.998)
-    plt.tight_layout()
+
+    winfo = util.get_wavelength_info(meta)
+    title = rf"$\lambda_c = {winfo['wavelength']:.3f} \pm {winfo['half_width']:.3f}\ \mu m$"
+
+    if data.nvisit > 1:
+        ax[0].set_title(title, fontsize=title_fs, pad=10)
+    else:
+        ax.set_title(title, fontsize=title_fs, pad=10)
+
+    fig.tight_layout(h_pad=0.4)
+    fig.subplots_adjust(hspace=0.1)
 
     raw_lc_dir = meta.workdir / meta.fitdir / 'raw_lc'
     if not raw_lc_dir.exists():
         raw_lc_dir.mkdir(parents=True)
-    plt.savefig(raw_lc_dir / f'raw_lc_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png')
+    plt.savefig(raw_lc_dir / f'raw_lc_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png', 
+                bbox_inches='tight', pad_inches=0.1, dpi=300)
     plt.close('all')
     plt.clf()
     gc.collect()
@@ -957,9 +1127,17 @@ def rmsplot(model, data, meta, fitter=None):
     rms, stderr, binsz = util.computeRMS(residuals, binstep=1)
     normfactor = 1e-6
     plt.rcParams.update({'legend.fontsize': 11})
-    plt.figure(1111, figsize=(8, 6))
+    plt.figure(1111, figsize=(6.4, 4.8))
     plt.clf()
-    plt.suptitle(f'Correlated Noise at wvl = {meta.wavelength:0.3f} micron', size=16)
+
+    winfo = util.get_wavelength_info(meta)
+    method = fitter.upper() if fitter is not None else "FIT"
+    lc_type = util.get_lc_type_label(meta)
+    plt.title(
+        rf"{lc_type} {method}, $\lambda_c = {winfo['wavelength']:.3f} \pm {winfo['half_width']:.3f}\ \mu m$",
+        fontsize=14,
+    )
+
     plt.loglog(binsz, rms/normfactor, color='black', lw=1.5, label='Fit RMS', zorder=3)    # our noise
     plt.loglog(binsz, stderr/normfactor, color='red', ls='-', lw=2, label='Std. Err.', zorder=1)  # expected noise
     plt.xlim(0.95, binsz[-1]*2)
@@ -972,9 +1150,10 @@ def rmsplot(model, data, meta, fitter=None):
 
     dname = Path(f'{fitter}_res')
     fname = dname / f'corr_plot_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png'
-    plt.savefig(meta.workdir / meta.fitdir / fname)
+    plt.savefig(meta.workdir / meta.fitdir / fname, 
+                bbox_inches='tight', pad_inches=0.1, dpi=300)
     plt.close('all')
-    util.save_allandata(binsz, rms, stderr, meta, fitter=fitter)
+    util.save_time_averaging_data(binsz, rms, stderr, meta, fitter=fitter)
     plt.clf()
     gc.collect()
 
@@ -984,17 +1163,18 @@ def plot_fit_lc2(data, fit, meta, mcmc=False, nested=False):
     plt.clf()
     fig, ax = plt.subplots(2, 1)
 
-    # FIXME:
-    p = FormatParams(fit.params, data)
     sns.set_palette("muted")
     palette = sns.color_palette("muted", data.nvisit)
 
     # ind = model.phase > 0.5
     # model.phase[ind] -= 1.
     # calculate a range of times at higher resolution to make model look nice
-    phase_hr = np.linspace(fit.phase.min() - 0.05,
-                           fit.phase.max() + 0.05, 1000)
-    t_hr = phase_hr * p.per[0] + p.t0[0] + data.toffset
+    phase_hr = np.linspace(fit.phase.min() - 0.05, fit.phase.max() + 0.05, 1000)
+
+    per0 = util.get_param_value_from_fit_or_fitpar(data, fit, "per", visit=0)
+    t00 = util.get_param_value_from_fit_or_fitpar(data, fit, "t0", visit=0)
+
+    t_hr = phase_hr * per0 + t00 + data.toffset
 
     # NOTE: Plot data and best fit model from first visit
     ax[0].plot(phase_hr, calc_astro(t_hr, fit.params, data, fit.myfuncs, 0))
@@ -1007,19 +1187,27 @@ def plot_fit_lc2(data, fit, meta, mcmc=False, nested=False):
                    markersize=3, linestyle="none")
 
     # NOTE: Add labels/set axes
-    # xlo, xhi = np.min(model.phase)*0.9, np.max(model.phase)*1.1
-    xlo, xhi = -0.1, 0.1
+    xlo, xhi = get_phase_xlim(fit.phase, frac_pad=0.10, min_pad=0.005)
     ax[0].set_xlim(xlo, xhi)
     ax[0].set_ylabel("Relative Flux")
 
     # NOTE: Annotate plot with fit diagnostics
     # ax = plt.gca()
-    ax[0].text(0.85, 0.29,
-               r'$\chi^2_{\nu}$:    ' + '{0:0.2f}'.format(fit.chi2red) + '\n'
-               + 'obs. rms:  ' + '{0:0.1f}'.format(fit.rms) + '\n'
-               + 'exp. rms:  ' + '{0:0.1f}'.format(fit.rms_predicted),
-               verticalalignment='top', horizontalalignment='left',
-               transform=ax[0].transAxes, fontsize=12)
+    stats_text = (
+        r'$\chi^2_{\nu}$: ' + f'{fit.chi2red:0.2f}\n'
+        + 'obs. rms: ' + f'{fit.rms:0.1f}\n'
+        + 'exp. rms: ' + f'{fit.rms_predicted:0.1f}'
+    )
+
+    ax[0].text(
+        0.98, 0.08,
+        stats_text,
+        transform=ax[0].transAxes,
+        ha='right',
+        va='bottom',
+        fontsize=12,
+        bbox=dict(facecolor='white', edgecolor='0.7', alpha=0.85, boxstyle='round,pad=0.3'),
+    )
 
     # NOTE: Plot fit residuals
     ax[1].axhline(0, zorder=1, color='0.2', linestyle='dashed')
@@ -1035,162 +1223,79 @@ def plot_fit_lc2(data, fit, meta, mcmc=False, nested=False):
     ax[1].set_ylabel("Residuals (ppm)")
     ax[1].set_xlabel("Orbital phase")
 
-    if mcmc:
-        fig.suptitle(f'MCMC, {meta.wavelength:0.3f} micron',
-                     fontsize=15, y=0.998)
-    elif nested:
-        fig.suptitle(f'Nested Sampling, {meta.wavelength:0.3f} micron',
-                     fontsize=15, y=0.998)
-    else:
-        fig.suptitle(f'LSQ, {meta.wavelength:0.3f} micron',
-                     fontsize=15, y=0.998)
+    winfo = util.get_wavelength_info(meta)
+    method = 'MCMC' if mcmc else 'NESTED' if nested else 'LSQ'
+    lc_type = util.get_lc_type_label(meta)
+    title = (
+        rf"{lc_type} {method}, $\lambda_c = {winfo['wavelength']:.3f} "
+        rf"\pm {winfo['half_width']:.3f}\ \mu m$"
+    )
+
+    title_fs = ax[0].xaxis.label.get_size()
+    ax[0].set_title(title, fontsize=title_fs, pad=10)
 
     plt.tight_layout()
 
     if mcmc:
-        plt.savefig(meta.workdir / meta.fitdir / 'fit_lc' / f'mcmc_lc_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png')
+        plt.savefig(meta.workdir / meta.fitdir / 'fit_lc' / f'mcmc_lc_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png', 
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
     elif nested:
-        plt.savefig(meta.workdir / meta.fitdir / 'fit_lc' / f'nested_lc_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png')
+        plt.savefig(meta.workdir / meta.fitdir / 'fit_lc' / f'nested_lc_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png', 
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
     else:
-        plt.savefig(meta.workdir / meta.fitdir / 'fit_lc' / f'lsq_lc_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png')
+        plt.savefig(meta.workdir / meta.fitdir / 'fit_lc' / f'lsq_lc_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png', 
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
     plt.close('all')
     plt.clf()
     gc.collect()
 
 
-def plot_fit_lc3(data, fit, meta, mcmc=False):
-    """Plots light curve without systematics model."""
-    plt.clf()
-    fig, ax = plt.subplots(1, 1)
-
-    p = FormatParams(fit.params, data)  # FIXME
-    sns.set_palette("muted")
-    palette = sns.color_palette("muted", data.nvisit)
-
-    time_model = np.linspace(data.time.min() - 0.05, data.time.max() + 0.05, 1000)
-    flux_model = calc_astro(time_model, fit.params, data, fit.myfuncs, 0)
-    ax.plot(time_model, flux_model)
-
-    # plot systematics removed data
-    ax.plot(data.time, fit.data_nosys, marker='o', markersize=3, linestyle="none")
-
-    # add labels/set axes
-    # xlo, xhi = np.min(model.phase)*0.9, np.max(model.phase)*1.1
-    # xlo, xhi = -0.1, 0.1
-    # ax[0].set_xlim(xlo, xhi)
-    ax.set_ylabel("Relative Flux")
-
-    # annotate plot with fit diagnostics
-    # ax = plt.gca()
-    ax.text(0.85, 0.29,
-            r'$\chi^2_{\nu}$:    ' + '{0:0.2f}'.format(fit.chi2red) + '\n'
-            + 'obs. rms:  ' + '{0:0d}'.format(int(fit.rms)) + '\n'
-            + 'exp. rms:  ' + '{0:0d}'.format(int(fit.rms_predicted)),
-            verticalalignment='top', horizontalalignment='left',
-            transform=ax.transAxes, fontsize=12)
-
-    # add labels/set axes
-    ax.set_xlabel("Time")
-
-    if mcmc:
-        fig.suptitle(f'MCMC, {meta.wavelength:0.3f} micron', fontsize=15, y=0.998)
-    else:
-        fig.suptitle(f'LSQ, {meta.wavelength:0.3f} micron', fontsize=15, y=0.998)
-
-    plt.tight_layout()
-    # plt.show()
-    fit_lc_dir = meta.workdir / meta.fitdir / 'fit_lc'
-    if not fit_lc_dir.exists():
-        fit_lc_dir.mkdir(parents=True)
-    if mcmc:
-        plt.savefig(fit_lc_dir / f'newmcmc_lc_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png')
-    else:
-        plt.savefig(fit_lc_dir / f'newfit_lc_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png')
-    # plt.waitforbuttonpress(0) # this will wait for indefinite time
-    plt.close('all')
-    plt.clf()
-    gc.collect()
-
-
-
-def save_astrolc_data_nested(data, fit, meta):
-    """
-    Saves the data used to plot the astrophysical model (without the systematics) and the data (without the systematics) not phase folded.
-    """
-
+def save_astrolc_data(data, fit, meta, fitter="lsq"):
+    """Save the model/data used in the Stage 30 light-curve plot."""
     table_model = Table()
     table_nosys = Table()
 
-    p = FormatParams(fit.params, data)
-    # FIXME: the next is not great when there are more then one visit which are separated by a big time gap.
-    # same is true for plot_fit_lc3
-    time_model = np.linspace(data.time.min() - p.per[0]/2, data.time.max() + p.per[0]/2, 10000)
-    flux_model = calc_astro(time_model, fit.params, data, fit.myfuncs, 0)
+    visit_model = []
+    time_model_all = []
+    flux_model_all = []
 
-    table_model['time_model'] = np.array(time_model, dtype=np.float64)
-    table_model['flux_model'] = np.array(flux_model, dtype=np.float64)
+    time_segments = util.make_time_model_per_visit(
+        data,
+        pad_hours=0.25,
+        points_per_hour=15,
+    )
 
-    table_nosys['time_nosys'] = np.array(data.time, dtype=np.float64)
-    table_nosys['flux_nosys'] = np.array(fit.data_nosys, dtype=np.float64)
+    for visit, time_model in enumerate(time_segments):
+        flux_model = calc_astro(time_model, fit.params, data, fit.myfuncs, visit)
 
-    if not os.path.isdir(meta.workdir + meta.fitdir + '/nested_res'):
-        os.makedirs(meta.workdir + meta.fitdir + '/nested_res')
-    ascii.write(table_model, meta.workdir + meta.fitdir +  '/nested_res/fit_lc_data_model_bin{0}_wvl{1:0.3f}.txt'.format(meta.s30_file_counter, meta.wavelength), format='rst', overwrite=True)
-    ascii.write(table_nosys, meta.workdir + meta.fitdir +  '/nested_res/fit_lc_data_nosys_bin{0}_wvl{1:0.3f}.txt'.format(meta.s30_file_counter, meta.wavelength), format='rst', overwrite=True)
+        visit_model.append(np.full(len(time_model), visit, dtype=int))
+        time_model_all.append(time_model)
+        flux_model_all.append(flux_model)
 
+    table_model["visit"] = np.concatenate(visit_model)
+    table_model["time_model"] = np.concatenate(time_model_all)
+    table_model["flux_model"] = np.concatenate(flux_model_all)
 
-def save_astrolc_data(data, fit, meta):
-    """Saves the data used to plot the astrophysical model (without the systematics)
-    and the data (without the systematics) not phase folded.
-    """
-    table_model = Table()
-    table_nosys = Table()
+    table_nosys["visit"] = np.asarray(data.vis_num, dtype=int)
+    table_nosys["time_nosys"] = np.asarray(data.time, dtype=np.float64)
+    table_nosys["flux_nosys"] = np.asarray(fit.data_nosys, dtype=np.float64)
 
-    p = FormatParams(fit.params, data)
+    fit_lc_dir = meta.workdir / meta.fitdir / "fit_lc"
+    fit_lc_dir.mkdir(parents=True, exist_ok=True)
 
-    time_model = np.linspace(data.time.min() - p.per[0]/2, data.time.max() + p.per[0]/2, 1000)
-    flux_model = calc_astro(time_model, fit.params, data, fit.myfuncs, 0)
+    ascii.write(
+        table_model,
+        fit_lc_dir / f"{fitter}_lc_data_model_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt",
+        format="rst",
+        overwrite=True,
+    )
 
-    table_model['time_model'] = np.array(time_model, dtype=np.float64)
-    table_model['flux_model'] = np.array(flux_model, dtype=np.float64)
-
-    table_nosys['time_nosys'] = np.array(data.time, dtype=np.float64)
-    table_nosys['flux_nosys'] = np.array(fit.data_nosys, dtype=np.float64)
-
-    fit_lc_dir = meta.workdir / meta.fitdir / 'fit_lc'
-    if not fit_lc_dir.exists():
-        fit_lc_dir.mkdir(parents=True)
-    ascii.write(table_model, fit_lc_dir / f'fit_lc_data_model_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt',
-                format='rst', overwrite=True)
-    ascii.write(table_nosys, fit_lc_dir / f'fit_lc_data_nosys_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt',
-                format='rst', overwrite=True)
-
-
-def save_astrolc_data_nested(data, fit, meta):
-    """Saves the data used to plot the astrophysical model (without the systematics)
-    and the data (without the systematics) not phase folded.
-    """
-    table_model = Table()
-    table_nosys = Table()
-
-    p = FormatParams(fit.params, data)
-
-    time_model = np.linspace(data.time.min() - p.per[0]/2, data.time.max() + p.per[0]/2, 10000)
-    flux_model = calc_astro(time_model, fit.params, data, fit.myfuncs, 0)
-
-    table_model['time_model'] = np.array(time_model, dtype=np.float64)
-    table_model['flux_model'] = np.array(flux_model, dtype=np.float64)
-
-    table_nosys['time_nosys'] = np.array(data.time, dtype=np.float64)
-    table_nosys['flux_nosys'] = np.array(fit.data_nosys, dtype=np.float64)
-
-    fit_lc_dir = meta.workdir / meta.fitdir / 'nested_res'
-    if not fit_lc_dir.exists():
-        fit_lc_dir.mkdir(parents=True)
-    ascii.write(table_model, fit_lc_dir / f'fit_lc_data_model_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt',
-                format='rst', overwrite=True)
-    ascii.write(table_nosys, fit_lc_dir / f'fit_lc_data_nosys_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt',
-                format='rst', overwrite=True)
+    ascii.write(
+        table_nosys,
+        fit_lc_dir / f"{fitter}_lc_data_nosys_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt",
+        format="rst",
+        overwrite=True,
+    )
 
 
 # def plot_fit_lc4(data, fit, meta, mcmc=False):
@@ -1269,18 +1374,24 @@ def params_vs_wvl(vals, errs, idxs, meta):
 
     for i in range(len(idxs[0])):
         if len(idxs[0]) == 1:
-            ax.errorbar(range(len(idxs)), [vals[ii][idxs[0][i]] for ii in range(len(vals))],
+            ax.errorbar(meta.wavelength_list, [vals[ii][idxs[0][i]] for ii in range(len(vals))],
                         yerr=[errs[ii][idxs[0][i]] for ii in range(len(errs))], fmt='.')
             ax.set_ylabel(labels[i])
         else:
-            ax[i].errorbar(range(len(idxs)), [vals[ii][idxs[0][i]] for ii in range(len(vals))],
+            ax[i].errorbar(meta.wavelength_list, [vals[ii][idxs[0][i]] for ii in range(len(vals))],
                            yerr=[errs[ii][idxs[0][i]] for ii in range(len(errs))], fmt='.')
             ax[i].set_ylabel(labels[i])
+
+    if isinstance(ax, np.ndarray):
+        ax[-1].set_xlabel("Wavelength (microns)")
+    else:
+        ax.set_xlabel("Wavelength (microns)")
+        
     plt.subplots_adjust(hspace=0.01)
     plt.tight_layout()
     plt.subplots_adjust(hspace=0.01)
     plt.savefig(meta.workdir / meta.fitdir / 'lsq_res' / 'lsq_params_vs_wvl.png',
-                dpi=450, bbox_inches='tight', pad_inches=0.05)
+                bbox_inches='tight', pad_inches=0.1, dpi=300)
     plt.close('all')
     plt.clf()
     gc.collect()
@@ -1306,11 +1417,17 @@ def params_vs_wvl_mcmc(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta):
             ax[i].errorbar(meta.wavelength_list, vals_mcmc.T[i],
                            yerr=(errs_lower_mcmc.T[i], errs_upper_mcmc.T[i]), fmt='.')
             ax[i].set_ylabel(labels[i])
+
+    if isinstance(ax, np.ndarray):
+        ax[-1].set_xlabel("Wavelength (microns)")
+    else:
+        ax.set_xlabel("Wavelength (microns)")
+
     plt.subplots_adjust(hspace=0.01)
     plt.tight_layout()
     plt.subplots_adjust(hspace=0.01)
     plt.savefig(meta.workdir / meta.fitdir / 'mcmc_res' / 'mcmc_params_vs_wvl.png',
-                dpi=500, bbox_inches='tight', pad_inches=0.05)
+                bbox_inches='tight', pad_inches=0.1, dpi=300)
     plt.close('all')
     plt.clf()
     gc.collect()
@@ -1336,26 +1453,17 @@ def params_vs_wvl_nested(vals_nested, errs_lower_nested, errs_upper_nested, meta
             ax[i].errorbar(meta.wavelength_list, vals_nested.T[i],
                            yerr=(errs_lower_nested.T[i], errs_upper_nested.T[i]), fmt='.')
             ax[i].set_ylabel(labels[i])
+
+    if isinstance(ax, np.ndarray):
+        ax[-1].set_xlabel("Wavelength (microns)")
+    else:
+        ax.set_xlabel("Wavelength (microns)")
+
     plt.subplots_adjust(hspace=0.01)
     plt.tight_layout()
     plt.subplots_adjust(hspace=0.01)
     plt.savefig(meta.workdir / meta.fitdir / 'nested_res' / 'nested_params_vs_wvl.png',
-                dpi=500, bbox_inches='tight', pad_inches=0.05)
-    plt.close('all')
-    plt.clf()
-    gc.collect()
-
-
-def lsq_rprs(vals, errs, idxs, meta):
-    """Plots the spectrum (rprs vs wvl) as fitted by the least square routine."""
-    rp_idx = np.where(np.array(meta.labels) == 'rp')[0][0]
-    rprs_vals_lsq = [vals[ii][idxs[0][rp_idx]] for ii in range(len(vals))]
-    rprs_errs_lsq = [errs[ii][idxs[0][rp_idx]] for ii in range(len(errs))]
-    plt.errorbar(meta.wavelength_list, rprs_vals_lsq, yerr=rprs_errs_lsq, fmt='.', c='red')
-    plt.xlabel('Wavelength (micron)')
-    plt.ylabel('Transit Depth (ppm)')
-    plt.savefig(meta.workdir / meta.fitdir / 'lsq_res' / 'lsq_rprs.png',
-                dpi=300, bbox_inches='tight', pad_inches=0.05)
+                bbox_inches='tight', pad_inches=0.1, dpi=300)
     plt.close('all')
     plt.clf()
     gc.collect()
@@ -1364,22 +1472,30 @@ def lsq_rprs(vals, errs, idxs, meta):
 def mcmc_chains(ndim, sampler, nburn, labels, meta):
     """Plots the temporal evolution of the MCMC chain."""
     plt.clf()
+
+    chain = sampler.get_chain()  # shape: (nsteps, nwalkers, ndim)
+    chain = chain[nburn:, :, :]
+
     fig, axes = plt.subplots(ndim, 1, sharex=True, figsize=(8, ndim))
+
     if ndim > 1:
-        for i in range(0, ndim):
-            axes[i].plot(sampler.chain[:, nburn:, i].T, alpha=0.4)
-            # axes[i].yaxis.set_major_locator(MaxNLocator(5))
+        for i in range(ndim):
+            axes[i].plot(chain[:, :, i], alpha=0.4)
             axes[i].set_ylabel(labels[i])
     elif ndim == 1:
-        axes.plot(sampler.chain[:, nburn:, 0].T, alpha=0.4)
-        # axes.yaxis.set_major_locator(MaxNLocator(5))
-        axes.set_ylabel(labels)
+        axes.plot(chain[:, :, 0], alpha=0.4)
+        axes.set_ylabel(labels[0] if isinstance(labels, (list, tuple, np.ndarray)) else labels)
+
     fig.tight_layout()
     fig.subplots_adjust(wspace=0, hspace=0)
+
     if nburn == 0:
-        fig.savefig(meta.workdir / meta.fitdir / 'mcmc_res' / f"mcmc_chains_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png")
+        fig.savefig(meta.workdir / meta.fitdir / 'mcmc_res' / f"mcmc_chains_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png", 
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
     else:
-        fig.savefig(meta.workdir / meta.fitdir / 'mcmc_res' / f"mcmc_chains_noburn_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png")
+        fig.savefig(meta.workdir / meta.fitdir / 'mcmc_res' / f"mcmc_chains_noburn_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png", 
+                    bbox_inches='tight', pad_inches=0.1, dpi=300)
+
     plt.close('all')
     plt.clf()
     gc.collect()
@@ -1392,21 +1508,75 @@ def mcmc_pairs(samples, params, meta, fit_par, data):
     fig = corner.corner(samples, labels=labels, show_titles=True,quantiles=[0.16, 0.5, 0.84],title_fmt='.4')
     figname = meta.workdir / meta.fitdir / 'mcmc_res' /\
             f"mcmc_pairs_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png"
-    fig.savefig(figname)
+    fig.savefig(figname, 
+                dpi=500, bbox_inches='tight', pad_inches=0.05)
     plt.close('all')
     plt.clf()
     gc.collect()
 
 # FIXME: make sure this works for cases when nvisit > 1
-def nested_pairs(samples, params, meta, fit_par, data):
-    """Plots a pairs plot of the nested sampling."""
-    labels = meta.labels
-    fig = corner.corner(samples, labels=labels, show_titles=True,
-                        quantiles=[0.16, 0.5, 0.84], title_fmt='.4')
-    figname = meta.workdir / meta.fitdir / 'nested_res' /\
-            f"nested_pairs_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png"
-    fig.savefig(figname)
-    plt.close('all')
+def nested_pairs(samples, labels_plot, meta, median_vals=None, ml_vals=None, n_sampled=None):
+    """
+    Corner plot for nested sampling, with posterior medians and max-likelihood
+    values overplotted.
+    """
+    nplot = samples.shape[1]
+
+    if len(labels_plot) != nplot:
+        raise ValueError(f"len(labels_plot)={len(labels_plot)} but samples has ndim={nplot}")
+
+    if n_sampled is None:
+        n_sampled = nplot
+
+    fig = corner.corner(
+        samples,
+        labels=labels_plot,
+        show_titles=True,
+        quantiles=[0.16, 0.5, 0.84],
+        title_fmt='.7g'
+    )
+
+    axes = np.array(fig.axes).reshape((nplot, nplot))
+
+    for i in range(nplot):
+        ax = axes[i, i]
+
+        if i < n_sampled:
+            if median_vals is not None:
+                ax.axvline(median_vals[i], color='r', lw=1.5)
+
+            if ml_vals is not None:
+                ax.axvline(ml_vals[i], color='g', lw=1.5)
+
+        for j in range(i):
+            ax = axes[i, j]
+
+            if i < n_sampled and j < n_sampled:
+                if median_vals is not None:
+                    ax.scatter(
+                        median_vals[j], median_vals[i],
+                        c='r', s=20, zorder=20
+                    )
+
+                if ml_vals is not None:
+                    ax.scatter(
+                        ml_vals[j], ml_vals[i],
+                        c='g', s=20, zorder=21
+                    )
+
+    fig.text(
+        0.80, 0.98,
+        'red = posterior median\ngreen = max likelihood',
+        ha='left',
+        va='top',
+        fontsize=12,
+    )
+
+    figname = meta.workdir / meta.fitdir / 'nested_res' / \
+        f"nested_pairs_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png"
+    fig.savefig(figname, 
+                bbox_inches='tight', pad_inches=0.1, dpi=300)
+    plt.close(fig)
     plt.clf()
     gc.collect()
 
@@ -1415,7 +1585,8 @@ def dyplot_runplot(results, meta):
     """Plot a summary of the run."""
     rfig, raxes = dyplot.runplot(results)
     plt.savefig(meta.workdir / meta.fitdir / 'nested_res/' /
-            f"dyplot_runplot_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png")
+            f"dyplot_runplot_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png", 
+            bbox_inches='tight', pad_inches=0.1, dpi=300)
     plt.close('all')
     plt.clf()
     gc.collect()
@@ -1425,7 +1596,8 @@ def dyplot_traceplot(results, meta):
     """Plot traces and 1-D marginalized posteriors."""
     tfig, taxes = dyplot.traceplot(results, labels=meta.labels)
     plt.savefig(meta.workdir / meta.fitdir / 'nested_res' /
-            f"dyplot_traceplot_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png")
+            f"dyplot_traceplot_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png", 
+            bbox_inches='tight', pad_inches=0.1, dpi=300)
     plt.close('all')
     plt.clf()
     gc.collect()
@@ -1435,7 +1607,29 @@ def dyplot_cornerplot(results, meta):
     # Plot the 2-D marginalized posteriors.
     cfig, caxes = dyplot.cornerplot(results, show_titles=True, title_fmt='.4',labels=meta.labels, color='blue', hist_kwargs=dict(facecolor='blue', edgecolor='blue'))
     plt.savefig(meta.workdir / meta.fitdir / 'nested_res' /
-                f"dyplot_cornerplot_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png")
+                f"dyplot_cornerplot_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png", 
+                bbox_inches='tight', pad_inches=0.1, dpi=300)
+    plt.close('all')
+    plt.clf()
+    gc.collect()
+
+
+
+def lsq_rprs(vals, errs, idxs, meta):
+    """Plots the spectrum (rprs vs wvl) as fitted by the least square routine."""
+    rp_idx = np.where(np.array(meta.labels) == 'rp')[0][0]
+    rprs_vals_lsq = [vals[ii][idxs[0][rp_idx]] for ii in range(len(vals))]
+    rprs_errs_lsq = [errs[ii][idxs[0][rp_idx]] for ii in range(len(errs))]
+    plt.rcParams.update({'legend.fontsize': 11})
+    plt.figure(1111, figsize=(6.4, 4.8))
+    plt.errorbar(meta.wavelength_list, rprs_vals_lsq, yerr=rprs_errs_lsq, fmt='.', c='red')
+    wave_range = meta.wavelength_list[-1] - meta.wavelength_list[0]
+    plt.xlim(meta.wavelength_list[0] - 0.1 * wave_range, meta.wavelength_list[-1] + 0.1 * wave_range)
+    plt.xlabel('Wavelength (micron)')
+    plt.ylabel("rprs")
+    plt.title("Transmission Spectrum", fontsize=14, pad=10)
+    plt.savefig(meta.workdir / meta.fitdir / 'lsq_res' / 'lsq_rprs.png',
+                bbox_inches='tight', pad_inches=0.1, dpi=300)
     plt.close('all')
     plt.clf()
     gc.collect()
@@ -1448,14 +1642,18 @@ def mcmc_rprs(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta):
     errs_upper_mcmc = np.array(errs_upper_mcmc)
 
     rp_idx = np.where(np.array(meta.labels) == 'rp')[0][0]
+    plt.rcParams.update({'legend.fontsize': 11})
+    plt.figure(1111, figsize=(6.4, 4.8))
     plt.errorbar(meta.wavelength_list, vals_mcmc.T[rp_idx],
                  yerr=(errs_lower_mcmc.T[rp_idx], errs_upper_mcmc.T[rp_idx]),
                  fmt='.', c='darkblue', alpha=0.9)
-
+    wave_range = meta.wavelength_list[-1] - meta.wavelength_list[0]
+    plt.xlim(meta.wavelength_list[0] - 0.1 * wave_range, meta.wavelength_list[-1] + 0.1 * wave_range)
     plt.xlabel('Wavelength (micron)')
-    plt.ylabel('Transit Depth (ppm)')
+    plt.ylabel("rprs")
+    plt.title("Transmission Spectrum", fontsize=14, pad=10)
     plt.savefig(meta.workdir / meta.fitdir / 'mcmc_res' / 'mcmc_rprs.png',
-                dpi=300, bbox_inches='tight', pad_inches=0.05)
+                bbox_inches='tight', pad_inches=0.1, dpi=300)
     plt.close('all')
     plt.clf()
     gc.collect()
@@ -1468,15 +1666,31 @@ def nested_rprs(vals_nested, errs_lower_nested, errs_upper_nested, meta):
     errs_upper_nested = np.array(errs_upper_nested)
 
     rp_idx = np.where(np.array(meta.labels) == 'rp')[0][0]
-
+    plt.rcParams.update({'legend.fontsize': 11})
+    plt.figure(1111, figsize=(6.4, 4.8))
     plt.errorbar(meta.wavelength_list, vals_nested.T[rp_idx],
                  yerr=(errs_lower_nested.T[rp_idx], errs_upper_nested.T[rp_idx]),
                  fmt='.', c='darkblue', alpha=0.9)
-
+    wave_range = meta.wavelength_list[-1] - meta.wavelength_list[0]
+    plt.xlim(meta.wavelength_list[0] - 0.1 * wave_range, meta.wavelength_list[-1] + 0.1 * wave_range)
     plt.xlabel('Wavelength (micron)')
-    plt.ylabel('Transit Depth (ppm)')
+    plt.ylabel("rprs")
+    plt.title("Transmission Spectrum", fontsize=14, pad=10)
     plt.savefig(meta.workdir / meta.fitdir / 'nested_res' / 'nested_rprs.png',
-                dpi=300, bbox_inches='tight', pad_inches=0.05)
+                bbox_inches='tight', pad_inches=0.1, dpi=300)
     plt.close('all')
     plt.clf()
     gc.collect()
+
+def get_phase_xlim(phase, frac_pad=0.10, min_pad=0.005):
+    """Return x-limits based on data range with a fractional padding."""
+    xmin = float(np.nanmin(phase))
+    xmax = float(np.nanmax(phase))
+    width = xmax - xmin
+
+    if width <= 0:
+        pad = min_pad
+    else:
+        pad = max(frac_pad * width, min_pad)
+
+    return xmin - pad, xmax + pad

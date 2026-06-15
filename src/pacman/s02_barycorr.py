@@ -1,6 +1,8 @@
+import time
 from pathlib import Path
-
+import shutil
 import numpy as np
+
 from astropy.io import ascii
 from astropy.table import Column
 from tqdm import tqdm
@@ -8,9 +10,11 @@ from tqdm import tqdm
 from .lib import suntimecorr
 from .lib import util
 from .lib import manageevent as me
+from .lib import logedit
+from .lib import read_pcf as rd
 
 
-def run02(eventlabel: str, workdir: Path, meta=None):
+def run02(pcf_path: Path, meta=None):
     """Performs the barycentric correction of the observation times
 
     - performs the barycentric correction based on the t_mjd in filelist.txt.
@@ -19,8 +23,6 @@ def run02(eventlabel: str, workdir: Path, meta=None):
 
     Parameters
     ----------
-    eventlabel : str
-        the label given to the event in the run script. Will determine the name of the run directory
     workdir : str
         the name of the work directory.
     meta
@@ -37,15 +39,17 @@ def run02(eventlabel: str, workdir: Path, meta=None):
         Written by Sebastian Zieba      December 2021
     """
 
-    print('Starting s02')
+    meta, log = util.setup_stage(
+        pcf_path=pcf_path,
+        stage_num="02",
+        previous_stage_num="01",
+        copy_filelist=True,
+        meta=meta,
+    )
 
-    if meta is None:
-        meta = me.loadevent(workdir / f'WFC3_{eventlabel}_Meta_Save')
-
-    # read in filelist
+    # Read filelist from Stage 00/01 input lineage
     filelist_path = meta.workdir / 'filelist.txt'
-    if filelist_path.exists():
-        filelist = ascii.read(filelist_path)
+    filelist = ascii.read(str(filelist_path))
 
     ivisit = filelist['ivisit']
     t_mjd = filelist['t_mjd']
@@ -86,22 +90,24 @@ def run02(eventlabel: str, workdir: Path, meta=None):
         tos[i] = (itime - t_bjd[iorbit_begin]) * 24 * 60  # time since first exposure in orbit
         tvs[i] = (itime - t_bjd[ivisit_begin]) * 24 * 60  # time since first exposure in visit
 
-    print('Writing t_bjd into filelist.txt')
-    if not any(np.array(filelist.keys()) == 't_bjd'):
+    log.writelog('Writing t_bjd into filelist.txt')
+
+    if 't_bjd' not in filelist.colnames:
         filelist.add_column(Column(data=t_bjd, name='t_bjd'))
-        ascii.write(filelist, filelist_path, format='rst', overwrite=True)
     else:
         filelist.replace_column(name='t_bjd', col=Column(data=t_bjd, name='t_bjd'))
-        ascii.write(filelist, filelist_path, format='rst', overwrite=True)
 
     # Overwrite old visit and orbit times with BJD corrected ones
     filelist['t_visit'] = tvs
     filelist['t_orbit'] = tos
-    ascii.write(filelist, filelist_path, format='rst', overwrite=True)
 
-    # Save results
-    print('Saving Metadata')
-    me.saveevent(meta, meta.workdir / f'WFC3_{meta.eventlabel}_Meta_Save', save=[])
+    # Save updated filelist into the Stage 02 workdir
+    ascii.write(filelist, meta.workdir / 'filelist.txt', format='rst', overwrite=True)
 
-    print('Finished s02 \n')
+    log.writelog('Saving Metadata')
+    me.saveevent(meta, meta.workdir / 'WFC3_Meta_Save', save=[])
+
+    log.writelog('Finished s02 \n')
+    log.closelog()
+
     return meta

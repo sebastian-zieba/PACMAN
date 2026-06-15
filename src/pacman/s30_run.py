@@ -14,40 +14,70 @@ from .lib.least_squares import lsq_fit
 from .lib.mcmc import mcmc_fit
 from .lib.model import Model
 from .lib.nested import nested_sample
-from .lib.options import OPTIONS
 from .lib.read_data import Data
+from .lib import logedit
+from .lib import read_pcf as rd
+from .lib import read_fit_par
 
 
-def run30(eventlabel: str, workdir: Path, meta=None):
-    """This functions reads in the spectroscopic or white light curve(s) and
-    fits a model to them."""
-    print('Starting s30\n')
+def run30(pcf_path: Path, meta=None):
+    """
+    This functions reads in the spectroscopic or white light curve(s) and
+    fits a model to them.
+    """
+    pcf_path = Path(pcf_path)
 
-    if meta is None:
-        meta = me.loadevent(workdir / f'WFC3_{eventlabel}_Meta_Save')
+    # Read live/current obs_par.pcf to decide whether Stage 30 uses
+    # Stage 20 white light curves or Stage 21 spectroscopic light curves.
+    pcf = rd.read_pcf(pcf_path / "obs_par.pcf")
+    fit_white = pcf.s30_fit_white.get(0)
+    fit_spec = pcf.s30_fit_spec.get(0)
 
-    # Create directories for Stage 3 processing
-    datetime = time.strftime('%Y-%m-%d_%H-%M-%S')
+    if fit_white and fit_spec:
+        raise ValueError("Only one of s30_fit_white or s30_fit_spec can be True.")
 
-    # Create a directory for the white or the spectroscopic fit
+    if not fit_white and not fit_spec:
+        raise ValueError("Either s30_fit_white or s30_fit_spec must be True.")
+
+    if fit_spec:
+        previous_stage_num = "21"
+        stage_subdir = "spec_lc"
+        copy_extracted_sp = True
+        copy_extracted_lc = False
+    else:
+        previous_stage_num = "20"
+        stage_subdir = "white_lc"
+        copy_extracted_sp = False
+        copy_extracted_lc = True
+
+    meta, log = util.setup_stage(
+        pcf_path=pcf_path,
+        stage_num="30",
+        previous_stage_num=previous_stage_num,
+        stage_subdir=stage_subdir,
+        copy_filelist=True,
+        copy_xrefyref=True,
+        copy_ancil=True,
+        copy_extracted_lc=copy_extracted_lc,
+        copy_extracted_sp=copy_extracted_sp,
+        meta=meta,
+    )
+
+    # Create a directory for the white or the spectroscopic fit.
+    # The Stage 30 run directory is already timestamped, so no extra
+    # timestamped fit_* subdirectory is needed.
     if meta.s30_fit_white:
-        meta.fitdir = Path('fit_white') / f'fit_{datetime}_{meta.eventlabel}'
+        meta.fitdir = Path("fit_white")
     elif meta.s30_fit_spec:
-        meta.fitdir = Path('fit_spec') / f'fit_{datetime}_{meta.eventlabel}'
+        meta.fitdir = Path("fit_spec")
 
     fit_dir = meta.workdir / meta.fitdir
-    if not fit_dir.exists():
-        fit_dir.mkdir(parents=True, exist_ok=True)
+    fit_dir.mkdir(parents=True, exist_ok=True)
 
     # Make fit_par nicer by lining up the columns
     nice_fit_par.nice_fit_par(meta.workdir / "fit_par.txt")
 
-    # Copy pcf and fit_par files into the new fitdirectory
-    shutil.copy(meta.workdir / "obs_par.pcf", fit_dir)
-    shutil.copy(meta.workdir / "fit_par.txt", fit_dir)
-
     # Reads in fit parameters from the fit_par file
-    #TODO: Check that fit_par is configured correctly. Eg initial value has to be within boundaries!
     fit_par = ascii.read(
         meta.workdir / "fit_par.txt",
         format="commented_header",
@@ -55,6 +85,13 @@ def run30(eventlabel: str, workdir: Path, meta=None):
         guess=False,
         fast_reader=False,
         fill_values=[("", "0")],
+    )
+    read_fit_par.validate_fit_par(
+        fit_par,
+        run_mcmc=meta.run_mcmc,
+        run_nested=meta.run_nested,
+        nsigma_lsq=5.0,
+        warn_only_for_x=False, # I set that to False because for nested sampling the code will definitely break when "X" is used as a prior. 
     )
 
     # Read in the user wanted fit functions
@@ -77,6 +114,7 @@ def run30(eventlabel: str, workdir: Path, meta=None):
         vals_nested = []
         errs_lower_nested = []
         errs_upper_nested = []
+        vals_maxL_nested = []
 
     meta = util.log_run_setup(meta)
 
@@ -94,6 +132,15 @@ def run30(eventlabel: str, workdir: Path, meta=None):
             if meta.run_clipiters == 0:
                 print('\n')
                 data = Data(f, meta, fit_par)
+
+                read_fit_par.validate_c_against_light_curve(
+                    fit_par,
+                    data,
+                    nsigma_lc=100.0,
+                    nsigma_prior=100.0,
+                    warn_only=False,
+                )
+
                 model = Model(data, myfuncs)
                 print('\n*STARTS LEAST SQUARED*')
                 data, model, params, m = lsq_fit(fit_par, data, meta, model, myfuncs, noclip=True) #not clipping
@@ -108,6 +155,15 @@ def run30(eventlabel: str, workdir: Path, meta=None):
                         data = Data(f, meta, fit_par)
                     else:
                         data = Data(f, meta, fit_par, clip_idx)
+
+                    read_fit_par.validate_c_against_light_curve(
+                        fit_par,
+                        data,
+                        nsigma_lc=100.0,
+                        nsigma_prior=100.0,
+                        warn_only=False,
+                    )
+
                     model = Model(data, myfuncs)
                     if iii == meta.run_clipiters:
                         data, model, params, m = lsq_fit(fit_par, data, meta, model, myfuncs, noclip=True)
@@ -174,7 +230,8 @@ def run30(eventlabel: str, workdir: Path, meta=None):
             if not meta.run_lsq or meta.rescale_uncert:
                 data, model, params, m = lsq_fit(fit_par, data, meta, model, myfuncs, noclip=True)
                 if meta.run_verbose == True: print("rms, chi2red = ", model.rms, model.chi2red)
-            val_nested, err_lower_nested, err_upper_nested, fit = nested_sample(data, model, params, f, meta, fit_par)
+            val_nested, err_lower_nested, err_upper_nested, fit, val_maxL_nested = nested_sample(
+                data, model, params, f, meta, fit_par)
 
         if meta.run_verbose:
             val, err, idx = ReturnParams(m, data)
@@ -191,6 +248,7 @@ def run30(eventlabel: str, workdir: Path, meta=None):
             vals_nested.append(val_nested)
             errs_lower_nested.append(err_lower_nested)
             errs_upper_nested.append(err_upper_nested)
+            vals_maxL_nested.append(val_maxL_nested)
 
     if meta.run_verbose:
         plots.params_vs_wvl(vals, errs, idxs, meta)
@@ -212,13 +270,23 @@ def run30(eventlabel: str, workdir: Path, meta=None):
 
         if not meta.s30_fit_white and ('rp' in meta.labels) and meta.run_nested:
             plots.nested_rprs(vals_nested, errs_lower_nested, errs_upper_nested, meta)
-            util.make_rprs_txt(vals_nested, errs_lower_nested, errs_upper_nested, meta, fitter='nested')
+            util.make_rprs_txt(
+                                vals_nested,
+                                errs_lower_nested,
+                                errs_upper_nested,
+                                meta,
+                                fitter="nested",
+                                vals_maxL=vals_maxL_nested,
+                            )
 
     if meta.run_mcmc or meta.run_nested:
         util.save_fit_output(fit, data, meta)
 
-    print('Finished s30')
+    log.writelog("Saving Metadata")
+    me.saveevent(meta, meta.workdir / "WFC3_Meta_Save", save=[])
 
+    log.writelog("Finished s30")
+    log.closelog()
     return meta
 
 

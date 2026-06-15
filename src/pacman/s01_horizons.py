@@ -1,16 +1,20 @@
+import time
 from pathlib import Path
+from urllib.parse import urlencode
 from shutil import copyfileobj
 from urllib.request import urlopen
-
+import shutil
 import numpy as np
 from astropy.io import ascii
 from tqdm import tqdm
 
 from .lib import manageevent as me
-from .lib.options import OPTIONS
+from .lib import util
+from .lib import logedit
+from .lib import read_pcf as rd
 
 
-def run01(eventlabel, workdir: Path, meta=None):
+def run01(pcf_path: Path, meta=None):
     """This function downloads the location of HST during the observations.
 
     - Retrieves vector data of Hubble from JPL's HORIZONS system on https://ssd.jpl.nasa.gov/horizons_batch.cgi (see Web interface on https://ssd.jpl.nasa.gov/horizons.cgi)
@@ -23,8 +27,6 @@ def run01(eventlabel, workdir: Path, meta=None):
 
     Parameters
     ----------
-    eventlabel : str
-       the label given to the event in the run script. Will determine the name of the run directory
     workdir : str
        the name of the work directory.
     meta
@@ -38,79 +40,83 @@ def run01(eventlabel, workdir: Path, meta=None):
     Notes:
     ----------
     History:
+        Updated by Sebastian Zieba      May 2025
+        New directory structure and logging system
+        Modified by Nestor Espinoza     March 2025 
+        (with help from ChatGPT)
         Written by Sebastian Zieba      December 2021
     """
-    print('Starting s01')
-    if meta is None:
-        meta = me.loadevent(workdir / f'WFC3_{eventlabel}_Meta_Save')
 
-    # read in filelist
+    meta, log = util.setup_stage(
+        pcf_path=pcf_path,
+        stage_num="01",
+        previous_stage_num="00",
+        copy_filelist=True,
+        meta=meta,
+    )
+
+    # Read filelist from Stage 00
     filelist_path = meta.workdir / 'filelist.txt'
-    if filelist_path.exists():
-        filelist = ascii.read(filelist_path)
+    filelist = ascii.read(str(filelist_path))
 
-    t_mjd = filelist['t_mjd']
-    ivisit = filelist['ivisit']
+    t_mjd = filelist["t_mjd"]
+    ivisit = filelist["ivisit"]
 
-    # Setting for the JPL Horizons interface
-    settings = [
-        "COMMAND= -48",  # Hubble
-        "CENTER= 500@0",  # Solar System Barycenter (SSB) [500@0]
-        "MAKE_EPHEM= YES",
-        "TABLE_TYPE= VECTORS",
-        # "START_TIME= $ARGV[0]",
-        # "STOP_TIME= $ARGV[1]",
-        "STEP_SIZE= 5m",  # 5 Minute interval
-        "OUT_UNITS= KM-S",
-        "REF_PLANE= FRAME",
-        "REF_SYSTEM= J2000",
-        "VECT_CORR= NONE",
-        "VEC_LABELS= YES",
-        "VEC_DELTA_T= NO",
-        "CSV_FORMAT= NO",
-        "OBJ_DATA= YES",
-        "VEC_TABLE= 3"]
+    # Output directory
+    horizons_dir = meta.workdir / "ancil" / "horizons"
+    horizons_dir.mkdir(parents=True, exist_ok=True)
 
-    # Replacing symbols for URL encoding
-    for i, _ in enumerate(settings):
-        settings[i] = settings[i].replace(" =", "=").replace("= ", "=")
-        settings[i] = settings[i].replace(" ", "%20")
-        settings[i] = settings[i].replace("&", "%26")
-        settings[i] = settings[i].replace(";", "%3B")
-        settings[i] = settings[i].replace("?", "%3F")
+    base_url = "https://ssd.jpl.nasa.gov/api/horizons.api"
 
-    settings = '&'.join(settings)
-    settings = 'https://ssd.jpl.nasa.gov/horizons_batch.cgi?batch=1&' + settings
+    # Base Horizons parameters. These map closely to the old PACMAN settings.
+    base_params = {
+        "format": "text",
+        "COMMAND": "'-48'",          # Hubble Space Telescope
+        "CENTER": "'500@0'",         # Solar System Barycenter
+        "MAKE_EPHEM": "'YES'",
+        "OBJ_DATA": "'YES'",
+        "EPHEM_TYPE": "'VECTORS'",
+        "STEP_SIZE": "'5 m'",
+        "OUT_UNITS": "'KM-S'",
+        "REF_PLANE": "'FRAME'",
+        "REF_SYSTEM": "'J2000'",
+        "VEC_CORR": "'NONE'",
+        "VEC_LABELS": "'YES'",
+        "VEC_DELTA_T": "'NO'",
+        "CSV_FORMAT": "'NO'",
+        "VEC_TABLE": "'3'",
+    }
 
     # save it in ./ancil/bjd_conversion/
     horizons_dir = meta.workdir / 'ancil' / 'horizons'
-    if not horizons_dir.exists():
-        horizons_dir.mkdir(parents=True)
-
-    # retrieve positions for every individual visit
-    for i in tqdm(range(max(ivisit) + 1), desc='Retrieving Horizons file for every visit', ascii=True):
+    horizons_dir.mkdir(parents=True, exist_ok=True)
+    for i in tqdm(
+        range(int(np.max(ivisit)) + 1),
+        desc="Retrieving Horizons file for every visit",
+        ascii=True,
+    ):
         t_mjd_visit = t_mjd[np.where(ivisit == i)]
-        t_start = min(
-            t_mjd_visit) + 2400000.5 - 1 / 24  # Start of Horizons file one hour before first exposure in visit
-        t_end = max(t_mjd_visit) + 2400000.5 + 1 / 24  # End of Horizons file one hour after last exposure in visit
 
-        # Complete the settings by also adding information on the start and end of the times of interest.
-        set_start = "START_TIME=JD{0}".format(t_start)
-        set_end = "STOP_TIME=JD{0}".format(t_end)
+        # 1 hour padding before/after the visit, matching the original code
+        t_start = np.min(t_mjd_visit) + 2400000.5 - 1.0 / 24.0
+        t_end = np.max(t_mjd_visit) + 2400000.5 + 1.0 / 24.0
 
-        # Full link
-        settings_new = settings + '&' + set_start + '&' + set_end
+        params = dict(base_params)
+        params["START_TIME"] = f"'JD{t_start:.12f}'"
+        params["STOP_TIME"] = f"'JD{t_end:.12f}'"
 
-        # Location where to save the data
-        filename = horizons_dir / f'horizons_results_v{i}.txt'
+        # urlencode handles the URL escaping properly.
+        url = f"{base_url}?{urlencode(params)}"
 
-        # Download data
-        with urlopen(settings_new) as in_stream, filename.open('wb') as out_file:
+        filename = horizons_dir / f"horizons_results_v{i}.txt"
+
+        with urlopen(url) as in_stream, filename.open("wb") as out_file:
             copyfileobj(in_stream, out_file)
 
     # Save results
-    print('Saving Metadata')
-    me.saveevent(meta, meta.workdir / f'WFC3_{meta.eventlabel}_Meta_Save', save=[])
+    log.writelog('Saving Metadata')
+    me.saveevent(meta, meta.workdir / 'WFC3_Meta_Save', save=[])
 
-    print('Finished s01 \n')
+    log.writelog("Finished s01 \n")
+    log.closelog()
     return meta

@@ -6,7 +6,6 @@ from . import plots
 from . import util
 from . import read_fit_par
 from .formatter import PrintParams
-from .options import OPTIONS
 
 
 def residuals(params, data, model, fjac=None):
@@ -65,7 +64,7 @@ def lsq_fit(fit_par, data, meta, model, myfuncs, noclip=False):
     if meta.run_verbose:
         with (meta.workdir / meta.fitdir / 'lsq_res' /
               f"lsq_res_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt")\
-                      .open("w", encoding=OPTIONS["encoding"]) as f_lsq:
+                      .open("w", encoding='utf-8') as f_lsq:
             PrintParams(m, data, savefile=f_lsq)
         PrintParams(m, data)
 
@@ -73,13 +72,12 @@ def lsq_fit(fit_par, data, meta, model, myfuncs, noclip=False):
         if not (meta.workdir / meta.fitdir / 'fit_lc').exists():
             (meta.workdir / meta.fitdir / 'fit_lc').mkdir(parents=True)
         plots.plot_fit_lc2(data, model, meta)
-        plots.plot_fit_lc3(data, model, meta)
         plots.save_plot_raw_data(data, meta)
-        plots.save_astrolc_data(data, model, meta)
+        plots.save_astrolc_data(data, model, meta, fitter='lsq')
 
     util.append_fit_output(model, meta, fitter='lsq')
 
-    if meta.save_allan_plot:
+    if meta.save_time_averaging_plot:
         plots.rmsplot(model, data, meta, fitter='lsq')
 
     if noclip:

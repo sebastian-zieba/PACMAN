@@ -1,28 +1,35 @@
-"""This code reads in the optimally extracted lightcurve and bins it into channels, following Berta '12"""
-import time as time_now
+import time
+import shutil
 from pathlib import Path
 
 import numpy as np
 from astropy.io import ascii
 from astropy.table import QTable
-# from numpy import *
-# from pylab import *
 from tqdm import tqdm
 
 from .lib import manageevent as me
 from .lib import plots
-from .lib import sort_nicely as sn
 from .lib import util
+from .lib import logedit
+from .lib import read_pcf as rd
 
 
-def run21(eventlabel, workdir: Path, meta=None):
-    """This function reads in the lc_spec.txt file with the flux as a
+def run21(pcf_path: Path, meta=None):
+    """
+    This function reads in the lc_spec.txt file with the flux as a
     function of wavelength and bins it into light curves.
     """
-    print('Starting s21\n')
 
-    if meta is None:
-        meta = me.loadevent(workdir / f'WFC3_{eventlabel}_Meta_Save')
+    meta, log = util.setup_stage(
+        pcf_path=pcf_path,
+        stage_num="21",
+        previous_stage_num="20",
+        copy_filelist=True,
+        copy_xrefyref=True,
+        copy_ancil=True,
+        copy_extracted_lc=True,
+        meta=meta,
+    )
 
     if meta.use_wvl_list:
         wave_edges = np.array(meta.wvl_edge_list)
@@ -41,27 +48,12 @@ def run21(eventlabel, workdir: Path, meta=None):
         print('chosen bin edges:', wave_edges)
 
     # reads in spectra
-    if meta.s21_most_recent_s20:
-        # NOTE: If spectra have a specific filetype ending they can also be globbed directly.
-        lst_dir = sn.sort_nicely((meta.workdir / "extracted_lc").iterdir())
-        # the following line makes sure that only directories starting with a "2" are considered
-        # this was implemented after issue #10 was raised (see issue for more info)
-        # this works because the dates will always start with a "2"
-        lst_dir_new = [lst_dir_i for lst_dir_i in lst_dir if lst_dir_i.name.startswith("2")]
-        spec_dir = lst_dir_new[-1]
-    else:
-        spec_dir = meta.s21_spec_dir_path_s20
+    spec_dir = meta.workdir / "extracted_lc"
+    log.writelog(f"Using spectroscopic flux files from: {spec_dir}")
 
     print("Chosen directory with the spectroscopic flux files:", spec_dir)
 
-    # save the mid bin wavelengths into a new file
-    table_wvl = QTable(names=('bin', 'wavelengths'))
-    if len(wave_edges.shape) == 2:
-        wavelengths = np.array([(wave_edges[i][0] + wave_edges[i][1]) / 2. / 1.e4 for i in range(meta.wvl_bins)])
-    else:
-        wavelengths = np.array([(wave_edges[i] + wave_edges[i+1]) / 2. / 1.e4 for i in range(meta.wvl_bins)])
-
-    d = ascii.read(meta.workdir / "extracted_lc" / spec_dir / "lc_spec.txt")
+    d = ascii.read(str(spec_dir / "lc_spec.txt"))
     d = np.array([d[i].data for i in d.colnames])
 
     nexp = meta.nexp		            #number of exposures
@@ -98,10 +90,8 @@ def run21(eventlabel, workdir: Path, meta=None):
 
     #for i in range(len(wave_bins)- 1): lo_res_wave_inds.append((w >= wave_bins[i])&(w <= wave_bins[i+1]))
 
-    datetime = time_now.strftime('%Y-%m-%d_%H-%M-%S')
-    dirname = meta.workdir / "extracted_sp" / f'bins{meta.wvl_bins}_{datetime}'
-    if not dirname.exists():
-        dirname.mkdir(parents=True)
+    dirname = meta.workdir / "extracted_sp"
+    dirname.mkdir(parents=True, exist_ok=True)
 
     for i in tqdm(range(meta.wvl_bins), desc='***************** Looping over Bins', ascii=True):
         if len(wave_edges.shape) == 2:
@@ -137,17 +127,43 @@ def run21(eventlabel, workdir: Path, meta=None):
     #print wave, 1.0*sum(wave_inds)/len(w_hires), meanflux, meanerr
         ascii.write(table, outname, format='ecsv', overwrite=True)
 
-    print(f'Saved light curve(s) in {dirname}')
-    plots.plot_wvl_bins(w_hires, f_interp, wave_edges, meta.wvl_bins, dirname)
+        plots.light_curve_errorbar(
+            outname,
+            meta.workdir / "figs" / "s21_lightcurves",
+            f"speclc{wave:.3f}.png",
+            title=f"Spectroscopic light curve: {wave:.3f} micron",
+        )
 
-    print('Saving Wavelength bin file')
-    for idx, wavelengths_i in enumerate(wavelengths):
-        table_wvl.add_row([idx, wavelengths_i])
-    ascii.write(table_wvl, dirname / 'wvl_table.dat', format='rst', overwrite=True)
+    log.writelog(f"Saved light curve(s) in {dirname}")
+
+    fig_dir = meta.workdir / "figs" / "s21_lightcurves"
+    fig_dir.mkdir(parents=True, exist_ok=True)
+    plots.plot_wvl_bins(w_hires, f_interp, wave_edges, meta.wvl_bins, fig_dir)
+
+    # save the mid bin wavelengths into a new file
+    log.writelog("Saving Wavelength bin file")
+    table_wvl = QTable(
+        names=("bin", "wavelength", "half_width", "lower_edge", "upper_edge")
+    )
+    for idx in range(meta.wvl_bins):
+        if len(wave_edges.shape) == 2:
+            lower_edge = wave_edges[idx][0] / 1.0e4
+            upper_edge = wave_edges[idx][1] / 1.0e4
+        else:
+            lower_edge = wave_edges[idx] / 1.0e4
+            upper_edge = wave_edges[idx + 1] / 1.0e4
+
+        wavelength = 0.5 * (lower_edge + upper_edge)
+        half_width = 0.5 * (upper_edge - lower_edge)
+
+        table_wvl.add_row([idx, wavelength, half_width, lower_edge, upper_edge])
+
+    ascii.write(table_wvl, dirname / "wvl_table.dat", format="rst", overwrite=True)
 
     # Save results
-    print('Saving Metadata')
-    me.saveevent(meta, meta.workdir / f'WFC3_{meta.eventlabel}_Meta_Save', save=[])
+    log.writelog("Saving Metadata")
+    me.saveevent(meta, meta.workdir / "WFC3_Meta_Save", save=[])
 
-    print('Finished s21 \n')
+    log.writelog("Finished s21 \n")
+    log.closelog()
     return meta

@@ -1,7 +1,8 @@
-"""This code computes the mean position of the direct image for each visit"""
+import time
+import shutil
 from pathlib import Path
-
 import numpy as np
+
 from astropy.io import ascii, fits
 from astropy.table import Table
 from tqdm import tqdm
@@ -10,15 +11,24 @@ from .lib import util
 from .lib import gaussfitter
 from .lib import plots
 from .lib import manageevent as me
+from .lib import logedit
+from .lib import read_pcf as rd
 
 
-def run10(eventlabel, workdir: Path, meta=None):
-    """Opens the direct images to determine the position of the star on the detector.
+def run10(pcf_path: Path, meta=None):
+    """
+    Opens the direct images to determine the position of the star on the detector.
     The positions are then saved in x and y physical pixel coordinates into a new txt file called xrefyref.txt.
     """
-    print('Starting s10')
-    if meta is None:
-        meta = me.loadevent(workdir / f'WFC3_{eventlabel}_Meta_Save')
+
+    meta, log = util.setup_stage(
+        pcf_path=pcf_path,
+        stage_num="10",
+        previous_stage_num="03",
+        copy_filelist=True,
+        copy_ancil=True,
+        meta=meta,
+    )
 
     #f = open(meta.workdir + '/xrefyref.txt', 'w')						#opens file to store positions of reference pixels
     table = Table() # creates table to store positions of reference pixels
@@ -93,8 +103,9 @@ def run10(eventlabel, workdir: Path, meta=None):
     util.di_reformat(meta)
 
     # Save results
-    print('Saving Metadata')
-    me.saveevent(meta, meta.workdir / f'WFC3_{meta.eventlabel}_Meta_Save', save=[])
+    log.writelog("Saving Metadata")
+    me.saveevent(meta, meta.workdir / "WFC3_Meta_Save", save=[])
 
-    print('Finished s10 \n')
+    log.writelog("Finished s10 \n")
+    log.closelog()
     return meta

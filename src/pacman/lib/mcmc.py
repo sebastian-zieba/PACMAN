@@ -7,7 +7,6 @@ import numpy as np
 from . import plots
 from . import util
 from . import read_fit_par
-from .options import OPTIONS
 
 
 def mcmc_fit(data, model, params, file_name, meta, fit_par):
@@ -26,7 +25,8 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
     fixed_array = np.array(fit_par['fixed'])
     tied_array = np.array(fit_par['tied'])
     free_array = util.return_free_array(nvisit, fixed_array, tied_array)
-    l_args = [params, data, model, nvisit, fixed_array, tied_array, free_array]
+    untied_array = util.return_untied_array(nvisit, fixed_array, tied_array)
+    l_args = [params, data, model, nvisit, fixed_array, tied_array, free_array, untied_array]
 
     # Setting up multiprocessing
     if hasattr(meta, 'ncpu') and meta.ncpu > 1:
@@ -38,9 +38,7 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
 
     print('Run emcee...')
     sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args = l_args, pool=pool)
-    step_size = read_fit_par.get_step_size(data, params, meta, fit_par)
-    pos = [theta + np.array(step_size)*np.random.randn(ndim) for i in range(nwalkers)]
-    pos = np.array(pos)
+    pos = read_fit_par.get_initial_walkers(data, theta, meta, fit_par)
 
     sampler.run_mcmc(pos, meta.run_nsteps, progress=True)
 
@@ -74,33 +72,47 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
     plots.mcmc_chains(ndim, sampler, nburn, labels, meta)
 
     # Determine median and 16th and 84th percentiles
-    medians = []
+    p16_list = []
+    p50_list = []
+    p84_list = []
     errors_lower = []
     errors_upper = []
     for i in range(len(theta)):
         q = util.quantile(samples[:, i], [0.16, 0.5, 0.84])
-        medians.append(q[1])
-        errors_lower.append(abs(q[1] - q[0]))
-        errors_upper.append(abs(q[2] - q[1]))
+        p16, p50, p84 = q
+        p16_list.append(p16)
+        p50_list.append(p50)
+        p84_list.append(p84)
+        errors_lower.append(p50 - p16)
+        errors_upper.append(p84 - p50)
+    medians = p50_list
 
     # Saving sampling results into txt files
     with (meta.workdir / meta.fitdir / 'mcmc_res' /
-            f"mcmc_res_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt")\
-            .open('w', encoding=OPTIONS["encoding"]) as f_mcmc:
-        for row in zip(errors_lower, medians, errors_upper, labels):
-            print(f'{row[3]: >8}: {row[1]: >24} {row[0]: >24} {row[2]: >24} ', file=f_mcmc)
+        f"mcmc_res_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt").open('w', encoding='utf-8') as f_mcmc:
+        print(f"{'parameter':<20} {'p50':>14} {'p16':>14} {'p84':>14} {'minus':>14} {'plus':>14}", file=f_mcmc)
+        for label, p50, p16, p84, minus, plus in zip(
+            labels, p50_list, p16_list, p84_list, errors_lower, errors_upper
+        ):
+            print(
+                f"{label:<20} {p50:14.7g} {p16:14.7g} {p84:14.7g} {minus:14.7g} {plus:14.7g}",
+                file=f_mcmc
+            )
 
-    updated_params = util.format_params_for_Model(medians, params, nvisit, fixed_array, tied_array, free_array)
+    updated_params = util.format_params_for_Model(medians, params, nvisit, fixed_array, tied_array, free_array, untied_array)
+    if "uncmulti" in data.s30_myfuncs:
+        util.apply_uncmulti(data, updated_params)
     fit = model.fit(data, updated_params)
     util.append_fit_output(fit, meta, fitter='mcmc', medians=medians)
 
     # Saving plots
     plots.plot_fit_lc2(data, fit, meta, mcmc=True)
     plots.rmsplot(model, data, meta, fitter='mcmc')
+    plots.save_astrolc_data(data, model, meta, fitter='mcmc')
 
     if meta.s30_fit_white:
         with (meta.workdir / meta.fitdir / 'white_systematics_mcmc.txt')\
-                .open("w", encoding=OPTIONS["encoding"]) as outfile:
+                .open("w", encoding='utf-8') as outfile:
             for i in range(len(fit.all_sys)):
                 print(fit.all_sys[i], file=outfile)
             print('Saved white_systematics.txt file for mcmc run')
@@ -120,27 +132,43 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par):
 
 
 def lnprior(theta, data):
-    """
-    Calculate the log-prior.
-    """
-    lnprior_prob = 0.
-    n = len(data.prior)
-    for i in range(n):
-        if data.prior[i][0] == 'U':
-            if np.logical_or(theta[i] < data.prior[i][1],
-              theta[i] > data.prior[i][2]): lnprior_prob += - np.inf
-        if data.prior[i][0] == 'N':
-            lnprior_prob -= 0.5*(np.sum(((theta[i] -
-              data.prior[i][1])/data.prior[i][2])**2 +
-              np.log(2.0*np.pi*(data.prior[i][2])**2)))
+    """Calculate the log-prior."""
+    lnprior_prob = 0.0
+
+    for i, prior in enumerate(data.prior):
+        prior_type = str(prior[0]).upper()
+
+        if prior_type == "U":
+            lo, hi = prior[1], prior[2]
+            if theta[i] < lo or theta[i] > hi:
+                return -np.inf
+
+        elif prior_type == "N":
+            mean, sigma = prior[1], prior[2]
+            if sigma <= 0:
+                return -np.inf
+
+            lnprior_prob -= 0.5 * (
+                ((theta[i] - mean) / sigma) ** 2
+                + np.log(2.0 * np.pi * sigma**2)
+            )
+
+        elif prior_type == "X":
+            # Should have been caught before sampling.
+            # Keep this explicit so X is not silently ignored.
+            return -np.inf
+
+        else:
+            raise ValueError(f"Unknown prior type '{prior_type}'.")
+
     return lnprior_prob
 
 
-def lnprob(theta, params, data, model, nvisit, fixed_array, tied_array, free_array):
+def lnprob(theta, params, data, model, nvisit, fixed_array, tied_array, free_array, untied_array):
     """Calculates the log-likelihood."""
-    updated_params = util.format_params_for_Model(theta, params, nvisit, fixed_array, tied_array, free_array)
-    if 'uncmulti' in data.s30_myfuncs:
-        data.err = updated_params[-1] * data.err_notrescaled
+    updated_params = util.format_params_for_Model(theta, params, nvisit, fixed_array, tied_array, free_array, untied_array)
+    if "uncmulti" in data.s30_myfuncs:
+        util.apply_uncmulti(data, updated_params)
     lp = lnprior(theta, data)
     if lp == -np.inf:  # if the likelihood from the priors is already -inf, dont evaluate the function
         return lp

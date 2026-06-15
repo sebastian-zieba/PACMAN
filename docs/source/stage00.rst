@@ -1,143 +1,183 @@
 .. _stage00:
 
 Stage 00
-============
+========
 
 .. raw:: html
 
     <style> .blue {color:blue} </style>
 
-.. topic:: Summary
+.. topic:: Quick Summary
 
-    - Make sure you followed the steps in :ref:`Before Running <before_running>`!
-    - You should now have a run directory which include pacman_script.py, fit_par.txt and obs_par.pcf.
-    - Make sure the path to run directory and data directory are set in the pcf
-    - Navigate to the run directory and execute the pacman_script.py file using the \-\-s00 flag and the \-\-eventlabel argument
-    - Continue with s01
+    - Make sure you followed the steps in :ref:`Before Running <before_running>`.
+    - You should now have a run directory containing ``pacman_run_files``.
+    - ``pacman_run_files`` should contain ``run_pacman.py``, ``fit_par.txt``, and ``obs_par.pcf``.
+    - Make sure the paths to the run directory and data directory are set in ``obs_par.pcf``.
+	- Make sure in ``run_pacman.py`` only the line meta = s00.run00(pcf_path=pcf_path) is uncommented and that the other lines (so the other stages) are commented out.
+    - Navigate to ``pacman_run_files`` and run ``python run_pacman.py``.
+    - Continue with :ref:`Stage 01 <stage01>`.
 
 
 1) **Set up pcf**
 
-    In :ref:`Before Running <before_running>`, we did set up the location of your data directory (=datadir) and run directory (=rundir) in the pcf.
+    In :ref:`Before Running <before_running>`, we set up the location of the data directory (``datadir``) and run directory (``rundir``) in ``obs_par.pcf``.
 
-    As a quick reminder:
+    As a reminder, for this example these directories are:
+    - ``datadir = /home/zieba/Desktop/Data/GJ1214_Hubble13021``
+    - ``rundir = /home/zieba/Desktop/Projects/Observations/Hubble/GJ1214_13021``
 
-    For me, these directories are located at the following places:
 
-    - datadir = /home/zieba/Desktop/Data/GJ1214_Hubble13021
-    - rundir = /home/zieba/Desktop/Projects/Observations/Hubble/GJ1214_13021
+    The ``pacman_run_files`` directory should contain:
+    - ``run_pacman.py``
+    - ``fit_par.txt``
+    - ``obs_par.pcf``
 
-    The rundir should contain the following three files:
+    These template files can be found in the package directory, on `GitHub <https://github.com/sebastian-zieba/PACMAN/tree/master/src/pacman/data/pacman_run_files>`_,
+    or downloaded directly `here <https://downgit.github.io/#/home?url=https://github.com/sebastian-zieba/PACMAN/tree/master/src/pacman/data/pacman_run_files>`_.
 
-    - **pacman_script.py**
-
-    - **fit_par.txt**
-
-    - **obs_par.pcf**
-
-	These files can be either found in your package directory, on `GitHub <https://github.com/sebastian-zieba/PACMAN/tree/master/src/pacman/data/run_files>`_
-	or can be downloaded `here <https://downgit.github.io/#/home?url=https://github.com/sebastian-zieba/PACMAN/tree/master/src/pacman/data/run_files>`_.
-
-	As mentioned in the Introduction, in this example going to analyze just two
-	visits taken in the middle of the GO 13021 program (Dates (YYYY-MM-DD): 2013-03-13 and 2013-03-15).
+    As mentioned in the Introduction, this example analyzes two visits taken in the middle of the GO 13021 program: 2013-03-13 and 2013-03-15.
 
     **Set up which_visits in the pcf**
 
-    If your datadir contains a lot of visits, but you only want to analyze a subset you can use the ``which_visits`` parameter in the pcf.
-    If the user downloaded all 15 visits in GO 13021, he or she can choose: ``which_visits = [5,6]`` in the pcf.
-    If you only downloaded the two visits as shown in the Download Data instructions, leave the default setting (which should be ``which_visits     everything``).
+    If your ``datadir`` contains many visits, but you only want to analyze a subset, use the ``which_visits`` parameter in ``obs_par.pcf``.
+
+    So, if you downloaded all 15 visits in GO 13021 (that is 1145 ima files with about 12.5 GB), use:
+
+    .. code-block:: text
+
+        which_visits   [5,6]
+
+    If you only downloaded the two visits as shown in the Download Data instructions, leave the default setting:
+
+    .. code-block:: text
+
+        which_visits   everything
+
+    In this example, we will assume you downloaded all 15 visits and that you set ``which_visits`` to [5,6], just to show you how it works.
+
 
 2) **Run PACMAN**
 
-    You can give your analysis an "eventlabel" which might make it easier to identify it in the future.
-    Here we just call our analysis: 'GJ1214_Hubble13021'.
+    Navigate to the ``pacman_run_files`` directory in your terminal:
 
-	Now navigate to your rundir in your terminal and type:
+    .. code-block:: console
 
-	.. code-block:: console
+        cd /home/zieba/Desktop/Projects/Observations/Hubble/GJ1214_13021/pacman_run_files
 
-		python pacman_script.py --s00 --eventlabel='GJ1214_Hubble13021'
+    Open ``run_pacman.py``. It should look similar to this (after the imports):
 
-	Here, \-\-s00 means we are going to run Stage 00 and \-\-eventlabel will be used in the naming of files and directories.
-    The  \-\-eventlabel argument is just needed when running \-\-s00.
+    .. code-block:: python
 
-	When running s00, the first step creates a new subdirectory in rundir for the analysis which we will call the work directory (=workdir).
+        if __name__ == "__main__":
+            meta = s00.run00(pcf_path=pcf_path)
 
-	It will be saved in the rundir and have a form like:
-	``/home/zieba/Desktop/Projects/Observations/Hubble/GJ1214_13021/run_2022-03-04_15-10-29_GJ1214_Hubble13021``
+            # meta = s01.run01(pcf_path=pcf_path)
 
-	The fit_par.txt and obs_par.pcf files which are in the run directory will be copied there.
+            # meta = s02.run02(pcf_path=pcf_path)
 
-	You should have a data structure similar to the following now:
+            # meta = s03.run03(pcf_path=pcf_path)
+
+            # meta = s10.run10(pcf_path=pcf_path)
+
+            # meta = s20.run20(pcf_path=pcf_path)
+
+            # meta = s21.run21(pcf_path=pcf_path)
+
+            # meta = s30.run30(pcf_path=pcf_path)
+
+    To run Stage 00, make sure only the ``s00`` line is uncommented.
+    All other stages should remain commented out. In the future you can have multiple stages running at the same time, but for now we will run them one by one.
+
+    Then run:
+
+    .. code-block:: console
+
+        python run_pacman.py
+
+    When Stage 00 is executed, PACMAN creates the ``stage00`` directory and a new timestamped directory inside ``stage00``.
+    The directory name has the form:
+
+    .. code-block:: console
+
+        s00_run_YYYY-MM-DD_HH-MM-SS
+
+    For example:
+
+    .. code-block:: console
+
+        /home/zieba/Desktop/Projects/Observations/Hubble/GJ1214_13021/stage00/s00_run_2022-03-04_15-10-29
+
+    The ``fit_par.txt`` and ``obs_par.pcf`` files used for this run are copied into this stage run directory. This copy is really just a copy and just for future reference. The files in the ``pacman_run_files`` directory are the ones that you should edit to change settings for future runs.
+
+    You should now have a directory structure similar to this:
 
 ::
 
-	user
-	└── Desktop
-		└── Projects
-			└── Observations
-				└── Hubble
-					└── GJ1214_13021
-						├── pacman_script.py
-						├── fit_par.txt
-						├── obs_par.pcf
-						└── run_2022-03-04_15-10-29_GJ1214_Hubble13021
-							├── fit_par.txt
-							└── obs_par.pcf
+    user
+    └── Desktop
+        └── Projects
+            └── Observations
+                └── Hubble
+                    └── GJ1214_13021
+                        ├── pacman_run_files
+                        │   ├── run_pacman.py
+                        │   ├── fit_par.txt
+                        │   └── obs_par.pcf
+                        └── stage00
+                            └── s00_run_2022-03-04_15-10-29
+                                ├── fit_par.txt
+                                ├── obs_par.pcf
+                                ├── s00.log
+                                ├── WFC3_Meta_Save.dat
+                                └── filelist.txt
+
+Here, s00.log is a log file that contains all terminal output from the Stage 00 run. WFC3_Meta_Save.dat is a file that contains metadata for this stage. filelist.txt is a file that contains information about the files that were analyzed in this stage, such as their names, the visit and orbit they belong to, their time, and more. We will discuss this file in more detail in the Results section below.
 
 
+3) **Results**
 
-.. note::
-    All next steps are going to use the pcf and fit_par which is located in the workdir (run_2022-03-04_15-10-29_GJ1214_Hubble13021) and not the pcf and fit_par in the rundir (GJ1214_13021)!!
+    After running Stage 00, you should get terminal output similar to this (in this example I had all 15 visits in the data directory, but only wanted to analyze two of them, so the amount of files analyzed was reduced from 1145 to 158):
 
-.. note::
-    You can type ``python pacman_script.py --help`` to see all possible flags which are available.
+    .. code-block:: console
 
+        Starting s00
+        Output directory: /Users/sebastianzieba/Desktop/Projects/Observations/Hubble/GJ1214_13021_2026/stage00/s00_run_2026-05-26_12-33-34
+        pcf and fit_par files copied to the Stage 00 run directory: /Users/sebastianzieba/Desktop/Projects/Observations/Hubble/GJ1214_13021_2026/stage00/s00_run_2026-05-26_12-33-34
+        Found 1145 data file(s) ending in ima.fits
+        Reading in files and their headers: 100%|##########| 1145/1145 [00:01<00:00, 873.37it/s]
+        Determining orbit(s) and visit(s): 100%|##########| 1145/1145 [00:00<00:00, 497202.41it/s]
+        The user does not want to analyse every visit (which_visits != everything). The amount of files analyzed therefore reduced from 1145 to 158.
+        Writing table into filelist.txt
+        Saving Metadata
+        Finished s00 
 
+    Stage 00 creates a file called ``filelist.txt``. It should look like this:
 
-3) Results
+    .. include:: media/s00/filelist.txt
+       :literal:
 
-	After running Stage 00 you should get an output in the terminal similar to this one:
+    It has the following columns:
 
-	.. code-block:: console
+    * ``filenames``
 
-		    Starting s00
-		    Found 1145 data file(s) ending in ima.fits
-		    Reading in files and their headers: 100%|##########| 1145/1145 [00:03<00:00, 303.42it/s]
-		    Determining orbit(s) and visit(s): 100%|##########| 1145/1145 [00:00<00:00, 261786.76it/s]
-		    The user does not want to analyse every visit (which_visits != everything). The amount of files analyzed therefore reduced from 1145 to 150.
-		    Writing table into filelist.txt
-		    Saving Metadata
-		    Finished s00
+    * ``instr``: The specific filter or grism used in the observation.
 
+    * ``ivisit``: Current visit of the observation.
 
-	You will also end up with a new file called ``filelist.txt``. It should look like this:
+    * ``iorbit``: Current orbit of the observation.
 
-	.. include:: media/s00/filelist.txt
-	   :literal:
+    * ``t_mjd``: Time in Modified Julian Date (MJD).
 
-	It has the following columns:
+    * ``t_visit``: Time since the first exposure in the visit in minutes.
 
-	* filenames
+    * ``t_orbit``: Time since the first exposure in the orbit in minutes.
 
-	* instr: The specific filter or grism used in the obervation
+    * ``scan``: Scan direction:
 
-	* ivisit: Current visit of the observation
+      * ``0``: forward scan
 
-	* iorbit: Current orbit of the observation
+      * ``1``: reverse scan
 
-	* t_mjd: Time in Modified Julian Date (MJD)
+      * ``-1``: not a spectrum but a direct image
 
-	* t_visit: Time since the first exposure in the visit in minutes
-
-	* t_orbit: Time since the first exposure in the orbit in minutes
-
-	* scan: Scan direction:
-
-	  * 0: forward scan
-
-	  * 1: reverse scan
-
-	  * -1: not a spectrum but a direct image
-
-	* exp: exposure time in seconds
+    * ``exp``: exposure time in seconds.

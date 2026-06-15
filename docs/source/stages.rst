@@ -10,7 +10,7 @@ PACMAN is organized into several processing stages, summarized below.  Click on 
 
   + read in the ``IMA`` FITS files in the data directory 
   + save important information from the header in a table
-  + create a "work directory" to save all plots and files from the next stages
+  + create the ``stage00`` output directory and timestamped ``s00_run_*`` directory
 
 
 - Stage 01
@@ -28,7 +28,7 @@ PACMAN is organized into several processing stages, summarized below.  Click on 
   + download or generate a stellar spectrum that matches the spectral type of the host star.  Options are: KURUCZ 1993, CASTELLI AND KURUCZ 2004, PHOENIX MODELS and a blackbody spectrum
   + smooth the stellar spectrum using a Gaussian kernel to reduce the stellar spectrum's resolution
   + multiply the stellar spectrum by the grism throughput (which is saved in `PACMAN/src/pacman/data/bandpass <https://github.com/sebastian-zieba/PACMAN/tree/master/src/pacman/data/bandpass>`_) to make a reference spectrum for the wavelength calibration
-  + saves the reference spectrum into the work directory
+  + save the reference spectrum into the current ``stage03`` run directory
 
 
 - Stage 10
@@ -45,7 +45,7 @@ PACMAN is organized into several processing stages, summarized below.  Click on 
 
 - Stage 21
 
-  + bins the spectra in wavelength to create spectroscopic light curves (this step can be skipped if the user is only interested in the broadband light curve).
+  + bin the spectra in wavelength to create spectroscopic light curves (this step can be skipped if the user is only interested in the broadband light curve).
 
 
 - Stage 30

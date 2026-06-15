@@ -1,6 +1,6 @@
 import sys
+import time
 import shutil
-from datetime import datetime
 from pathlib import Path
 
 import numpy as np
@@ -12,41 +12,44 @@ from .lib import manageevent as me
 from .lib import optextr
 from .lib import plots
 from .lib import util
+from .lib import logedit
+from .lib import read_pcf as rd
 
 
-def run20(eventlabel, workdir: Path, meta=None):
-    """This function extracts the spectrum and saves the total flux and the
+def run20(pcf_path: Path, meta=None):
+    """
+    This function extracts the spectrum and saves the total flux and the
     flux as a function of wavelength into files.
     """
-    print('Starting s20')
-
-    if meta is None:
-        meta = me.loadevent(workdir / f'WFC3_{eventlabel}_Meta_Save')
-
-    # NOTE: Load in more information into meta
-    meta = util.ancil(meta, s20=True)
 
     ###############################################################################################################################################################
     # NOTE: STEP 0: Set up files and directories
     ###############################################################################################################################################################
 
-    dirname = meta.workdir / "extracted_lc" /\
-        datetime.strftime(datetime.now(), '%Y-%m-%d_%H-%M-%S')
-    if not dirname.exists():
-        dirname.mkdir(parents=True)
+    meta, log = util.setup_stage(
+        pcf_path=pcf_path,
+        stage_num="20",
+        previous_stage_num="10",
+        copy_filelist=True,
+        copy_xrefyref=True,
+        copy_ancil=True,
+        meta=meta,
+    )
 
-    # NOTE: Let's have a copy of the pcf in the extracted_lc directory
-    # This copy is just for the user to know what parameters they used when
-    # running s20
-    shutil.copy(meta.workdir / 'obs_par.pcf', dirname)
+    # Load ancillary metadata
+    meta = util.ancil(meta, s20=True)
+
+    dirname = meta.workdir / "extracted_lc"
+    dirname.mkdir(parents=True, exist_ok=True)
+
+    util.validate_rowshift_settings(meta)
 
     # NOTE: Initialize the astropy tables where we will save the extracted
     # spectra
-    if meta.output:
-        table_white = QTable(names=('t_mjd', 't_bjd', 't_visit','t_orbit', 'ivisit', 'iorbit', 'scan', 'spec_opt', 'var_opt', 'spec_box', 'var_box'))
-        table_spec = QTable(names=('t_mjd', 't_bjd', 't_visit','t_orbit', 'ivisit', 'iorbit', 'scan', 'spec_opt', 'var_opt', 'template_waves'))
-        table_diagnostics = QTable(names=('nspectra', 't_mjd', 'numoutliers', 'skymedian', "# nans"))
-        table_background = QTable(names=('t_mjd', 't_bjd', 'ivisit', 'iorbit', 'scan', 'n_sample', 'skymedian'))
+    table_white = QTable(names=('t_mjd', 't_bjd', 't_visit','t_orbit', 'ivisit', 'iorbit', 'scan', 'spec_opt', 'var_opt', 'spec_box', 'var_box'))
+    table_spec = QTable(names=('t_mjd', 't_bjd', 't_visit','t_orbit', 'ivisit', 'iorbit', 'scan', 'spec_opt', 'var_opt', 'template_waves'))
+    table_diagnostics = QTable(names=('nspectra', 't_mjd', 'numoutliers', 'skymedian', "# nans"))
+    table_background = QTable(names=('t_mjd', 't_bjd', 'ivisit', 'iorbit', 'scan', 'n_sample', 'skymedian'))
 
     files_sp = meta.files_sp     # spectra files
     nspectra = 0                 # iterator variable to track number of spectra reduced
@@ -125,6 +128,38 @@ def run20(eventlabel, workdir: Path, meta=None):
         # leave=True, position=0
         # source: https://stackoverflow.com/questions/41707229/tqdm-printing-to-newline
         if len(set(meta.scans_sp)) == 1:
+            if meta.calculate_rowshift:
+                #get spatial profile of exposure of first readout
+                row_spat, flux_spat = util.get_boxspat(meta,i,d,rmin,rmax,cmin,cmax,(d[0].header['nsamp']-1)*5+1) #row_spat is always np.linspace(rmin,rmax+1,(rmax-rmin)*1000)
+                # NOTE: determine rowshift and store it in meta
+                if i == 0:
+                    #initialize arrays
+                    meta.refprofile_rowshift = np.zeros((1,len(row_spat)))
+                    meta.rowshift = np.zeros(meta.nexp)
+
+                    #store reference profiles of the first exposures
+                    meta.refprofile_rowshift[0] = flux_spat    
+                else:
+                    #fit spatial profiles to reference profiles
+                    rowshift_exp = util.calculate_rowshift(meta,row_spat, meta.refprofile_rowshift[0],row_spat[10000:-10000], flux_spat[10000:-10000],i)
+                    meta.rowshift[i] = rowshift_exp
+                
+                # NOTE: calculate stretch of last readout with respect to first exposure in the data-set 
+                if meta.save_rowshift_stretch_plot or meta.show_rowshift_stretch_plot:
+                    row_spat, flux_spat = util.get_boxspat(meta,i,d,rmin,rmax,cmin,cmax,1) #row_spat is always np.linspace(rmin,rmax+1,(rmax-rmin)*1000)
+                    # NOTE: determine rowshift and store it in meta
+                    if i == 0:
+                        #initialize arrays
+                        meta.refprofile_stretch = np.zeros((1,len(row_spat)))
+                        meta.stretch = np.ones(meta.nexp)
+
+                        #store reference profiles of the first exposures
+                        meta.refprofile_stretch[0] = flux_spat    
+                    else:
+                        #fit spatial profiles to reference profiles
+                        stretch_exp = util.calculate_stretch(meta,row_spat, meta.refprofile_stretch[0],row_spat[10000:-10000], flux_spat[10000:-10000],i)  
+                        meta.stretch[i] = stretch_exp
+
             for ii in tqdm(np.arange(d[0].header['nsamp']-1, dtype=int), desc='--- Looping over up-the-ramp-samples',
                            leave=True, position=0):
 
@@ -187,6 +222,41 @@ def run20(eventlabel, workdir: Path, meta=None):
                 var_box += var_box_0
 
         elif len(set(meta.scans_sp)) == 2:
+            # NOTE: If needed: Calculate spectrum shift in spatial direction (rows) with respect to the first exposure in the data-set (i.e. first visit, first orbit, first exposure)
+            if meta.calculate_rowshift:
+                #get spatial profile of exposure of first readout
+                row_spat, flux_spat = util.get_boxspat(meta,i,d,rmin,rmax,cmin,cmax,(d[0].header['nsamp']-1)*5+1) #row_spat is always np.linspace(rmin,rmax+1,(rmax-rmin)*1000)
+                # NOTE: determine rowshift and store it in meta
+                if i == 0:
+                    #initialize arrays
+                    meta.refprofile_rowshift = np.zeros((2,len(row_spat)))
+                    meta.rowshift = np.zeros(meta.nexp)
+
+                if i < 2:
+                    #store reference profiles of the first exposures
+                    meta.refprofile_rowshift[meta.scans_sp[i]] = flux_spat    
+                else:
+                    #fit spatial profiles to reference profiles
+                    rowshift_exp = util.calculate_rowshift(meta,row_spat, meta.refprofile_rowshift[meta.scans_sp[i]],row_spat[10000:-10000], flux_spat[10000:-10000],i)
+                    meta.rowshift[i] = rowshift_exp
+                
+                # NOTE: calculate stretch of last readout with respect to first exposure in the data-set 
+                if meta.save_rowshift_stretch_plot or meta.show_rowshift_stretch_plot:
+                    row_spat, flux_spat = util.get_boxspat(meta,i,d,rmin,rmax,cmin,cmax,1) #row_spat is always np.linspace(rmin,rmax+1,(rmax-rmin)*1000)
+                    # NOTE: determine rowshift and store it in meta
+                    if i == 0:
+                        #initialize arrays
+                        meta.refprofile_stretch = np.zeros((2,len(row_spat)))
+                        meta.stretch = np.ones(meta.nexp)
+
+                    if i < 2:
+                        #store reference profiles of the first exposures
+                        meta.refprofile_stretch[meta.scans_sp[i]] = flux_spat    
+                    else:
+                        #fit spatial profiles to reference profiles
+                        stretch_exp = util.calculate_stretch(meta,row_spat, meta.refprofile_stretch[meta.scans_sp[i]],row_spat[10000:-10000], flux_spat[10000:-10000],i)  
+                        meta.stretch[i] = stretch_exp
+
             for ii in tqdm(np.arange(d[0].header['nsamp']-2, dtype=int), desc='--- Looping over up-the-ramp-samples', leave=True, position=0):
                 diff = d[ii*5 + 1].data[rmin:rmax,cmin:cmax] - d[ii*5 + 6].data[rmin:rmax,cmin:cmax]    # Creates image that is the difference between successive scans
 
@@ -240,7 +310,7 @@ def run20(eventlabel, workdir: Path, meta=None):
                 # Mnew = M[max(peaks_mid - 110, 0):min(peaks_mid + 110, rmax),:]
                 Mnew = M[max(min(peaks) - meta.window, 0):min(max(peaks) + meta.window, rmax),:]
                 # TODO: Just use meta to reduce the number of parameters which are given to optextr
-                if meta.opt_extract==True: [f_opt_0, var_opt_0, numoutliers] = optextr.optextr(spectrum, err, spec_box_0, var_box_0, Mnew, meta.nsmooth, meta.sig_cut, meta.save_optextr_plot, i, ii, meta)
+                if meta.opt_extract: [f_opt_0, var_opt_0, numoutliers] = optextr.optextr(spectrum, err, spec_box_0, var_box_0, Mnew, meta.nsmooth, meta.sig_cut, meta.save_optextr_plot, i, ii, meta)
                 else: [f_opt, var_opt] = [spec_box_0,var_box_0]
 
                 # NOTE: Sums up spectra and variance for all the differenced images
@@ -300,17 +370,39 @@ def run20(eventlabel, workdir: Path, meta=None):
         print('\n')
 
     # NOTE: Save results in the astropy tables
-    if meta.output:
-        ascii.write(table_white, dirname / 'lc_white.txt',
-                    format='ecsv', overwrite=True)
-        ascii.write(table_spec, dirname / 'lc_spec.txt',
-                    format='ecsv', overwrite=True)
-        ascii.write(table_diagnostics, dirname / 'diagnostics.txt',
-                    format='ecsv', overwrite=True)
-        ascii.write(table_background, dirname / 'background.txt',
-                    format='ecsv', overwrite=True)
-    print('Saving Metadata')
-    me.saveevent(meta, meta.workdir / f'WFC3_{meta.eventlabel}_Meta_Save', save=[])
+    ascii.write(table_white, dirname / 'lc_white.txt',
+                format='ecsv', overwrite=True)
+    ascii.write(table_spec, dirname / 'lc_spec.txt',
+                format='ecsv', overwrite=True)
+    ascii.write(table_diagnostics, dirname / 'diagnostics.txt',
+                format='ecsv', overwrite=True)
+    ascii.write(table_background, dirname / 'background.txt',
+                format='ecsv', overwrite=True)
+
+    table_wvl = QTable(
+        names=("bin", "wavelength", "half_width", "lower_edge", "upper_edge")
+    )
+
+    lower_edge = float(np.nanmin(table_spec["template_waves"])) / 1.0e4
+    upper_edge = float(np.nanmax(table_spec["template_waves"])) / 1.0e4
+    wavelength = 0.5 * (lower_edge + upper_edge)
+    half_width = 0.5 * (upper_edge - lower_edge)
+
+    table_wvl.add_row([0, wavelength, half_width, lower_edge, upper_edge])
+
+    ascii.write(
+        table_wvl,
+        dirname / "wvl_table.dat",
+        format="rst",
+        overwrite=True,
+    )
+
+    plots.light_curve_errorbar(
+        dirname / "lc_white.txt",
+        meta.workdir / "figs" / "s20_lightcurves",
+        "lc_white.png",
+        title="White light curve",
+    )
 
     # NOTE: Make Plots
     if meta.save_bkg_evo_plot or meta.show_bkg_evo_plot:
@@ -327,5 +419,13 @@ def run20(eventlabel, workdir: Path, meta=None):
     if meta.save_drift_plot or meta.show_drift_plot:
         plots.drift(leastsq_res_all, meta)
 
-    print('Finished s20 \n')
+    if meta.save_rowshift_stretch_plot or meta.show_rowshift_stretch_plot:
+        plots.rowshift_stretch(meta)
+
+    log.writelog("Saving Metadata")
+    me.saveevent(meta, meta.workdir / "WFC3_Meta_Save", save=[])
+
+    log.writelog("Finished s20 \n")
+    log.closelog()
+    
     return meta

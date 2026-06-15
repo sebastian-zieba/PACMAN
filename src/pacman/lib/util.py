@@ -1,4 +1,6 @@
 import math
+import time
+import shutil
 from pathlib import Path
 from typing import Optional
 
@@ -10,9 +12,11 @@ from scipy.interpolate import interp1d
 from scipy.optimize import leastsq
 from scipy.signal import find_peaks
 
-from .options import OPTIONS
 from .sort_nicely import sort_nicely as sn
 from ..lib import plots
+from . import manageevent as me
+from . import logedit
+from . import read_pcf as rd
 
 
 # s00
@@ -40,6 +44,149 @@ def readfiles(meta):
         if fname.name.endswith(f'{meta.suffix}.fits'):
             meta.segment_list.append(meta.datadir / fname)
     return meta
+
+
+#s01
+def find_latest_stage_run(rundir, stage_name, pattern):
+    """Return the most recent run directory inside a stage directory."""
+    stage_dir = Path(rundir) / stage_name
+    run_dirs = sorted(stage_dir.glob(pattern))
+
+    if len(run_dirs) == 0:
+        raise FileNotFoundError(f'No run directories found in {stage_dir} matching {pattern}')
+
+    return run_dirs[-1]
+
+
+def setup_stage(
+    pcf_path,
+    stage_num,
+    previous_stage_num,
+    stage_subdir=None,
+    copy_filelist=True,
+    copy_xrefyref=False,
+    copy_ancil=False,
+    copy_extracted_lc=False,
+    copy_extracted_sp=False,
+    meta=None,
+):
+    """Set up a PACMAN stage run directory.
+
+    This function:
+    - finds the latest previous-stage run directory
+    - loads metadata from that previous stage
+    - creates the new stage directory and timestamped workdir
+    - copies current obs_par.pcf and fit_par.txt from pacman_run_files
+    - updates meta with the copied obs_par.pcf settings
+    - copies selected products from the previous stage
+    - initializes the stage log
+
+    Parameters
+    ----------
+    pcf_path : pathlib.Path
+        Path to pacman_run_files.
+    stage_num : str
+        Stage number, e.g. "01", "02", "03", "10", "20", "21".
+    previous_stage_num : str
+        Previous stage number, e.g. "00", "01", "02", "03", "10", "20".
+    copy_filelist : bool
+        Copy filelist.txt from previous stage.
+    copy_xrefyref : bool
+        Copy xrefyref.txt from previous stage.
+    copy_ancil : bool
+        Copy ancil/ from previous stage.
+    copy_extracted_lc : bool
+        Copy extracted_lc/ from previous stage.
+    copy_extracted_sp : bool
+        Copy extracted_sp/ from previous stage.
+    meta : object or None
+        Optional metadata object. If None, metadata is loaded from previous stage.
+
+    Returns
+    -------
+    meta
+        Updated metadata object.
+    log
+        Logedit object for the current stage.
+    """
+    pcf_path = Path(pcf_path)
+    rundir = pcf_path.parent
+
+    stage_name = f"stage{stage_num}"
+    run_pattern = f"s{stage_num}_run_*"
+
+    previous_stage_name = f"stage{previous_stage_num}"
+    previous_run_pattern = f"s{previous_stage_num}_run_*"
+
+    input_workdir = find_latest_stage_run(
+        rundir,
+        previous_stage_name,
+        previous_run_pattern,
+    )
+
+    if meta is None:
+        meta = me.loadevent(input_workdir / "WFC3_Meta_Save")
+
+    datetime = time.strftime("%Y-%m-%d_%H-%M-%S")
+
+    meta.inputdir = input_workdir
+
+    stage_dir = rundir / stage_name
+    # the following is just for s30, where we want to save the results in a subdirectories called "white_lc" or "spec_lc" depending on the type of light curve we are fitting
+    # I thought that might help to keep s30 a bit more organized :)
+    if stage_subdir is not None:
+        stage_dir = stage_dir / stage_subdir
+    setattr(meta, f"stage{stage_num}dir", stage_dir)
+
+    meta.workdir = stage_dir / f"s{stage_num}_run_{datetime}"
+    meta.workdir.mkdir(parents=True, exist_ok=True)
+
+    # Copy current config files from pacman_run_files
+    shutil.copy(pcf_path / "obs_par.pcf", meta.workdir)
+    shutil.copy(pcf_path / "fit_par.txt", meta.workdir)
+
+    # Update meta using the copied obs_par.pcf snapshot
+    pcf = rd.read_pcf(meta.workdir / "obs_par.pcf")
+    rd.store_pcf(meta, pcf)
+
+    # Copy selected files/directories from previous stage
+    if copy_filelist and (meta.inputdir / "filelist.txt").exists():
+        shutil.copy(meta.inputdir / "filelist.txt", meta.workdir)
+
+    if copy_xrefyref and (meta.inputdir / "xrefyref.txt").exists():
+        shutil.copy(meta.inputdir / "xrefyref.txt", meta.workdir)
+
+    if copy_ancil and (meta.inputdir / "ancil").exists():
+        shutil.copytree(
+            meta.inputdir / "ancil",
+            meta.workdir / "ancil",
+            dirs_exist_ok=True,
+        )
+
+    if copy_extracted_lc and (meta.inputdir / "extracted_lc").exists():
+        shutil.copytree(
+            meta.inputdir / "extracted_lc",
+            meta.workdir / "extracted_lc",
+            dirs_exist_ok=True,
+        )
+
+    if copy_extracted_sp and (meta.inputdir / "extracted_sp").exists():
+        shutil.copytree(
+            meta.inputdir / "extracted_sp",
+            meta.workdir / "extracted_sp",
+            dirs_exist_ok=True,
+        )
+
+    previous_log = meta.inputdir / f"s{previous_stage_num}.log"
+    meta.logname = meta.workdir / f"s{stage_num}.log"
+
+    log = logedit.Logedit(meta.logname, read=previous_log)
+
+    log.writelog(f"Starting s{stage_num}")
+    log.writelog(f"Using Stage {previous_stage_num} input directory: {meta.inputdir}")
+    log.writelog(f"Location of the new Stage {stage_num} run directory: {meta.workdir}")
+
+    return meta, log
 
 
 # s02
@@ -76,7 +223,7 @@ def ancil(meta, s10: Optional[bool] = False, s20: Optional[bool] = False):
     History:
         Written by Sebastian Zieba      December 2021
     """
-    filelist = ascii.read(meta.workdir / 'filelist.txt')
+    filelist = ascii.read(str(meta.workdir / "filelist.txt"))
 
     aa = filelist['iorbit'].data
     bb = np.diff(aa)
@@ -91,9 +238,10 @@ def ancil(meta, s10: Optional[bool] = False, s20: Optional[bool] = False):
     meta.ra = f[0].header['ra_targ'] * math.pi / 180.0  # stores right ascension
     meta.dec = f[0].header['dec_targ'] * math.pi / 180.0  # stores declination
 
-    meta.coordtable = []  # table of spacecraft coordinates
-    for i in range(max(filelist['ivisit']) + 1): meta.coordtable.append(
-        meta.workdir / 'ancil' / 'horizons' / f'horizons_results_v{i}.txt')
+    horizons_dir = getattr(meta, "inputdir", meta.workdir) / "ancil" / "horizons"
+    meta.coordtable = []# table of spacecraft coordinates
+    for i in range(int(np.max(filelist["ivisit"])) + 1):
+        meta.coordtable.append(horizons_dir / f"horizons_results_v{i}.txt")
 
     # 03
     # TODO: Q: Is it okay if I assume everything in datadir uses same Filter Grism pair?
@@ -233,7 +381,7 @@ def di_reformat(meta):
     ivisit_max = max(meta.ivisit_sp)
     control_one_per_orbit = np.arange(iorbit_max + 1)
     control_one_per_visit = np.arange(ivisit_max + 1)
-    reffile = ascii.read(meta.workdir / 'xrefyref.txt')
+    reffile = ascii.read(str(meta.workdir / "xrefyref.txt"))
 
     meta.ivisits_new_orbit = meta.iorbit_sp[meta.new_visit_idx_sp]
     meta.nvisits_in_orbit = np.diff(np.append(meta.iorbit_sp[meta.new_visit_idx_sp], np.array([max(meta.iorbit_sp) + 1])))
@@ -388,6 +536,71 @@ def residuals2_lin(params, x1, y1, x2, y2):
     fit = f(a+x2)*c
     return fit - y2
 
+def get_boxspat(meta,i,d,rmin,rmax,cmin,cmax,imageIndex):#,x_ref, y_ref,x_data, y_data,i,direction='y'):
+    fullframe_first = d[imageIndex].data[rmin:rmax,cmin:cmax] #first non-destructive exposure
+                
+    # NOTE: Background subtraction
+    if not meta.background_box:
+        below_threshold = fullframe_first < meta.background_thld # mask with all pixels below the user defined threshold
+        skymedian_first = np.median(fullframe_first[below_threshold].flatten())  # estimates the background counts by taking the flux median of the pixels below the flux threshold
+    else:
+        bg_rmin, bg_rmax, bg_cmin, bg_cmax = int(meta.bg_rmin), int(meta.bg_rmax), int(meta.bg_cmin), int(meta.bg_cmax),
+        skymedian_first = np.median(fullframe_first[bg_rmin:bg_rmax, bg_cmin:bg_cmax].flatten())
+
+    spectrum_first = fullframe_first - skymedian_first
+    spat_box_0_first = spectrum_first.sum(axis = 1)                            #box-extracted spatial profile, sums along dispersion direction (sums columns in a row)   
+    
+    # NOTE: norm profile and remove nans.
+    r_array = np.linspace(rmin,rmax+1,rmax-rmin) #array with row indexes
+    spat_box_0_first = spat_box_0_first/np.nanmax(spat_box_0_first)
+    
+    r_array = r_array[~np.isnan(spat_box_0_first)]
+    spat_box_0_first = spat_box_0_first[~np.isnan(spat_box_0_first)]
+    
+    # NOTE: interpolate spectrum for fit
+    r_array_interp = np.linspace(rmin,rmax+1,(rmax-rmin)*1000)
+    spat_box_0_first_interp = np.interp(r_array_interp, r_array, spat_box_0_first)
+    
+    return r_array_interp, spat_box_0_first_interp
+
+
+def validate_rowshift_settings(meta):
+    """Check consistency of rowshift/stretch plotting settings."""
+    rowshift_plot_requested = (
+        meta.save_rowshift_plot
+        or meta.show_rowshift_plot
+        or meta.save_rowshift_stretch_plot
+        or meta.show_rowshift_stretch_plot
+    )
+
+    if rowshift_plot_requested and not meta.calculate_rowshift:
+        raise ValueError(
+            "Rowshift/stretch plots were requested, but "
+            "calculate_rowshift is False.\n"
+            "Set calculate_rowshift=True, or set all of the following to False:\n"
+            "  save_rowshift_plot\n"
+            "  show_rowshift_plot\n"
+            "  save_rowshift_stretch_plot\n"
+            "  show_rowshift_stretch_plot"
+        )
+
+
+def calculate_rowshift(meta,x_ref, y_ref,x_data, y_data,i):
+    p0 = [0,1]  # initial guess for least squares
+    leastsq_res = leastsq(residuals2_lin, p0, args=(x_ref, y_ref,x_data, y_data))[0]
+    if meta.save_rowshift_plot or meta.show_rowshift_plot:
+        plots.rowshift_fit(x_ref, y_ref, x_data, y_data, leastsq_res, meta,i)
+    return leastsq_res[0]#float
+    
+
+def calculate_stretch(meta,x_ref, y_ref,x_data, y_data,i):
+    #all np arrays f(a+b*x2)*c
+    p0 = [0,1,1]  # initial guess for least squares
+    leastsq_res = leastsq(residuals2, p0, args=(x_ref, y_ref,x_data, y_data))[0]
+    if meta.save_rowshift_stretch_plot or meta.show_rowshift_stretch_plot:
+        plots.stretch_fit(x_ref, y_ref, x_data, y_data, leastsq_res, meta,i)
+    return leastsq_res[1]#float
+
 
 def correct_wave_shift_fct_0(meta, orbnum, cmin, cmax, spec_opt, i):
     """Use the reference spectrum for the wave cal."""
@@ -511,60 +724,37 @@ def correct_wave_shift_fct_1_lin(meta, orbnum, cmin, cmax, spec_opt,
 
 # 30
 def read_fitfiles(meta):
-    """Read in the files (white or spectroscopic) which will be fitted."""
+    """Read in the white or spectroscopic light curve files to fit."""
     if meta.s30_fit_white:
-        print('White light curve fit will be performed')
-        files = []
-        if meta.s30_most_recent_s20:
-            lst_dir = sn((meta.workdir / "extracted_lc").iterdir())
-            # the following line makes sure that only directories starting with a "2" are considered
-            # this was implemented after issue #10 was raised (see issue for more info)
-            # this works because the dates will always start with a "2"
-            lst_dir_new = [lst_dir_i for lst_dir_i in lst_dir if lst_dir_i.name.startswith("2")]
-            white_dir = lst_dir_new[-1]
-            files.append(meta.workdir / "extracted_lc" / white_dir / "lc_white.txt")
-            print('using most recent s20 run: {0}'.format(white_dir))
-        else:
-            files.append(meta.s30_white_file_path)
-            print('using user set white file: '.format(meta.s30_white_file_path))
+        print("White light curve fit will be performed")
 
-        if meta.grism == 'G102':
-            meta.wavelength_list = [1.0]
-        elif meta.grism == 'G141':
-            meta.wavelength_list = [1.4]
+        files = [meta.workdir / "extracted_lc" / "lc_white.txt"]
+
+        wvl_table = get_wavelength_table(meta)
+        meta.wavelength_list = np.asarray(wvl_table["wavelength"], dtype=float)
 
     elif meta.s30_fit_spec:
-        print('Spectroscopic light curve fit(s) will be performed')
-        if meta.s30_most_recent_s21:
-            # find most recent bins directory
-            lst_dir = np.array([path for path in (meta.workdir / "extracted_sp").iterdir()
-                                if path.is_dir()])
-            dirs_bool = np.array(['bins' in i.name for i in lst_dir])
-            lst_dir = lst_dir[dirs_bool]
-            dirs_times = [i.name[-19:] for i in lst_dir]  # There are 19 digits in the typical '%Y-%m-%d_%H-%M-%S' format
-            # sort the times
-            times_sorted = sn(dirs_times)
-            # most recent time
-            recent_time = times_sorted[-1]
-            idx = 0
-            for i in range(len(lst_dir)):
-                if lst_dir[i].name[-19:] == recent_time:
-                    idx = i
-            spec_dir_full = lst_dir[idx]
-            #spec_dir_full = meta.workdir + "/extracted_sp/" + spec_dir
-            files = sn(spec_dir_full.glob("*.txt"))
-            print(f'using most recent s21 run: {spec_dir_full}')
-        else:
-            spec_dir_full = meta.s30_spec_dir_path
-            files = sn(spec_dir_full.glob("*.txt"))
+        print("Spectroscopic light curve fit(s) will be performed")
 
-            print('using user set spectroscopic directory: '.format(meta.s30_spec_dir_path))
-        spec_dir_wvl_file = spec_dir_full / 'wvl_table.dat'
-        meta.wavelength_list = ascii.read(spec_dir_wvl_file)['wavelengths']
+        spec_dir = meta.workdir / "extracted_sp"
+
+        if not spec_dir.exists():
+            raise FileNotFoundError(f"Could not find spectroscopic directory: {spec_dir}")
+
+        files = sn(list(spec_dir.glob("speclc*.txt")))
+
+        if len(files) == 0:
+            raise FileNotFoundError(f"No speclc*.txt files found in {spec_dir}")
+
+        wvl_table = get_wavelength_table(meta)
+        meta.wavelength_list = np.asarray(wvl_table["wavelength"], dtype=float)
+
+        print(f"Using spectroscopic directory: {spec_dir}")
+
     else:
-        print('Neither s30_fit_white nor s30_fit_spec are True!')
+        raise ValueError("Either s30_fit_white or s30_fit_spec must be True.")
 
-    print('Identified file(s) for fitting:', files)
+    print("Identified file(s) for fitting:", files)
     meta.nfits = len(files)
     return files, meta
 
@@ -587,9 +777,26 @@ def return_free_array(nvisit, fixed_array, tied_array):
     free_array = np.array(free_array)
     return free_array
 
+def return_untied_array(nvisit, fixed_array, tied_array):
+    """Reads in the fit_par.txt and determines which parameters are untied."""
+    untied_array = []
+    for i in range(len(fixed_array)):
+        if fixed_array[i].lower() == 'true' and tied_array[i] == -1:
+            for ii in range(nvisit):
+                untied_array.append(False)
+        if fixed_array[i].lower() == 'true' and not tied_array[i] == -1:
+            untied_array.append(True)
+        if fixed_array[i].lower() == 'false' and tied_array[i] == -1:
+            untied_array.append(False)
+            for ii in range(nvisit-1):
+                untied_array.append(False)
+        if fixed_array[i].lower() == 'false' and not tied_array[i] == -1:
+            untied_array.append(True)
+    untied_array = np.array(untied_array)
+    return untied_array
 
 def format_params_for_Model(theta, params, nvisit,
-                            fixed_array, tied_array, free_array):
+                            fixed_array, tied_array, free_array, untied_array):
     nvisit = int(nvisit)
     params_updated = []
 
@@ -606,9 +813,14 @@ def format_params_for_Model(theta, params, nvisit,
     #     array_new2 = np.array([item for sublist in array_new for item in sublist])
     #     return array_new2
 
+    #new function that copies parameters of visit 0 in visits>0 if tied=-1.:
     theta_new = np.copy(theta)
     params_updated = np.copy(params)
     params_updated[free_array] = theta_new
+    for i_p in range(0,len(untied_array), nvisit):
+        if not untied_array[i_p]:
+            for ii_p in range(1,nvisit):
+                params_updated[i_p+ii_p] = params_updated[i_p]
     # print('free_array', free_array)
     # print('params_updated', params_updated)
     return np.array(params_updated)
@@ -673,38 +885,136 @@ def format_params_for_sampling(params, meta, fit_par):
 
 
 def make_lsq_rprs_txt(vals, errs, idxs, meta):
-    """Saves the rprs vs wvl as a txt file as resulting from the lsq."""
-    with (meta.workdir / meta.fitdir / 'lsq_res'/ "lsq_rprs.txt")\
-            .open('w', encoding=OPTIONS["encoding"]) as f_lsq:
-        rp_idx = np.where(np.array(meta.labels) == 'rp')[0][0]
-        rprs_vals_lsq = [vals[ii][idxs[0][rp_idx]] for ii in range(len(vals))]
-        rprs_errs_lsq = [errs[ii][idxs[0][rp_idx]] for ii in range(len(errs))]
-        file_header = ['wavelength (micron)', 'rprs', 'rprs_err']
-        print("#{: <24} {: <25} {: <25}".format(*file_header), file=f_lsq)
-        for row in zip(meta.wavelength_list, rprs_vals_lsq, rprs_errs_lsq):
-            print("{: <25} {: <25} {: <25}".format(*row), file=f_lsq)
+    """Save rprs vs wavelength from LSQ."""
+    wvl_table = get_wavelength_table(meta)
+
+    out_file = meta.workdir / meta.fitdir / "lsq_res" / "lsq_rprs.txt"
+
+    rp_idx = np.where(np.array(meta.labels) == "rp")[0][0]
+    rprs_vals_lsq = [vals[ii][idxs[0][rp_idx]] for ii in range(len(vals))]
+    rprs_errs_lsq = [errs[ii][idxs[0][rp_idx]] for ii in range(len(errs))]
+
+    with out_file.open("w", encoding="utf-8") as f_lsq:
+        header = [
+            "wavelength",
+            "wave_width",
+            "wave_low",
+            "wave_high",
+            "rprs",
+            "rprs_err",
+        ]
+
+        print("#" + " ".join(f"{item:<18}" for item in header), file=f_lsq)
+
+        for row in zip(
+            wvl_table["wavelength"],
+            wvl_table["half_width"],
+            wvl_table["lower_edge"],
+            wvl_table["upper_edge"],
+            rprs_vals_lsq,
+            rprs_errs_lsq,
+        ):
+            print(" ".join(f"{float(item):<18.8e}" for item in row), file=f_lsq)
 
 
-def make_rprs_txt(vals, errs_lower, errs_upper, meta, fitter=None):
-    """Saves the rprs vs wvl as a txt file as resulting from the sampler."""
-    rp_idx = np.where(np.array(meta.labels) == 'rp')[0][0]
-    medians = np.array(vals).T[rp_idx]
-    errors_lower = np.array(errs_lower).T[rp_idx]
-    errors_upper = np.array(errs_upper).T[rp_idx]
-    if fitter == 'mcmc':
-        with (meta.workdir / meta.fitdir / 'mcmc_res' / "mcmc_rprs.txt")\
-                .open('w', encoding=OPTIONS["encoding"]) as f_mcmc:
-            file_header = ['wavelength (micron)', 'rprs', 'rprs_err_lower', 'rprs_err_upper']
-            print("#{: <24} {: <25} {: <25} {: <25}".format(*file_header), file=f_mcmc)
-            for row in zip(meta.wavelength_list, medians, errors_lower, errors_upper):
-                print("{: <25} {: <25} {: <25} {: <25}".format(*row), file=f_mcmc)
-    if fitter == 'nested':
-        with (meta.workdir / meta.fitdir / 'nested_res' / "nested_rprs.txt")\
-                .open('w', encoding=OPTIONS["encoding"]) as f_nested:
-            file_header = ['wavelength (micron)', 'rprs', 'rprs_err_lower', 'rprs_err_upper']
-            print("#{: <24} {: <25} {: <25} {: <25}".format(*file_header), file=f_nested)
-            for row in zip(meta.wavelength_list, medians, errors_lower, errors_upper):
-                print("{: <25} {: <25} {: <25} {: <25}".format(*row), file=f_nested)
+def make_rprs_txt(vals, errs_lower, errs_upper, meta, fitter=None, vals_maxL=None):
+    """Save rprs vs wavelength from MCMC or nested sampling.
+
+    Parameters
+    ----------
+    vals : list
+        Median/p50 parameter values for each wavelength bin.
+    errs_lower : list
+        Lower 1-sigma errors, i.e. p50 - p16.
+    errs_upper : list
+        Upper 1-sigma errors, i.e. p84 - p50.
+    meta
+        PACMAN metadata object.
+    fitter : str
+        Either "mcmc" or "nested".
+    vals_maxL : list or None
+        Maximum-likelihood parameter values for each wavelength bin.
+        Required for fitter="nested" if you want maxL in nested_rprs.txt.
+    """
+    if fitter not in ["mcmc", "nested"]:
+        raise ValueError("fitter must be 'mcmc' or 'nested'.")
+
+    wvl_table = get_wavelength_table(meta)
+
+    rp_idx = np.where(np.array(meta.labels) == "rp")[0][0]
+
+    p50 = np.array(vals).T[rp_idx]
+    minus = np.array(errs_lower).T[rp_idx]
+    plus = np.array(errs_upper).T[rp_idx]
+
+    p16 = p50 - minus
+    p84 = p50 + plus
+
+    out_file = meta.workdir / meta.fitdir / f"{fitter}_res" / f"{fitter}_rprs.txt"
+
+    with out_file.open("w", encoding="utf-8") as f_out:
+        if fitter == "mcmc":
+            header = [
+                "wavelength",
+                "wave_width",
+                "wave_low",
+                "wave_high",
+                "p50",
+                "p16",
+                "p84",
+                "minus",
+                "plus",
+            ]
+
+            print("#" + " ".join(f"{item:<18}" for item in header), file=f_out)
+
+            for row in zip(
+                wvl_table["wavelength"],
+                wvl_table["half_width"],
+                wvl_table["lower_edge"],
+                wvl_table["upper_edge"],
+                p50,
+                p16,
+                p84,
+                minus,
+                plus,
+            ):
+                print(" ".join(f"{float(item):<18.8e}" for item in row), file=f_out)
+
+        elif fitter == "nested":
+            if vals_maxL is None:
+                raise ValueError("vals_maxL must be provided for nested_rprs.txt.")
+
+            maxL = np.array(vals_maxL).T[rp_idx]
+
+            header = [
+                "wavelength",
+                "wave_width",
+                "wave_low",
+                "wave_high",
+                "p50",
+                "p16",
+                "p84",
+                "minus",
+                "plus",
+                "maxL",
+            ]
+
+            print("#" + " ".join(f"{item:<18}" for item in header), file=f_out)
+
+            for row in zip(
+                wvl_table["wavelength"],
+                wvl_table["half_width"],
+                wvl_table["lower_edge"],
+                wvl_table["upper_edge"],
+                p50,
+                p16,
+                p84,
+                minus,
+                plus,
+                maxL,
+            ):
+                print(" ".join(f"{float(item):<18.8e}" for item in row), file=f_out)
 
 
 def quantile(x, q):
@@ -722,15 +1032,15 @@ def weighted_mean(data, err):
 
 def create_res_dir(meta):
     """Creates the result directory depending on which fitters were used."""
-    print('H11', meta.workdir)
-    print('H22', meta.fitdir)
+    #print('H11', meta.workdir)
+    #print('H22', meta.fitdir)
 
     lsq_res_dir = meta.workdir / meta.fitdir / 'lsq_res'
-    print('H33', lsq_res_dir)
-    print('DOES IT EXIST', lsq_res_dir.exists())
+    #print('H33', lsq_res_dir)
+    #print('DOES IT EXIST', lsq_res_dir.exists())
     if not lsq_res_dir.exists():
         lsq_res_dir.mkdir(parents=True)
-    print('DOES THIS STILL RUN?')
+    #print('DOES THIS STILL RUN?')
     mcmc_res_dir = meta.workdir / meta.fitdir / 'mcmc_res'
     nested_res_dir = meta.workdir / meta.fitdir / 'nested_res'
     if meta.run_lsq:
@@ -900,8 +1210,8 @@ def save_fit_output(fit, data, meta):
     print('Saved fit_results.txt file')
 
 
-def save_allandata(binsz, rms, stderr, meta, fitter=None):
-    """Saves the data used to create the Allan deviation plot."""
+def save_time_averaging_data(binsz, rms, stderr, meta, fitter=None):
+    """Saves the data used to create the time averaging plot (formally known as Allan deviation plot)."""
     t = Table()
 
     t['binsz'] = binsz
@@ -946,3 +1256,142 @@ def save_allandata(binsz, rms, stderr, meta, fitter=None):
 # def getphase(t):
 #    phase = (t - t0)/period
 #    return phase - int(phase)
+
+def apply_uncmulti(data, params):
+    """Apply visit-specific uncertainty rescaling.
+
+    If ``uncmulti_val`` is tied with tied = -1, the expanded params vector
+    should contain the same value for every visit. If it is untied, each
+    visit gets its own value.
+    """
+    if "uncmulti" not in data.s30_myfuncs:
+        return None
+
+    if "uncmulti_val" not in data.par_order:
+        raise KeyError(
+            "'uncmulti' is in s30_myfuncs, but 'uncmulti_val' is missing "
+            "from fit_par.txt."
+        )
+
+    start = data.par_order["uncmulti_val"] * data.nvisit
+    stop = start + data.nvisit
+
+    uncmulti_vals = np.asarray(params[start:stop], dtype=float)
+
+    if len(uncmulti_vals) != data.nvisit:
+        raise ValueError(
+            f"Expected {data.nvisit} uncmulti_val values after parameter "
+            f"expansion, but got {len(uncmulti_vals)}."
+        )
+
+    err = np.array(data.err_notrescaled, dtype=float, copy=True)
+
+    for visit in range(data.nvisit):
+        visit_mask = data.vis_num == visit
+        err[visit_mask] *= uncmulti_vals[visit]
+
+    data.err = err
+    return uncmulti_vals
+
+
+def get_wavelength_table(meta):
+    """Return the wavelength table for the current Stage 30 fit."""
+    if meta.s30_fit_white:
+        wvl_file = meta.workdir / "extracted_lc" / "wvl_table.dat"
+    elif meta.s30_fit_spec:
+        wvl_file = meta.workdir / "extracted_sp" / "wvl_table.dat"
+    else:
+        raise ValueError("Either s30_fit_white or s30_fit_spec must be True.")
+
+    if not wvl_file.exists():
+        raise FileNotFoundError(f"Could not find wavelength table: {wvl_file}")
+
+    return ascii.read(str(wvl_file))
+
+
+def get_wavelength_info(meta, file_counter=None):
+    """Return wavelength info dict for the current fit/bin."""
+    if file_counter is None:
+        file_counter = getattr(meta, "s30_file_counter", 0)
+
+    table = get_wavelength_table(meta)
+
+    if meta.s30_fit_white:
+        row = table[0]
+    else:
+        row = table[file_counter]
+
+    return {
+        "wavelength": float(row["wavelength"]),
+        "half_width": float(row["half_width"]),
+        "lower_edge": float(row["lower_edge"]),
+        "upper_edge": float(row["upper_edge"]),
+    }
+
+def get_param_value_from_fit_or_fitpar(data, fit, param_name, visit=0):
+    """
+    Return parameter value from fitted params if available,
+    otherwise fall back to fit_par.txt.
+    """
+    from .formatter import FormatParams
+    import numpy as np
+
+    p = FormatParams(fit.params, data)
+
+    if hasattr(p, param_name):
+        arr = np.atleast_1d(getattr(p, param_name))
+        if len(arr) > visit:
+            return float(arr[visit])
+        return float(arr[0])
+
+    fit_par = data.fit_par
+    rows = fit_par[fit_par["parameter"] == param_name]
+
+    if len(rows) == 0:
+        raise ValueError(f"Could not find parameter '{param_name}' in fit_par.")
+
+    tied = np.array(rows["tied"], dtype=int)
+    values = np.array(rows["value"], dtype=float)
+
+    # exact visit match first
+    match = np.where(tied == visit)[0]
+    if len(match) > 0:
+        return float(values[match[0]])
+
+    # otherwise use shared value
+    match = np.where(tied == -1)[0]
+    if len(match) > 0:
+        return float(values[match[0]])
+
+    # final fallback
+    return float(values[0])
+
+
+def make_time_model_per_visit(data, pad_hours=0.25, points_per_hour=15):
+    """
+    Build per-visit model time arrays.
+    Returns a list of time arrays, one per visit.
+    """
+    segments = []
+    pad_days = pad_hours / 24.0
+
+    for visit in range(data.nvisit):
+        ind = data.vis_num == visit
+        tmin = np.min(data.time[ind]) - pad_days
+        tmax = np.max(data.time[ind]) + pad_days
+
+        duration_hours = (tmax - tmin) * 24.0
+        npts = max(50, int(np.ceil(duration_hours * points_per_hour)))
+
+        segments.append(np.linspace(tmin, tmax, npts))
+
+    return segments
+
+def get_lc_type_label(meta):
+    """Return a short label for the current light-curve type."""
+    fitdir_str = str(meta.fitdir)
+    if "fit_white" in fitdir_str:
+        return "Wh.-LC"
+    if "fit_spec" in fitdir_str:
+        return "Sp.-LC"
+    return "LC"

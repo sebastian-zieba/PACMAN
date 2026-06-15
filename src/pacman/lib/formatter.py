@@ -64,6 +64,9 @@ class FormatParams:
             self.r3 = params[data.par_order['r3']*data.nvisit:(1 + data.par_order['r3'])*data.nvisit]
         elif 'upstream_downstream' in data.s30_myfuncs:
             self.scale = params[data.par_order['scale']*data.nvisit:(1 + data.par_order['scale'])*data.nvisit]
+        elif 'model_rowshift' in data.s30_myfuncs:
+            self.rowshift_vf = params[data.par_order['rowshift_vf']*data.nvisit:(1 + data.par_order['rowshift_vf'])*data.nvisit]
+            self.rowshift_vr = params[data.par_order['rowshift_vr']*data.nvisit:(1 + data.par_order['rowshift_vr'])*data.nvisit]
         elif 'ackbar' in data.s30_myfuncs:
             self.trap_pop_s = params[data.par_order['trap_pop_s']*data.nvisit:(1 + data.par_order['trap_pop_s'])*data.nvisit]
             self.trap_pop_f = params[data.par_order['trap_pop_f']*data.nvisit:(1 + data.par_order['trap_pop_f'])*data.nvisit]
@@ -88,17 +91,24 @@ class FormatParams:
 
 
 def PrintParams(m, data, savefile=False):
+    if savefile:
+        print(f"{'parameter':<20} {'value':>20} {'error':>20}", file=savefile)
+
     for name in data.parnames:
         for vis in range(data.nvisit):
-            if m.perror[data.par_order[name]*data.nvisit + vis] > 0.: 
-                if not savefile:
-                    print(name+"_"+str(vis), \
-                          "\t", "{0:0.4e}".format(m.params[data.par_order[name]*data.nvisit + vis]), \
-                          "\t", "{0:0.4e}".format(m.perror[data.par_order[name]*data.nvisit + vis]))
+            idx = data.par_order[name] * data.nvisit + vis
+
+            if m.perror[idx] > 0.:
+                label = f"{name}_{vis}"
+                value = m.params[idx]
+                error = m.perror[idx]
+
+                line = f"{label:<20} {value:>20.8e} {error:>20.8e}"
+
+                if savefile:
+                    print(line, file=savefile)
                 else:
-                    print(name+"_"+str(vis), \
-                          "\t", "{0:0.4e}".format(m.params[data.par_order[name]*data.nvisit + vis]), \
-                          "\t", "{0:0.4e}".format(m.perror[data.par_order[name]*data.nvisit + vis]), file=savefile)
+                    print(line)
 
 
 def ReturnParams(m, data):

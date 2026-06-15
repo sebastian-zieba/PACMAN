@@ -8,7 +8,6 @@ from scipy.stats import norm
 
 from . import plots
 from . import util
-from .options import OPTIONS
 
 
 def transform_uniform(x, a, b):
@@ -41,7 +40,8 @@ def nested_sample(data, model, params, file_name, meta, fit_par):
     fixed_array = np.array(fit_par['fixed'])
     tied_array = np.array(fit_par['tied'])
     free_array = util.return_free_array(nvisit, fixed_array, tied_array)
-    l_args = [params, data, model, nvisit, fixed_array, tied_array, free_array]
+    untied_array = util.return_untied_array(nvisit, fixed_array, tied_array)
+    l_args = [params, data, model, nvisit, fixed_array, tied_array, free_array, untied_array]
     p_args = [data]
 
     # Setting up multiprocessing
@@ -88,45 +88,73 @@ def nested_sample(data, model, params, file_name, meta, fit_par):
     mean, cov = dyfunc.mean_and_cov(samples, weights)
     new_samples = dyfunc.resample_equal(samples, weights)
 
+    best_idx_ml = np.argmax(results.logl)
+    best_sample_ml = results.samples[best_idx_ml]
+
+    # Determine median and 16th and 84th percentiles
+    p16_list = []
+    p50_list = []
+    p84_list = []
+    errors_lower = []
+    errors_upper = []
+    for i in range(ndim):
+        q = util.quantile(new_samples[:, i], [0.16, 0.5, 0.84])
+        p16, p50, p84 = q
+        p16_list.append(p16)
+        p50_list.append(p50)
+        p84_list.append(p84)
+        errors_lower.append(p50 - p16)
+        errors_upper.append(p84 - p50)
+    medians = p50_list
+
+    plots.nested_pairs(
+        new_samples,
+        meta.labels,
+        meta,
+        median_vals=medians,
+        ml_vals=best_sample_ml,
+        n_sampled=ndim,
+    )
+
     # Saving plots
     plots.dyplot_runplot(results, meta)
     plots.dyplot_traceplot(results, meta)
     plots.dyplot_cornerplot(results, meta)
 
-    # Determine median and 16th and 84th percentiles
-    medians = []
-    errors_lower = []
-    errors_upper = []
-    for i in range(ndim):
-        q = util.quantile(new_samples[:, i], [0.16, 0.5, 0.84])
-        medians.append(q[1])
-        errors_lower.append(abs(q[1] - q[0]))
-        errors_upper.append(abs(q[2] - q[1]))
 
     # Saving sampling results into txt files
     with (meta.workdir / meta.fitdir / 'nested_res' /
-          f"nested_res_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt")\
-            .open('w', encoding=OPTIONS["encoding"]) as f_mcmc:
-        for row in zip(errors_lower, medians, errors_upper, labels):
-            print('{0: >8}: '.format(row[3]), '{0: >24} '.format(row[1]),
-                  '{0: >24} '.format(row[0]), '{0: >24} '.format(row[2]), file=f_mcmc)
+        f"nested_res_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.txt").open('w', encoding='utf-8') as f_nested:
+        print(
+            f"{'parameter':<20} {'p50':>14} {'p16':>14} {'p84':>14} {'minus':>14} {'plus':>14} {'maxL':>14}",
+            file=f_nested
+        )
+        for label, p50, p16, p84, minus, plus, ml in zip(
+            labels, p50_list, p16_list, p84_list, errors_lower, errors_upper, best_sample_ml
+        ):
+            print(
+                f"{label:<20} {p50:14.7g} {p16:14.7g} {p84:14.7g} {minus:14.7g} {plus:14.7g} {ml:14.7g}",
+                file=f_nested
+            )
 
-    updated_params = util.format_params_for_Model(medians, params, nvisit, fixed_array, tied_array, free_array)
+    updated_params = util.format_params_for_Model(medians, params, nvisit, fixed_array, tied_array, free_array, untied_array)
+    if "uncmulti" in data.s30_myfuncs:
+        util.apply_uncmulti(data, updated_params)
     fit = model.fit(data, updated_params)
     util.append_fit_output(fit, meta, fitter='nested', medians=medians)
 
     # Saving plots
     plots.plot_fit_lc2(data, fit, meta, nested=True)
     plots.rmsplot(model, data, meta, fitter='nested')
-    plots.save_astrolc_data_nested(data, model, meta)
+    plots.save_astrolc_data(data, model, meta, fitter='nested')
 
     if meta.s30_fit_white:
         with (meta.workdir / meta.fitdir / 'white_systematics_nested.txt')\
-                .open("w", encoding=OPTIONS["encoding"]) as outfile:
+                .open("w", encoding='utf-8') as outfile:
             for i in range(len(fit.all_sys)):
                 print(fit.all_sys[i], file=outfile)
         print('Saved white_systematics.txt file for nested sampling run')
-    return medians, errors_lower, errors_upper, fit
+    return medians, errors_lower, errors_upper, fit, best_sample_ml
 
 
 def ptform(u, data):
@@ -142,10 +170,10 @@ def ptform(u, data):
 
 
 def loglike(x, params, data, model, nvisit,
-            fixed_array, tied_array, free_array):
+            fixed_array, tied_array, free_array, untied_array):
     """Calculates the log-likelihood."""
-    updated_params = util.format_params_for_Model(x, params, nvisit, fixed_array, tied_array, free_array)
-    if 'uncmulti' in data.s30_myfuncs:
-        data.err = updated_params[-1] * data.err_notrescaled
+    updated_params = util.format_params_for_Model(x, params, nvisit, fixed_array, tied_array, free_array, untied_array)
+    if "uncmulti" in data.s30_myfuncs:
+        util.apply_uncmulti(data, updated_params)
     fit = model.fit(data, updated_params)
     return fit.ln_like

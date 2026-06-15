@@ -5,14 +5,19 @@ Stage 20
 
 .. topic:: Summary
 
-    - Navigate to the run directory and execute the pacman_script.py file using the --s20 flag
+    - Navigate to ``pacman_run_files``, comment out Stage 10, uncomment Stage 20, and execute ``run_pacman.py``.
     - Continue with s21 if you want to create spectroscopic light curves and fit them
-    - (Continue with s30 if you are ONLY interested in the white light curve)
+    - Continue with s30 if you are ONLY interested in the white light curve (for now)
 
 This step finally extracts the spectra!
 
-A new directory will be created in the work directory. It will look similar to this ``workdir + extracted_lc/2022-01-21_18-33-25``.
-We will save the flux information there.
+A new Stage 20 workdir is created:
+
+``stage20/s20_run_YYYY-MM-DD_HH-MM-SS``
+
+The extracted light curves and spectra are saved in:
+
+``stage20/s20_run_*/extracted_lc``
 
 PACMAN uses `optimal extraction <https://ui.adsabs.harvard.edu/abs/1986PASP...98..609H>`_ to extract the spectra.
 
@@ -43,8 +48,9 @@ When running Stage 20 you will see an output similar to the following:
 
 .. code-block:: console
 
-	    Successfully reloaded meta file
 	    Starting s20
+		Using Stage 10 input directory: ...
+    	Location of the new Stage 20 run directory: ...
 	    in total #visits, #orbits: (3, 12)
 
 	    ***************** Looping over files:   0%|          | 0/225 [00:00<?, ?it/s]
@@ -76,6 +82,41 @@ When running Stage 20 you will see an output similar to the following:
 	    ***************** Looping over files: 100%|██████████| 225/225 [03:44<00:00,  1.00it/s]
 	    Saving Metadata
 	    Finished s20
+
+
+Stage 20 creates several output files inside:
+
+``stage20/s20_run_*/extracted_lc``
+
+Important files include:
+
+- ``lc_white.txt``:
+  broadband ("white") light curve
+
+- ``lc_spec.txt``:
+  extracted spectrum for every exposure and detector column
+
+- ``diagnostics.txt``:
+  extraction diagnostics such as number of rejected outliers
+
+- ``background.txt``:
+  estimated background levels
+
+Stage 20 also creates white-light-curve plots with uncertainties in:
+
+``stage20/s20_run_*/figs/s20_lightcurves``
+
+If multiple visits are present, PACMAN automatically generates:
+
+- one combined white light curve
+- one white light curve per visit
+
+
+Stage 20 also saves a wavelength table for the white light curve:
+
+``stage20/s20_run_*/extracted_lc/wvl_table.dat``
+
+This file contains the central wavelength, half-width, and wavelength edges of the white-light bin. It is copied into Stage 30 when fitting the white light curve.
 
 
 After Stage 20 we can either:

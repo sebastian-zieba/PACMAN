@@ -76,6 +76,29 @@ class Data:
         else:
             print('Leaving the first orbit in every visit.')
 
+        #####################################
+        # repeat previous steps for rowshift if model_rowshift is needed
+        if meta.calculate_rowshift and ('model_rowshift' in meta.s30_myfuncs):
+            # read in data
+            rowshift = meta.rowshift
+            # Remove first exposure from each orbit:
+            if meta.remove_first_exp:
+                leave_ind_r = np.ones(len(rowshift), bool) #remove first exposure without overwriting previously calculated orbit-mask
+                leave_ind_r[meta.new_orbit_idx_sp] = False
+                rowshift = rowshift[leave_ind_r]
+                print(f'Removed {sum(~leave_ind_r)} exposures from rowshift because they were the first exposures in the orbit.')
+            else:
+                print('Leaving the first exposures from rowshift in every orbit.')
+            #
+            # Remove first or chosen orbit of each visit (leave_ind is unchanged from above):
+            if meta.remove_first_orb:
+                rowshift = rowshift[leave_ind]
+                print(f'Removed {sum(~leave_ind)} exposures from rowshift because they were the first orbit in the visit.')
+            else:
+                print('Leaving the first orbit of rowshift in every visit.')
+        elif ('model_rowshift' in meta.s30_myfuncs) and not meta.calculate_rowshift:
+            print('Please check if you ran s20 with "calculate_rowshift True". If not, you need to rerun s20 with this parameter on True in order to use "model_rowshift".')
+
         n = len(d)
 
         # t_delay will = 1 if it's the first orbit in a visit. Otherwise = 0
@@ -183,7 +206,8 @@ class Data:
         self.flux = flux[clip_mask]
         print('Median log10 raw flux of full light curve: ', np.log10(np.median(flux[clip_mask])))
         self.err = err[clip_mask]
-        self.err_notrescaled = err[clip_mask] # will store the original errorbars and wont be rescaled
+        self.err_notrescaled = np.copy(err[clip_mask]) # will store the original errorbars and wont be rescaled
+        self.fit_par = fit_par
         self.wavelength = meta.wavelength
         self.ld_model = meta.ld_model
         self.exp_time = np.median(np.diff(time))*60*60*24 #for supersampling in batman.py
@@ -216,6 +240,8 @@ class Data:
         for i in range(nvisit): self.vis_idx.append(self.vis_num == i)
         if ('divide_white' in meta.s30_myfuncs) and meta.s30_fit_spec:
             self.white_systematics = np.genfromtxt(meta.white_sys_path)
+        if meta.calculate_rowshift and ('model_rowshift' in meta.s30_myfuncs):
+            self.rowshift = rowshift[clip_mask]
         self.rescale_uncert = meta.rescale_uncert
 
 

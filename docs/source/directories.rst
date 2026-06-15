@@ -1,10 +1,10 @@
 .. _directories:
 
 Repository Structure
-========================
+====================
 
 In the package
-''''''''''''''''''''''''''''''
+''''''''''''''
 
 
 * `PACMAN/src/pacman <https://github.com/sebastian-zieba/PACMAN/tree/master/src/pacman>`_
@@ -39,14 +39,14 @@ In the package
     More on this at the walkthrough of `Stage 03 <https://pacmandocs.readthedocs.io/en/latest/quickstart.html#stage-03>`_ using GJ1214 data as an example.
 
 
-    + `PACMAN/src/pacman/data/run_files <https://github.com/sebastian-zieba/PACMAN/tree/master/src/pacman/data/run_files>`_
+    + `PACMAN/src/pacman/data/pacman_run_files <https://github.com/sebastian-zieba/PACMAN/tree/master/src/pacman/data/pacman_run_files>`_
 
     .. note:: These three files have to be copied over to the run directory where the analysis will be run from! You find more information about that in :ref:`Before Running <before_running>`.
 
 
-    * -> `PACMAN/src/pacman/data/run_files/pacman_script.py <https://github.com/sebastian-zieba/PACMAN/tree/master/src/pacman/data/run_files/pacman_script.py>`_
+    * -> `PACMAN/src/pacman/data/pacman_run_files/run_pacman.py <https://github.com/sebastian-zieba/PACMAN/tree/master/src/pacman/data/pacman_run_files/run_pacman.py>`_
 
-    This python script runs PACMAN. If the user did not install PACMAN properly as explained in the :ref:`installation walkthrough <installation>` (not recommended) he or she might have to add a path to the sys.path.append pointing to the PACMAN directory:
+    This python script runs PACMAN. If the user did not install PACMAN properly as explained in the :ref:`installation walkthrough <installation>` (not recommended) they might have to add a path to the sys.path.append pointing to the PACMAN directory:
 
     .. code-block:: python
 
@@ -57,13 +57,13 @@ In the package
     .. note:: The path should point to ``/PACMAN/`` and not to ``/PACMAN/src/pacman/``.
 
 
-    * -> `PACMAN/src/pacman/data/run_files/obs_par.pcf <https://github.com/sebastian-zieba/PACMAN/tree/master/src/pacman/data/run_files/obs_par.pcf>`_
+    * -> `PACMAN/src/pacman/data/pacman_run_files/obs_par.pcf <https://github.com/sebastian-zieba/PACMAN/tree/master/src/pacman/data/pacman_run_files/obs_par.pcf>`_
 
     The PACMAN control file (pcf): the user sets parameters related to the analysis. E.g., which plots should be saved, the path to the data directory and others.
     A thorough explanation of all the parameters in the pcf can be found on the :ref:`PCF page<pcf>`.
 
 
-    * -> `PACMAN/src/pacman/data/run_files/fit_par.txt <https://github.com/sebastian-zieba/PACMAN/tree/master/src/pacman/data/run_files/fit_par.txt>`_
+    * -> `PACMAN/src/pacman/data/pacman_run_files/fit_par.txt <https://github.com/sebastian-zieba/PACMAN/tree/master/src/pacman/data/pacman_run_files/fit_par.txt>`_
 
     The fit_par.txt file is used in Stage 30 to fit the light curve. The user defines here which fit parameters should be fixed, shared across visits, and sets other information like priors.
 
@@ -77,73 +77,110 @@ An example for a directory structure:
 
 ::
 
-	user
-	└── Desktop
-		└── Projects
-			└── Observations
-				└── Hubble
-					└── GJ1214_13021 (="run directory")
-						├── pacman_script.py
-						├── fit_par.txt
-						└── obs_par.pcf
-		└── Data
-			└── GJ1214_Hubble13021 (="data directory")
-                            ├── ibxy06d0q_ima.fits
-                            ├── ...
-                            └── ibxy07ryq_ima.fits
-
+    user
+    └── Desktop
+        └── Projects
+            └── Observations
+                └── Hubble
+                    └── GJ1214_13021  (="run directory")
+                        ├── pacman_run_files
+                        │   ├── run_pacman.py
+                        │   ├── obs_par.pcf
+                        │   └── fit_par.txt
+                        ├── stage00
+                        ├── stage01
+                        ├── stage02
+                        ├── stage03
+                        ├── stage10
+                        ├── stage20
+                        ├── stage21
+                        └── stage30
+            └── Data
+                └── GJ1214_Hubble13021  (="data directory")
+                    ├── ibxy06d0q_ima.fits
+                    ├── ...
+                    └── ibxy07ryq_ima.fits
 
 
 * **run directory**:
 
   Example: ``/home/zieba/Desktop/Projects/Observations/Hubble/GJ1214_13021``.
 
-  .. note:: You have to copy the contents of run_files into this directory.
+  This is the top-level directory for one PACMAN analysis. It contains the
+  ``pacman_run_files`` directory and one output directory for each PACMAN stage.
 
-  Contents to copy into the run directory:
+* **pacman_run_files directory**:
 
-   - pacman_script.py
+  Example: ``/home/zieba/Desktop/Projects/Observations/Hubble/GJ1214_13021/pacman_run_files``.
 
-   - obs_par.pcf
+  This directory contains the files used to configure and start a PACMAN run:
 
-   - fit_par.txt
+  - ``run_pacman.py``
+  - ``obs_par.pcf``
+  - ``fit_par.txt``
 
-   If you pip-installed, downloaded or cloned the GitHub repository, you'll find the run_files directory (with templates for these three files) in ``PACMAN/src/pacman/data/run_files``.
-   They can also be downloaded under this link: `Download here <https://downgit.github.io/#/home?url=https://github.com/sebastian-zieba/PACMAN/tree/master/src/pacman/data/run_files>`_.
-   You have to copy these files into your run directory.
+  To run PACMAN, navigate into this directory and execute:
 
-    .. note:: | The pcf file in the run directory is ONLY used in Stage 00.
-              | When running Stage 00, the pcf and fit_par files will be copied over to the work directory.
-              | The copied pcf file in the work directory will then be the pcf file for all following stages.
-              | The same is true for the fit_par.txt file.
-              | So, after running Stage 00, PACMAN does not care anymore about the changes made to the pcf file and the fit_par file in the run directory!
+  .. code-block:: console
 
+      python run_pacman.py
 
-* **work directory**:
+  The settings in ``obs_par.pcf`` and ``fit_par.txt`` are read from this directory.
 
-  Example: ``/home/zieba/Desktop/Projects/Observations/Hubble/GJ1214_13021/run_2022-03-04_15-10-29_GJ1214_Hubble13021``.
+* **stage directories**:
 
-  This directory will be created in Stage 00.
-  All the results of the following stages will be stored here.
+  PACMAN stores outputs in stage-specific directories:
 
-  The name of the work directory is a combination of the following parts:
+  - ``stage00``
+  - ``stage01``
+  - ``stage02``
+  - ``stage03``
+  - ``stage10``
+  - ``stage20``
+  - ``stage21``
+  - ``stage30``
 
-  "run_" + "YYYY-MM-DD_HH-MM-SS_" + "eventlabel"
+  Each stage directory can contain one or more timestamped run directories. The
+  name of each run directory is a combination of the stage name and the time at
+  which the stage was started:
 
-  So for example: run_2022-03-04_15-10-29_GJ1214_Hubble13021
+  ::
 
-  The eventlabel is chosen by the user when running Stage 00.
+      s00_run_YYYY-MM-DD_HH-MM-SS
 
+  For example:
+
+  ::
+
+      stage00
+      └── s00_run_2022-03-04_15-10-29
+
+  When a later stage is run, by default, PACMAN uses the most recent run directory from the previous stage unless the user specifies a different input path.
 
 * **data directory**:
 
   Example: ``/home/zieba/Desktop/Data/GJ1214_Hubble13021``.
 
-  This directory should contain the .fits files which will be reduced and analyzed.
-
+  This directory contains the FITS files that will be reduced and analyzed.
 
 * **pipeline directory**:
 
-  Example: ``/home/zieba/Desktop/Projects/Open_source/PACMAN/src``
+  Example: ``/home/zieba/Desktop/Projects/Open_Source/PACMAN/src``.
 
-  This is the heart of PACMAN containing all the code and data to run the different stages.
+  This is the installed PACMAN source code directory. Users normally do not need to
+  edit files in this directory during an analysis.
+
+
++----------------------+--------------------------------------------------------------+---------------------------------------------------------------------------------------------+
+| Term                 | Meaning                                                      | Example                                                                                     |
++======================+==============================================================+=============================================================================================+
+| run directory        | Top-level PACMAN project directory                           | ``/home/zieba/Desktop/Projects/Observations/Hubble/GJ1214_13021``                           |
++----------------------+--------------------------------------------------------------+---------------------------------------------------------------------------------------------+
+| ``pacman_run_files`` | Configuration directory containing ``run_pacman.py``,         | ``/home/zieba/Desktop/Projects/Observations/Hubble/GJ1214_13021/pacman_run_files``          |
+|                      | ``fit_par.txt``, and ``obs_par.pcf``                          |                                                                                             |
++----------------------+--------------------------------------------------------------+---------------------------------------------------------------------------------------------+
+| ``stage00``          | Stage output directory for all Stage 00 runs                  | ``/home/zieba/Desktop/Projects/Observations/Hubble/GJ1214_13021/stage00``                   |
++----------------------+--------------------------------------------------------------+---------------------------------------------------------------------------------------------+
+| ``s00_run_*``        | Individual Stage 00 execution directory, also called          | ``/home/zieba/Desktop/Projects/Observations/Hubble/GJ1214_13021/stage00/s00_run_2022-...``  |
+|                      | the Stage 00 ``workdir``                                     |                                                                                             |
++----------------------+--------------------------------------------------------------+---------------------------------------------------------------------------------------------+
