@@ -8,10 +8,60 @@ import numpy as np
 from astropy.io import ascii
 from tqdm import tqdm
 
+import socket
+import time
+from urllib.error import HTTPError, URLError
+from urllib.request import urlopen
+
 from .lib import manageevent as me
 from .lib import util
 from .lib import logedit
 from .lib import read_pcf as rd
+
+
+def download_url_with_retry(
+    url,
+    filename,
+    max_attempts=4,
+    timeout=60,
+    sleep_seconds=20,
+    log=None,
+):
+    """Download a URL with retries, for flaky external services."""
+    last_error = None
+
+    for attempt in range(1, max_attempts + 1):
+        try:
+            message = f"Downloading HORIZONS file, attempt {attempt}/{max_attempts}"
+            if log is not None:
+                log.writelog(message)
+            else:
+                print(message)
+
+            with urlopen(url, timeout=timeout) as in_stream, filename.open("wb") as out_file:
+                out_file.write(in_stream.read())
+
+            return
+
+        except (HTTPError, URLError, TimeoutError, socket.timeout, OSError) as err:
+            last_error = err
+
+            if filename.exists():
+                filename.unlink()
+
+            message = f"HORIZONS download attempt {attempt} failed: {err}"
+            if log is not None:
+                log.writelog(message)
+            else:
+                print(message)
+
+            if attempt < max_attempts:
+                time.sleep(sleep_seconds)
+
+    raise RuntimeError(
+        "Could not download HORIZONS file after "
+        f"{max_attempts} attempts. Last error: {last_error}"
+    )
 
 
 def run01(pcf_path: Path, meta=None):
@@ -110,8 +160,7 @@ def run01(pcf_path: Path, meta=None):
 
         filename = horizons_dir / f"horizons_results_v{i}.txt"
 
-        with urlopen(url) as in_stream, filename.open("wb") as out_file:
-            copyfileobj(in_stream, out_file)
+        download_url_with_retry(url, filename, max_attempts=6, timeout=45, sleep_seconds=15, log=log)
 
     # Save results
     log.writelog('Saving Metadata')
