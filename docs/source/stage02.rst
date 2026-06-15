@@ -64,7 +64,7 @@ The ``filelist.txt`` copied from Stage 01 is updated in this stage and contains 
 E.g. (only showing the first few lines):
 
 .. include:: media/s02/filelist_updated.txt
-    :literal:
+   :literal:
 
 
 You should now have a directory structure similar to this:
