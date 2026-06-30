@@ -1509,7 +1509,7 @@ def mcmc_pairs(samples, params, meta, fit_par, data):
     figname = meta.workdir / meta.fitdir / 'mcmc_res' /\
             f"mcmc_pairs_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.png"
     fig.savefig(figname, 
-                dpi=500, bbox_inches='tight', pad_inches=0.05)
+                dpi=300, bbox_inches='tight', pad_inches=0.05)
     plt.close('all')
     plt.clf()
     gc.collect()
