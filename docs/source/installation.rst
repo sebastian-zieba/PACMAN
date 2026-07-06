@@ -6,12 +6,17 @@ Installation
 Options
 ____________________________________________________
 
-There are several options to download and install the most recent stable release of ``PACMAN``, v0.5.0:
+There are several options to download and install the most recent stable release of ``PACMAN``, v0.5:
 
 Using a conda environment (recommended)
 ----------------------------------------
 
 We generally recommend installing ``PACMAN`` in a ``conda`` environment.  To install conda, follow these `instructions <https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html>`_.
+
+There are several options to download and install PACMAN.
+
+We recommend installing the latest stable release (currently ``v0.5``) for most users.
+If you would like to use the latest development version instead, simply omit the version tag (so: ``git clone https://github.com/sebastian-zieba/PACMAN``) when cloning from GitHub (i.e., clone the ``master`` branch).
 
 Once you have Anaconda installed, navigate in a terminal to a directory where you want to store the cloned ``PACMAN`` directory and type the following lines:
 
@@ -19,14 +24,14 @@ Once you have Anaconda installed, navigate in a terminal to a directory where yo
 
     conda create -n pacman python=3.11
     conda activate pacman
-    git clone -b v0.5.0 https://github.com/sebastian-zieba/PACMAN
+    git clone -b v0.5 https://github.com/sebastian-zieba/PACMAN
     cd PACMAN
     pip install -e .
 
 With these steps, we created a conda environment called ``pacman`` and installed ``PACMAN`` and its dependencies there.
 We also installed the code in the edit mode with ``-e``, giving you the option to edit the source code.
 
-.. note:: In this example, the conda environment uses Python 3.11. PACMAN v0.5.0 has been tested with Python 3.11, 3.12, and 3.13 on Linux and macOS, and with Python 3.11 and 3.12 on Windows. We recommend Python 3.11 for the most conservative installation.
+.. note:: In this example, the conda environment uses Python 3.11. PACMAN v0.5 has been tested with Python 3.11, 3.12, and 3.13 on Linux and macOS, and with Python 3.11 and 3.12 on Windows. We recommend Python 3.11 for the most conservative installation.
     
 .. note:: ``pip install -e .`` will only install the necessary dependencies. If you also want to install the dependencies to run the tests (using pytest) or work on the docs, you have to use the ``[test]`` or ``[docs]`` arguments respectively after ``pip install -e .``. See `Test Your Installation <https://pacmandocs.readthedocs.io/en/latest/installation.html#test-your-installation>`_ for an example.
 
@@ -50,7 +55,7 @@ You can install ``PACMAN`` using ``pip`` by entering the following line into a t
 
     conda create -n pacman python=3.11
     conda activate pacman
-    pip install 'pacman@git+https://github.com/sebastian-zieba/PACMAN.git@v0.5.0'
+    pip install 'pacman@git+https://github.com/sebastian-zieba/PACMAN.git@v0.5'
 
 
 Directly from GitHub

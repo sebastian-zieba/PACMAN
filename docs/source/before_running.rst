@@ -29,7 +29,7 @@ and so on.
 
 Each stage creates a new timestamped run directory while preserving previous runs.
 
-This has been updated in version 0.5.0 of PACMAN and was done in order to make it easier for users that are used to the Eureka! pipeline. 
+This has been updated in version 0.5 of PACMAN and was done in order to make it easier for users that are used to the Eureka! pipeline. 
 
 In this example we will run start with Stage 00 and run through the last stage, Stage 30.
 
