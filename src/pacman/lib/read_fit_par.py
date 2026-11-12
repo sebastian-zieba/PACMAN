@@ -1,9 +1,6 @@
 import warnings
 import numpy as np
-
-
-def _as_bool(value):
-    return str(value).lower() == "true"
+from . import util
 
 
 def prior_bounds(prior, p1, p2, nsigma=5.0):
@@ -55,7 +52,7 @@ def validate_fit_par(
     for i in range(len(fit_par)):
         name = str(fit_par["parameter"][i])
         tied = str(fit_par["tied"][i])
-        fixed = _as_bool(fit_par["fixed"][i])
+        fixed = util._as_bool(fit_par["fixed"][i])
         prior = str(fit_par["prior"][i]).upper()
         value = float(fit_par["value"][i])
         p1 = float(fit_par["p1"][i])
@@ -138,7 +135,7 @@ def read_fit_par_for_ls(parinfo, params_s, data, fit_par):
                 idx = i * nvisit + j
 
                 parinfo[idx]["value"] = float(fit_par["value"][ii])
-                parinfo[idx]["fixed"] = _as_bool(fit_par["fixed"][ii])
+                parinfo[idx]["fixed"] = util._as_bool(fit_par["fixed"][ii])
 
                 if j > 0:
                     parinfo[idx]["tied"] = f"p[{nvisit * i}]"
@@ -166,7 +163,7 @@ def read_fit_par_for_ls(parinfo, params_s, data, fit_par):
                 lo, hi = prior_bounds(prior, p1, p2, nsigma=5.0)
 
                 parinfo[idx]["value"] = float(fit_par["value"][ii])
-                parinfo[idx]["fixed"] = _as_bool(fit_par["fixed"][ii])
+                parinfo[idx]["fixed"] = util._as_bool(fit_par["fixed"][ii])
 
                 if np.isfinite(lo):
                     parinfo[idx]["limited"][0] = True
@@ -181,92 +178,50 @@ def read_fit_par_for_ls(parinfo, params_s, data, fit_par):
 
     return parinfo, np.array(params_s)
 
-
-def get_initial_walkers(data, theta, meta, fit_par):
-    """Generate initial MCMC walker positions from fit_par priors.
-
-    For U priors:
-        draw uniformly from [p1, p2]
-
-    For N priors:
-        draw from Normal(mean=p1, sigma=p2)
-
-    For X priors:
-        raise an error for free parameters, because MCMC needs a finite
-        initialization scale.
+def get_initial_walkers(data, theta, theta_err, meta, fit_par):
+    """Generate initial MCMC walker positions in a Gaussian ball around the least-squares solution.
+    Parameters for which the least-squares fit returned an error of zero are drawn from their prior instead.
     """
-    nwalkers = meta.run_nwalkers
-    ndim = len(theta)
 
-    priors = []
-    ii = 0
-    nvisit = int(meta.nvisit)
+    pos = theta + 0.1 * theta_err * np.random.randn(meta.run_nwalkers, len(theta))
 
-    for i in range(len(fit_par)):
-        if ii == len(fit_par):
-            break
-
-        fixed = _as_bool(fit_par["fixed"][ii])
-        tied = str(fit_par["tied"][ii])
-
-        if not fixed:
-            if tied == "-1":
-                priors.append(
-                    (
-                        str(fit_par["prior"][ii]).upper(),
-                        float(fit_par["p1"][ii]),
-                        float(fit_par["p2"][ii]),
-                    )
-                )
-                ii += 1
-            else:
-                for _ in range(nvisit):
-                    priors.append(
-                        (
-                            str(fit_par["prior"][ii]).upper(),
-                            float(fit_par["p1"][ii]),
-                            float(fit_par["p2"][ii]),
-                        )
-                    )
-                    ii += 1
-        else:
-            ii += 1
-
-    if len(priors) != ndim:
-        raise ValueError(
-            f"Expected {ndim} priors for MCMC initialization, "
-            f"but found {len(priors)}."
-        )
-
-    pos = np.zeros((nwalkers, ndim), dtype=float)
-
-    rng = np.random.default_rng()
+    priors = util.get_param_priors_from_fit_par(meta, data.fit_par, len(theta))
 
     for j, (prior, p1, p2) in enumerate(priors):
+        parname = data.free_parnames[j]
         if prior == "U":
+            # Sanity check
             if p2 <= p1:
                 raise ValueError(
                     f"Uniform prior requires p2 > p1, got p1={p1}, p2={p2}."
                 )
-            pos[:, j] = rng.uniform(p1, p2, size=nwalkers)
+            # If an initial walker position is outside of the prior bounds, set it to that prior bound instead.
+            for i in range(meta.run_nwalkers):
+                if pos[i, j] < p1:
+                    pos[i, j] = p1
+                elif pos[i, j] > p2:
+                    pos[i, j] = p2
 
         elif prior == "N":
             if p2 <= 0:
                 raise ValueError(
                     f"Normal prior requires sigma p2 > 0, got p2={p2}."
                 )
-            pos[:, j] = rng.normal(p1, p2, size=nwalkers)
 
-        elif prior == "X":
-            raise ValueError(
-                "Cannot initialize MCMC walkers for a free parameter with "
-                "prior X. Use U or N."
-            )
-
-        else:
-            raise ValueError(f"Unknown prior type '{prior}'.")
-
+        # If the least-squares fit returned an error of zero for a parameter,
+        # draw the initial walker positions for that parameter from its prior instead.
+        if theta_err[j] == 0:
+            if prior == "U":
+                pos[:, j] = np.random.uniform(p1, p2, size=meta.run_nwalkers)
+            elif prior == "N":
+                pos[:, j] = np.random.normal(p1, p2, size=meta.run_nwalkers)
+            elif prior == "X":
+                raise ValueError(f"Prior X for parameter {parname} is not allowed for MCMC sampling.")
+            else:
+                raise ValueError(f"Unknown prior type '{prior}'.")
+    
     return pos
+
 
 def validate_c_against_light_curve(
     fit_par,

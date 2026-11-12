@@ -479,6 +479,16 @@ Which orbits do you want to remove?
 E.g., if only the first choose [0]. If the first two, use [0,1].
 
 
+min_exposure_time_percent
+''''''''''''''''''''''''''''''''''''''''''''
+| Example: ``min_exposure_time_percent  99``
+
+Removes exposures whose exposure time is shorter than this percentage of the median exposure time of all spectra.
+The exposure times are taken from the ``exp`` column of the light curve files, which s20 and s21 copy from ``filelist.txt``.
+This is useful to remove exposures that were planned shorter than the others (e.g., shortened scans at the end of an orbit), as their flux is not comparable to the other exposures.
+The same exposures are removed for the white and all spectroscopic light curve fits. Set to ``None`` to keep all exposures.
+
+
 rescale_uncert
 ''''''''''''''''''''''''''''''''''''''''''''
 Rescales the uncertainties for the sampler (MCMC or nested sampling), so that the reduced chi2red = 1.
@@ -534,10 +544,31 @@ fix_ld
 ''''''''''''''''''''''''''''''''''''''''''''
 If true, PACMAN will use `ExoTiC-LD <https://github.com/Exo-TiC/ExoTiC-LD>`_ to calculate limb darkening parameters and fix them during the fits.
 
-
-ld_file
+use_ld_file
 ''''''''''''''''''''''''''''''''''''''''''''
-NOT TESTED but should give the possibility to use your own limb darkening file.
+''
+| Example: ``use_ld_file  False``
+
+If True, PACMAN reads precalculated limb darkening coefficients from the file given in ``ld_file_path``
+and fixes them in the spectroscopic light curve fits.
+
+This option is only applied when ``s30_fit_spec`` is True and ``s30_fit_white`` is False.
+It has no effect on the white light curve fit; the preferred method to fix ld coefficients in the white
+light curve fit is to directly write them into the fit_par.txt file instead of reading from a ld_file.
+
+
+ld_file_path
+''''''''''''''''''''''''''''''''''''''''''''
+''
+| Example: ``ld_file_path  /home/user/Data/ld_outputfile.txt``
+
+Path to the limb darkening file used if ``use_ld_file`` is True. The file is read with ``numpy.loadtxt`` and must contain
+one row per spectroscopic light curve from shortest to longest wavelengths.
+
+The number of columns has to match ``ld_model``:
+
+- ``ld_model 1`` (linear): one column containing u1.
+- ``ld_model 2`` or ``kipping2013`` (quadratic): two columns containing u1 and u2 (or q1 and q2 for ``kipping2013``).
 
 
 toffset
@@ -594,7 +625,7 @@ ncpu
 Number of cores used by emcee or dynesty. Use ncpu = 1, if you don't want to use parallelization.
 
 
-run_nsteps/run_nwalkers/run_nburn
+run_nsteps/run_nwalkers/run_nburn/run_nthin
 ''''''''''''''''''''''''''''''''''''''''''''
 Parameters for emcee.
 

@@ -46,8 +46,8 @@ def run20(pcf_path: Path, meta=None):
 
     # NOTE: Initialize the astropy tables where we will save the extracted
     # spectra
-    table_white = QTable(names=('t_mjd', 't_bjd', 't_visit','t_orbit', 'ivisit', 'iorbit', 'scan', 'spec_opt', 'var_opt', 'spec_box', 'var_box'))
-    table_spec = QTable(names=('t_mjd', 't_bjd', 't_visit','t_orbit', 'ivisit', 'iorbit', 'scan', 'spec_opt', 'var_opt', 'template_waves'))
+    table_white = QTable(names=('t_mjd', 't_bjd', 't_visit','t_orbit', 'ivisit', 'iorbit', 'scan', 'spec_opt', 'var_opt', 'spec_box', 'var_box', 'exp'))
+    table_spec = QTable(names=('t_mjd', 't_bjd', 't_visit','t_orbit', 'ivisit', 'iorbit', 'scan', 'spec_opt', 'var_opt', 'template_waves', 'exp'))
     table_diagnostics = QTable(names=('nspectra', 't_mjd', 'numoutliers', 'skymedian', "# nans"))
     table_background = QTable(names=('t_mjd', 't_bjd', 'ivisit', 'iorbit', 'scan', 'n_sample', 'skymedian'))
 
@@ -361,10 +361,10 @@ def run20(pcf_path: Path, meta=None):
                 plots.sp1d(wvls, spec_box, meta, i)
 
         # NOTE: Adds rows to the astropy tables
-        table_white.add_row([meta.t_mjd_sp[i], meta.t_bjd_sp[i], meta.t_visit_sp[i], meta.t_orbit_sp[i], visnum, orbnum, scan, sum(spec_opt), sum(var_opt),  sum(spec_box), sum(var_box)])
+        table_white.add_row([meta.t_mjd_sp[i], meta.t_bjd_sp[i], meta.t_visit_sp[i], meta.t_orbit_sp[i], visnum, orbnum, scan, sum(spec_opt), sum(var_opt),  sum(spec_box), sum(var_box), meta.exp_sp[i]])
         n = len(spec_opt)
         for ii in np.arange(n):
-            table_spec.add_row([meta.t_mjd_sp[i], meta.t_bjd_sp[i], meta.t_visit_sp[i], meta.t_orbit_sp[i], visnum, orbnum, scan, spec_opt[ii], var_opt[ii], wvls[ii]])
+            table_spec.add_row([meta.t_mjd_sp[i], meta.t_bjd_sp[i], meta.t_visit_sp[i], meta.t_orbit_sp[i], visnum, orbnum, scan, spec_opt[ii], var_opt[ii], wvls[ii], meta.exp_sp[i]])
         table_diagnostics.add_row([nspectra, meta.t_mjd_sp[i], numoutliers, skymedian, sum(np.isnan(spec_opt))])
         nspectra += 1
         print('\n')

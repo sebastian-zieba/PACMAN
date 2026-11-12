@@ -217,7 +217,7 @@ def run30(pcf_path: Path, meta=None):
             if not meta.run_lsq or meta.rescale_uncert:
                 data, model, params, m = lsq_fit(fit_par, data, meta, model, myfuncs, noclip=True)
                 if meta.run_verbose == True: print("rms, chi2red = ", model.rms, model.chi2red)
-            val_mcmc, err_lower_mcmc, err_upper_mcmc, fit = mcmc_fit(data, model, params, f, meta, fit_par)
+            val_mcmc, err_lower_mcmc, err_upper_mcmc, fit = mcmc_fit(data, model, params, f, meta, fit_par, m.perror)
 
         if meta.run_nested:
             print('\n*STARTS NESTED SAMPLING*')
@@ -265,12 +265,14 @@ def run30(pcf_path: Path, meta=None):
         if not meta.s30_fit_white and ('rp' in meta.labels):
             # Saves rprs and wvl as a txt file
             util.make_lsq_rprs_txt(vals, errs, idxs, meta)
+            util.make_lsq_transmission_spectrum_txt(vals, errs, idxs, meta)
             # Saves rprs vs wvl as a plot
             plots.lsq_rprs(vals, errs, idxs, meta)
 
         if not meta.s30_fit_white and ('rp' in meta.labels) and meta.run_mcmc:
             plots.mcmc_rprs(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta)
             util.make_rprs_txt(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta, fitter='mcmc')
+            util.make_transmission_spectrum_txt(vals_mcmc, errs_lower_mcmc, errs_upper_mcmc, meta, fitter='mcmc')
 
         if not meta.s30_fit_white and ('rp' in meta.labels) and meta.run_nested:
             plots.nested_rprs(vals_nested, errs_lower_nested, errs_upper_nested, meta)
@@ -282,6 +284,14 @@ def run30(pcf_path: Path, meta=None):
                                 fitter="nested",
                                 vals_maxL=vals_maxL_nested,
                             )
+            util.make_transmission_spectrum_txt(
+                                            vals_nested,
+                                            errs_lower_nested,
+                                            errs_upper_nested,
+                                            meta,
+                                            fitter="nested",
+                                            vals_maxL=vals_maxL_nested,
+                                        )
 
     if meta.run_mcmc or meta.run_nested:
         util.save_fit_output(fit, data, meta)

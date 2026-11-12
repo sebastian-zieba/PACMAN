@@ -174,9 +174,9 @@ Here, s00.log is a log file that contains all terminal output from the Stage 00 
 
     * ``scan``: Scan direction:
 
-      * ``0``: forward scan
+      * ``0``: forward scan (same scan direction as the first spectrum in the visit)
 
-      * ``1``: reverse scan
+      * ``1``: reverse scan (reverse scan direction as the first spectrum in the visit)
 
       * ``-1``: not a spectrum but a direct image
 

@@ -51,4 +51,4 @@ PACMAN is organized into several processing stages, summarized below.  Click on 
 - Stage 30
 
   + fit a model to the light curve(s). You can find the models currently available `here <https://pacmandocs.readthedocs.io/en/latest/models.html>`_.
-  + the user can also download and use precalculated limb darkening parameters in this stage. For more information see the `fix-ld <https://pacmandocs.readthedocs.io/en/latest/pcf.html#fix-ld>`_ parameter in the pcf.
+  + the user can also use precalculated limb darkening parameters for the spectroscopic light curve fits in this stage. For more information see the `use_ld_file <https://pacmandocs.readthedocs.io/en/latest/pcf.html#use-ld-file>`_ and `ld_file_path <https://pacmandocs.readthedocs.io/en/latest/pcf.html#ld-file-path>`_ parameters in the pcf.

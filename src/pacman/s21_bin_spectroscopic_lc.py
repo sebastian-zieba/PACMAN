@@ -66,6 +66,7 @@ def run21(pcf_path: Path, meta=None):
     scan = d[6].reshape(nexp, npix)
     spec_opt, var_opt = d[7].reshape(nexp, npix), d[8].reshape(nexp, npix)
     w = d[9].reshape(nexp, npix) # d[0,:, 4]
+    exp = d[10].reshape(nexp, npix)
 
     w_min = w.min()
     w_max = w.max()
@@ -99,13 +100,14 @@ def run21(pcf_path: Path, meta=None):
         else:
             wave = (wave_edges[i] + wave_edges[i+1])/2./1.e4
         outname = dirname / f"speclc{wave:.3f}.txt"
-        table = QTable(names=('t_mjd', 't_bjd', 't_visit', 't_orbit', 'ivisit', 'iorbit', 'scan', 'spec_opt', 'var_opt', 'wave'))
+        table = QTable(names=('t_mjd', 't_bjd', 't_visit', 't_orbit', 'ivisit', 'iorbit', 'scan', 'spec_opt', 'var_opt', 'wave', 'exp'))
 
         for j in range(nexp):
             t_mjd_i, t_bjd_i = t_mjd[j][0], t_bjd[j][0]
             t_visit_i, t_orbit_i = t_visit[j][0], t_orbit[j][0]
             ivisit_i, iorbit_i = ivisit[j][0], iorbit[j][0]
             scan_i = scan[j][0]
+            exp_i = exp[j][0]
             spec_opt_i,  var_opt_i = spec_opt[j], var_opt[j]
             w_i = w[j]
 
@@ -122,7 +124,7 @@ def run21(pcf_path: Path, meta=None):
 
             #print(t_mjd, t_bjd, t_visit, t_orbit, ivisit, iorbit, scan, meanflux, meanerr**2, wave, file=outfile)
             #print wave, np.sum(d[j, lo_res_wave_inds[i],2])
-            table.add_row([t_mjd_i, t_bjd_i, t_visit_i, t_orbit_i, ivisit_i, iorbit_i, scan_i, meanflux, meanerr**2, wave])
+            table.add_row([t_mjd_i, t_bjd_i, t_visit_i, t_orbit_i, ivisit_i, iorbit_i, scan_i, meanflux, meanerr**2, wave, exp_i])
 
     #print wave, 1.0*sum(wave_inds)/len(w_hires), meanflux, meanerr
         ascii.write(table, outname, format='ecsv', overwrite=True)

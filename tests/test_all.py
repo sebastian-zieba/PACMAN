@@ -424,8 +424,8 @@ def test_s20(capsys):
     s20_lc_white = ascii.read(s20_lc_white_file)
 
     # Check the amount of columns
-    assert len(s20_lc_spec.colnames) == 10
-    assert len(s20_lc_white.colnames) == 11
+    assert len(s20_lc_spec.colnames) == 11
+    assert len(s20_lc_white.colnames) == 12
 
     s20_wvl_table = ascii.read(s20_wvl_table_file)
     assert s20_wvl_table.colnames == [
@@ -496,7 +496,7 @@ def test_s21(capsys):
 
     # There should be 10 columns as for the /lc_spec.txt file which was generated after running s20.
     extracted_sp_lc_0 = ascii.read(extracted_sp_lcs_files[0])
-    assert len(extracted_sp_lc_0.colnames) == 10
+    assert len(extracted_sp_lc_0.colnames) == 11
 
 
 @pytest.mark.run(order=30)

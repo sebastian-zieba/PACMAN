@@ -77,6 +77,19 @@ class Data:
             print('Leaving the first orbit in every visit.')
 
         #####################################
+        # Removes exposures which are shorter than min_exposure_time_percent of the median exposure time
+        if meta.min_exposure_time_percent is not None:
+            leave_ind_exp = d['exp'].value >= meta.min_exposure_time_percent / 100. * np.median(d['exp'].value)
+            d = d[leave_ind_exp]
+            # Remove the exposures from meta.iorbit_sp too
+            iorbit_sp = iorbit_sp[leave_ind_exp]
+            iexp_orb_sp = iexp_orb_sp[leave_ind_exp]
+            print(f'Removed {sum(~leave_ind_exp)} exposures because their exposure time was shorter than '
+                  f'{meta.min_exposure_time_percent}% of the median exposure time ({np.median(d["exp"].value):.2f} s).')
+        else:
+            print('Leaving all exposures independent of their exposure time.')
+
+        #####################################
         # repeat previous steps for rowshift if model_rowshift is needed
         if meta.calculate_rowshift and ('model_rowshift' in meta.s30_myfuncs):
             # read in data
@@ -96,6 +109,10 @@ class Data:
                 print(f'Removed {sum(~leave_ind)} exposures from rowshift because they were the first orbit in the visit.')
             else:
                 print('Leaving the first orbit of rowshift in every visit.')
+            # Remove exposures shorter than min_exposure_time_percent (leave_ind_exp is unchanged from above):
+            if meta.min_exposure_time_percent is not None:
+                rowshift = rowshift[leave_ind_exp]
+                print(f'Removed {sum(~leave_ind_exp)} exposures from rowshift because their exposure time was too short.')
         elif ('model_rowshift' in meta.s30_myfuncs) and not meta.calculate_rowshift:
             print('Please check if you ran s20 with "calculate_rowshift True". If not, you need to rerun s20 with this parameter on True in order to use "model_rowshift".')
 
@@ -143,45 +160,29 @@ class Data:
             meta.wavelength = d['wave'].value[0]
 
         print('Current wavelength: ', meta.wavelength, ' microns')
-        # fixes limb darkening if "fix_ld" parameter is set to True in obs_par.pcf
-        # TODO: Not tested!
-        if meta.use_ld_file:
-            #i = 0
-            #while(meta.wavelength*1e4 > ld_file['wave_mid'][i]): i += 1
-            #u1 = ld_file['u1'][i]
-            #u2 = ld_file['u2'][i]
-            #fit_par['value'][np.where(fit_par['parameter']=='u1')] = u1
-            #fit_par['fixed'][np.where(fit_par['parameter']=='u1')] = "true"
-            #fit_par['value'][np.where(fit_par['parameter']=='u2')] = u2
-            #fit_par['fixed'][np.where(fit_par['parameter']=='u2')] = "true"
 
+        # fixes limb darkening in spectroscopic light curve fits if "use_ld_file" parameter is set to True in obs_par.pcf
+        # TODO: Test for linear ld law
+        if meta.use_ld_file and not(meta.s30_fit_white) and meta.s30_fit_spec:
             loaded_ld = np.loadtxt(meta.ld_file_path)
             if meta.ld_model == 1:
                 ld_dim = 1
             elif (meta.ld_model == 2) or (meta.ld_model == 'kipping2013'):
                 ld_dim = 2
             if len(loaded_ld.shape) != ld_dim:
-                print('columns of ld_file do not agree with ld model chosen!')
-                print(f'ld_file has {len(loaded_ld.shape)} column(s) but you chose an ld_model with {ld_dim} parameter(s)')
+                raise ValueError(f'Columns of ld_file do not agree with ld model chosen! ld_file has '
+                                 f'{len(loaded_ld.shape)} column(s) but you chose an ld_model with {ld_dim} parameter(s)')
             if ld_dim == 1:
-                u1 = loaded_ld[s30_file_counter]
+                u1 = loaded_ld[meta.s30_file_counter]
                 fit_par['value'][np.where(fit_par['parameter']=='u1')] = u1
                 fit_par['fixed'][np.where(fit_par['parameter']=='u1')] = True
             elif ld_dim == 2:
-                u1 = loaded_ld[s30_file_counter, 0]
-                u2 = loaded_ld[s30_file_counter, 1]
+                u1 = loaded_ld[meta.s30_file_counter, 0]
+                u2 = loaded_ld[meta.s30_file_counter, 1]
                 fit_par['value'][np.where(fit_par['parameter']=='u1')] = u1
                 fit_par['value'][np.where(fit_par['parameter']=='u2')] = u2
                 fit_par['fixed'][np.where(fit_par['parameter']=='u1')] = True
                 fit_par['fixed'][np.where(fit_par['parameter']=='u2')] = True
-
-            #ld_tmp = loaded_ld[:,[np.where(loaded_ld[0] == meta.wavelength)[0][0]]]
-            #fit_par['prior'][np.where(fit_par['parameter']=='u1')] = 'N'
-            #fit_par['p1'][np.where(fit_par['parameter']=='u1')]    = ld_tmp[1][0]
-            #fit_par['p2'][np.where(fit_par['parameter']=='u1')]    = ld_tmp[2][0]
-            #fit_par['prior'][np.where(fit_par['parameter']=='u2')] = 'N'
-            #fit_par['p1'][np.where(fit_par['parameter']=='u2')]    = ld_tmp[3][0]
-            #fit_par['p2'][np.where(fit_par['parameter']=='u2')]    = ld_tmp[4][0]
 
         nfree_param = 0
         free_parnames = []

@@ -252,6 +252,7 @@ def ancil(meta, s10: Optional[bool] = False, s20: Optional[bool] = False):
     meta.iorbit_sp = filelist['iorbit'][meta.mask_sp].data
     meta.ivisit_sp = filelist['ivisit'][meta.mask_sp].data
     meta.iexp_orb_sp = filelist['iexp_orb'][meta.mask_sp].data
+    meta.exp_sp = filelist['exp'][meta.mask_sp].data
 
     # the following list stores the cumulative orbit number
     meta.iorbit_sp_cumulative = np.zeros(len(meta.iorbit_sp), dtype=int)
@@ -916,6 +917,36 @@ def make_lsq_rprs_txt(vals, errs, idxs, meta):
         ):
             print(" ".join(f"{float(item):<18.8e}" for item in row), file=f_lsq)
 
+def make_lsq_transmission_spectrum_txt(vals, errs, idxs, meta):
+    """Save transit depth vs wavelength from LSQ."""
+    wvl_table = get_wavelength_table(meta)
+
+    out_file = meta.workdir / meta.fitdir / "lsq_res" / "lsq_transmission-spectrum.txt"
+
+    rp_idx = np.where(np.array(meta.labels) == "rp")[0][0]
+    rprs_vals_lsq = [vals[ii][idxs[0][rp_idx]] for ii in range(len(vals))]
+    rprs_errs_lsq = [errs[ii][idxs[0][rp_idx]] for ii in range(len(errs))]
+
+    transit_depth = np.array(rprs_vals_lsq) ** 2
+    transit_depth_err = 2. * np.array(rprs_vals_lsq) * np.array(rprs_errs_lsq)
+
+    with out_file.open("w", encoding="utf-8") as f_lsq:
+        header = [
+            "wavelength",
+            "wave_width",
+            "transit_depth",
+            "transit_depth_err",
+        ]
+
+        print("#" + " ".join(f"{item:<18}" for item in header), file=f_lsq)
+
+        for row in zip(
+            wvl_table["wavelength"],
+            wvl_table["half_width"],
+            transit_depth,
+            transit_depth_err,
+        ):
+            print(" ".join(f"{float(item):<18.8e}" for item in row), file=f_lsq)
 
 def make_rprs_txt(vals, errs_lower, errs_upper, meta, fitter=None, vals_maxL=None):
     """Save rprs vs wavelength from MCMC or nested sampling.
@@ -1016,6 +1047,83 @@ def make_rprs_txt(vals, errs_lower, errs_upper, meta, fitter=None, vals_maxL=Non
             ):
                 print(" ".join(f"{float(item):<18.8e}" for item in row), file=f_out)
 
+def make_transmission_spectrum_txt(vals, errs_lower, errs_upper, meta, fitter=None, vals_maxL=None):
+    """Save transit depth vs wavelength from MCMC or nested sampling.
+
+    Parameters
+    ----------
+    vals : list
+        Median/p50 parameter values for each wavelength bin.
+    errs_lower : list
+        Lower 1-sigma errors, i.e. p50 - p16.
+    errs_upper : list
+        Upper 1-sigma errors, i.e. p84 - p50.
+    meta
+        PACMAN metadata object.
+    fitter : str
+        Either "mcmc" or "nested".
+    vals_maxL : list or None
+        Maximum-likelihood parameter values for each wavelength bin.
+        Required for fitter="nested" if you want maxL in nested_rprs.txt.
+    """
+    if fitter not in ["mcmc", "nested"]:
+        raise ValueError("fitter must be 'mcmc' or 'nested'.")
+
+    wvl_table = get_wavelength_table(meta)
+
+    rp_idx = np.where(np.array(meta.labels) == "rp")[0][0]
+
+    rprs = np.array(vals).T[rp_idx]
+    rprs_stderr = (np.array(errs_upper).T[rp_idx] + np.array(errs_lower).T[rp_idx]) / 2.0
+
+    transit_depth = rprs ** 2
+    transit_depth_stderr = 2 * rprs * rprs_stderr
+
+    out_file = meta.workdir / meta.fitdir / f"{fitter}_res" / f"{fitter}_transmission-spectrum.txt"
+
+    with out_file.open("w", encoding="utf-8") as f_out:
+        if fitter == "mcmc":
+            header = [
+                "wavelength",
+                "wave_width",
+                "transit_depth",
+                "transit_depth_stderr",
+            ]
+
+            print("#" + " ".join(f"{item:<18}" for item in header), file=f_out)
+
+            for row in zip(
+                wvl_table["wavelength"],
+                wvl_table["half_width"],
+                transit_depth,
+                transit_depth_stderr,
+            ):
+                print(" ".join(f"{float(item):<18.8e}" for item in row), file=f_out)
+
+        elif fitter == "nested":
+            if vals_maxL is None:
+                raise ValueError("vals_maxL must be provided for nested_rprs.txt.")
+
+            maxL = np.array(vals_maxL).T[rp_idx]
+
+            header = [
+                "wavelength",
+                "wave_width",
+                "transit_depth",
+                "transit_depth_stderr",
+                "maxL",
+            ]
+
+            print("#" + " ".join(f"{item:<18}" for item in header), file=f_out)
+
+            for row in zip(
+                wvl_table["wavelength"],
+                wvl_table["half_width"],
+                transit_depth,
+                transit_depth_stderr,
+                maxL,
+            ):
+                print(" ".join(f"{float(item):<18.8e}" for item in row), file=f_out)
 
 def quantile(x, q):
     return np.percentile(x, [100. * qi for qi in q])
@@ -1395,3 +1503,49 @@ def get_lc_type_label(meta):
     if "fit_spec" in fitdir_str:
         return "Sp.-LC"
     return "LC"
+
+def get_param_priors_from_fit_par(meta, fit_par, ndim):
+    """Read the priors from the fit_par.txt file and return them."""
+    priors = []
+    ii = 0
+    nvisit = int(meta.nvisit)
+
+    for i in range(len(fit_par)):
+        if ii == len(fit_par):
+            break
+
+        fixed = _as_bool(fit_par["fixed"][ii])
+        tied = str(fit_par["tied"][ii])
+
+        if not fixed:
+            if tied == "-1":
+                priors.append(
+                    (
+                        str(fit_par["prior"][ii]).upper(),
+                        float(fit_par["p1"][ii]),
+                        float(fit_par["p2"][ii]),
+                    )
+                )
+                ii += 1
+            else:
+                for _ in range(nvisit):
+                    priors.append(
+                        (
+                            str(fit_par["prior"][ii]).upper(),
+                            float(fit_par["p1"][ii]),
+                            float(fit_par["p2"][ii]),
+                        )
+                    )
+                    ii += 1
+        else:
+            ii += 1
+
+    if len(priors) != ndim:
+        raise ValueError(
+            f"Expected {ndim} priors for MCMC initialization, "
+            f"but found {len(priors)}."
+        )
+    return priors
+
+def _as_bool(value):
+    return str(value).lower() == "true"

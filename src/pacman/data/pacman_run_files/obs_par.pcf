@@ -127,6 +127,7 @@ s30_fit_spec                 False
 remove_first_exp             True
 remove_first_orb             True
 remove_which_orb             [0]
+min_exposure_time_percent    None                                               # removes exposures shorter than this percentage of the median exposure time of the spectra (e.g. shortened scans); None to keep all
 
 rescale_uncert               False
 rescale_uncert_smaller_1     False

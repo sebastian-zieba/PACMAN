@@ -47,7 +47,9 @@ def run00(pcf_path: Optional[Path] = Path.cwd()):
     * **t_mjd**: Mid exposure time (exposure start and end is taken from the header)
     * **t_visit**: Time elapsed since the first exposure in the visit
     * **t_orbit**: Time elapsed since the first exposure in the visit
-    * **scan**: Scan direction (0: forward - lower flux, 1: reverse - higher flux, -1: postarg2=0)
+    * **scan**: Scan direction (0: same scan direction as first spectrum of visit,
+                                1: reverse scan direction as first spectrum of visit,
+                                -1: no spatial scan)
     * **exp**: Exposure time
 
     .. note:: We use the following approach to determine the visit and orbit number:
@@ -58,9 +60,10 @@ def run00(pcf_path: Optional[Path] = Path.cwd()):
 
     .. note:: We use the following approach to determine the scan direction:
 
-               - if postarg2 < 0   --> scans[i] = 1  --> reverse scan
-               - if postarg2 == 0  --> scans[i] = -1 --> no scan direction given
-               - else:             --> scans[i] = 0  --> forward scan
+               - if the scan angle is within 90 deg of the scan angle of the first spectrum --> scans[i] = 0  --> forward scan
+               - else (i.e., the scan goes in the opposite direction)                        --> scans[i] = 1  --> reverse scan
+               - if the file is a direct image                                               --> scans[i] = -1 --> no scan direction given
+
 
 
     Returns
@@ -72,6 +75,8 @@ def run00(pcf_path: Optional[Path] = Path.cwd()):
     Notes:
     ----------
     History:
+        Updated by Cyril Gapp           October 2026
+        Scan direction determined from SCAN_ANG instead of the sign of POSTARG2
         Written by Sebastian Zieba      December 2021
     """
 
@@ -127,9 +132,7 @@ def run00(pcf_path: Optional[Path] = Path.cwd()):
     times = np.zeros(len(files))
     exp = np.zeros(len(files))
     instr = np.zeros(len(files), object)
-    scans = np.zeros(len(files), dtype=int)  # Stores scan directions
-
-    postarg2 = np.zeros(len(files))
+    scan_ang = np.zeros(len(files))
 
     # Will create a table with the properties of all _ima.fits files at the first run
     for i, file in enumerate(tqdm(files, desc='Reading in files and their headers', ascii=True)):
@@ -139,12 +142,7 @@ def run00(pcf_path: Optional[Path] = Path.cwd()):
         instr[i] = ima[0].header['filter']
         exp[i] = ima[0].header['exptime']
         times[i] = (ima[0].header['expstart'] + ima[0].header['expend'])/(2.0) # mid exposure time
-        # Scan direction
-        # Scan: (0: forward - lower flux, 1: reverse - higher flux, -1: Filter)
-        scans[i] = 0  # sets scan direction
-        if ima[0].header['postarg2'] < 0: scans[i] = 1
-        if instr[i][0] == 'F': scans[i]= -1
-        postarg2[i] = ima[0].header['postarg2']
+        scan_ang[i] = ima[0].header['scan_ang']
         ima.close()
 
     # Files are chronologically sorted
@@ -156,8 +154,8 @@ def run00(pcf_path: Optional[Path] = Path.cwd()):
     exp = exp[tsort]
     instr = instr[tsort]
     instr = np.array([str(iii) for iii in instr])
-    scans = scans[tsort]
-    postarg2 = postarg2[tsort]
+    scan_ang = scan_ang[tsort]
+
     #
     # for i, file in enumerate(tqdm(files, desc='Reading in files and their headers', ascii=True)):
     #     f = open(meta.workdir + '/{0}header_{1}.txt'.format(i, str(file).split('/')[-1]), 'w')
@@ -180,6 +178,8 @@ def run00(pcf_path: Optional[Path] = Path.cwd()):
     iorbit_begin = 0 #index of first exposure in orbit
     ivisit_begin = 0 #index of first exposure in visit
     times_diff = np.insert(np.diff(times), 0, 0)
+    scans = np.zeros_like(times, dtype=int)
+    reset_reference_scan = True
 
     for i, itime in enumerate(tqdm(times, desc='Determining orbit(s) and visit(s)', ascii=True)):
         # if two exposures arent in the same orbit and more than an orbital period apart -> not subsequent orbits but a new visit
@@ -189,6 +189,7 @@ def run00(pcf_path: Optional[Path] = Path.cwd()):
             iorbit = 0
             ivisit += 1
             iexp_orb_counter = 0
+            reset_reference_scan = True
         # if two exposures are more than 10 min apart but less than an orbital period -> subsequent orbits
         elif 30 < times_diff[i] * 24 * 60 <= 100:
             iorbit_begin = i
@@ -202,10 +203,23 @@ def run00(pcf_path: Optional[Path] = Path.cwd()):
         if instr[i][0] == 'F':
             iexp_orb[i] = -1
             iexp_orb_counter = 0
+            scans[i] = -1
         elif instr[i][0] == 'G':
             iexp_orb[i] = iexp_orb_counter
             iexp_orb_counter += 1
-
+            if reset_reference_scan:
+                # This is the first scan of the visit, so it defines the forward scan direction 
+                scans[i] = 0
+                scan_ang_ref = scan_ang[i]
+                reset_reference_scan = False
+            else:
+                # Minimum angle between this scan and the first scan < 90 deg --> forward scan, else --> reverse scan
+                diff_angle = abs(scan_ang[i] - scan_ang_ref) % 360.
+                if min(diff_angle, 360.-diff_angle) < 90.:
+                    scans[i] = 0
+                else:
+                    scans[i] = 1
+    
     # Saves a plot showing when was observered
     if meta.save_obs_times_plot or meta.show_obs_times_plot:
         plots.obs_times(meta, times, ivisits, iorbits)
@@ -222,7 +236,6 @@ def run00(pcf_path: Optional[Path] = Path.cwd()):
         tvs = tvs[mask_visit]
         tos = tos[mask_visit]
         scans = scans[mask_visit]
-        postarg2 = postarg2[mask_visit]
         exp = exp[mask_visit]
         log.writelog('The user does not want to analyse every visit (which_visits != everything). '
               'The amount of files analyzed therefore reduced from {0} to {1}.'.format(num_data_files, sum(mask_visit)))
@@ -239,9 +252,9 @@ def run00(pcf_path: Optional[Path] = Path.cwd()):
         plots.obs_times(meta, times, ivisits, iorbits, updated=True)
 
     log.writelog('Writing table into filelist.txt')
-#    table = QTable([files, instr, ivisits, iorbits, iexp_orb, times, tvs, tos, scans, exp, postarg2],
+#    table = QTable([files, instr, ivisits, iorbits, iexp_orb, times, tvs, tos, scans, exp],
 #               names=('filenames', 'instr', 'ivisit', 'iorbit', 'iexp_orb', 't_mjd', 't_visit', 't_orbit',
-#                      'scan', 'exp', 'postarg2'))# scan: (0: forward - lower flux, 1: reverse - higher flux, -1: Direct Image)
+#                      'scan', 'exp'))# scan: (0: forward - lower flux, 1: reverse - higher flux, -1: Direct Image)
     table = QTable([files, instr, ivisits, iorbits, iexp_orb, times, tvs, tos, scans, exp],
                names=('filenames', 'instr', 'ivisit', 'iorbit', 'iexp_orb', 't_mjd', 't_visit', 't_orbit',
                       'scan', 'exp'))# scan: (0: forward - lower flux, 1: reverse - higher flux, -1: Direct Image)
