@@ -1182,6 +1182,9 @@ def plot_fit_lc2(data, fit, meta, mcmc=False, nested=False):
     # NOTE: Plot systematics removed data
     for i in range(data.nvisit):
         ind = data.vis_num == i
+        ax[0].errorbar(fit.phase[ind], fit.data_nosys[ind],
+                       yerr=data.err[ind]/fit.model_sys[ind], elinewidth=0.75,
+                       ls='none', ecolor=palette[i])
         ax[0].plot(fit.phase[ind], fit.data_nosys[ind],
                    color=palette[i], marker='o',
                    markersize=3, linestyle="none")
@@ -1214,6 +1217,9 @@ def plot_fit_lc2(data, fit, meta, mcmc=False, nested=False):
 
     for i in range(data.nvisit):
         ind = data.vis_num == i
+        ax[1].errorbar(fit.phase[ind], 1.0e6 * fit.norm_resid[ind],
+                       yerr=1.0e6 * data.err[ind]/fit.model_sys[ind], elinewidth=0.75,
+                       ls='none', ecolor=palette[i])
         ax[1].plot(fit.phase[ind], 1.0e6 * fit.norm_resid[ind],
                    color=palette[i], marker='o',
                    markersize=3, linestyle="none")
@@ -1262,7 +1268,7 @@ def save_astrolc_data(data, fit, meta, fitter="lsq"):
     time_segments = util.make_time_model_per_visit(
         data,
         pad_hours=0.25,
-        points_per_hour=15,
+        points_per_hour=200,
     )
 
     for visit, time_model in enumerate(time_segments):
@@ -1279,6 +1285,7 @@ def save_astrolc_data(data, fit, meta, fitter="lsq"):
     table_nosys["visit"] = np.asarray(data.vis_num, dtype=int)
     table_nosys["time_nosys"] = np.asarray(data.time, dtype=np.float64)
     table_nosys["flux_nosys"] = np.asarray(fit.data_nosys, dtype=np.float64)
+    table_nosys["err_nosys"] = np.asarray(data.err/fit.model_sys, dtype=np.float64)
 
     fit_lc_dir = meta.workdir / meta.fitdir / "fit_lc"
     fit_lc_dir.mkdir(parents=True, exist_ok=True)
