@@ -43,24 +43,17 @@ def mcmc_fit(data, model, params, file_name, meta, fit_par, lsq_errors):
 
     sampler.run_mcmc(pos, meta.run_nsteps, progress=True)
 
-    # Dump the samples into a file using pickle
+    nburn = meta.run_nburn
+    nthin = meta.run_nthin
+    labels = meta.labels
+
+    samples = sampler.get_chain(discard=nburn, thin=nthin, flat=True)
+
+    # Dump the flat chain of samples into a file using pickle
     with (meta.workdir / meta.fitdir / 'mcmc_res' /
           f'mcmc_out_bin{meta.s30_file_counter}_wvl{meta.wavelength:0.3f}.p')\
             .open("wb") as pickle_file:
-        pickle.dump([data, params, sampler.get_chain()], pickle_file)
-    nburn = meta.run_nburn
-
-    labels = meta.labels
-
-    # Thin out the Samples if a huge amount was used.
-    # This was introduced as the run would break when saving the plot due to its big size
-    if meta.run_nsteps * meta.run_nwalkers > 1000000:
-        thin_corner = int((meta.run_nsteps - meta.run_nburn) * meta.run_nwalkers // 100000)
-        print(f'Note: Big Corner plot with many steps. Thinning Plot by factor: {thin_corner}')
-    else:
-        thin_corner = 1
-
-    samples = sampler.get_chain(discard=nburn, thin=thin_corner, flat=True)
+        pickle.dump([data, params, samples], pickle_file)
     
     # Closing multiprocessing
     if meta.ncpu > 1:

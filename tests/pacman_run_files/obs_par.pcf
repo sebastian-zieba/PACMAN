@@ -159,6 +159,7 @@ ncpu                         1
 run_nsteps                   400
 run_nwalkers	             50
 run_nburn                    200
+run_nthin                    10
 
 #dynesty static
 run_dlogz                    1

@@ -625,7 +625,7 @@ ncpu
 Number of cores used by emcee or dynesty. Use ncpu = 1, if you don't want to use parallelization.
 
 
-run_nsteps/run_nwalkers/run_nburn
+run_nsteps/run_nwalkers/run_nburn/run_nthin
 ''''''''''''''''''''''''''''''''''''''''''''
 Parameters for emcee.
 
